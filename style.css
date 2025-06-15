@@ -1,0 +1,63 @@
+/* 기본 폰트 및 배경 설정 */
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    margin: 0;
+    background-color: #f4f7f9;
+    color: #333;
+}
+
+/* 헤더 스타일 */
+header {
+    background-color: #007bff;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+/* 메인 컨테이너 레이아웃 (사이드바와 콘텐츠) */
+.container {
+    display: flex;
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+/* 사이드바 스타일 */
+.sidebar {
+    flex: 0 0 200px; /* 너비 200px 고정 */
+    background-color: #ffffff;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+}
+
+.sidebar nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar nav li {
+    padding: 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.3s;
+}
+
+.sidebar nav li:hover {
+    background-color: #e9f5ff;
+}
+
+/* 콘텐츠 영역 스타일 */
+.content {
+    flex-grow: 1; /* 남은 공간 모두 차지 */
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+/* 푸터 스타일 */
+footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 20px;
+    background-color: #343a40;
+    color: white;
+}
