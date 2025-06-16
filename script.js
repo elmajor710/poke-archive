@@ -1,13 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- 데이터 정의 시작 ---
-    // 기획서와 검색된 색상 정보를 바탕으로 모든 데이터를 재구성합니다.
+    // --- 데이터 정의 시작 (기획서 기반 전체 데이터) ---
     const siteData = {
         'pokemon-types': {
             title: '포켓몬 타입',
-            items: {
+            items: { // Lev.2
                 '노말': { title: '노말 타입 포켓몬', items: { /* Lev.3 포켓몬 이름 */ '따라큐': { title: '따라큐 정보', content: '여기에 따라큐의 상세 정보가 표시됩니다.' } } },
-                '불': { title: '불 타입 포켓몬', items: {} },
-                '물': { title: '물 타입 포켓몬', items: {} },
+                '불': { title: '불 타입 포켓몬', items: { '리자몽': { title: '리자몽 정보', content: '여기에 리자몽의 상세 정보가 표시됩니다.' } } },
+                '물': { title: '물 타입 포켓몬', items: { '가이오가': { title: '가이오가 정보', content: '바다를 넓힌 포켓몬으로 알려져있다.' } } },
                 '풀': { title: '풀 타입 포켓몬', items: {} },
                 '전기': { title: '전기 타입 포켓몬', items: {} },
                 '얼음': { title: '얼음 타입 포켓몬', items: {} },
@@ -24,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 '강철': { title: '강철 타입 포켓몬', items: {} },
                 '페어리': { title: '페어리 타입 포켓몬', items: {} }
             },
-            // 각 타입에 대한 색상 정보
             colors: {
                 '노말': 'type-normal', '불': 'type-fire', '물': 'type-water', '전기': 'type-electric',
                 '풀': 'type-grass', '얼음': 'type-ice', '격투': 'type-fighting', '독': 'type-poison',
@@ -35,24 +33,61 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         'pokemon-ranks': {
             title: '포켓몬 등급',
-            items: { 'SS': { title: 'SS 등급 포켓몬', items: {} }, 'S+': { title: 'S+ 등급 포켓몬', items: {} }, 'S': { title: 'S 등급 포켓몬', items: {} } }
+            items: { // Lev.2
+                'SS': { title: 'SS 등급 포켓몬', items: {} },
+                'S+': { title: 'S+ 등급 포켓몬', items: {} },
+                'S': { title: 'S 등급 포켓몬', items: {} }
+            }
         },
-        // ... 다른 카테고리 데이터도 위와 같은 구조로 추가 ...
+        'items': {
+            title: '아이템',
+            items: { // Lev.2
+                '빨간색': { title: '빨간색 아이템', items: {} },
+                '주황색': { title: '주황색 아이템', items: {} },
+                '보라색': { title: '보라색 아이템', items: {} }
+            }
+        },
+        'runes-chips': {
+            title: '룬&칩',
+            items: { // Lev.2
+                '룬': { title: '룬 목록', items: { '금강':{}, '치명':{}, '전투광':{}, '실드':{}, '비호':{}, '방어':{} /* 등등 */ } },
+                '칩': { title: '칩 목록', items: { '화무':{}, '헌제':{}, '초능':{} /* 등등 */ } }
+            }
+        },
+        'recommended-decks': {
+            title: '추천덱',
+            items: { // Lev.2
+                '불덱': { title: '불덱', content: '불덱에 대한 설명' },
+                '물페어리덱': { title: '물페어리덱', content: '예시 포켓몬: 원시가이오가, 마나피, 마기아나, 디안시 등' },
+                '전기덱': { title: '전기덱', content: '전기덱에 대한 설명' },
+                '풀덱': { title: '풀덱', content: '풀덱에 대한 설명' }
+            }
+        },
+        'calendar': {
+            title: '캘린더',
+            items: { // Lev.2
+                '랭킹뽑기': { title: '랭킹뽑기', content: '랭킹뽑기 관련 내용' },
+                '한정뽑기': { title: '한정뽑기', content: '25.06.16 챔피언피카츄/레지' }
+            }
+        },
+        'tips': {
+            title: '팁&노하우',
+            items: { // Lev.2
+                '성급기준': { title: '성급기준', content: '성급기준 관련 내용' },
+                '육성가이드': { title: '육성가이드', content: '육성가이드 관련 내용' }
+            }
+        },
     };
     // --- 데이터 정의 끝 ---
 
     const sidebar = document.querySelector('.sidebar nav');
     const contentDisplay = document.getElementById('content-display');
-    let navigationHistory = []; // 뒤로가기를 위한 방문 기록
+    let navigationHistory = [];
 
-    // 현재 보고 있는 데이터의 경로를 저장
-    let currentDataPath = [];
+    function renderContent(data, isSidebarClick = false) {
+        contentDisplay.innerHTML = '';
 
-    // 콘텐츠 렌더링 함수
-    function renderContent(data, isInitial = false) {
-        contentDisplay.innerHTML = ''; // 기존 콘텐츠 초기화
-
-        if (!isInitial) {
+        if (!isSidebarClick) {
             const backButton = document.createElement('button');
             backButton.textContent = '< 뒤로';
             backButton.className = 'back-button';
@@ -64,14 +99,13 @@ document.addEventListener('DOMContentLoaded', () => {
         titleElement.textContent = data.title;
         contentDisplay.appendChild(titleElement);
 
-        if (data.items) { // 하위 목록이 있으면 목록 렌더링
+        if (data.items && Object.keys(data.items).length > 0) {
             const listElement = document.createElement('ul');
             Object.keys(data.items).forEach(key => {
                 const listItem = document.createElement('li');
                 listItem.textContent = key;
-                listItem.dataset.key = key; // 다음 단계로 넘어가기 위한 키 저장
+                listItem.dataset.key = key;
 
-                // 포켓몬 타입에만 색상 클래스 적용
                 if (data.colors && data.colors[key]) {
                     listItem.className = data.colors[key];
                 }
@@ -79,57 +113,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 listElement.appendChild(listItem);
             });
             contentDisplay.appendChild(listElement);
-        } else if (data.content) { // 최종 콘텐츠가 있으면 내용 렌더링
+        } else if (data.content) {
             const contentElement = document.createElement('p');
-            contentElement.textContent = data.content;
+            contentElement.innerHTML = data.content;
             contentDisplay.appendChild(contentElement);
         }
     }
 
-    // 데이터 경로를 따라 데이터를 찾는 함수
-    function getDataByPath(path) {
-        let current = siteData;
-        for (const key of path) {
-            current = current.items ? current.items[key] : current[key];
-        }
-        return current;
-    }
-
-    // 뒤로가기 함수
     function goBack() {
         if (navigationHistory.length > 1) {
-            navigationHistory.pop(); // 현재 페이지를 기록에서 제거
-            const previousPath = navigationHistory[navigationHistory.length - 1];
-            currentDataPath = previousPath;
-            const data = getDataByPath(previousPath);
-            renderContent(data, previousPath.length === 1);
+            navigationHistory.pop();
+            const previousData = navigationHistory[navigationHistory.length - 1];
+            renderContent(previousData, navigationHistory.length === 1);
         }
     }
+    
+    function getCurrentData() {
+        if (navigationHistory.length === 0) return null;
+        return navigationHistory[navigationHistory.length - 1];
+    }
 
-    // 사이드바 클릭 이벤트 처리
     sidebar.addEventListener('click', (event) => {
         if (event.target.tagName === 'LI') {
-            const category = event.target.getAttribute('data-category');
-            if (siteData[category]) {
-                currentDataPath = [category];
-                navigationHistory = [currentDataPath.slice()];
-                renderContent(siteData[category], true);
+            const categoryKey = event.target.getAttribute('data-category');
+            if (siteData[categoryKey]) {
+                const categoryData = siteData[categoryKey];
+                navigationHistory = [categoryData];
+                renderContent(categoryData, true);
             }
         }
     });
-    
-    // 콘텐츠 영역 클릭 이벤트 처리 (하위 메뉴 이동)
+
     contentDisplay.addEventListener('click', (event) => {
         if (event.target.tagName === 'LI') {
             const key = event.target.dataset.key;
-            
-            let currentData = getDataByPath(currentDataPath);
+            const currentData = getCurrentData();
 
             if (currentData && currentData.items && currentData.items[key]) {
-                currentDataPath.push(key);
-                navigationHistory.push(currentDataPath.slice());
                 const nextData = currentData.items[key];
-                renderContent(nextData);
+                navigationHistory.push(nextData);
+
+                // isSidebarClick은 false. 하위 메뉴로 들어가는 것이므로.
+                renderContent(nextData, false); 
             }
         }
     });
