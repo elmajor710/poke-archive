@@ -3,115 +3,95 @@ document.addEventListener('DOMContentLoaded', () => {
     const siteData = {
         'pokemon-types': {
             title: '포켓몬 타입',
-            levels: 4, // 총 레벨 수
-            items: { // Lev.2
-                '물': {
-                    title: '물 타입 포켓몬', items: { // Lev.3
-                        '가이오가': { title: '가이오가 상세', content: '바다를 넓힌 포켓몬으로 알려져있다. [Lev.4 최종 설명]' },
-                        '갸라도스': { title: '갸라도스 상세', content: '갸라도스에 대한 테스트 설명입니다. [Lev.4 최종 설명]' }
-                    }
-                },
-                '불': {
-                    title: '불 타입 포켓몬', items: { // Lev.3
-                        '리자몽': { title: '리자몽 상세', content: '리자몽에 대한 테스트 설명입니다. [Lev.4 최종 설명]' },
-                        '앤테이': { title: '앤테이 상세', content: '앤테이에 대한 테스트 설명입니다. [Lev.4 최종 설명]' }
-                    }
-                }
+            levels: 4,
+            items: {
+                '물': { title: '물 타입', items: { '가이오가': { title: '가이오가', content: '바다를 넓힌 포켓몬입니다. [Lev.4]' } } },
+                '불': { title: '불 타입', items: { '리자몽': { title: '리자몽', content: '리자몽에 대한 설명입니다. [Lev.4]' } } }
             }
         },
         'pokemon-ranks': {
             title: '포켓몬 등급', levels: 4, items: {
-                'SS': { title: 'SS 등급', items: { '뮤츠': { title: '뮤츠 상세', content: '뮤츠에 대한 테스트 설명입니다. [Lev.4 최종 설명]' } } }
+                'SS': { title: 'SS 등급', items: { '뮤츠': { title: '뮤츠', content: '뮤츠에 대한 설명입니다. [Lev.4]' } } }
             }
         },
         'items': {
             title: '아이템', levels: 4, items: {
-                '빨간색': { title: '빨간색 아이템', items: { '생명의구슬': { title: '생명의구슬 상세', content: '생명의구슬에 대한 테스트 설명입니다. [Lev.4 최종 설명]' } } }
+                '빨간색': { title: '빨간색 아이템', items: { '생명의구슬': { title: '생명의구슬', content: '생명의구슬에 대한 설명입니다. [Lev.4]' } } }
             }
         },
         'runes-chips': {
             title: '룬&칩', levels: 4, items: {
-                '룬': { title: '룬', items: { '금강': { title: '금강 룬 상세', content: '금강 룬에 대한 테스트 설명입니다. [Lev.4 최종 설명]' } } }
+                '룬': { title: '룬', items: { '금강': { title: '금강 룬', content: '금강 룬에 대한 설명입니다. [Lev.4]' } } }
             }
         },
         'recommended-decks': {
-            title: '추천덱', levels: 3, // 총 레벨 수
-            items: { // Lev.2
-                '물페어리덱': { title: '물페어리덱', content: '물페어리덱에 대한 최종 설명입니다. [Lev.3 최종 설명]' },
-                '불덱': { title: '불덱', content: '불덱에 대한 최종 설명입니다. [Lev.3 최종 설명]' }
+            title: '추천덱', levels: 3, items: {
+                '물페어리덱': { title: '물페어리덱', content: '물페어리덱에 대한 최종 설명입니다. [Lev.3]' },
+                '불덱': { title: '불덱', content: '불덱에 대한 최종 설명입니다. [Lev.3]' }
             }
         },
         'calendar': {
-            title: '캘린더', levels: 3, items: {
-                '랭킹뽑기': { title: '랭킹뽑기', content: '랭킹뽑기에 대한 최종 설명입니다. [Lev.3 최종 설명]' },
-                '한정뽑기': { title: '한정뽑기', content: '한정뽑기에 대한 최종 설명입니다. [Lev.3 최종 설명]' }
-            }
+            title: '캘린더', levels: 3, items: { '랭킹뽑기': { title: '랭킹뽑기', content: '랭킹뽑기 관련 내용입니다. [Lev.3]' } }
         },
         'tips': {
-            title: '팁&노하우', levels: 3, items: {
-                '성급기준': { title: '성급기준', content: '성급기준에 대한 최종 설명입니다. [Lev.3 최종 설명]' },
-                '육성가이드': { title: '육성가이드', content: '육성가이드에 대한 최종 설명입니다. [Lev.3 최종 설명]' }
-            }
+            title: '팁&노하우', levels: 3, items: { '성급기준': { title: '성급기준', content: '성급기준 관련 내용입니다. [Lev.3]' } }
         },
     };
 
     const sidebar = document.querySelector('.sidebar nav');
     const contentDisplay = document.querySelector('.content');
-    // 방문 기록을 경로(key)의 배열로 관리하여 더 명확하게 처리
-    let pathKeys = []; // 예: ['pokemon-types', '물', '가이오가']
+    let path = []; // 사용자의 현재 경로. 예: ['pokemon-types', '물']
 
-    // 현재 경로의 데이터를 가져오는 함수
-    function getCurrentData(path) {
-        let data = siteData;
-        for (const key of path) {
-            data = data.items ? data.items[key] : data[key];
-        }
-        return data;
-    }
+    // --- 로직 시작 ---
 
-    // 화면을 렌더링하는 메인 함수
     function render() {
-        contentDisplay.innerHTML = ''; // 콘텐츠 영역 초기화
+        contentDisplay.innerHTML = ''; // 화면 초기화
 
-        if (pathKeys.length === 0) return; // 경로가 없으면 아무것도 안 함
+        if (path.length === 0) return;
 
-        // 1. 뒤로가기 버튼 렌더링
+        // 뒤로가기 버튼 생성 및 관리
         const backButton = document.createElement('button');
         backButton.textContent = '< 뒤로';
-        backButton.className = 'back-button'; // CSS 클래스 추가
-        backButton.style.display = pathKeys.length > 1 ? 'block' : 'none'; // 첫 단계에선 숨김
-        backButton.onclick = goBack; // 뒤로가기 함수 연결
-        contentDisplay.appendChild(backButton);
-        
-        const currentData = getCurrentData(pathKeys);
-        const categoryData = getCurrentData(pathKeys.slice(0, 1));
-        const finalLevel = categoryData.levels;
-        const currentLevel = pathKeys.length;
+        backButton.className = 'back-button';
+        backButton.onclick = goBack;
+        // 첫 단계(Lev.1)가 아니면 뒤로가기 버튼 표시
+        if (path.length > 1) {
+            contentDisplay.appendChild(backButton);
+        }
 
-        // 2. 최종 설명 화면인지, 중간 패널 화면인지 결정
-        if (currentLevel === finalLevel) {
+        let currentData = siteData[path[0]];
+        const totalLevels = currentData.levels;
+
+        // 현재 경로가 최종 레벨에 도달했는지 확인
+        const isFinalLevel = path.length === totalLevels;
+
+        if (isFinalLevel) {
             // 최종 설명 화면 렌더링
+            for (let i = 1; i < path.length; i++) {
+                currentData = currentData.items[path[i]];
+            }
             const view = document.createElement('div');
             view.className = 'final-content-view';
             view.innerHTML = `<h2>${currentData.title}</h2><p>${currentData.content}</p>`;
             contentDisplay.appendChild(view);
         } else {
             // 다중 패널 렌더링
-            for (let i = 1; i <= currentLevel; i++) {
-                const dataForPanel = getCurrentData(pathKeys.slice(0, i));
-                
-                if (dataForPanel.items) {
+            let panelData = siteData[path[0]];
+            for (let i = 0; i < path.length; i++) {
+                if (i > 0) {
+                    panelData = panelData.items[path[i]];
+                }
+
+                if (panelData && panelData.items) {
                     const panel = document.createElement('div');
                     panel.className = 'content-panel';
-                    
-                    let titleText = i > 0 ? getCurrentData(pathKeys.slice(0, i)).title : '';
-                    panel.innerHTML = `<h2>${titleText} (Lev.${i + 1})</h2>`;
+                    panel.innerHTML = `<h2>${panelData.title} (Lev.${i + 2})</h2>`;
 
                     const list = document.createElement('ul');
-                    Object.keys(dataForPanel.items).forEach(key => {
+                    Object.keys(panelData.items).forEach(key => {
                         const listItem = document.createElement('li');
                         listItem.textContent = key;
-                        listItem.dataset.nextKey = key; // 다음 경로의 키 저장
+                        listItem.dataset.key = key;
                         list.appendChild(listItem);
                     });
                     panel.appendChild(list);
@@ -120,32 +100,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-    
-    // 뒤로가기 기능
+
     function goBack() {
-        if (pathKeys.length > 1) {
-            pathKeys.pop(); // 마지막 경로 제거
-            render(); // 화면 다시 그리기
+        if (path.length > 1) {
+            path.pop();
+            render();
         }
     }
 
-    // 사이드바 클릭 이벤트
     sidebar.addEventListener('click', (e) => {
         if (e.target.tagName === 'LI') {
             const categoryKey = e.target.getAttribute('data-category');
             if (siteData[categoryKey]) {
-                pathKeys = [categoryKey]; // 새 카테고리 클릭 시 경로 초기화
+                path = [categoryKey];
                 render();
             }
         }
     });
 
-    // 콘텐츠(패널) 클릭 이벤트
     contentDisplay.addEventListener('click', (e) => {
-        // LI 태그이고, 다음 키(nextKey) 정보를 가지고 있을 때만 작동
-        if (e.target.tagName === 'LI' && e.target.dataset.nextKey) {
-            pathKeys.push(e.target.dataset.nextKey); // 경로에 다음 키 추가
-            render(); // 화면 다시 그리기
+        if (e.target.tagName === 'LI' && e.target.dataset.key) {
+            const key = e.target.dataset.key;
+            path.push(key);
+            render();
         }
     });
 });
