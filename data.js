@@ -12,77 +12,35 @@ const DB = {
     pokemonType: {
         lev2: [ { id: 'normal', name: '노말', color: '#A8A878' }, { id: 'fire', name: '불', color: '#F08030' }, { id: 'water', name: '물', color: '#6890F0' }, { id: 'grass', name: '풀', color: '#78C850' }, { id: 'electric', name: '전기', color: '#F8D030' }, { id: 'ice', name: '얼음', color: '#98D8D8' }, { id: 'fighting', name: '격투', color: '#C03028' }, { id: 'poison', name: '독', color: '#A040A0' }, { id: 'ground', name: '땅', color: '#E0C068' }, { id: 'flying', name: '비행', color: '#A890F0' }, { id: 'psychic', name: '에스퍼', color: '#F85888' }, { id: 'bug', name: '벌레', color: '#A8B820' }, { id: 'rock', name: '바위', color: '#B8A038' }, { id: 'ghost', name: '유령', color: '#705898' }, { id: 'dragon', name: '드래곤', color: '#7038F8' }, { id: 'dark', name: '악', color: '#705848' }, { id: 'steel', name: '강철', color: '#B8B8D0' }, { id: 'fairy', name: '페어리', color: '#EE99AC' } ],
         lev3: { 
-            water: [ { id: 'kyogre', name: '가이오가' } ],
-            fire: [ { id: 'charizard', name: '리자몽' } ],
-            normal: [ { id: 'snorlax', name: '잠만보' } ],
-            grass: [ { id: 'bulbasaur', name: '이상해씨' } ],
-            electric: [ { id: 'pikachu', name: '피카츄' } ],
-            ice: [ { id: 'lapras', name: '라프라스' } ],
-            fighting: [ { id: 'machamp', name: '괴력몬' } ],
-            poison: [ { id: 'gengar', name: '팬텀' } ],
-            ground: [ { id: 'rhydon', name: '코뿌리' } ],
-            flying: [ { id: 'pidgeot', name: '피죤투' } ],
-            psychic: [ { id: 'alakazam', name: '후딘' } ],
-            bug: [ { id: 'scyther', name: '스라크' } ],
-            rock: [ { id: 'golem', name: '딱구리' } ],
-            ghost: [ { id: 'gengar2', name: '팬텀' } ],
-            dragon: [ { id: 'dragonite', name: '망나뇽' } ],
-            dark: [ { id: 'tyranitar', name: '마기라스' } ],
-            steel: [ { id: 'scizor', name: '핫삼' } ],
-            fairy: [ { id: 'gardevoir', name: '가디안' } ]
+            water: [ { id: 'kyogre', name: '가이오가' } ], fire: [ { id: 'charizard', name: '리자몽' } ], normal: [ { id: 'snorlax', name: '잠만보' } ], grass: [ { id: 'bulbasaur', name: '이상해씨' } ], electric: [ { id: 'pikachu', name: '피카츄' } ], ice: [ { id: 'lapras', name: '라프라스' } ], fighting: [ { id: 'machamp', name: '괴력몬' } ], poison: [ { id: 'gengar', name: '팬텀' } ], ground: [ { id: 'rhydon', name: '코뿌리' } ], flying: [ { id: 'pidgeot', name: '피죤투' } ], psychic: [ { id: 'alakazam', name: '후딘' } ], bug: [ { id: 'scyther', name: '스라크' } ], rock: [ { id: 'golem', name: '딱구리' } ], ghost: [ { id: 'gengar2', name: '팬텀' } ], dragon: [ { id: 'dragonite', name: '망나뇽' } ], dark: [ { id: 'tyranitar', name: '마기라스' } ], steel: [ { id: 'scizor', name: '핫삼' } ], fairy: [ { id: 'gardevoir', name: '가디안' } ]
         },
         lev4: { 
-            kyogre: { name: '가이오가', content: '<h3>가이오가</h3><p>바다를 넓힌 포켓몬으로 알려져있다.</p>' },
-            charizard: { name: '리자몽', content: '<h3>리자몽</h3><p>맹렬한 불꽃을 내뿜는다.</p>' },
-            snorlax: { name: '잠만보', content: '<h3>잠만보</h3><p>먹고 자는게 일상이다.</p>' },
-            bulbasaur: { name: '이상해씨', content: '<h3>이상해씨</h3><p>씨앗 포켓몬이다.</p>'},
-            pikachu: { name: '피카츄', content: '<h3>피카츄</h3><p>전기 포켓몬이다.</p>'},
-            lapras: { name: '라프라스', content: '<h3>라프라스</h3><p>탈것 포켓몬이다.</p>'},
-            machamp: { name: '괴력몬', content: '<h3>괴력몬</h3><p>괴력 포켓몬이다.</p>'},
-            gengar: { name: '팬텀', content: '<h3>팬텀</h3><p>그림자 포켓몬이다.</p>'},
-            rhydon: { name: '코뿌리', content: '<h3>코뿌리</h3><p>드릴 포켓몬이다.</p>'},
-            pidgeot: { name: '피죤투', content: '<h3>피죤투</h3><p>새 포켓몬이다.</p>'},
-            alakazam: { name: '후딘', content: '<h3>후딘</h3><p>초능력 포켓몬이다.</p>'},
-            scyther: { name: '스라크', content: '<h3>스라크</h3><p>사마귀 포켓몬이다.</p>'},
-            golem: { name: '딱구리', content: '<h3>딱구리</h3><p>거석 포켓몬이다.</p>'},
-            gengar2: { name: '팬텀', content: '<h3>팬텀</h3><p>그림자 포켓몬이다.</p>'},
-            dragonite: { name: '망나뇽', content: '<h3>망나뇽</h3><p>드래곤 포켓몬이다.</p>'},
-            tyranitar: { name: '마기라스', content: '<h3>마기라스</h3><p>갑옷 포켓몬이다.</p>'},
-            scizor: { name: '핫삼', content: '<h3>핫삼</h3><p>집게 포켓몬이다.</p>'},
-            gardevoir: { name: '가디안', content: '<h3>가디안</h3><p>포용 포켓몬이다.</p>'}
+            kyogre: { name: '가이오가', content: '<h3>가이오가</h3><p>바다를 넓힌 포켓몬으로 알려져있다.</p>' }, charizard: { name: '리자몽', content: '<h3>리자몽</h3><p>맹렬한 불꽃을 내뿜는다.</p>' }, snorlax: { name: '잠만보', content: '<h3>잠만보</h3><p>먹고 자는게 일상이다.</p>' }, bulbasaur: { name: '이상해씨', content: '<h3>이상해씨</h3><p>씨앗 포켓몬이다.</p>'}, pikachu: { name: '피카츄', content: '<h3>피카츄</h3><p>전기 포켓몬이다.</p>'}, lapras: { name: '라프라스', content: '<h3>라프라스</h3><p>탈것 포켓몬이다.</p>'}, machamp: { name: '괴력몬', content: '<h3>괴력몬</h3><p>괴력 포켓몬이다.</p>'}, gengar: { name: '팬텀', content: '<h3>팬텀</h3><p>그림자 포켓몬이다.</p>'}, rhydon: { name: '코뿌리', content: '<h3>코뿌리</h3><p>드릴 포켓몬이다.</p>'}, pidgeot: { name: '피죤투', content: '<h3>피죤투</h3><p>새 포켓몬이다.</p>'}, alakazam: { name: '후딘', content: '<h3>후딘</h3><p>초능력 포켓몬이다.</p>'}, scyther: { name: '스라크', content: '<h3>스라크</h3><p>사마귀 포켓몬이다.</p>'}, golem: { name: '딱구리', content: '<h3>딱구리</h3><p>거석 포켓몬이다.</p>'}, gengar2: { name: '팬텀', content: '<h3>팬텀</h3><p>그림자 포켓몬이다.</p>'}, dragonite: { name: '망나뇽', content: '<h3>망나뇽</h3><p>드래곤 포켓몬이다.</p>'}, tyranitar: { name: '마기라스', content: '<h3>마기라스</h3><p>갑옷 포켓몬이다.</p>'}, scizor: { name: '핫삼', content: '<h3>핫삼</h3><p>집게 포켓몬이다.</p>'}, gardevoir: { name: '가디안', content: '<h3>가디안</h3><p>포용 포켓몬이다.</p>'}
         }
     },
     pokemonGrade: {
         lev2: [ { id: 'SS', name: 'SS' }, { id: 'Splus', name: 'S+' }, { id: 'S', name: 'S' } ],
         lev3: { 
-            SS: [ {id: 'mewtwo', name: '뮤츠'} ],
-            Splus: [ {id: 'darkrai', name: '다크라이'} ],
-            S: [ {id: 'lucario', name: '루카리오'} ]
+            SS: [ {id: 'mewtwo', name: '뮤츠'} ], Splus: [ {id: 'darkrai', name: '다크라이'} ], S: [ {id: 'lucario', name: '루카리오'} ]
         },
         lev4: { 
-            mewtwo: { name: '뮤츠', content: '<h3>뮤츠</h3><p>강력한 유전자를 가졌다.</p>' },
-            darkrai: { name: '다크라이', content: '<h3>다크라이</h3><p>악몽을 꾸게 한다.</p>' },
-            lucario: { name: '루카리오', content: '<h3>루카리오</h3><p>파동을 다룬다.</p>' }
+            mewtwo: { name: '뮤츠', content: '<h3>뮤츠</h3><p>강력한 유전자를 가졌다.</p>' }, darkrai: { name: '다크라이', content: '<h3>다크라이</h3><p>악몽을 꾸게 한다.</p>' }, lucario: { name: '루카리오', content: '<h3>루카리오</h3><p>파동을 다룬다.</p>' }
         }
     },
     item: {
         lev2: [ {id:'red', name:'빨간색', color:'#E74C3C'}, {id:'orange',name:'주황색', color:'#E67E22'}, {id:'purple',name:'보라색', color:'#9B59B6'} ],
         lev3: { 
-            red: [ {id:'rustySword', name:'녹슨 검'} ],
-            orange: [ {id:'oranBerry', name:'오랭열매'} ],
-            purple: [ {id:'masterBall', name:'마스터볼'} ],
+            red: [ {id:'rustySword', name:'녹슨 검'} ], orange: [ {id:'oranBerry', name:'오랭열매'} ], purple: [ {id:'masterBall', name:'마스터볼'} ],
         },
         lev4: { 
-            rustySword: { name:'녹슨 검', content: '<h3>녹슨 검</h3><p>자시안에게 힘을 준다.</p>' },
-            oranBerry: { name: '오랭열매', content: '<h3>오랭열매</h3><p>HP를 10 회복한다.</p>' },
-            masterBall: { name: '마스터볼', content: '<h3>마스터볼</h3><p>반드시 포켓몬을 잡는다.</p>' }
+            rustySword: { name:'녹슨 검', content: '<h3>녹슨 검</h3><p>자시안에게 힘을 준다.</p>' }, oranBerry: { name: '오랭열매', content: '<h3>오랭열매</h3><p>HP를 10 회복한다.</p>' }, masterBall: { name: '마스터볼', content: '<h3>마스터볼</h3><p>반드시 포켓몬을 잡는다.</p>' }
         }
     },
     runeAndChip: {
-        lev2: [ { id: "rune", name: "룬" }, { id: "chip", name: "칩" } ],
+        lev2: [ { "id": "rune", "name": "룬" }, { "id": "chip", "name": "칩" } ],
         lev3: {
-            rune: [ { id: "counter", name: "반격" }, { id: "sparkle", name: "반짝임" }, { id: "aegis", name: "비호" }, { id: "diamond", name: "금강" }, { id: "shield", name: "실드" }, { id: "defense", name: "방어" }, { id: "berserker", name: "전투광" }, { id: "critical", name: "치명" }, { id: "power", name: "강격" } ],
-            chip: [ { id: "sacrifice", name: "헌제" }, { id: "terror", name: "공포" }, { id: "psychic", name: "초능" }, { id: "snakeghost", name: "뱀유령" }, { id: "pavise", name: "방패" }, { id: "carapace", name: "귀갑" }, { id: "wolfwalker", name: "늑대행자" }, { id: "frogthorn", name: "개구리가시" }, { id: "firedance", name: "화무" } ]
+            rune: [ { "id": "counter", "name": "반격" }, { "id": "sparkle", "name": "반짝임" }, { "id": "aegis", "name": "비호" }, { "id": "diamond", "name": "금강" }, { "id": "shield", "name": "실드" }, { "id": "defense", "name": "방어" }, { "id": "berserker", "name": "전투광" }, { "id": "critical", "name": "치명" }, { "id": "power", name: "강격" } ],
+            chip: [ { "id": "sacrifice", "name": "헌제" }, { "id": "terror", "name": "공포" }, { "id": "psychic", "name": "초능" }, { "id": "snakeghost", "name": "뱀유령" }, { "id": "pavise", "name": "방패" }, { "id": "carapace", "name": "귀갑" }, { "id": "wolfwalker", "name": "늑대행자" }, { "id": "frogthorn", "name": "개구리가시" }, { "id": "firedance", name": "화무" } ]
         },
         lev4: {
             counter: { content: `<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2F9FyNr%2FbtsOxx2LAy2%2Fk8M0rvXZ4gV7yDHTlVajoK%2Fimg.png" alt="반격 룬" style="width:100%; max-width:150px; margin-bottom: 10px;"><p>서포트 룬스톤<br>반격3개 <span style="color: red;">공명(빨간색)</span>: 반사율+12%</p>` },
@@ -129,16 +87,21 @@ const DB = {
     tips: {
         lev2: [
             { id: 'star', name: 'S+급·S급 단계별 성급재료 총정리표' },
-            { id: 'guide', name: '포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10' }
+            { id: 'guide', name: '포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10' },
+            { id: 'megaEvolution', name: '포켓몬 메가진화 조건 총정리' }
         ],
         lev3: {
             "star": {
                 "name": "S+급·S급 단계별 성급재료 총정리표",
-                "content": `<h2>S+급 성급재료 소모표</h2><table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;"><thead><tr><td>성급 단계</td><td>소мо 재료 수</td><td>누적 수량</td></tr></thead><tbody><tr><td>4 → 5성</td><td>1마리</td><td>1마리</td></tr><tr><td>5 → 6성</td><td>1마리</td><td>2마리</td></tr><tr><td>6 → 7성</td><td>2마리</td><td>4마리</td></tr><tr><td>7 → 8성</td><td>2마리</td><td>6마리</td></tr><tr><td>8 → 9성</td><td>2마리</td><td>8마리</td></tr><tr><td>9 → 10성</td><td>3마리</td><td>11마리</td></tr><tr><td>10 → 11성</td><td>3마리</td><td>14마리</td></tr><tr><td>11 → 12성</td><td>3마리</td><td>17마리</td></tr></tbody></table><br><br><h2>S급 성급재료 소모표</h2><table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;"><thead><tr><td>성급 단계</td><td>소모 재료 수</td><td>누적 수량</td></tr></thead><tbody><tr><td>3 → 4성</td><td>1마리</td><td>1마리</td></tr><tr><td>4 → 5성</td><td>1마리</td><td>2마리</td></tr><tr><td>5 → 6성</td><td>2마리</td><td>4마리</td></tr><tr><td>6 → 7성</td><td>2마리</td><td>6마리</td></tr><tr><td>7 → 8성</td><td>2마리</td><td>8마리</td></tr><tr><td>8 → 9성</td><td>3마리</td><td>11마리</td></tr><tr><td>9 → 10성</td><td>3마리</td><td>14마리</td></tr><tr><td>10 → 11성</td><td>3마리</td><td>17마리</td></tr><tr><td>11 → 12성</td><td>4마리</td><td>21마리</td></tr></tbody></table>`
+                "content": `<h2>S+급 성급재료 소모표</h2><table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;"><thead><tr><td>성급 단계</td><td>소모 재료 수</td><td>누적 수량</td></tr></thead><tbody><tr><td>4 → 5성</td><td>1마리</td><td>1마리</td></tr><tr><td>5 → 6성</td><td>1마리</td><td>2마리</td></tr><tr><td>6 → 7성</td><td>2마리</td><td>4마리</td></tr><tr><td>7 → 8성</td><td>2마리</td><td>6마리</td></tr><tr><td>8 → 9성</td><td>2마리</td><td>8마리</td></tr><tr><td>9 → 10성</td><td>3마리</td><td>11마리</td></tr><tr><td>10 → 11성</td><td>3마리</td><td>14마리</td></tr><tr><td>11 → 12성</td><td>3마리</td><td>17마리</td></tr></tbody></table><br><br><h2>S급 성급재료 소모표</h2><table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;"><thead><tr><td>성급 단계</td><td>소모 재료 수</td><td>누적 수량</td></tr></thead><tbody><tr><td>3 → 4성</td><td>1마리</td><td>1마리</td></tr><tr><td>4 → 5성</td><td>1마리</td><td>2마리</td></tr><tr><td>5 → 6성</td><td>2마리</td><td>4마리</td></tr><tr><td>6 → 7성</td><td>2마리</td><td>6마리</td></tr><tr><td>7 → 8성</td><td>2마리</td><td>8마리</td></tr><tr><td>8 → 9성</td><td>3마리</td><td>11마리</td></tr><tr><td>9 → 10성</td><td>3마리</td><td>14마리</td></tr><tr><td>10 → 11성</td><td>3마리</td><td>17마리</td></tr><tr><td>11 → 12성</td><td>4마리</td><td>21마리</td></tr></tbody></table>`
             },
             "guide": {
                 "name": "포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10",
                 "content": `<h2>🌟 포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP 10</h2><ol><li><strong>A급, B급 포켓몬은 함부로 분해하지 마세요!</strong><br>→ 12성까지 진화에 필요하며, 도감 보너스도 챙길 수 있습니다.</li><li><strong>만능조각은 S급에 쓰지 마세요.</strong><br>→ 추후 S+급이나 귀한 포켓몬에게 아껴두세요.</li><li><strong>체력을 다이아로 너무 자주 사지 마세요.</strong><br>→ 하루 2~3회 정도만 구입하는 것이 적당합니다.</li><li><strong>S급 포켓몬 뽑기에 다이아를 낭비하지 마세요.</strong><br>→ 효율이 낮고 후회할 확률 높습니다.</li><li><strong>주황색 메타몽은 성급하기 어려운 포켓몬에 사용하세요.</strong><br>→ 레어 포켓몬을 중심으로 사용하면 성급작 수월합니다.</li><li><strong>보라색 메타몽은 나옹에게 우선적으로 투자하세요.</strong><br>→ 팀 구성이나 PVP에서 큰 도움을 줄 수 있습니다.</li><li><strong>보상 선택 시, 아바타부터 받는 것이 이득입니다.</strong><br>→ 전투력 상승 및 외형 효과까지 일석이조!</li><li><strong>로비 화면에서 눈이 점(.)인 포켓몬을 꼭 눌러보세요.</strong><br>→ <u>메타몽 = 다이아</u>를 얻을 수 있는 숨겨진 요소! (3일에 1번)</li><li><strong>주먹밥, 도시락 등 체력 아이템은 모아두세요.</strong><br>→ <mark>소탕 2배 이벤트</mark> 기간에 사용하면 효율 극대화!</li><li><strong>악세사리·탐지기 뽑기는 재화 150~300개 모아 이벤트 때 사용하세요.</strong><br>→ 누적 사용 시 보상도 높아지는 구조입니다.</li></ol><p style="font-size: 0.9em; color: gray;">출처: <strong>S170/FS_신디 & 90&131 너 뿐</strong></p>`
+            },
+            "megaEvolution": {
+                "name": "포켓몬 메가진화 조건 총정리｜S+, S 등급별 재화·성급재료",
+                "content": `<h2>🔥 메가진화에 필요한 재화 정리표</h2><h3>S+ ➜ SS 진화</h3><ul><li>진화 대상: S+ 11성</li><li>골드: 60M</li><li>성석: 50개</li><li>전설 조각: 200개</li><li>키스톤: 100개 (S+ 10마리)</li><li>진화석: 80개 (동일 타입 S+ 8마리)</li><li><strong>※ 전설 조각 환산 기준: 총 1640</strong></li></ul><h3>S ➜ S 진화</h3><ul><li>진화 대상: S 12성</li><li>골드: 5M</li><li>성석: 10개</li><li>일반 조각: 50개</li><li>키스톤: 60개 (S 6마리)</li><li>진화석: 40개 (동일 타입 S 4마리)</li></ul><h3>A ➜ S 진화</h3><ul><li>진화 대상: A 12성</li><li>골드: 10M</li><li>성석: 20개</li><li>일반 조각: 100개</li><li>키스톤: 150개 (S 15마리)</li><li>진화석: 120개 (동일 타입 S 12마리)</li></ul><h3>B ➜ A 진화</h3><ul><li>진화 대상: B 12성</li><li>골드: 5M</li><li>성석: 5개</li><li>일반 조각: 20개</li><li>키스톤: 180개 (A 18마리)</li><li>진화석: 150개 (동일 타입 A 15마리)</li></ul><hr><h2>💙 유대진화 조건</h2><ul><li>대상: 개굴닌자 12성</li><li>총 개체값: 160</li><li>호감도: 360</li><li>전투력: 20만 이상</li><li>필요 재화:<ul><li>성석: 20개</li><li>전설 조각: 20개</li><li>개구마르 조각: 50개</li><li>키스톤: 10개 (S+ 1마리)</li><li>진화석: 120개 (동일 타입 S 12마리)</li></ul></li></ul><hr><h2>📊 성급재료 필요 마릿수</h2><h3>S+급 성급재료</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; text-align: center;"><thead><tr><td>성급 단계</td><td>소모 마릿수</td><td>누적</td></tr></thead><tbody><tr><td>4 → 5</td><td>1마리</td><td>1</td></tr><tr><td>5 → 6</td><td>1마리</td><td>2</td></tr><tr><td>6 → 7</td><td>2마리</td><td>4</td></tr><tr><td>7 → 8</td><td>2마리</td><td>6</td></tr><tr><td>8 → 9</td><td>2마리</td><td>8</td></tr><tr><td>9 → 10</td><td>3마리</td><td>11</td></tr><tr><td>10 → 11</td><td>3마리</td><td>14</td></tr><tr><td>11 → 12</td><td>3마리</td><td>17</td></tr></tbody></table><br><h3>S급 성급재료</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; text-align: center;"><thead><tr><td>성급 단계</td><td>소모 마릿수</td><td>누적</td></tr></thead><tbody><tr><td>3 → 4</td><td>1마리</td><td>1</td></tr><tr><td>4 → 5</td><td>1마리</td><td>2</td></tr><tr><td>5 → 6</td><td>2마리</td><td>4</td></tr><tr><td>6 → 7</td><td>2마리</td><td>6</td></tr><tr><td>7 → 8</td><td>2마리</td><td>8</td></tr><tr><td>8 → 9</td><td>3마리</td><td>11</td></tr><tr><td>9 → 10</td><td>3마리</td><td>14</td></tr><tr><td>10 → 11</td><td>3마리</td><td>17</td></tr><tr><td>11 → 12</td><td>4마리</td><td>21</td></tr></tbody></table><p style="font-size: 0.9em; color: gray;">출처: <strong>3.*Kaze_델로스</strong></p>`
             }
         }
     }
