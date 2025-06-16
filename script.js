@@ -112,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 이 "refreshAdSlot" 함수를 통째로 교체해주세요 ---
+// --- 이 "refreshAdSlot" 함수를 통째로 교체해주세요 ---
 function refreshAdSlot() {
     // 광고가 숨겨진 상태이거나 관리자 모드이면 함수를 실행하지 않음
     if (adsContainer.querySelector('.ad-message')) {
@@ -134,7 +135,8 @@ function refreshAdSlot() {
     adIns.className = "adsbygoogle";
     // [수정] 광고 슬롯 자체에 최소 크기를 지정하여 'No slot size' 오류 방지
     Object.assign(adIns.style, { display: 'block', width: '100%', minHeight: '50px', textAlign: 'center' });
-    Object.assign(adIns.dataset, { adClient: "ca-pub-2125965839205311", adSlot: "5532734526", adFormat: "auto", fullWidthResponsive: "true" });
+    // [최종 수정] fullWidthResponsive를 "false"로 변경합니다.
+    Object.assign(adIns.dataset, { adClient: "ca-pub-2125965839205311", adSlot: "5532734526", adFormat: "auto", fullWidthResponsive: "false" });
     
     // 광고 실행 스크립트
     const adPushScript = document.createElement('script');

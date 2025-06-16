@@ -5,7 +5,6 @@
     --active-color: #e6f2ff;
     --border-color: #dee2e6;
 }
-
 body {
     margin: 0;
     font-family: sans-serif;
@@ -14,8 +13,6 @@ body {
     height: 100vh;
     overflow: hidden;
 }
-
-/* 추가된 헤더 스타일 */
 header {
     background-color: var(--primary-color);
     color: white;
@@ -23,13 +20,10 @@ header {
     padding: 10px 0;
     flex-shrink: 0;
 }
-
 header h1 {
     margin: 0;
     font-size: 1.5em;
 }
-
-/* 수정된 광고 컨테이너 스타일 */
 #ads-container {
     background-color: #f8f9fa;
     min-height: 60px;
@@ -39,15 +33,12 @@ header h1 {
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
 }
-
-/* 수정된 앱 컨테이너 스타일 */
 #app-container {
     display: flex;
     width: 100%;
     flex-grow: 1;
     min-height: 0;
 }
-
 #sidebar {
     width: var(--sidebar-width);
     border-right: 1px solid var(--border-color);
@@ -55,13 +46,11 @@ header h1 {
     overflow-y: auto;
     flex-shrink: 0;
 }
-
 #content-area {
     flex-grow: 1;
     display: flex;
     overflow-x: auto;
 }
-
 .panel {
     width: var(--panel-width);
     border-right: 1px solid var(--border-color);
@@ -70,42 +59,29 @@ header h1 {
     flex-direction: column;
     flex-shrink: 0;
 }
-
 .panel.visible {
     display: flex;
 }
-
 .panel-header {
     padding: 10px 15px;
     border-bottom: 1px solid var(--border-color);
 }
-
 .panel-content {
     padding: 10px;
     overflow-y: auto;
     flex-grow: 1;
 }
-
 .menu-item, .list-item {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 12px;
-    margin-bottom: 5px;
-    border: 1px solid #eee;
-    background: #f9f9f9;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
+    display: block; width: 100%; text-align: left;
+    padding: 12px; margin-bottom: 5px;
+    border: 1px solid #eee; background: #f9f9f9;
+    border-radius: 6px; font-size: 16px; cursor: pointer;
 }
-
 .menu-item.active, .list-item.active {
     background-color: var(--active-color);
     border-left: 4px solid var(--primary-color);
     font-weight: 600;
 }
-
-/* 최종 콘텐츠 보기 모드 스타일 */
 #content-area.final-view-L4 #lev2-panel,
 #content-area.final-view-L4 #lev3-panel {
     display: none !important;
@@ -114,7 +90,6 @@ header h1 {
     width: 100%;
     border-right: none;
 }
-
 #content-area.final-view-L3 #lev2-panel {
     display: none !important;
 }
@@ -124,67 +99,54 @@ header h1 {
 }
 
 /* --- 모바일 반응형 스타일 (768px 이하 화면에 적용) --- */
-/* --- 이 @media 블록 전체를 아래의 새로운 내용으로 교체해주세요 --- */
 @media (max-width: 768px) {
     :root {
         --sidebar-width: 120px;
     }
-    
     header h1 {
         font-size: 1.2em;
     }
-
-    /* [추가된 부분] 모바일 광고 배너 크기 제한 */
-    #ads-container {
-        max-height: 90px; /* 광고의 최대 높이를 90px로 제한합니다. */
-        overflow: hidden;   /* 혹시 광고가 넘칠 경우, 넘치는 부분은 숨깁니다. */
-    }
-
     #content-area {
         overflow-x: hidden;
     }
-
     .panel {
         flex: 1;
         min-width: 0;
     }
-
     #sidebar, .panel-content {
         padding: 8px;
     }
-
     .menu-item, .list-item {
         font-size: 14px;
         padding: 10px 8px;
     }
-
     .panel-header {
         padding: 8px 10px;
         font-size: 15px;
     }
-    
     .back-btn {
         font-size: 14px;
     }
+    /* [최종 수정] 모바일 광고 크기 강제 제한 */
+    #ads-container,
+    #ads-container .adsbygoogle {
+        max-height: 90px !important;
+        overflow: hidden !important;
+    }
 }
 
-/* --- 광고 차단 메시지 스타일 --- */
+/* --- 기타 유틸리티 스타일 --- */
 .ad-message {
     color: #6c757d;
     font-size: 14px;
     padding: 20px 0;
 }
-
-/* --- 클릭 시 텍스트 선택(드래그) 방지 스타일 --- */
-/* 사용자가 드래그하여 선택할 필요가 없는 요소들에 적용합니다. */
 #sidebar button, #content-area button {
-    -webkit-user-select: none; /* Safari, Chrome */
-    -moz-user-select: none;    /* Firefox */
-    -ms-user-select: none;     /* IE10+ */
-    user-select: none;         /* Standard */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
-
-/* --- 광고 클릭 감지 영역 활성화 스타일 --- */
 #ad-click-detector {
     width: 100%;
     height: 100%;
