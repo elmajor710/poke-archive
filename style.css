@@ -127,20 +127,32 @@ header h1 {
 @media (max-width: 768px) {
     :root {
         --sidebar-width: 120px;
-        --panel-width: 240px;
+        /* --panel-width 변수는 더이상 사용하지 않으므로 삭제하거나 그대로 둬도 괜찮습니다. */
     }
     
     header h1 {
         font-size: 1.2em;
     }
 
+    #content-area {
+        overflow-x: hidden; /* 모바일에서는 가로 스크롤을 금지합니다. */
+    }
+
+    .panel {
+        /* 패널이 남은 공간을 채우도록 유연하게 만듭니다. */
+        flex-grow: 1;
+        width: auto; /* 고정 너비 대신 자동 너비를 사용합니다. */
+    }
+
     #sidebar, .panel-content {
         padding: 8px;
     }
+
     .menu-item, .list-item {
         font-size: 15px;
         padding: 10px 8px;
     }
+
     .panel-header {
         padding: 8px 10px;
     }
