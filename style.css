@@ -5,18 +5,49 @@
     --active-color: #e6f2ff;
     --border-color: #dee2e6;
 }
+
 body {
     margin: 0;
     font-family: sans-serif;
     display: flex;
+    flex-direction: column; /* 전체 방향을 세로로 변경 */
     height: 100vh;
     overflow: hidden;
 }
+
+/* 추가된 헤더 스타일 */
+header {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    flex-shrink: 0; /* 높이가 줄어들지 않도록 고정 */
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+/* 수정된 광고 컨테이너 스타일 */
+#ads-container {
+    background-color: #f8f9fa;
+    min-height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0; /* 높이가 줄어들지 않도록 고정 */
+}
+
+/* 수정된 앱 컨테이너 스타일 */
 #app-container {
     display: flex;
     width: 100%;
-    height: 100%;
+    flex-grow: 1; /* 남은 세로 공간을 모두 차지 */
+    min-height: 0; /* flexbox 내부의 스크롤 오류 방지 */
 }
+
 #sidebar {
     width: var(--sidebar-width);
     border-right: 1px solid var(--border-color);
@@ -24,35 +55,44 @@ body {
     overflow-y: auto;
     flex-shrink: 0;
 }
+
 #content-area {
     flex-grow: 1;
     display: flex;
+    overflow-x: auto; /* 콘텐츠가 많아지면 가로 스크롤 */
 }
+
 .panel {
     width: var(--panel-width);
     border-right: 1px solid var(--border-color);
     background: #fff;
-    display: none; /* 기본 숨김 */
+    display: none;
     flex-direction: column;
+    flex-shrink: 0; /* 패널 너비 고정 */
 }
+
 .panel.visible {
-    display: flex; /* 보일 때만 나타남 */
+    display: flex;
 }
+
 .panel-header {
     padding: 10px 15px;
     border-bottom: 1px solid var(--border-color);
 }
+
 .panel-content {
     padding: 10px;
     overflow-y: auto;
     flex-grow: 1;
 }
+
 .menu-item, .list-item {
     display: block; width: 100%; text-align: left;
     padding: 12px; margin-bottom: 5px;
     border: 1px solid #eee; background: #f9f9f9;
     border-radius: 6px; font-size: 16px; cursor: pointer;
 }
+
 .menu-item.active, .list-item.active {
     background-color: var(--active-color);
     border-left: 4px solid var(--primary-color);
@@ -60,7 +100,6 @@ body {
 }
 
 /* 최종 콘텐츠 보기 모드 스타일 */
-/* Lev.4가 최종 화면일 때 */
 #content-area.final-view-L4 #lev2-panel,
 #content-area.final-view-L4 #lev3-panel {
     display: none !important;
@@ -70,7 +109,6 @@ body {
     border-right: none;
 }
 
-/* Lev.3가 최종 화면일 때 */
 #content-area.final-view-L3 #lev2-panel {
     display: none !important;
 }
@@ -81,57 +119,23 @@ body {
 
 /* --- 모바일 반응형 스타일 (768px 이하 화면에 적용) --- */
 @media (max-width: 768px) {
-    /* 모바일에서는 CSS 변수 값을 덮어씁니다. */
     :root {
-        --sidebar-width: 120px; /* 1. 사이드바 너비를 절반 정도로 줄입니다. */
-        --panel-width: 240px;   /* 3. 패널 너비도 화면에 맞게 함께 조정합니다. */
-    }
-
-    body, #app-container {
-        /* 화면을 벗어날 경우, 앱 전체가 아닌 콘텐츠 영역만 스크롤 되도록 설정 */
-        overflow: hidden;
+        --sidebar-width: 120px;
+        --panel-width: 240px;
     }
     
-    #content-area {
-        /* 패널이 많아져 화면을 넘칠 경우, 콘텐츠 영역만 가로 스크롤이 가능하도록 합니다. */
-        overflow-x: auto;
+    header h1 {
+        font-size: 1.2em;
     }
 
-    /* 가독성을 위해 사이드바와 패널 내부 여백(padding)을 줄입니다. */
     #sidebar, .panel-content {
         padding: 8px;
     }
-
-    /* 가독성을 위해 메뉴와 리스트 아이템의 글자 크기를 약간 줄이고 여백을 조정합니다. */
     .menu-item, .list-item {
         font-size: 15px;
         padding: 10px 8px;
     }
-
-    /* 2. 뒤로가기 버튼이 각 패널의 헤더 안에 위치하여 명확성을 높입니다. (HTML 구조상 이미 해결됨) */
     .panel-header {
-        /* 패널 헤더의 스타일을 필요시 여기에 추가할 수 있습니다. */
         padding: 8px 10px;
     }
-}
-
-/* --- 애드센스 광고 컨테이너 스타일 --- */
-#ads-container {
-    position: fixed; /* 화면 기준으로 위치 고정 */
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 9999; /* 다른 모든 요소들보다 위에 있도록 설정 */
-    background-color: #f8f9fa; /* 광고 로딩 전 배경색 */
-    min-height: 50px; /* 광고가 없을 때 최소 높이 유지 */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-}
-
-/* 광고 때문에 메인 앱이 가려지지 않도록, 앱 컨테이너에 상단 여백 추가 */
-#app-container {
-    /* 광고 컨테이너 높이만큼 아래로 내림 (대략적인 값) */
-    margin-top: 60px; 
 }
