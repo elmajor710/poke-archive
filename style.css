@@ -10,7 +10,7 @@ body {
     margin: 0;
     font-family: sans-serif;
     display: flex;
-    flex-direction: column; /* 전체 방향을 세로로 변경 */
+    flex-direction: column;
     height: 100vh;
     overflow: hidden;
 }
@@ -21,7 +21,7 @@ header {
     color: white;
     text-align: center;
     padding: 10px 0;
-    flex-shrink: 0; /* 높이가 줄어들지 않도록 고정 */
+    flex-shrink: 0;
 }
 
 header h1 {
@@ -37,15 +37,15 @@ header h1 {
     justify-content: center;
     align-items: center;
     border-bottom: 1px solid var(--border-color);
-    flex-shrink: 0; /* 높이가 줄어들지 않도록 고정 */
+    flex-shrink: 0;
 }
 
 /* 수정된 앱 컨테이너 스타일 */
 #app-container {
     display: flex;
     width: 100%;
-    flex-grow: 1; /* 남은 세로 공간을 모두 차지 */
-    min-height: 0; /* flexbox 내부의 스크롤 오류 방지 */
+    flex-grow: 1;
+    min-height: 0;
 }
 
 #sidebar {
@@ -59,7 +59,7 @@ header h1 {
 #content-area {
     flex-grow: 1;
     display: flex;
-    overflow-x: auto; /* 콘텐츠가 많아지면 가로 스크롤 */
+    overflow-x: auto;
 }
 
 .panel {
@@ -68,7 +68,7 @@ header h1 {
     background: #fff;
     display: none;
     flex-direction: column;
-    flex-shrink: 0; /* 패널 너비 고정 */
+    flex-shrink: 0;
 }
 
 .panel.visible {
@@ -87,10 +87,16 @@ header h1 {
 }
 
 .menu-item, .list-item {
-    display: block; width: 100%; text-align: left;
-    padding: 12px; margin-bottom: 5px;
-    border: 1px solid #eee; background: #f9f9f9;
-    border-radius: 6px; font-size: 16px; cursor: pointer;
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px;
+    margin-bottom: 5px;
+    border: 1px solid #eee;
+    background: #f9f9f9;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
 }
 
 .menu-item.active, .list-item.active {
