@@ -111,24 +111,37 @@ document.addEventListener('DOMContentLoaded', () => {
         adsContainer.innerHTML = `<div class="ad-message">${message}</div>`;
     }
 
-    function refreshAdSlot() {
-        // 광고 슬롯을 동적으로 생성하여 push 오류를 원천 차단
-        adsContainer.innerHTML = ''; // 기존 광고 제거
-        const adScript = document.createElement('script');
-        adScript.async = true;
-        adScript.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311";
-        adScript.crossOrigin = "anonymous";
-
-        const adIns = document.createElement('ins');
-        adIns.className = "adsbygoogle";
-        Object.assign(adIns.style, { display: 'block' });
-        Object.assign(adIns.dataset, { adClient: "ca-pub-2125965839205311", adSlot: "5532734526", adFormat: "auto", fullWidthResponsive: "true" });
-        
-        const adPushScript = document.createElement('script');
-        adPushScript.innerHTML = "(adsbygoogle = window.adsbygoogle || []).push({});";
-
-        adsContainer.append(adScript, adIns, adPushScript);
+    // --- 이 "refreshAdSlot" 함수를 통째로 교체해주세요 ---
+function refreshAdSlot() {
+    // 광고가 숨겨진 상태이거나 관리자 모드이면 함수를 실행하지 않음
+    if (adsContainer.querySelector('.ad-message')) {
+        return;
     }
+
+    // 광고 슬롯을 동적으로 생성하여 push 오류를 원천 차단
+    adsContainer.innerHTML = ''; // 기존 광고 제거
+    
+    // 광고 로딩 스크립트
+    const adScript = document.createElement('script');
+    adScript.async = true;
+    adScript.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311";
+    adScript.crossOrigin = "anonymous";
+    // 스크립트 로드 실패 시 오류를 콘솔에 기록 (디버깅용)
+    adScript.onerror = () => console.error("AdSense script failed to load.");
+
+    // 실제 광고 슬롯
+    const adIns = document.createElement('ins');
+    adIns.className = "adsbygoogle";
+    // [수정] 광고 슬롯 자체에 최소 크기를 지정하여 'No slot size' 오류 방지
+    Object.assign(adIns.style, { display: 'block', width: '100%', minHeight: '50px', textAlign: 'center' });
+    Object.assign(adIns.dataset, { adClient: "ca-pub-2125965839205311", adSlot: "5532734526", adFormat: "auto", fullWidthResponsive: "true" });
+    
+    // 광고 실행 스크립트
+    const adPushScript = document.createElement('script');
+    adPushScript.innerHTML = "(adsbygoogle = window.adsbygoogle || []).push({});";
+
+    adsContainer.append(adScript, adIns, adPushScript);
+}
     
     // 6. 헬퍼 함수
     function setActive(level, target) {
