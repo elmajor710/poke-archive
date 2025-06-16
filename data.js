@@ -123,13 +123,142 @@ const DB = {
             waterDeck: { name: '물 추천덱', content: '<h3>물 타입 추천덱</h3><p>거북왕, 스이쿤, 가이오가 조합입니다.</p>' }
         }
     },
-    calendar: {
-        lev2: [ { id: 'ranking', name: '랭킹뽑기' }, { id: 'limited', name: '한정뽑기' } ],
-        lev3: { 
-            ranking: { name: '랭킹뽑기 일정', content: `<h3>랭킹뽑기 일정</h3><p>2025.07.18 웅의 메가 강철톤</p>` },
-            limited: { name: '한정뽑기 일정', content: `<h3>한정뽑기 일정</h3><p>2025.08.01 무한다이노, 미라이돈</p>` }
+    // --- 이 "calendar" 블록 전체를 아래의 새로운 내용으로 교체해주세요 ---
+calendar: {
+    lev2: [
+        { id: 'ranking', name: '랭킹뽑기' },
+        { id: 'limited', name: '한정뽑기' }
+    ],
+    lev3: {
+        "ranking": {
+            "name": "랭킹뽑기",
+            "content": `
+                <h2>🔥 랭킹뽑기 S+ 획득 일정</h2>
+                <ul>
+                    <li>25.06.13 - <strong>챔피언 피카츄</strong> (전기) [레지에레키]</li>
+                    <li>25.07.18 - <strong>웅의 메가 강철톤</strong> (강철/땅) [무쇠 바퀴]</li>
+                    <li>25.08.22 - <strong>코라이돈</strong> (격투/드래곤) [애프룡]</li>
+                    <li>25.09.26 - <strong>메가 보만다</strong> (드래곤/비행) [고동치는달]</li>
+                    <li>25.10.31 - <strong>이로치 메가 핫삼</strong> (벌레/강철) [사마자르]</li>
+                    <li>25.12.05 - <strong>디아루가 오리진폼</strong> (강철/드래곤) [브리두라스]</li>
+                    <li>26.01.09 - <strong>이로치 메가 헤라크로스</strong> (벌레/격투) [땅을 기는 날개]</li>
+                </ul>
+
+                <h3>⚠️ 랭킹뽑기 주의점</h3>
+                <p>
+                랭뽑 순위표 오른쪽 하단에 <strong>랭뽑 참여 제한 기준</strong>이 명시되어 있습니다.<br>
+                일부 신규 서버는 해당 조건이 없을 수 있으며, 조건은 아래 중 하나입니다:
+                </p>
+                <ul>
+                    <li>전투력 ###### 이상(서버마다 상이)</li>
+                    <li>VIP5 이상</li>
+                </ul>
+                <p><strong>꼭 확인 후 참여하세요! 다이아 손해보는 일이 없도록요 🙅‍♂️</strong></p>
+
+                <h3>💎 랭킹뽑기 비용 및 보상</h3>
+                <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;">
+                    <thead>
+                        <tr>
+                            <td>순위</td>
+                            <td>소모 다이아</td>
+                            <td>보상 내용</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1등 (7000포)</td>
+                            <td>47,600</td>
+                            <td>S+ 포켓몬 1마리 + 조각 240개 + 테두리 + 에멜랄드 성석 5개</td>
+                        </tr>
+                        <tr>
+                            <td>2등 (5000포)</td>
+                            <td>34,000</td>
+                            <td>S+ 포켓몬 1마리 + 조각 160개 + 성석 4개</td>
+                        </tr>
+                        <tr>
+                            <td>3등 (4000포)</td>
+                            <td>27,200</td>
+                            <td>S+ 포켓몬 1마리 + 조각 80개 + 성석 4개</td>
+                        </tr>
+                        <tr>
+                            <td>4~6등 (3500포)</td>
+                            <td>23,800</td>
+                            <td>S+ 포켓몬 1마리 + 성석 4개 + 맛있는 우유 40개</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr>
+                <p style="font-size: 0.9em; color: gray;">
+                출처: <strong>s222 인연_밍ૢ</strong>
+                </p>
+            `
+        },
+        "limited": {
+            "name": "한정뽑기",
+            "content": `
+                <h2>🎯 한정뽑기 S+ 획득 일정</h2>
+                <ul>
+                    <li>25.05.23 - 알랭의 메가 리자몽X, 이로치 메가 나무킹</li>
+                    <li>25.06.27 - 이로치 메가 눈설왕, 이로치 메가 이상해꽃</li>
+                    <li>25.08.01 - 무한다이노, 미라이돈</li>
+                    <li>25.09.05 - 이로치 메가 나무킹, 챔피언 피카츄</li>
+                    <li>25.10.10 - 이로치 메가 이상해꽃, 웅의 메가 강철톤</li>
+                    <li>25.11.14 - 미라이돈, 코라이돈</li>
+                    <li>25.12.19 - 챔피언 피카츄, 메가 보만다</li>
+                    <li>26.01.23 - 웅의 메가 강철톤, 이로치 메가 핫삼</li>
+                    <li>26.02.27 - 코라이돈, 디아루가 오리진폼</li>
+                    <li>26.04.03 - 메가 보만다, 이로치 메가 헤라크로스</li>
+                </ul>
+
+                <h3>🎲 한정뽑기 확률 업 기준</h3>
+                <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;">
+                    <thead>
+                        <tr>
+                            <td>뽑기 횟수</td>
+                            <td>1마리째</td>
+                            <td>2마리째</td>
+                            <td>3~5마리째</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1~60회</td>
+                            <td>1%</td>
+                            <td>1%</td>
+                            <td>5%</td>
+                        </tr>
+                        <tr>
+                            <td>61~70회</td>
+                            <td>6%</td>
+                            <td>11%</td>
+                            <td>20%</td>
+                        </tr>
+                        <tr>
+                            <td>71~80회</td>
+                            <td>86%</td>
+                            <td>95%</td>
+                            <td>95%</td>
+                        </tr>
+                        <tr>
+                            <td>81~90회</td>
+                            <td colspan="3">공통 100% 확정</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p style="margin-top: 10px;">
+                    💡 <strong>TIP:</strong> 70회 이후에는 <mark>단일 뽑기(260 다이아)</mark>로 횟수를 조절해 뽑는 것이 <strong>다이아 절약에 도움</strong>됩니다!<br>
+                    (10회 뽑기 = 2480 다이아 / 단일 뽑기 5~6회면 800~1000 다야 절약 가능)<br>
+                    <strong>단!</strong> 0시가 되면 확률업이 <u>초기화</u>되니 시간 조절 필수입니다.
+                </p>
+
+                <p style="font-size: 0.9em; color: gray;">
+                출처: <strong>s222 인연_밍ૢ</strong>
+                </p>
+            `
         }
-    },
+    }
+},
     tips: {
         lev2: [
             { id: 'star', name: 'S+급·S급 단계별 성급재료 총정리표' },
