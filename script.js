@@ -12,10 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let activeButtons = {};
     let isMobile = window.innerWidth <= 768;
+    let isAdmin = false; // 관리자 모드 상태 저장 변수
 
     // --- 무효 트래픽 방지 설정 ---
-    const AD_CLICK_LIMIT = 5; // 클릭 제한 횟수
-    const AD_CLICK_TIME_WINDOW = 60 * 60 * 1000; // 1시간 (밀리초)
+    const AD_CLICK_LIMIT = 5;
+    const AD_CLICK_TIME_WINDOW = 60 * 60 * 1000;
 
     // --- 2. 초기화 ---
     function initialize() {
@@ -44,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         window.addEventListener('resize', () => { isMobile = window.innerWidth <= 768; });
         
-        // 광고 컨테이너에만 클릭 리스너 추가
         const adClickDetector = document.getElementById('ad-click-detector');
         if (adClickDetector) {
             adClickDetector.addEventListener('click', handleAdClick);
@@ -59,9 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setActive(level, button);
 
-        // [재활성화] 광고 새로고침 코드
-        if (window.adsbygoogle && adsContainer.style.display !== 'none') {
-            (adsbygoogle = window.adsbygoogle || []).push({});
+        // [수정] 관리자 모드가 아닐 때만 광고 새로고침 실행
+        if (!isAdmin) {
+            refreshAdSlot();
         }
 
         const nextLevel = level + 1;
@@ -84,21 +84,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleAdClick() {
+        if (isAdmin) return; // 관리자 모드에서는 클릭 카운트 안 함
+
         const now = Date.now();
         let adClicks = JSON.parse(localStorage.getItem('adClicks')) || [];
 
-        // 1시간이 지난 클릭 기록은 삭제
         adClicks = adClicks.filter(timestamp => (now - timestamp) < AD_CLICK_TIME_WINDOW);
-
-        // 새 클릭 기록 추가
         adClicks.push(now);
         localStorage.setItem('adClicks', JSON.stringify(adClicks));
 
-        // 클릭 제한 횟수 확인
         if (adClicks.length >= AD_CLICK_LIMIT) {
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(0, 0, 0, 0); // 다음날 자정
+            tomorrow.setHours(0, 0, 0, 0);
             
             localStorage.setItem('adBlockUntil', tomorrow.getTime());
             hideAdWithMessage('광고가 일시 중단되었습니다.');
@@ -138,18 +136,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         targetPanel.classList.add('visible');
     }
+    
+    // [신설] 광고 슬롯을 통째로 새로고침하는 안정적인 함수
+    function refreshAdSlot() {
+        // adsbygoogle.push()는 오류가 많으므로, 광고 슬롯 자체를 다시 그려줍니다.
+        const adClickDetector = document.getElementById('ad-click-detector');
+        if (adClickDetector && window.adsbygoogle) {
+            const adHtml = `
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311" crossorigin="anonymous"></script>
+                <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2125965839205311" data-ad-slot="5532734526" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            `;
+            adClickDetector.innerHTML = adHtml;
+        }
+    }
 
     function checkAdStatus() {
         const urlParams = new URLSearchParams(window.location.search);
         const blockUntil = localStorage.getItem('adBlockUntil');
 
-        // 관리자 모드 확인
         if (urlParams.get('admin') === 'true') {
+            isAdmin = true; // 관리자 상태 플래그 설정
             hideAdWithMessage('관리자 모드입니다.');
             return;
         }
 
-        // 차단 기간 확인
         if (blockUntil && Date.now() < parseInt(blockUntil)) {
             hideAdWithMessage('광고가 일시 중단되었습니다.');
         }
@@ -157,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function hideAdWithMessage(message) {
         adsContainer.innerHTML = `<div class="ad-message">${message}</div>`;
-        adsContainer.style.minHeight = 'auto'; // 메시지만 보이도록 높이 조절
+        adsContainer.style.minHeight = 'auto';
     }
 
     // --- 6. 헬퍼 함수 ---
