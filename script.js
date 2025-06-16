@@ -57,80 +57,95 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const sidebar = document.querySelector('.sidebar nav');
     const contentDisplay = document.querySelector('.content');
-    let currentPath = []; // [ { key: 'pokemon-types', data: {...} }, { key: '물', data: {...} } ]
+    // 방문 기록을 경로(key)의 배열로 관리하여 더 명확하게 처리
+    let pathKeys = []; // 예: ['pokemon-types', '물', '가이오가']
 
+    // 현재 경로의 데이터를 가져오는 함수
+    function getCurrentData(path) {
+        let data = siteData;
+        for (const key of path) {
+            data = data.items ? data.items[key] : data[key];
+        }
+        return data;
+    }
+
+    // 화면을 렌더링하는 메인 함수
     function render() {
         contentDisplay.innerHTML = ''; // 콘텐츠 영역 초기화
 
-        const currentCategoryData = currentPath.length > 0 ? currentPath[0].data : null;
-        if (!currentCategoryData) return;
+        if (pathKeys.length === 0) return; // 경로가 없으면 아무것도 안 함
 
-        const finalLevel = currentCategoryData.levels;
-        const currentLevel = currentPath.length;
+        // 1. 뒤로가기 버튼 렌더링
+        const backButton = document.createElement('button');
+        backButton.textContent = '< 뒤로';
+        backButton.className = 'back-button'; // CSS 클래스 추가
+        backButton.style.display = pathKeys.length > 1 ? 'block' : 'none'; // 첫 단계에선 숨김
+        backButton.onclick = goBack; // 뒤로가기 함수 연결
+        contentDisplay.appendChild(backButton);
+        
+        const currentData = getCurrentData(pathKeys);
+        const categoryData = getCurrentData(pathKeys.slice(0, 1));
+        const finalLevel = categoryData.levels;
+        const currentLevel = pathKeys.length;
 
-        // 최종 레벨에 도달했는지 확인
-        const isFinalLevelReached = currentLevel === finalLevel;
-
-        if (isFinalLevelReached) {
+        // 2. 최종 설명 화면인지, 중간 패널 화면인지 결정
+        if (currentLevel === finalLevel) {
             // 최종 설명 화면 렌더링
-            const finalData = currentPath[currentLevel - 1].data;
             const view = document.createElement('div');
             view.className = 'final-content-view';
-            view.innerHTML = `<h2>${finalData.title}</h2><p>${finalData.content}</p>`;
+            view.innerHTML = `<h2>${currentData.title}</h2><p>${currentData.content}</p>`;
             contentDisplay.appendChild(view);
         } else {
             // 다중 패널 렌더링
-            currentPath.forEach((pathItem, index) => {
-                const level = index + 1;
-                // 마지막 레벨-1 까지만 패널을 그림
-                if (level < finalLevel && pathItem.data.items) {
+            for (let i = 1; i <= currentLevel; i++) {
+                const dataForPanel = getCurrentData(pathKeys.slice(0, i));
+                
+                if (dataForPanel.items) {
                     const panel = document.createElement('div');
                     panel.className = 'content-panel';
-
-                    const title = document.createElement('h2');
-                    title.textContent = `${pathItem.data.title} (Lev.${level+1})`;
-                    panel.appendChild(title);
+                    
+                    let titleText = i > 0 ? getCurrentData(pathKeys.slice(0, i)).title : '';
+                    panel.innerHTML = `<h2>${titleText} (Lev.${i + 1})</h2>`;
 
                     const list = document.createElement('ul');
-                    Object.keys(pathItem.data.items).forEach(key => {
+                    Object.keys(dataForPanel.items).forEach(key => {
                         const listItem = document.createElement('li');
                         listItem.textContent = key;
-                        // 다음 레벨로 가기 위한 경로 정보를 저장
-                        listItem.dataset.path = JSON.stringify([...currentPath.slice(0, index + 1).map(p => p.key), key]);
+                        listItem.dataset.nextKey = key; // 다음 경로의 키 저장
                         list.appendChild(listItem);
                     });
                     panel.appendChild(list);
                     contentDisplay.appendChild(panel);
                 }
-            });
+            }
+        }
+    }
+    
+    // 뒤로가기 기능
+    function goBack() {
+        if (pathKeys.length > 1) {
+            pathKeys.pop(); // 마지막 경로 제거
+            render(); // 화면 다시 그리기
         }
     }
 
+    // 사이드바 클릭 이벤트
     sidebar.addEventListener('click', (e) => {
         if (e.target.tagName === 'LI') {
             const categoryKey = e.target.getAttribute('data-category');
             if (siteData[categoryKey]) {
-                currentPath = [{ key: categoryKey, data: siteData[categoryKey] }];
+                pathKeys = [categoryKey]; // 새 카테고리 클릭 시 경로 초기화
                 render();
             }
         }
     });
 
+    // 콘텐츠(패널) 클릭 이벤트
     contentDisplay.addEventListener('click', (e) => {
-        if (e.target.tagName === 'LI' && e.target.dataset.path) {
-            const pathKeys = JSON.parse(e.target.dataset.path);
-            let newPath = [];
-            let currentData = siteData;
-            for (const key of pathKeys) {
-                if (currentData[key]) {
-                    currentData = currentData[key];
-                } else {
-                    currentData = currentData.items[key];
-                }
-                newPath.push({ key: key, data: currentData });
-            }
-            currentPath = newPath;
-            render();
+        // LI 태그이고, 다음 키(nextKey) 정보를 가지고 있을 때만 작동
+        if (e.target.tagName === 'LI' && e.target.dataset.nextKey) {
+            pathKeys.push(e.target.dataset.nextKey); // 경로에 다음 키 추가
+            render(); // 화면 다시 그리기
         }
     });
 });
