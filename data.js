@@ -78,19 +78,87 @@ const DB = {
             masterBall: { name: '마스터볼', content: '<h3>마스터볼</h3><p>반드시 포켓몬을 잡는다.</p>' }
         }
     },
-    runeAndChip: {
-        lev2: [ {id: 'rune', name: '룬'}, {id: 'chip', name: '칩'} ],
-        lev3: {
-            rune: [ { id: 'critical', name: '치명' }, { id: 'berserker', name: '전투광' } ],
-            chip: [ { id: 'hwamu', name: '화무' }, { id: 'heonje', name: '헌제' } ],
-        },
-        lev4: {
-            critical: { name: '치명', content: '<h3>치명 룬</h3><p>상세 설명입니다.</p>'},
-            berserker: { name: '전투광', content: '<h3>전투광 룬</h3><p>상세 설명입니다.</p>'},
-            hwamu: { name: '화무 칩', content: '<h3>화무 칩</h3><p>상세 설명입니다.</p>'},
-            heonje: { name: '헌제 칩', content: '<h3>헌제 칩</h3><p>상세 설명입니다.</p>'}
-        }
+    
+    // --- 이 "run&chip" 블록 전체를 아래의 새로운 내용으로 교체해주세요 ---
+"run&chip": {
+    "lev2": [
+        { "id": "rune", "name": "룬" },
+        { "id": "chip", "name": "칩" }
+    ],
+    "lev3": {
+        "rune": [
+            { "id": "counter", "name": "반격" },
+            { "id": "sparkle", "name": "반짝임" },
+            { "id": "aegis", "name": "비호" },
+            { "id": "diamond", "name": "금강" },
+            { "id": "shield", "name": "실드" },
+            { "id": "defense", "name": "방어" },
+            { "id": "berserker", "name": "전투광" },
+            { "id": "critical", "name": "치명" },
+            { "id": "power", "name": "강격" }
+        ],
+        "chip": [
+            // 칩 데이터는 여기에 추가됩니다.
+        ]
     },
+    "lev4": {
+        "counter": {
+            "content": `
+                <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2F9FyNr%2FbtsOxx2LAy2%2Fk8M0rvXZ4gV7yDHTlVajoK%2Fimg.png" alt="반격 룬" style="width:100%; max-width:150px; margin-bottom: 10px;">
+                <p>서포트 룬스톤<br>반격3개 <span style="color: red;">공명(빨간색)</span>: 반사율+12%</p>
+            `
+        },
+        "sparkle": {
+            "content": `
+                <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbfWdrA%2FbtsOyqBPbpA%2FmxnqjrkMl8zVCuIiS5MTAK%2Fimg.png" alt="반짝임 룬" style="width:100%; max-width:150px; margin-bottom: 10px;">
+                <p>서포트 룬스톤<br>반짝임3개 <span style="color: red;">공명(빨간색)</span>: 흡혈률+8%</p>
+            `
+        },
+        "aegis": {
+            "content": `
+                <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbJUmHm%2FbtsOwNkWh7C%2F0dqMu4TQyn4Nt3wm4qmkMK%2Fimg.png" alt="비호 룬" style="width:100%; max-width:150px; margin-bottom: 10px;">
+                <p>서포트 룬스톤<br>비호3개 <span style="color: red;">공명(빨간색)</span>: 치료율+12%</p>
+            `
+        },
+        "diamond": {
+            "content": `
+                <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FdC0J7t%2FbtsOAg8pFld%2Fy1MlzkkA6nYkkFzx4DWcK0%2Fimg.png" alt="금강 룬" style="width:100%; max-width:150px; margin-bottom: 10px;">
+                <p>방어 룬스톤<br>금강3개 <span style="color: red;">공명(빨간색)</span>: PVP피해 감소율+8%<br>금강6개 <span style="color: red;">공명(빨간색)</span>: 피해 감소+8%</p>
+            `
+        },
+        "shield": {
+            "content": `
+                <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FephEJ1%2FbtsOxhTl9g7%2FLezrK4qGjmGxyKKNThKZ40%2Fimg.png" alt="실드 룬" style="width:100%; max-width:150px; margin-bottom: 10px;">
+                <p>방어 룬스톤<br>실드3개 <span style="color: red;">공명(빨간색)</span>: HP+16%<br>실드6개 <span style="color: red;">공명(빨간색)</span>: 치명타 내성+10%</p>
+            `
+        },
+        "defense": {
+            "content": `
+                <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FwQbPg%2FbtsOyoxe8xs%2FWfU1mfpn3ZLBWTjkoIS8IK%2Fimg.png" alt="방어 룬" style="width:100%; max-width:150px; margin-bottom: 10px;">
+                <p>방어 룬스톤<br>방어3개 <span style="color: red;">공명(빨간색)</span>: 저항률+10%<br>방어6개 <span style="color: red;">공명(빨간색)</span>: 저항 강도+10%</p>
+            `
+        },
+        "berserker": {
+            "content": `
+                <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbI8qmg%2FbtsOx9mICsj%2FHPekYM5s0k8xFLHYQoLdG1%2Fimg.png" alt="전투광 룬" style="width:100%; max-width:150px; margin-bottom: 10px;">
+                <p>공격 룬스톤<br>전투광3개 <span style="color: red;">공명(빨간색)</span>: PVP피해 보너스+8%<br>전투광6개 <span style="color: red;">공명(빨간색)</span>: 피해 보너스+8%</p>
+            `
+        },
+        "critical": {
+            "content": `
+                <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbU9JRa%2FbtsOv8izvWj%2FIf5dAZJsul5BwpbV6ECDuk%2Fimg.png" alt="치명 룬" style="width:100%; max-width:150px; margin-bottom: 10px;">
+                <p>공격 룬스톤<br>치명3개 <span style="color: red;">공명(빨간색)</span>: 치명타율 +8%<br>치명6개 <span style="color: red;">공명(빨간색)</span>: 치명타 피해+12%</p>
+            `
+        },
+        "power": {
+            "content": `
+                <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fxs8x9%2FbtsOxxPh1Nr%2FMun91YmWOgAB8pTnceOHzk%2Fimg.png" alt="강격 룬" style="width:100%; max-width:150px; margin-bottom: 10px;">
+                <p>공격 룬스톤<br>강격3개 <span style="color: red;">공명(빨간색)</span>: 공격+12%, 특수공격+12%<br>강격6개 <span style="color: red;">공명(빨간색)</span>: 방어 무시+10%, 특수방어 무시+10%</p>
+            `
+        }
+    }
+},
+
     deck: {
         lev2: [ { id: 'fireDeck', name: '불 추천덱' }, { id: 'waterDeck', name: '물 추천덱' } ],
         lev3: {
