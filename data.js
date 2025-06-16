@@ -14,12 +14,42 @@ const DB = {
         lev3: { 
             water: [ { id: 'kyogre', name: '가이오가' } ],
             fire: [ { id: 'charizard', name: '리자몽' } ],
-            // ... 다른 타입 데이터 생략 ...
+            normal: [ { id: 'snorlax', name: '잠만보' } ],
+            grass: [ { id: 'bulbasaur', name: '이상해씨' } ],
+            electric: [ { id: 'pikachu', name: '피카츄' } ],
+            ice: [ { id: 'lapras', name: '라프라스' } ],
+            fighting: [ { id: 'machamp', name: '괴력몬' } ],
+            poison: [ { id: 'gengar', name: '팬텀' } ],
+            ground: [ { id: 'rhydon', name: '코뿌리' } ],
+            flying: [ { id: 'pidgeot', name: '피죤투' } ],
+            psychic: [ { id: 'alakazam', name: '후딘' } ],
+            bug: [ { id: 'scyther', name: '스라크' } ],
+            rock: [ { id: 'golem', name: '딱구리' } ],
+            ghost: [ { id: 'gengar2', name: '팬텀' } ],
+            dragon: [ { id: 'dragonite', name: '망나뇽' } ],
+            dark: [ { id: 'tyranitar', name: '마기라스' } ],
+            steel: [ { id: 'scizor', name: '핫삼' } ],
+            fairy: [ { id: 'gardevoir', name: '가디안' } ]
         },
         lev4: { 
             kyogre: { name: '가이오가', content: '<h3>가이오가</h3><p>바다를 넓힌 포켓몬으로 알려져있다.</p>' },
             charizard: { name: '리자몽', content: '<h3>리자몽</h3><p>맹렬한 불꽃을 내뿜는다.</p>' },
-            // ... 다른 포켓몬 데이터 생략 ...
+            snorlax: { name: '잠만보', content: '<h3>잠만보</h3><p>먹고 자는게 일상이다.</p>' },
+            bulbasaur: { name: '이상해씨', content: '<h3>이상해씨</h3><p>씨앗 포켓몬이다.</p>'},
+            pikachu: { name: '피카츄', content: '<h3>피카츄</h3><p>전기 포켓몬이다.</p>'},
+            lapras: { name: '라프라스', content: '<h3>라프라스</h3><p>탈것 포켓몬이다.</p>'},
+            machamp: { name: '괴력몬', content: '<h3>괴력몬</h3><p>괴력 포켓몬이다.</p>'},
+            gengar: { name: '팬텀', content: '<h3>팬텀</h3><p>그림자 포켓몬이다.</p>'},
+            rhydon: { name: '코뿌리', content: '<h3>코뿌리</h3><p>드릴 포켓몬이다.</p>'},
+            pidgeot: { name: '피죤투', content: '<h3>피죤투</h3><p>새 포켓몬이다.</p>'},
+            alakazam: { name: '후딘', content: '<h3>후딘</h3><p>초능력 포켓몬이다.</p>'},
+            scyther: { name: '스라크', content: '<h3>스라크</h3><p>사마귀 포켓몬이다.</p>'},
+            golem: { name: '딱구리', content: '<h3>딱구리</h3><p>거석 포켓몬이다.</p>'},
+            gengar2: { name: '팬텀', content: '<h3>팬텀</h3><p>그림자 포켓몬이다.</p>'},
+            dragonite: { name: '망나뇽', content: '<h3>망나뇽</h3><p>드래곤 포켓몬이다.</p>'},
+            tyranitar: { name: '마기라스', content: '<h3>마기라스</h3><p>갑옷 포켓몬이다.</p>'},
+            scizor: { name: '핫삼', content: '<h3>핫삼</h3><p>집게 포켓몬이다.</p>'},
+            gardevoir: { name: '가디안', content: '<h3>가디안</h3><p>포용 포켓몬이다.</p>'}
         }
     },
     pokemonGrade: {
@@ -49,10 +79,21 @@ const DB = {
         }
     },
     runeAndChip: {
-        lev2: [ { id: "rune", name: "룬" }, { id: "chip", name: "칩" } ],
+        lev2: [
+            { id: "rune", name: "룬" },
+            { id: "chip", name: "칩" }
+        ],
         lev3: {
-            rune: [ { id: "counter", name: "반격" }, { id: "sparkle", name: "반짝임" }, { id: "aegis", name: "비호" }, { id: "diamond", name: "금강" }, { id: "shield", name: "실드" }, { id: "defense", name: "방어" }, { id: "berserker", name: "전투광" }, { id: "critical", name: "치명" }, { id: "power", name: "강격" } ],
-            chip: [ { id: "sacrifice", name: "헌제" }, { id: "terror", name: "공포" }, { id: "psychic", name: "초능" }, { id: "snakeghost", name: "뱀유령" }, { id: "pavise", name: "방패" }, { id: "carapace", name: "귀갑" }, { id: "wolfwalker", name: "늑대행자" }, { id: "frogthorn", name: "개구리가시" }, { id: "firedance", name: "화무" } ]
+            rune: [
+                { id: "counter", name: "반격" }, { id: "sparkle", name: "반짝임" }, { id: "aegis", name: "비호" },
+                { id: "diamond", name: "금강" }, { id: "shield", name: "실드" }, { id: "defense", name: "방어" },
+                { id: "berserker", name: "전투광" }, { id: "critical", name: "치명" }, { id: "power", name: "강격" }
+            ],
+            chip: [
+                { id: "sacrifice", name: "헌제" }, { id: "terror", name: "공포" }, { id: "psychic", name: "초능" },
+                { id: "snakeghost", name: "뱀유령" }, { id: "pavise", name: "방패" }, { id: "carapace", name: "귀갑" },
+                { id: "wolfwalker", name: "늑대행자" }, { id: "frogthorn", name: "개구리가시" }, { id: "firedance", name: "화무" }
+            ]
         },
         lev4: {
             counter: { content: `<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2F9FyNr%2FbtsOxx2LAy2%2Fk8M0rvXZ4gV7yDHTlVajoK%2Fimg.png" alt="반격 룬" style="width:100%; max-width:150px; margin-bottom: 10px;"><p>서포트 룬스톤<br>반격3개 <span style="color: red;">공명(빨간색)</span>: 반사율+12%</p>` },
@@ -66,7 +107,13 @@ const DB = {
             power: { content: `<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fxs8x9%2FbtsOxxPh1Nr%2FMun91YmWOgAB8pTnceOHzk%2Fimg.png" alt="강격 룬" style="width:100%; max-width:150px; margin-bottom: 10px;"><p>공격 룬스톤<br>강격3개 <span style="color: red;">공명(빨간색)</span>: 공격+12%, 특수공격+12%<br>강격6개 <span style="color: red;">공명(빨간색)</span>: 방어 무시+10%, 특수방어 무시+10%</p>` },
             sacrifice: { content: `<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FczfuV4%2FbtsOv8CROis%2FPuSYgpKgB5iISfz3dlRmuk%2Fimg.png" alt="헌제 칩" style="width:100%; max-width:150px; margin-bottom: 10px;"><p>2개 세트: HP+9%, 공격+6%, 특수공격+6%<br>4개 세트: 사망이나 반죽음 상태 적 전체 피해 보너스 및 피해 감소 12%를 1턴간 감소, 6번째 턴에 사망 후 효과 적용 1턴 간 상승</p>` },
             terror: { content: `<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbdgxEQ%2FbtsOxAZwhTC%2FEqK9dhp4kutyPfmYh7kKLK%2Fimg.png" alt="공포 칩" style="width:100%; max-width:150px; margin-bottom: 10px;"><p>2개 세트: HP+9%, 공격+6%, 특수공격+6%<br>4개 세트: 필살기를 발동 시 공격 범위 내의 무작위 한 목표에서 부노 180 감소하고, 40%의 확률로 (첫 필살기 100%) 한 목표에 추가적으로 적용한다.</p>` },
-            // ... 다른 칩 데이터 생략 ...
+            psychic: { content: `<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fyx9zX%2FbtsOv9u3EEh%2FIKOC48KEUZBBlYlmuGcIL1%2Fimg.png" alt="초능 칩" style="width:100%; max-width:150px; margin-bottom: 10px;"><p>HP+9%, 공격+6%, 특수공격+6%<br>4개 세트: 필살기를 발동 시 공격 범위 내의 유닛에게 10%의 확률로 (메인 목표 25%) 무작위 제어 효과를 부여 (기절, 침묵, 마비, 수면), 라운드 내에 필살기를 발동되지 않으면 제어 확률 3% 증가(중첩 가능), 핈갈기를 발동한 후 증가 해제</p>` },
+            snakeghost: { content: `<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fevl7Dp%2FbtsOxuSsHOD%2Fd7KC7HhhmD6fg8kIcoeBJk%2Fimg.png" alt="뱀유령 칩" style="width:100%; max-width:150px; margin-bottom: 10px;"><p>HP+12%<br>4개 세트: 자신 HP가 50% 이상일 시 피해 감소 15%와 치명타 내성 8% 증가, 자신 주변의 유닛 HP가 60% 이상일 시 피해 감소 8%와 치명타 내성 5% 증가</p>` },
+            pavise: { content: `<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbA4VZ9%2FbtsOx98ansp%2FjUyqK3fNkvXTfQ0VkoZ6SK%2Fimg.png" alt="방패 칩" style="width:100%; max-width:150px; margin-bottom: 10px;"><p>HP+12%<br>4개 세트: 일반 스킬이나 필살기를 발동 후, 자신과 다른 랜덤 한 유닛에게 최대 HP 17%의 실드를 추가</p>` },
+            carapace: { content: `<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fc8VOzU%2FbtsOxsm48DU%2FWhK44S6yRIogtTK9Tm9kg1%2Fimg.png" alt="귀갑 칩" style="width:100%; max-width:150px; margin-bottom: 10px;"><p>HP+12%<br>4개 세트: 스킬 피해를 받은 후 100%의 확률로 이번 입은 피해의 27%를 반사 (해당 효과가 적용될 때마다 반사 확률 20% 낮추고 최소 60%까지 낮춘다.)</p>` },
+            wolfwalker: { content: `<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcUh4D2%2FbtsOx40jDq4%2FyXEinUS88JPLxcuACYkjr1%2Fimg.png" alt="늑대행자 칩" style="width:100%; max-width:150px; margin-bottom: 10px;"><p>공격+9%, 특수공격+9%<br>4개 세트: HP가 50%이상인 목표에게 스킬 피해 20% 증가</p>` },
+            frogthorn: { content: `<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcvD4ic%2FbtsOwxo9URU%2FAkK0KJQV79AK5MGMMi4nEk%2Fimg.png" alt="개구리가시 칩" style="width:100%; max-width:150px; margin-bottom: 10px;"><p>공격+9%, 특수공격+9%<br>4개 세트: HP 1% 손실될 때마다 피해 보너스 0.29%와 필살기 피해 보너스 0.1% 증가: HP가 50% 이하일 시 10%의 흡혈 효과 상승</p>` },
+            firedance: { content: `<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FGSHbB%2FbtsOx98anu1%2FlX42okgwuVKWR0ufIGTvgK%2Fimg.png" alt="화무 칩" style="width:100%; max-width:150px; margin-bottom: 10px;"><p>공격+9%, 특수공격+9%<br>4개 세트: 주동적인 공격이 저항 당하거나 치명타를 안한다면 앞으로 1~2턴간 자신의 치명타율 및 치명타 피해 18% 증가</p>` }
         }
     },
     deck: {
@@ -89,8 +136,59 @@ const DB = {
             { id: 'guide', name: '육성가이드' }
         ],
         lev3: {
-            "star": { "name": "S+급·S급 단계별 성급재료 총정리표", "content": `<h2>S+급 성급재료 소모표</h2><table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;">...</table><br><br><h2>S급 성급재료 소모표</h2><table border="1" ...>...</table>` },
-            "guide": { "name": "육성가이드", "content": "<h3>육성 가이드입니다.</h3><p>내용은 나중에 채워넣습니다.</p>"}
+            "star": {
+                "name": "S+급·S급 단계별 성급재료 총정리표",
+                "content": `
+                    <h2>S+급 성급재료 소모표</h2>
+                    <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;">
+                        <thead>
+                            <tr>
+                                <td>성급 단계</td>
+                                <td>소모 재료 수</td>
+                                <td>누적 수량</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>4 → 5성</td><td>1마리</td><td>1마리</td></tr>
+                            <tr><td>5 → 6성</td><td>1마리</td><td>2마리</td></tr>
+                            <tr><td>6 → 7성</td><td>2마리</td><td>4마리</td></tr>
+                            <tr><td>7 → 8성</td><td>2마리</td><td>6마리</td></tr>
+                            <tr><td>8 → 9성</td><td>2마리</td><td>8마리</td></tr>
+                            <tr><td>9 → 10성</td><td>3마리</td><td>11마리</td></tr>
+                            <tr><td>10 → 11성</td><td>3마리</td><td>14마리</td></tr>
+                            <tr><td>11 → 12성</td><td>3마리</td><td>17마리</td></tr>
+                        </tbody>
+                    </table>
+
+                    <br><br>
+
+                    <h2>S급 성급재료 소모표</h2>
+                    <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;">
+                        <thead>
+                            <tr>
+                                <td>성급 단계</td>
+                                <td>소모 재료 수</td>
+                                <td>누적 수량</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>3 → 4성</td><td>1마리</td><td>1마리</td></tr>
+                            <tr><td>4 → 5성</td><td>1마리</td><td>2마리</td></tr>
+                            <tr><td>5 → 6성</td><td>2마리</td><td>4마리</td></tr>
+                            <tr><td>6 → 7성</td><td>2마리</td><td>6마리</td></tr>
+                            <tr><td>7 → 8성</td><td>2마리</td><td>8마리</td></tr>
+                            <tr><td>8 → 9성</td><td>3마리</td><td>11마리</td></tr>
+                            <tr><td>9 → 10성</td><td>3마리</td><td>14마리</td></tr>
+                            <tr><td>10 → 11성</td><td>3마리</td><td>17마리</td></tr>
+                            <tr><td>11 → 12성</td><td>4마리</td><td>21마리</td></tr>
+                        </tbody>
+                    </table>
+                `
+            },
+            "guide": {
+                "name": "육성가이드",
+                "content": "<h3>육성 가이드입니다.</h3><p>내용은 나중에 채워넣습니다.</p>"
+            }
         }
     }
 };
