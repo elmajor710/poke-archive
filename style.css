@@ -162,3 +162,10 @@ header h1 {
         font-size: 14px; /* 뒤로가기 버튼 폰트 크기 조정 */
     }
 }
+
+/* --- 광고 차단 메시지 스타일 --- */
+.ad-message {
+    color: #6c757d;
+    font-size: 14px;
+    padding: 20px 0;
+}
