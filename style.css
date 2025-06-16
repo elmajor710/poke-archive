@@ -1,134 +1,80 @@
-/* 기본 폰트 및 배경 설정 */
+:root {
+    --sidebar-width: 240px;
+    --panel-width: 300px;
+    --primary-color: #007bff;
+    --active-color: #e6f2ff;
+    --border-color: #dee2e6;
+}
 body {
-    font-family: 'Noto Sans KR', sans-serif;
     margin: 0;
-    background-color: #f4f7f9;
-    color: #333;
-    font-size: 16px;
-}
-
-/* 헤더 스타일 */
-header {
-    background-color: #007bff;
-    color: white;
-    padding: 1rem;
-    text-align: center;
-}
-
-/* 메인 컨테이너 레이아웃 */
-.container {
+    font-family: sans-serif;
     display: flex;
-    max-width: 1200px;
-    margin: 20px auto;
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-    min-height: 70vh;
+    height: 100vh;
+    overflow: hidden;
 }
-
-/* 사이드바 스타일 */
-.sidebar {
-    flex: 0 0 200px;
-    padding: 20px;
-    border-right: 1px solid #ddd;
+#app-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
 }
-
-.sidebar nav ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
+#sidebar {
+    width: var(--sidebar-width);
+    border-right: 1px solid var(--border-color);
+    padding: 10px;
+    overflow-y: auto;
+    flex-shrink: 0;
 }
-
-.sidebar nav li {
-    padding: 15px;
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
-    transition: background-color 0.3s;
-    line-height: 1.6;
-}
-
-.sidebar nav li:hover {
-    background-color: #e9f5ff;
-}
-
-/* 콘텐츠 영역 스타일 */
-.content {
+#content-area {
     flex-grow: 1;
-    display: flex; /* 여러 패널을 담기 위한 flexbox */
-    padding: 20px;
-    gap: 20px; /* 패널 사이의 간격 */
+    display: flex;
 }
-
-/* 각 레벨을 표시하는 패널 스타일 */
-.content-panel {
-    border: 1px solid #e0e0e0;
-    padding: 15px;
-    border-radius: 8px;
-    background-color: #fcfcfc;
-    flex: 1; /* 패널이 공간을 균등하게 차지하도록 */
-    min-width: 200px; /* 패널의 최소 너비 */
+.panel {
+    width: var(--panel-width);
+    border-right: 1px solid var(--border-color);
+    background: #fff;
+    display: none; /* 기본 숨김 */
+    flex-direction: column;
 }
-
-.content-panel h2 {
-    margin-top: 0;
-    font-size: 1.2em;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 10px;
+.panel.visible {
+    display: flex; /* 보일 때만 나타남 */
 }
-
-.content-panel ul {
-    list-style-type: none;
-    padding: 0;
+.panel-header {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
 }
-
-.content-panel li {
-    padding: 8px 12px;
-    margin-bottom: 5px;
-    cursor: pointer;
-    line-height: 1.8;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-}
-
-.content-panel li:hover {
-    background-color: #f0f0f0;
-}
-
-
-/* 최종 설명 화면 스타일 */
-.final-content-view {
-    padding: 15px;
+.panel-content {
+    padding: 10px;
+    overflow-y: auto;
     flex-grow: 1;
 }
-.final-content-view h2 {
-    font-size: 1.5em;
-    color: #007bff;
+.menu-item, .list-item {
+    display: block; width: 100%; text-align: left;
+    padding: 12px; margin-bottom: 5px;
+    border: 1px solid #eee; background: #f9f9f9;
+    border-radius: 6px; font-size: 16px; cursor: pointer;
+}
+.menu-item.active, .list-item.active {
+    background-color: var(--active-color);
+    border-left: 4px solid var(--primary-color);
+    font-weight: 600;
 }
 
-/* 푸터 스타일 */
-footer {
-    text-align: center;
-    padding: 20px;
-    margin-top: 20px;
-    background-color: #343a40;
-    color: white;
+/* 최종 콘텐츠 보기 모드 스타일 */
+/* Lev.4가 최종 화면일 때 */
+#content-area.final-view-L4 #lev2-panel,
+#content-area.final-view-L4 #lev3-panel {
+    display: none !important;
+}
+#content-area.final-view-L4 #lev4-panel {
+    width: 100%;
+    border-right: none;
 }
 
-/* 포켓몬 타입별 색상 클래스 */
-.type-normal { background-color: #A8A77A; color: white; }
-.type-fire { background-color: #EE8130; color: white; }
-.type-water { background-color: #6390F0; color: white; }
-.type-electric { background-color: #F7D02C; color: #333; }
-.type-grass { background-color: #7AC74C; color: white; }
-.type-ice { background-color: #96D9D6; color: #333; }
-.type-fighting { background-color: #C22E28; color: white; }
-.type-poison { background-color: #A33EA1; color: white; }
-.type-ground { background-color: #E2BF65; color: #333; }
-.type-flying { background-color: #A98FF3; color: white; }
-.type-psychic { background-color: #F95587; color: white; }
-.type-bug { background-color: #A6B91A; color: white; }
-.type-rock { background-color: #B6A136; color: white; }
-.type-ghost { background-color: #735797; color: white; }
-.type-dragon { background-color: #6F35FC; color: white; }
-.type-dark { background-color: #705746; color: white; }
-.type-steel { background-color: #B7B7CE; color: #333; }
-.type-fairy { background-color: #D685AD; color: white; }
+/* Lev.3가 최종 화면일 때 */
+#content-area.final-view-L3 #lev2-panel {
+    display: none !important;
+}
+#content-area.final-view-L3 #lev3-panel {
+    width: 100%;
+    border-right: none;
+}
