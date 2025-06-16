@@ -259,66 +259,93 @@ calendar: {
         }
     }
 },
-    tips: {
-        lev2: [
-            { id: 'star', name: 'S+급·S급 단계별 성급재료 총정리표' },
-            { id: 'guide', name: '육성가이드' }
-        ],
-        lev3: {
-            "star": {
-                "name": "S+급·S급 단계별 성급재료 총정리표",
-                "content": `
-                    <h2>S+급 성급재료 소모표</h2>
-                    <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;">
-                        <thead>
-                            <tr>
-                                <td>성급 단계</td>
-                                <td>소모 재료 수</td>
-                                <td>누적 수량</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>4 → 5성</td><td>1마리</td><td>1마리</td></tr>
-                            <tr><td>5 → 6성</td><td>1마리</td><td>2마리</td></tr>
-                            <tr><td>6 → 7성</td><td>2마리</td><td>4마리</td></tr>
-                            <tr><td>7 → 8성</td><td>2마리</td><td>6마리</td></tr>
-                            <tr><td>8 → 9성</td><td>2마리</td><td>8마리</td></tr>
-                            <tr><td>9 → 10성</td><td>3마리</td><td>11마리</td></tr>
-                            <tr><td>10 → 11성</td><td>3마리</td><td>14마리</td></tr>
-                            <tr><td>11 → 12성</td><td>3마리</td><td>17마리</td></tr>
-                        </tbody>
-                    </table>
+    // --- 이 "tips" 블록 전체를 아래의 새로운 내용으로 교체해주세요 ---
+tips: {
+    lev2: [
+        { id: 'star', name: 'S+급·S급 단계별 성급재료 총정리표' },
+        { id: 'guide', name: '포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10' }
+    ],
+    lev3: {
+        "star": {
+            "name": "S+급·S급 단계별 성급재료 총정리표",
+            "content": `
+                <h2>S+급 성급재료 소모표</h2>
+                <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;">
+                    <thead>
+                        <tr><td>성급 단계</td><td>소모 재료 수</td><td>누적 수량</td></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>4 → 5성</td><td>1마리</td><td>1마리</td></tr>
+                        <tr><td>5 → 6성</td><td>1마리</td><td>2마리</td></tr>
+                        <tr><td>6 → 7성</td><td>2마리</td><td>4마리</td></tr>
+                        <tr><td>7 → 8성</td><td>2마리</td><td>6마리</td></tr>
+                        <tr><td>8 → 9성</td><td>2마리</td><td>8마리</td></tr>
+                        <tr><td>9 → 10성</td><td>3마리</td><td>11마리</td></tr>
+                        <tr><td>10 → 11성</td><td>3마리</td><td>14마리</td></tr>
+                        <tr><td>11 → 12성</td><td>3마리</td><td>17마리</td></tr>
+                    </tbody>
+                </table>
+                <br><br>
+                <h2>S급 성급재료 소모표</h2>
+                <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;">
+                    <thead>
+                        <tr><td>성급 단계</td><td>소모 재료 수</td><td>누적 수량</td></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>3 → 4성</td><td>1마리</td><td>1마리</td></tr>
+                        <tr><td>4 → 5성</td><td>1마리</td><td>2마리</td></tr>
+                        <tr><td>5 → 6성</td><td>2마리</td><td>4마리</td></tr>
+                        <tr><td>6 → 7성</td><td>2마리</td><td>6마리</td></tr>
+                        <tr><td>7 → 8성</td><td>2마리</td><td>8마리</td></tr>
+                        <tr><td>8 → 9성</td><td>3마리</td><td>11마리</td></tr>
+                        <tr><td>9 → 10성</td><td>3마리</td><td>14마리</td></tr>
+                        <tr><td>10 → 11성</td><td>3마리</td><td>17마리</td></tr>
+                        <tr><td>11 → 12성</td><td>4마리</td><td>21마리</td></tr>
+                    </tbody>
+                </table>
+            `
+        },
+        "guide": {
+            "name": "포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10",
+            "content": `
+                <h2>🌟 포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP 10</h2>
+                <ol>
+                    <li><strong>A급, B급 포켓몬은 함부로 분해하지 마세요!</strong><br>
+                    → 12성까지 진화에 필요하며, 도감 보너스도 챙길 수 있습니다.</li>
 
-                    <br><br>
+                    <li><strong>만능조각은 S급에 쓰지 마세요.</strong><br>
+                    → 추후 S+급이나 귀한 포켓몬에게 아껴두세요.</li>
 
-                    <h2>S급 성급재료 소모표</h2>
-                    <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;">
-                        <thead>
-                            <tr>
-                                <td>성급 단계</td>
-                                <td>소모 재료 수</td>
-                                <td>누적 수량</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>3 → 4성</td><td>1마리</td><td>1마리</td></tr>
-                            <tr><td>4 → 5성</td><td>1마리</td><td>2마리</td></tr>
-                            <tr><td>5 → 6성</td><td>2마리</td><td>4마리</td></tr>
-                            <tr><td>6 → 7성</td><td>2마리</td><td>6마리</td></tr>
-                            <tr><td>7 → 8성</td><td>2마리</td><td>8마리</td></tr>
-                            <tr><td>8 → 9성</td><td>3마리</td><td>11마리</td></tr>
-                            <tr><td>9 → 10성</td><td>3마리</td><td>14마리</td></tr>
-                            <tr><td>10 → 11성</td><td>3마리</td><td>17마리</td></tr>
-                            <tr><td>11 → 12성</td><td>4마리</td><td>21마리</td></tr>
-                        </tbody>
-                    </table>
-                `
-            },
-            "guide": {
-                "name": "육성가이드",
-                "content": "<h3>육성 가이드입니다.</h3><p>내용은 나중에 채워넣습니다.</p>"
-            }
+                    <li><strong>체력을 다이아로 너무 자주 사지 마세요.</strong><br>
+                    → 하루 2~3회 정도만 구입하는 것이 적당합니다.</li>
+
+                    <li><strong>S급 포켓몬 뽑기에 다이아를 낭비하지 마세요.</strong><br>
+                    → 효율이 낮고 후회할 확률 높습니다.</li>
+
+                    <li><strong>주황색 메타몽은 성급하기 어려운 포켓몬에 사용하세요.</strong><br>
+                    → 레어 포켓몬을 중심으로 사용하면 성급작 수월합니다.</li>
+
+                    <li><strong>보라색 메타몽은 나옹에게 우선적으로 투자하세요.</strong><br>
+                    → 팀 구성이나 PVP에서 큰 도움을 줄 수 있습니다.</li>
+
+                    <li><strong>보상 선택 시, 아바타부터 받는 것이 이득입니다.</strong><br>
+                    → 전투력 상승 및 외형 효과까지 일석이조!</li>
+
+                    <li><strong>로비 화면에서 눈이 점(.)인 포켓몬을 꼭 눌러보세요.</strong><br>
+                    → <u>메타몽 = 다이아</u>를 얻을 수 있는 숨겨진 요소! (3일에 1번)</li>
+
+                    <li><strong>주먹밥, 도시락 등 체력 아이템은 모아두세요.</strong><br>
+                    → <mark>소탕 2배 이벤트</mark> 기간에 사용하면 효율 극대화!</li>
+
+                    <li><strong>악세사리·탐지기 뽑기는 재화 150~300개 모아 이벤트 때 사용하세요.</strong><br>
+                    → 누적 사용 시 보상도 높아지는 구조입니다.</li>
+                </ol>
+
+                <p style="font-size: 0.9em; color: gray;">
+                출처: <strong>S170/FS_신디 & 90&131 너 뿐</strong>
+                </p>
+            `
         }
     }
-};
+}
 // ------------ END: 여기까지의 코드로 data.js 파일 전체를 교체해주세요. ------------
