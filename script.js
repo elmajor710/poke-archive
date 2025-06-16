@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. 기본 요소 및 변수 설정 ---
     const app = document.getElementById('app-container');
+const adsContainer = document.getElementById('ads-container');
     const sidebar = document.getElementById('sidebar');
     const contentArea = document.getElementById('content-area');
     const panels = {
@@ -44,28 +45,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 4. 클릭 핸들러 ---
-    function handleMenuClick(button) {
-        const level = parseInt(button.dataset.level);
-        const id = button.dataset.id;
-        const context = button.dataset;
+    // --- 이 함수를 아래의 새로운 내용으로 통째로 교체하세요 ---
+function handleMenuClick(button) {
+    const level = parseInt(button.dataset.level);
+    const id = button.dataset.id;
+    const context = button.dataset;
 
-        setActive(level, button);
+    setActive(level, button);
 
-        const nextLevel = level + 1;
-        if (nextLevel > 5) return; // 레벨은 4까지 있으므로 5 이상은 처리 안함
-
-        // 다음 레벨에 필요한 데이터 찾기
-        let nextData;
-        if (nextLevel === 2) {
-            nextData = DB[id]?.lev2;
-        } else if (nextLevel === 3) {
-            nextData = DB[context.menuId]?.lev3?.[id];
-        } else if (nextLevel === 4) {
-            nextData = DB[context.menuId]?.lev4?.[id];
-        }
-        
-        renderPanel(nextLevel, nextData, context);
+    // [추가된 부분] 광고 새로고침 코드입니다.
+    // adsbygoogle 스크립트가 로드되었을 때만 실행하여 만일의 오류를 방지합니다.
+    if (window.adsbygoogle) {
+        (adsbygoogle = window.adsbygoogle || []).push({});
     }
+
+    const nextLevel = level + 1;
+    if (nextLevel > 5) return; // 레벨은 4까지 있으므로 5 이상은 처리 안함
+
+    // 다음 레벨에 필요한 데이터 찾기
+    let nextData;
+    if (nextLevel === 2) {
+        nextData = DB[id]?.lev2;
+    } else if (nextLevel === 3) {
+        nextData = DB[context.menuId]?.lev3?.[id];
+    } else if (nextLevel === 4) {
+        nextData = DB[context.menuId]?.lev4?.[id];
+    }
+    
+    renderPanel(nextLevel, nextData, context);
+}
 
     function handleBackClick(button) {
 		const parentPanel = button.closest('.panel');
