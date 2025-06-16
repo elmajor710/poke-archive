@@ -130,12 +130,66 @@ const DB = {
             limited: { name: '한정뽑기 일정', content: `<h3>한정뽑기 일정</h3><p>2025.08.01 무한다이노, 미라이돈</p>` }
         }
     },
-    tips: {
-        lev2: [ { id: 'guide', name: '육성가이드' }, { id: 'star', name: '성급기준' } ],
-        lev3: { 
-            guide: { name: '육성가이드', content: '<h3>육성 가이드입니다.</h3><p>내용은 나중에 채워넣습니다.</p>'},
-            star: { name: '성급기준', content: '<h3>성급 기준입니다.</h3><p>내용은 나중에 채워넣습니다.</p>'}
+    // --- 이 "tips" 블록 전체를 아래의 새로운 내용으로 교체해주세요 ---
+tips: {
+    lev2: [
+        { id: 'star', name: 'S+급·S급 단계별 성급재료 총정리표' },
+        { id: 'guide', name: '육성가이드' }
+    ],
+    lev3: {
+        "star": {
+            "name": "S+급·S급 단계별 성급재료 총정리표",
+            "content": `
+                <h2>S+급 성급재료 소모표</h2>
+                <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;">
+                    <thead>
+                        <tr>
+                            <td>성급 단계</td>
+                            <td>소모 재료 수</td>
+                            <td>누적 수량</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>4 → 5성</td><td>1마리</td><td>1마리</td></tr>
+                        <tr><td>5 → 6성</td><td>1마리</td><td>2마리</td></tr>
+                        <tr><td>6 → 7성</td><td>2마리</td><td>4마리</td></tr>
+                        <tr><td>7 → 8성</td><td>2마리</td><td>6마리</td></tr>
+                        <tr><td>8 → 9성</td><td>2마리</td><td>8마리</td></tr>
+                        <tr><td>9 → 10성</td><td>3마리</td><td>11마리</td></tr>
+                        <tr><td>10 → 11성</td><td>3마리</td><td>14마리</td></tr>
+                        <tr><td>11 → 12성</td><td>3마리</td><td>17마리</td></tr>
+                    </tbody>
+                </table>
+
+                <br><br>
+
+                <h2>S급 성급재료 소모표</h2>
+                <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;">
+                    <thead>
+                        <tr>
+                            <td>성급 단계</td>
+                            <td>소모 재료 수</td>
+                            <td>누적 수량</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>3 → 4성</td><td>1마리</td><td>1마리</td></tr>
+                        <tr><td>4 → 5성</td><td>1마리</td><td>2마리</td></tr>
+                        <tr><td>5 → 6성</td><td>2마리</td><td>4마리</td></tr>
+                        <tr><td>6 → 7성</td><td>2마리</td><td>6마리</td></tr>
+                        <tr><td>7 → 8성</td><td>2마리</td><td>8마리</td></tr>
+                        <tr><td>8 → 9성</td><td>3마리</td><td>11마리</td></tr>
+                        <tr><td>9 → 10성</td><td>3마리</td><td>14마리</td></tr>
+                        <tr><td>10 → 11성</td><td>3마리</td><td>17마리</td></tr>
+                        <tr><td>11 → 12성</td><td>4마리</td><td>21마리</td></tr>
+                    </tbody>
+                </table>
+            `
+        },
+        "guide": {
+            "name": "육성가이드",
+            "content": "<h3>육성 가이드입니다.</h3><p>내용은 나중에 채워넣습니다.</p>"
         }
     }
-};
+},
 // ------------ END: 여기까지의 코드로 data.js 파일 전체를 교체해주세요. ------------
