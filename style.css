@@ -178,3 +178,12 @@ header h1 {
     -ms-user-select: none;     /* IE10+ */
     user-select: none;         /* Standard */
 }
+
+/* --- 광고 클릭 감지 영역 활성화 스타일 --- */
+#ad-click-detector {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
