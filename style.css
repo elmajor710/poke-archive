@@ -78,3 +78,39 @@ body {
     width: 100%;
     border-right: none;
 }
+
+/* --- 모바일 반응형 스타일 (768px 이하 화면에 적용) --- */
+@media (max-width: 768px) {
+    /* 모바일에서는 CSS 변수 값을 덮어씁니다. */
+    :root {
+        --sidebar-width: 120px; /* 1. 사이드바 너비를 절반 정도로 줄입니다. */
+        --panel-width: 240px;   /* 3. 패널 너비도 화면에 맞게 함께 조정합니다. */
+    }
+
+    body, #app-container {
+        /* 화면을 벗어날 경우, 앱 전체가 아닌 콘텐츠 영역만 스크롤 되도록 설정 */
+        overflow: hidden;
+    }
+    
+    #content-area {
+        /* 패널이 많아져 화면을 넘칠 경우, 콘텐츠 영역만 가로 스크롤이 가능하도록 합니다. */
+        overflow-x: auto;
+    }
+
+    /* 가독성을 위해 사이드바와 패널 내부 여백(padding)을 줄입니다. */
+    #sidebar, .panel-content {
+        padding: 8px;
+    }
+
+    /* 가독성을 위해 메뉴와 리스트 아이템의 글자 크기를 약간 줄이고 여백을 조정합니다. */
+    .menu-item, .list-item {
+        font-size: 15px;
+        padding: 10px 8px;
+    }
+
+    /* 2. 뒤로가기 버튼이 각 패널의 헤더 안에 위치하여 명확성을 높입니다. (HTML 구조상 이미 해결됨) */
+    .panel-header {
+        /* 패널 헤더의 스타일을 필요시 여기에 추가할 수 있습니다. */
+        padding: 8px 10px;
+    }
+}
