@@ -79,21 +79,10 @@ const DB = {
         }
     },
     runeAndChip: {
-        lev2: [
-            { id: "rune", name: "룬" },
-            { id: "chip", name: "칩" }
-        ],
+        lev2: [ { "id": "rune", "name": "룬" }, { "id": "chip", "name": "칩" } ],
         lev3: {
-            rune: [
-                { id: "counter", name: "반격" }, { id: "sparkle", name: "반짝임" }, { id: "aegis", name: "비호" },
-                { id: "diamond", name: "금강" }, { id: "shield", name: "실드" }, { id: "defense", name: "방어" },
-                { id: "berserker", name: "전투광" }, { id: "critical", name: "치명" }, { id: "power", name: "강격" }
-            ],
-            chip: [
-                { id: "sacrifice", name: "헌제" }, { id: "terror", name: "공포" }, { id: "psychic", name: "초능" },
-                { id: "snakeghost", name: "뱀유령" }, { id: "pavise", name: "방패" }, { id: "carapace", name: "귀갑" },
-                { id: "wolfwalker", name: "늑대행자" }, { id: "frogthorn", name: "개구리가시" }, { id: "firedance", name: "화무" }
-            ]
+            rune: [ { "id": "counter", "name": "반격" }, { "id": "sparkle", "name": "반짝임" }, { "id": "aegis", "name": "비호" }, { "id": "diamond", "name": "금강" }, { "id": "shield", "name": "실드" }, { "id": "defense", "name": "방어" }, { "id": "berserker", "name": "전투광" }, { "id": "critical", "name": "치명" }, { "id": "power", "name": "강격" } ],
+            chip: [ { "id": "sacrifice", "name": "헌제" }, { "id": "terror", "name": "공포" }, { "id": "psychic", "name": "초능" }, { "id": "snakeghost", "name": "뱀유령" }, { "id": "pavise", "name": "방패" }, { "id": "carapace", "name": "귀갑" }, { "id": "wolfwalker", "name": "늑대행자" }, { "id": "frogthorn", "name": "개구리가시" }, { "id": "firedance", name": "화무" } ]
         },
         lev4: {
             counter: { content: `<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2F9FyNr%2FbtsOxx2LAy2%2Fk8M0rvXZ4gV7yDHTlVajoK%2Fimg.png" alt="반격 룬" style="width:100%; max-width:150px; margin-bottom: 10px;"><p>서포트 룬스톤<br>반격3개 <span style="color: red;">공명(빨간색)</span>: 반사율+12%</p>` },
@@ -123,229 +112,28 @@ const DB = {
             waterDeck: { name: '물 추천덱', content: '<h3>물 타입 추천덱</h3><p>거북왕, 스이쿤, 가이오가 조합입니다.</p>' }
         }
     },
-    // --- 이 "calendar" 블록 전체를 아래의 새로운 내용으로 교체해주세요 ---
-calendar: {
-    lev2: [
-        { id: 'ranking', name: '랭킹뽑기' },
-        { id: 'limited', name: '한정뽑기' }
-    ],
-    lev3: {
-        "ranking": {
-            "name": "랭킹뽑기",
-            "content": `
-                <h2>🔥 랭킹뽑기 S+ 획득 일정</h2>
-                <ul>
-                    <li>25.06.13 - <strong>챔피언 피카츄</strong> (전기) [레지에레키]</li>
-                    <li>25.07.18 - <strong>웅의 메가 강철톤</strong> (강철/땅) [무쇠 바퀴]</li>
-                    <li>25.08.22 - <strong>코라이돈</strong> (격투/드래곤) [애프룡]</li>
-                    <li>25.09.26 - <strong>메가 보만다</strong> (드래곤/비행) [고동치는달]</li>
-                    <li>25.10.31 - <strong>이로치 메가 핫삼</strong> (벌레/강철) [사마자르]</li>
-                    <li>25.12.05 - <strong>디아루가 오리진폼</strong> (강철/드래곤) [브리두라스]</li>
-                    <li>26.01.09 - <strong>이로치 메가 헤라크로스</strong> (벌레/격투) [땅을 기는 날개]</li>
-                </ul>
-
-                <h3>⚠️ 랭킹뽑기 주의점</h3>
-                <p>
-                랭뽑 순위표 오른쪽 하단에 <strong>랭뽑 참여 제한 기준</strong>이 명시되어 있습니다.<br>
-                일부 신규 서버는 해당 조건이 없을 수 있으며, 조건은 아래 중 하나입니다:
-                </p>
-                <ul>
-                    <li>전투력 ###### 이상(서버마다 상이)</li>
-                    <li>VIP5 이상</li>
-                </ul>
-                <p><strong>꼭 확인 후 참여하세요! 다이아 손해보는 일이 없도록요 🙅‍♂️</strong></p>
-
-                <h3>💎 랭킹뽑기 비용 및 보상</h3>
-                <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;">
-                    <thead>
-                        <tr>
-                            <td>순위</td>
-                            <td>소모 다이아</td>
-                            <td>보상 내용</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1등 (7000포)</td>
-                            <td>47,600</td>
-                            <td>S+ 포켓몬 1마리 + 조각 240개 + 테두리 + 에멜랄드 성석 5개</td>
-                        </tr>
-                        <tr>
-                            <td>2등 (5000포)</td>
-                            <td>34,000</td>
-                            <td>S+ 포켓몬 1마리 + 조각 160개 + 성석 4개</td>
-                        </tr>
-                        <tr>
-                            <td>3등 (4000포)</td>
-                            <td>27,200</td>
-                            <td>S+ 포켓몬 1마리 + 조각 80개 + 성석 4개</td>
-                        </tr>
-                        <tr>
-                            <td>4~6등 (3500포)</td>
-                            <td>23,800</td>
-                            <td>S+ 포켓몬 1마리 + 성석 4개 + 맛있는 우유 40개</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <hr>
-                <p style="font-size: 0.9em; color: gray;">
-                출처: <strong>s222 인연_밍ૢ</strong>
-                </p>
-            `
-        },
-        "limited": {
-            "name": "한정뽑기",
-            "content": `
-                <h2>🎯 한정뽑기 S+ 획득 일정</h2>
-                <ul>
-                    <li>25.05.23 - 알랭의 메가 리자몽X, 이로치 메가 나무킹</li>
-                    <li>25.06.27 - 이로치 메가 눈설왕, 이로치 메가 이상해꽃</li>
-                    <li>25.08.01 - 무한다이노, 미라이돈</li>
-                    <li>25.09.05 - 이로치 메가 나무킹, 챔피언 피카츄</li>
-                    <li>25.10.10 - 이로치 메가 이상해꽃, 웅의 메가 강철톤</li>
-                    <li>25.11.14 - 미라이돈, 코라이돈</li>
-                    <li>25.12.19 - 챔피언 피카츄, 메가 보만다</li>
-                    <li>26.01.23 - 웅의 메가 강철톤, 이로치 메가 핫삼</li>
-                    <li>26.02.27 - 코라이돈, 디아루가 오리진폼</li>
-                    <li>26.04.03 - 메가 보만다, 이로치 메가 헤라크로스</li>
-                </ul>
-
-                <h3>🎲 한정뽑기 확률 업 기준</h3>
-                <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;">
-                    <thead>
-                        <tr>
-                            <td>뽑기 횟수</td>
-                            <td>1마리째</td>
-                            <td>2마리째</td>
-                            <td>3~5마리째</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1~60회</td>
-                            <td>1%</td>
-                            <td>1%</td>
-                            <td>5%</td>
-                        </tr>
-                        <tr>
-                            <td>61~70회</td>
-                            <td>6%</td>
-                            <td>11%</td>
-                            <td>20%</td>
-                        </tr>
-                        <tr>
-                            <td>71~80회</td>
-                            <td>86%</td>
-                            <td>95%</td>
-                            <td>95%</td>
-                        </tr>
-                        <tr>
-                            <td>81~90회</td>
-                            <td colspan="3">공통 100% 확정</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <p style="margin-top: 10px;">
-                    💡 <strong>TIP:</strong> 70회 이후에는 <mark>단일 뽑기(260 다이아)</mark>로 횟수를 조절해 뽑는 것이 <strong>다이아 절약에 도움</strong>됩니다!<br>
-                    (10회 뽑기 = 2480 다이아 / 단일 뽑기 5~6회면 800~1000 다야 절약 가능)<br>
-                    <strong>단!</strong> 0시가 되면 확률업이 <u>초기화</u>되니 시간 조절 필수입니다.
-                </p>
-
-                <p style="font-size: 0.9em; color: gray;">
-                출처: <strong>s222 인연_밍ૢ</strong>
-                </p>
-            `
+    calendar: {
+        lev2: [ { id: 'ranking', name: '랭킹뽑기' }, { id: 'limited', name: '한정뽑기' } ],
+        lev3: {
+            "ranking": { "name": "랭킹뽑기", "content": `<h2>🔥 랭킹뽑기 S+ 획득 일정</h2><ul><li>25.06.13 - <strong>챔피언 피카츄</strong> (전기) [레지에레키]</li><li>25.07.18 - <strong>웅의 메가 강철톤</strong> (강철/땅) [무쇠 바퀴]</li><li>25.08.22 - <strong>코라이돈</strong> (격투/드래곤) [애프룡]</li><li>25.09.26 - <strong>메가 보만다</strong> (드래곤/비행) [고동치는달]</li><li>25.10.31 - <strong>이로치 메가 핫삼</strong> (벌레/강철) [사마자르]</li><li>25.12.05 - <strong>디아루가 오리진폼</strong> (강철/드래곤) [브리두라스]</li><li>26.01.09 - <strong>이로치 메가 헤라크로스</strong> (벌레/격투) [땅을 기는 날개]</li></ul><h3>⚠️ 랭킹뽑기 주의점</h3><p>랭뽑 순위표 오른쪽 하단에 <strong>랭뽑 참여 제한 기준</strong>이 명시되어 있습니다.<br>일부 신규 서버는 해당 조건이 없을 수 있으며, 조건은 아래 중 하나입니다:</p><ul><li>전투력 ###### 이상(서버마다 상이)</li><li>VIP5 이상</li></ul><p><strong>꼭 확인 후 참여하세요! 다이아 손해보는 일이 없도록요 🙅‍♂️</strong></p><h3>💎 랭킹뽑기 비용 및 보상</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;"><thead><tr><td>순위</td><td>소모 다이아</td><td>보상 내용</td></tr></thead><tbody><tr><td>1등 (7000포)</td><td>47,600</td><td>S+ 포켓몬 1마리 + 조각 240개 + 테두리 + 에멜랄드 성석 5개</td></tr><tr><td>2등 (5000포)</td><td>34,000</td><td>S+ 포켓몬 1마리 + 조각 160개 + 성석 4개</td></tr><tr><td>3등 (4000포)</td><td>27,200</td><td>S+ 포켓몬 1마리 + 조각 80개 + 성석 4개</td></tr><tr><td>4~6등 (3500포)</td><td>23,800</td><td>S+ 포켓몬 1마리 + 성석 4개 + 맛있는 우유 40개</td></tr></tbody></table><hr><p style="font-size: 0.9em; color: gray;">출처: <strong>s222 인연_밍ૢ</strong></p>`},
+            "limited": { "name": "한정뽑기", "content": `<h2>🎯 한정뽑기 S+ 획득 일정</h2><ul><li>25.05.23 - 알랭의 메가 리자몽X, 이로치 메가 나무킹</li><li>25.06.27 - 이로치 메가 눈설왕, 이로치 메가 이상해꽃</li><li>25.08.01 - 무한다이노, 미라이돈</li><li>25.09.05 - 이로치 메가 나무킹, 챔피언 피카츄</li><li>25.10.10 - 이로치 메가 이상해꽃, 웅의 메가 강철톤</li><li>25.11.14 - 미라이돈, 코라이돈</li><li>25.12.19 - 챔피언 피카츄, 메가 보만다</li><li>26.01.23 - 웅의 메가 강철톤, 이로치 메가 핫삼</li><li>26.02.27 - 코라이돈, 디아루가 오리진폼</li><li>26.04.03 - 메가 보만다, 이로치 메가 헤라크로스</li></ul><h3>🎲 한정뽑기 확률 업 기준</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;"><thead><tr><td>뽑기 횟수</td><td>1마리째</td><td>2마리째</td><td>3~5마리째</td></tr></thead><tbody><tr><td>1~60회</td><td>1%</td><td>1%</td><td>5%</td></tr><tr><td>61~70회</td><td>6%</td><td>11%</td><td>20%</td></tr><tr><td>71~80회</td><td>86%</td><td>95%</td><td>95%</td></tr><tr><td>81~90회</td><td colspan="3">공통 100% 확정</td></tr></tbody></table><p style="margin-top: 10px;">💡 <strong>TIP:</strong> 70회 이후에는 <mark>단일 뽑기(260 다이아)</mark>로 횟수를 조절해 뽑는 것이 <strong>다이아 절약에 도움</strong>됩니다!<br>(10회 뽑기 = 2480 다이아 / 단일 뽑기 5~6회면 800~1000 다야 절약 가능)<br><strong>단!</strong> 0시가 되면 확률업이 <u>초기화</u>되니 시간 조절 필수입니다.</p><p style="font-size: 0.9em; color: gray;">출처: <strong>s222 인연_밍ૢ</strong></p>` }
+        }
+    },
+    tips: {
+        lev2: [
+            { id: 'star', name: 'S+급·S급 단계별 성급재료 총정리표' },
+            { id: 'guide', name: '포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10' }
+        ],
+        lev3: {
+            "star": {
+                "name": "S+급·S급 단계별 성급재료 총정리표",
+                "content": `<h2>S+급 성급재료 소모표</h2><table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;"><thead><tr><td>성급 단계</td><td>소모 재료 수</td><td>누적 수량</td></tr></thead><tbody><tr><td>4 → 5성</td><td>1마리</td><td>1마리</td></tr><tr><td>5 → 6성</td><td>1마리</td><td>2마리</td></tr><tr><td>6 → 7성</td><td>2마리</td><td>4마리</td></tr><tr><td>7 → 8성</td><td>2마리</td><td>6마리</td></tr><tr><td>8 → 9성</td><td>2마리</td><td>8마리</td></tr><tr><td>9 → 10성</td><td>3마리</td><td>11마리</td></tr><tr><td>10 → 11성</td><td>3마리</td><td>14마리</td></tr><tr><td>11 → 12성</td><td>3마리</td><td>17마리</td></tr></tbody></table><br><br><h2>S급 성급재료 소모표</h2><table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;"><thead><tr><td>성급 단계</td><td>소모 재료 수</td><td>누적 수량</td></tr></thead><tbody><tr><td>3 → 4성</td><td>1마리</td><td>1마리</td></tr><tr><td>4 → 5성</td><td>1마리</td><td>2마리</td></tr><tr><td>5 → 6성</td><td>2마리</td><td>4마리</td></tr><tr><td>6 → 7성</td><td>2마리</td><td>6마리</td></tr><tr><td>7 → 8성</td><td>2마리</td><td>8마리</td></tr><tr><td>8 → 9성</td><td>3마리</td><td>11마리</td></tr><tr><td>9 → 10성</td><td>3마리</td><td>14마리</td></tr><tr><td>10 → 11성</td><td>3마리</td><td>17마리</td></tr><tr><td>11 → 12성</td><td>4마리</td><td>21마리</td></tr></tbody></table>`
+            },
+            "guide": {
+                "name": "포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10",
+                "content": `<h2>🌟 포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP 10</h2><ol><li><strong>A급, B급 포켓몬은 함부로 분해하지 마세요!</strong><br>→ 12성까지 진화에 필요하며, 도감 보너스도 챙길 수 있습니다.</li><li><strong>만능조각은 S급에 쓰지 마세요.</strong><br>→ 추후 S+급이나 귀한 포켓몬에게 아껴두세요.</li><li><strong>체력을 다이아로 너무 자주 사지 마세요.</strong><br>→ 하루 2~3회 정도만 구입하는 것이 적당합니다.</li><li><strong>S급 포켓몬 뽑기에 다이아를 낭비하지 마세요.</strong><br>→ 효율이 낮고 후회할 확률 높습니다.</li><li><strong>주황색 메타몽은 성급하기 어려운 포켓몬에 사용하세요.</strong><br>→ 레어 포켓몬을 중심으로 사용하면 성급작 수월합니다.</li><li><strong>보라색 메타몽은 나옹에게 우선적으로 투자하세요.</strong><br>→ 팀 구성이나 PVP에서 큰 도움을 줄 수 있습니다.</li><li><strong>보상 선택 시, 아바타부터 받는 것이 이득입니다.</strong><br>→ 전투력 상승 및 외형 효과까지 일석이조!</li><li><strong>로비 화면에서 눈이 점(.)인 포켓몬을 꼭 눌러보세요.</strong><br>→ <u>메타몽 = 다이아</u>를 얻을 수 있는 숨겨진 요소! (3일에 1번)</li><li><strong>주먹밥, 도시락 등 체력 아이템은 모아두세요.</strong><br>→ <mark>소탕 2배 이벤트</mark> 기간에 사용하면 효율 극대화!</li><li><strong>악세사리·탐지기 뽑기는 재화 150~300개 모아 이벤트 때 사용하세요.</strong><br>→ 누적 사용 시 보상도 높아지는 구조입니다.</li></ol><p style="font-size: 0.9em; color: gray;">출처: <strong>S170/FS_신디 & 90&131 너 뿐</strong></p>`
+            }
         }
     }
-},
-    // --- 이 "tips" 블록 전체를 아래의 새로운 내용으로 교체해주세요 ---
-tips: {
-    lev2: [
-        { id: 'star', name: 'S+급·S급 단계별 성급재료 총정리표' },
-        { id: 'guide', name: '포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10' }
-    ],
-    lev3: {
-        "star": {
-            "name": "S+급·S급 단계별 성급재료 총정리표",
-            "content": `
-                <h2>S+급 성급재료 소모표</h2>
-                <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;">
-                    <thead>
-                        <tr><td>성급 단계</td><td>소모 재료 수</td><td>누적 수량</td></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>4 → 5성</td><td>1마리</td><td>1마리</td></tr>
-                        <tr><td>5 → 6성</td><td>1마리</td><td>2마리</td></tr>
-                        <tr><td>6 → 7성</td><td>2마리</td><td>4마리</td></tr>
-                        <tr><td>7 → 8성</td><td>2마리</td><td>6마리</td></tr>
-                        <tr><td>8 → 9성</td><td>2마리</td><td>8마리</td></tr>
-                        <tr><td>9 → 10성</td><td>3마리</td><td>11마리</td></tr>
-                        <tr><td>10 → 11성</td><td>3마리</td><td>14마리</td></tr>
-                        <tr><td>11 → 12성</td><td>3마리</td><td>17마리</td></tr>
-                    </tbody>
-                </table>
-                <br><br>
-                <h2>S급 성급재료 소모표</h2>
-                <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;">
-                    <thead>
-                        <tr><td>성급 단계</td><td>소모 재료 수</td><td>누적 수량</td></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>3 → 4성</td><td>1마리</td><td>1마리</td></tr>
-                        <tr><td>4 → 5성</td><td>1마리</td><td>2마리</td></tr>
-                        <tr><td>5 → 6성</td><td>2마리</td><td>4마리</td></tr>
-                        <tr><td>6 → 7성</td><td>2마리</td><td>6마리</td></tr>
-                        <tr><td>7 → 8성</td><td>2마리</td><td>8마리</td></tr>
-                        <tr><td>8 → 9성</td><td>3마리</td><td>11마리</td></tr>
-                        <tr><td>9 → 10성</td><td>3마리</td><td>14마리</td></tr>
-                        <tr><td>10 → 11성</td><td>3마리</td><td>17마리</td></tr>
-                        <tr><td>11 → 12성</td><td>4마리</td><td>21마리</td></tr>
-                    </tbody>
-                </table>
-            `
-        },
-        "guide": {
-            "name": "포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10",
-            "content": `
-                <h2>🌟 포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP 10</h2>
-                <ol>
-                    <li><strong>A급, B급 포켓몬은 함부로 분해하지 마세요!</strong><br>
-                    → 12성까지 진화에 필요하며, 도감 보너스도 챙길 수 있습니다.</li>
-
-                    <li><strong>만능조각은 S급에 쓰지 마세요.</strong><br>
-                    → 추후 S+급이나 귀한 포켓몬에게 아껴두세요.</li>
-
-                    <li><strong>체력을 다이아로 너무 자주 사지 마세요.</strong><br>
-                    → 하루 2~3회 정도만 구입하는 것이 적당합니다.</li>
-
-                    <li><strong>S급 포켓몬 뽑기에 다이아를 낭비하지 마세요.</strong><br>
-                    → 효율이 낮고 후회할 확률 높습니다.</li>
-
-                    <li><strong>주황색 메타몽은 성급하기 어려운 포켓몬에 사용하세요.</strong><br>
-                    → 레어 포켓몬을 중심으로 사용하면 성급작 수월합니다.</li>
-
-                    <li><strong>보라색 메타몽은 나옹에게 우선적으로 투자하세요.</strong><br>
-                    → 팀 구성이나 PVP에서 큰 도움을 줄 수 있습니다.</li>
-
-                    <li><strong>보상 선택 시, 아바타부터 받는 것이 이득입니다.</strong><br>
-                    → 전투력 상승 및 외형 효과까지 일석이조!</li>
-
-                    <li><strong>로비 화면에서 눈이 점(.)인 포켓몬을 꼭 눌러보세요.</strong><br>
-                    → <u>메타몽 = 다이아</u>를 얻을 수 있는 숨겨진 요소! (3일에 1번)</li>
-
-                    <li><strong>주먹밥, 도시락 등 체력 아이템은 모아두세요.</strong><br>
-                    → <mark>소탕 2배 이벤트</mark> 기간에 사용하면 효율 극대화!</li>
-
-                    <li><strong>악세사리·탐지기 뽑기는 재화 150~300개 모아 이벤트 때 사용하세요.</strong><br>
-                    → 누적 사용 시 보상도 높아지는 구조입니다.</li>
-                </ol>
-
-                <p style="font-size: 0.9em; color: gray;">
-                출처: <strong>S170/FS_신디 & 90&131 너 뿐</strong>
-                </p>
-            `
-        }
-    }
-}
+};
 // ------------ END: 여기까지의 코드로 data.js 파일 전체를 교체해주세요. ------------
