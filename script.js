@@ -1,3 +1,4 @@
+// ------------ START: 이 아래의 코드로 script.js 파일 전체를 교체해주세요. ------------
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. 기본 요소 및 변수 설정 ---
     const app = document.getElementById('app-container');
@@ -14,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. 초기화 ---
     function initialize() {
         // 사이드바 메뉴 생성
-        sidebar.innerHTML = DB.sidebarMenu.map(item => 
+        sidebar.innerHTML = DB.sidebarMenu.map(item =>
             `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`
         ).join('');
         
@@ -51,13 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setActive(level, button);
 
-        // 광고 새로고침 기능은 안정화 전까지 비활성화 상태입니다.
-        // if (window.adsbygoogle) {
-        //     (adsbygoogle = window.adsbygoogle || []).push({});
-        // }
-
         const nextLevel = level + 1;
-        if (nextLevel > 5) return; // 레벨은 4까지 있으므로 5 이상은 처리 안함
+        if (nextLevel > 5) return;
 
         // 다음 레벨에 필요한 데이터 찾기
         let nextData;
@@ -73,58 +69,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleBackClick(button) {
-		const parentPanel = button.closest('.panel');
-		parentPanel.classList.remove('visible');
+        const parentPanel = button.closest('.panel');
+        parentPanel.classList.remove('visible');
 
-		// 뒤로가기 시 모든 최종 화면 클래스 제거
-		contentArea.classList.remove('final-view-L3', 'final-view-L4');
+        contentArea.classList.remove('final-view-L3', 'final-view-L4');
 
-		const level = parseInt(parentPanel.id.slice(-1));
-		setActive(level - 1, null);
-	}
+        const level = parseInt(parentPanel.id.slice(-1));
+        setActive(level - 1, null);
+    }
 
     // --- 5. 화면 렌더링 ---
     function renderPanel(level, data, context) {
-		// 현재 레벨 이후의 모든 패널을 초기화
-		for (let i = level; i <= 4; i++) {
-			panels[`lev${i}`].classList.remove('visible');
-			panels[`lev${i}`].querySelector('.panel-content').innerHTML = '';
-		}
+        for (let i = level; i <= 4; i++) {
+            panels[`lev${i}`].classList.remove('visible');
+            panels[`lev${i}`].querySelector('.panel-content').innerHTML = '';
+        }
 
-		if (!data) return; 
+        if (!data) return;
 
-		const targetPanel = panels[`lev${level}`];
-		if (!targetPanel) return;
+        const targetPanel = panels[`lev${level}`];
+        if (!targetPanel) return;
 
-		const contentDiv = targetPanel.querySelector('.panel-content');
-		const isFinal = !Array.isArray(data);
+        const contentDiv = targetPanel.querySelector('.panel-content');
+        const isFinal = !Array.isArray(data);
 
-		// 최종 화면 클래스를 초기화
-		contentArea.classList.remove('final-view-L3', 'final-view-L4');
+        contentArea.classList.remove('final-view-L3', 'final-view-L4');
 
-		if (isFinal) {
-			contentDiv.innerHTML = data.content;
-			// 최종 화면 레벨에 따라 다른 클래스 추가
-			contentArea.classList.add(`final-view-L${level}`);
-		} else {
-			data.forEach(item => {
-				const button = document.createElement('button');
-				button.className = 'list-item';
-				button.textContent = item.name;
-				button.dataset.id = item.id;
-				button.dataset.level = level;
-				button.dataset.menuId = context.menuId || context.id;
-				if (level > 2) button.dataset.lev2Id = context.id;
-				if (item.color) button.style.backgroundColor = item.color;
-				contentDiv.appendChild(button);
-			});
-		}
-		targetPanel.classList.add('visible');
-	}
+        if (isFinal) {
+            contentDiv.innerHTML = data.content;
+            contentArea.classList.add(`final-view-L${level}`);
+        } else {
+            data.forEach(item => {
+                const button = document.createElement('button');
+                button.className = 'list-item';
+                button.textContent = item.name;
+                button.dataset.id = item.id;
+                button.dataset.level = level;
+                button.dataset.menuId = context.menuId || context.id;
+                if (level > 2) button.dataset.lev2Id = context.id;
+                if (item.color) button.style.backgroundColor = item.color;
+                contentDiv.appendChild(button);
+            });
+        }
+        targetPanel.classList.add('visible');
+    }
 
     // --- 6. 헬퍼 함수 ---
     function setActive(level, target) {
-        // 현재 레벨과 하위 레벨의 활성화 상태 초기화
         for (let i = level; i <= 4; i++) {
             if (activeButtons[i]) {
                 activeButtons[i].classList.remove('active');
@@ -140,3 +131,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 초기화 함수 실행 ---
     initialize();
 });
+// ------------ END: 여기까지의 코드로 script.js 파일 전체를 교체해주세요. ------------
