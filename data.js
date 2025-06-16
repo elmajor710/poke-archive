@@ -79,10 +79,10 @@ const DB = {
         }
     },
     runeAndChip: {
-        lev2: [ { "id": "rune", "name": "룬" }, { "id": "chip", "name": "칩" } ],
+        lev2: [ { id: "rune", name: "룬" }, { id: "chip", name: "칩" } ],
         lev3: {
-            rune: [ { "id": "counter", "name": "반격" }, { "id": "sparkle", "name": "반짝임" }, { "id": "aegis", "name": "비호" }, { "id": "diamond", "name": "금강" }, { "id": "shield", "name": "실드" }, { "id": "defense", "name": "방어" }, { "id": "berserker", "name": "전투광" }, { "id": "critical", "name": "치명" }, { "id": "power", "name": "강격" } ],
-            chip: [ { "id": "sacrifice", "name": "헌제" }, { "id": "terror", "name": "공포" }, { "id": "psychic", "name": "초능" }, { "id": "snakeghost", "name": "뱀유령" }, { "id": "pavise", "name": "방패" }, { "id": "carapace", "name": "귀갑" }, { "id": "wolfwalker", "name": "늑대행자" }, { "id": "frogthorn", "name": "개구리가시" }, { "id": "firedance", name": "화무" } ]
+            rune: [ { id: "counter", name: "반격" }, { id: "sparkle", name: "반짝임" }, { id: "aegis", name: "비호" }, { id: "diamond", name: "금강" }, { id: "shield", name: "실드" }, { id: "defense", name: "방어" }, { id: "berserker", name: "전투광" }, { id: "critical", name: "치명" }, { id: "power", name: "강격" } ],
+            chip: [ { id: "sacrifice", name: "헌제" }, { id: "terror", name: "공포" }, { id: "psychic", name: "초능" }, { id: "snakeghost", name: "뱀유령" }, { id: "pavise", name: "방패" }, { id: "carapace", name: "귀갑" }, { id: "wolfwalker", name: "늑대행자" }, { id: "frogthorn", name: "개구리가시" }, { id: "firedance", name: "화무" } ]
         },
         lev4: {
             counter: { content: `<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2F9FyNr%2FbtsOxx2LAy2%2Fk8M0rvXZ4gV7yDHTlVajoK%2Fimg.png" alt="반격 룬" style="width:100%; max-width:150px; margin-bottom: 10px;"><p>서포트 룬스톤<br>반격3개 <span style="color: red;">공명(빨간색)</span>: 반사율+12%</p>` },
@@ -106,10 +106,17 @@ const DB = {
         }
     },
     deck: {
-        lev2: [ { id: 'fireDeck', name: '불 추천덱' }, { id: 'waterDeck', name: '물 추천덱' } ],
+        lev2: [
+            { id: 'fireDeck', name: '불덱' },
+            { id: 'waterFairyDeck', name: '물페어리덱' },
+            { id: 'electricDeck', name: '전기덱' },
+            { id: 'grassDeck', name: '풀덱' }
+        ],
         lev3: {
-            fireDeck: { name: '불 추천덱', content: '<h3>불 타입 추천덱</h3><p>리자몽, 앤테이, 칠색조 조합입니다.</p>' },
-            waterDeck: { name: '물 추천덱', content: '<h3>물 타입 추천덱</h3><p>거북왕, 스이쿤, 가이오가 조합입니다.</p>' }
+            "fireDeck": { "name": "불덱", "content": "<h3>🔥 불덱 구성원</h3><p>원시 그란돈<br>마샤도<br>이터나투스<br>레시라무<br>이로치 칠색조<br>큐레무</p>" },
+            "waterFairyDeck": { "name": "물페어리덱", "content": "<h3>💧 물페어리덱 구성원</h3><p>원시 가이오가<br>마나피<br>아쿠아단 마기아나<br>디안시<br>제르네아스<br>이로치 메가 가디안</p>" },
+            "electricDeck": { "name": "전기덱", "content": "<h3>⚡ 전기덱 구성원</h3><p>제라오라<br>아르세우스<br>레지에레키<br>카푸꼬꼬꼭<br>제크로무<br>볼트로스</p>" },
+            "grassDeck": { "name": "풀덱", "content": "<h3>🍃 풀덱 구성원</h3><p>자루도<br>고릴타<br>조로아크<br>버드렉스<br>세레비<br>쉐이미</p>" }
         }
     },
     calendar: {
@@ -127,7 +134,7 @@ const DB = {
         lev3: {
             "star": {
                 "name": "S+급·S급 단계별 성급재료 총정리표",
-                "content": `<h2>S+급 성급재료 소모표</h2><table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;"><thead><tr><td>성급 단계</td><td>소모 재료 수</td><td>누적 수량</td></tr></thead><tbody><tr><td>4 → 5성</td><td>1마리</td><td>1마리</td></tr><tr><td>5 → 6성</td><td>1마리</td><td>2마리</td></tr><tr><td>6 → 7성</td><td>2마리</td><td>4마리</td></tr><tr><td>7 → 8성</td><td>2마리</td><td>6마리</td></tr><tr><td>8 → 9성</td><td>2마리</td><td>8마리</td></tr><tr><td>9 → 10성</td><td>3마리</td><td>11마리</td></tr><tr><td>10 → 11성</td><td>3마리</td><td>14마리</td></tr><tr><td>11 → 12성</td><td>3마리</td><td>17마리</td></tr></tbody></table><br><br><h2>S급 성급재료 소모표</h2><table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;"><thead><tr><td>성급 단계</td><td>소모 재료 수</td><td>누적 수량</td></tr></thead><tbody><tr><td>3 → 4성</td><td>1마리</td><td>1마리</td></tr><tr><td>4 → 5성</td><td>1마리</td><td>2마리</td></tr><tr><td>5 → 6성</td><td>2마리</td><td>4마리</td></tr><tr><td>6 → 7성</td><td>2마리</td><td>6마리</td></tr><tr><td>7 → 8성</td><td>2마리</td><td>8마리</td></tr><tr><td>8 → 9성</td><td>3마리</td><td>11마리</td></tr><tr><td>9 → 10성</td><td>3마리</td><td>14마리</td></tr><tr><td>10 → 11성</td><td>3마리</td><td>17마리</td></tr><tr><td>11 → 12성</td><td>4마리</td><td>21마리</td></tr></tbody></table>`
+                "content": `<h2>S+급 성급재료 소모표</h2><table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;"><thead><tr><td>성급 단계</td><td>소мо 재료 수</td><td>누적 수량</td></tr></thead><tbody><tr><td>4 → 5성</td><td>1마리</td><td>1마리</td></tr><tr><td>5 → 6성</td><td>1마리</td><td>2마리</td></tr><tr><td>6 → 7성</td><td>2마리</td><td>4마리</td></tr><tr><td>7 → 8성</td><td>2마리</td><td>6마리</td></tr><tr><td>8 → 9성</td><td>2마리</td><td>8마리</td></tr><tr><td>9 → 10성</td><td>3마리</td><td>11마리</td></tr><tr><td>10 → 11성</td><td>3마리</td><td>14마리</td></tr><tr><td>11 → 12성</td><td>3마리</td><td>17마리</td></tr></tbody></table><br><br><h2>S급 성급재료 소모표</h2><table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: center;"><thead><tr><td>성급 단계</td><td>소모 재료 수</td><td>누적 수량</td></tr></thead><tbody><tr><td>3 → 4성</td><td>1마리</td><td>1마리</td></tr><tr><td>4 → 5성</td><td>1마리</td><td>2마리</td></tr><tr><td>5 → 6성</td><td>2마리</td><td>4마리</td></tr><tr><td>6 → 7성</td><td>2마리</td><td>6마리</td></tr><tr><td>7 → 8성</td><td>2마리</td><td>8마리</td></tr><tr><td>8 → 9성</td><td>3마리</td><td>11마리</td></tr><tr><td>9 → 10성</td><td>3마리</td><td>14마리</td></tr><tr><td>10 → 11성</td><td>3마리</td><td>17마리</td></tr><tr><td>11 → 12성</td><td>4마리</td><td>21마리</td></tr></tbody></table>`
             },
             "guide": {
                 "name": "포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10",
