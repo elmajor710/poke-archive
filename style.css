@@ -169,3 +169,12 @@ header h1 {
     font-size: 14px;
     padding: 20px 0;
 }
+
+/* --- 클릭 시 텍스트 선택(드래그) 방지 스타일 --- */
+/* 사용자가 드래그하여 선택할 필요가 없는 요소들에 적용합니다. */
+#sidebar button, #content-area button {
+    -webkit-user-select: none; /* Safari, Chrome */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* IE10+ */
+    user-select: none;         /* Standard */
+}
