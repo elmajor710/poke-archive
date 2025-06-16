@@ -127,7 +127,6 @@ header h1 {
 @media (max-width: 768px) {
     :root {
         --sidebar-width: 120px;
-        /* --panel-width 변수는 더이상 사용하지 않으므로 삭제하거나 그대로 둬도 괜찮습니다. */
     }
     
     header h1 {
@@ -135,13 +134,14 @@ header h1 {
     }
 
     #content-area {
-        overflow-x: hidden; /* 모바일에서는 가로 스크롤을 금지합니다. */
+        /* [수정] 모바일에서 가로 스크롤을 확실히 금지합니다. */
+        overflow-x: hidden; 
     }
 
     .panel {
-        /* 패널이 남은 공간을 채우도록 유연하게 만듭니다. */
-        flex-grow: 1;
-        width: auto; /* 고정 너비 대신 자동 너비를 사용합니다. */
+        /* [수정] 패널들이 고정 너비 대신, 주어진 공간을 나눠 갖도록 합니다. */
+        flex: 1; /* flex-grow: 1, flex-shrink: 1, flex-basis: 0% */
+        min-width: 0; /* 패널이 내용물보다 더 작아질 수 있도록 허용 (중요!) */
     }
 
     #sidebar, .panel-content {
@@ -149,11 +149,16 @@ header h1 {
     }
 
     .menu-item, .list-item {
-        font-size: 15px;
+        font-size: 14px; /* 가독성을 위해 폰트 크기 미세 조정 */
         padding: 10px 8px;
     }
 
     .panel-header {
         padding: 8px 10px;
+        font-size: 15px; /* 헤더 폰트 크기 조정 */
+    }
+    
+    .back-btn {
+        font-size: 14px; /* 뒤로가기 버튼 폰트 크기 조정 */
     }
 }
