@@ -83,25 +83,33 @@ document.addEventListener('DOMContentLoaded', () => {
         setActive(level - 1, null);
     }
 
-    function handleAdClick() {
-        if (isAdmin) return; // 관리자 모드에서는 클릭 카운트 안 함
+    // --- 이 함수를 아래의 새로운 내용으로 통째로 교체해주세요 ---
+function handleAdClick() {
+    if (isAdmin) return; // 관리자 모드에서는 클릭 카운트 안 함
 
-        const now = Date.now();
-        let adClicks = JSON.parse(localStorage.getItem('adClicks')) || [];
+    const now = Date.now();
+    let adClicks = JSON.parse(localStorage.getItem('adClicks')) || [];
 
-        adClicks = adClicks.filter(timestamp => (now - timestamp) < AD_CLICK_TIME_WINDOW);
-        adClicks.push(now);
-        localStorage.setItem('adClicks', JSON.stringify(adClicks));
+    // 1시간이 지난 클릭 기록은 삭제
+    adClicks = adClicks.filter(timestamp => (now - timestamp) < AD_CLICK_TIME_WINDOW);
 
-        if (adClicks.length >= AD_CLICK_LIMIT) {
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(0, 0, 0, 0);
-            
-            localStorage.setItem('adBlockUntil', tomorrow.getTime());
-            hideAdWithMessage('광고가 일시 중단되었습니다.');
-        }
+    // 새 클릭 기록 추가
+    adClicks.push(now);
+    localStorage.setItem('adClicks', JSON.stringify(adClicks));
+
+    // [추가된 부분] 현재 클릭 횟수를 콘솔에 출력하여 확인합니다.
+    console.log('광고 영역 클릭됨! 현재 카운트:', adClicks.length);
+
+    // 클릭 제한 횟수 확인
+    if (adClicks.length >= AD_CLICK_LIMIT) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0); // 다음날 자정
+        
+        localStorage.setItem('adBlockUntil', tomorrow.getTime());
+        hideAdWithMessage('광고가 일시 중단되었습니다.');
     }
+}
 
     // --- 5. 화면 렌더링 및 광고 관리 ---
     function renderPanel(level, data, context) {
