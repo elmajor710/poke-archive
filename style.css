@@ -246,3 +246,53 @@ header h1 {
 .reco-item span {
     font-size: 0.9em;
 }
+
+/* --- 포켓몬 상세 정보 UI 개편 스타일 --- */
+
+/* 큰 제목 스타일 (예: 스킬) */
+.pokemon-detail-card .section-title {
+    background-color: #e7f5ff;
+    color: #005a9e;
+    padding: 8px 12px;
+    border-left: 5px solid #007bff;
+    border-radius: 4px;
+    font-size: 1.3em;
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+/* 작은 제목 스타일 (예: Active: 진기권) */
+.pokemon-detail-card .subsection-title {
+    color: #007bff;
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-top: 25px;
+}
+
+/* 추천 정보 테이블 스타일 */
+.recommendation-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.recommendation-table th, .recommendation-table td {
+    border: 1px solid var(--border-color);
+    padding: 12px;
+    vertical-align: middle;
+}
+
+.recommendation-table th {
+    background-color: #f8f9fa;
+    width: 120px; /* 제목 칸 너비 고정 */
+    font-weight: 600;
+}
+
+/* 기존 추천 아이템 표시는 그대로 사용 */
+.recommendation-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-start;
+}
