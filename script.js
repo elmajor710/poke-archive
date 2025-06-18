@@ -68,43 +68,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 5. 화면 렌더링
-    function renderPanel(level, data, context) {
-        for (let i = level; i <= 4; i++) {
-            panels[`lev${i}`].classList.remove('visible');
-            const panelContent = panels[`lev${i}`].querySelector('.panel-content');
-            if(panelContent) panelContent.innerHTML = '';
-        }
-
-        if (!data) return;
-        const targetPanel = panels[`lev${level}`];
-        if (!targetPanel) return;
-
-        const contentDiv = targetPanel.querySelector('.panel-content');
-        
-        // [수정] 스크롤 위치를 맨 위로 초기화
-        contentDiv.scrollTop = 0;
-
-        const isFinal = !Array.isArray(data);
-        contentArea.classList.remove('final-view-L3', 'final-view-L4');
-
-        if (isFinal) {
-            contentDiv.innerHTML = data.content;
-            contentArea.classList.add(`final-view-L${level}`);
-        } else {
-            data.forEach(item => {
-                const button = document.createElement('button');
-                button.className = 'list-item';
-                button.textContent = item.name;
-                button.dataset.id = item.id;
-                button.dataset.level = level;
-                button.dataset.menuId = context.menuId || context.id;
-                if (level > 2) button.dataset.lev2Id = context.id;
-                if (item.color) button.style.backgroundColor = item.color;
-                contentDiv.appendChild(button);
-            });
-        }
-        targetPanel.classList.add('visible');
+    // --- 이 renderPanel 함수를 아래의 새로운 내용으로 통째로 교체해주세요 ---
+function renderPanel(level, data, context) {
+    // 현재 레벨 이후의 모든 패널을 초기화
+    for (let i = level; i <= 4; i++) {
+        panels[`lev${i}`].classList.remove('visible');
+        panels[`lev${i}`].querySelector('.panel-content').innerHTML = '';
     }
+
+    if (!data) return;
+
+    const targetPanel = panels[`lev${level}`];
+    if (!targetPanel) return;
+
+    const contentDiv = targetPanel.querySelector('.panel-content');
+    
+    // [수정된 부분] 패널의 내용을 채우기 *전에* 스크롤 위치를 맨 위로 초기화합니다.
+    contentDiv.scrollTop = 0;
+
+    const isFinal = !Array.isArray(data);
+
+    // 최종 화면 클래스를 초기화
+    contentArea.classList.remove('final-view-L3', 'final-view-L4');
+
+    if (isFinal) {
+        contentDiv.innerHTML = data.content;
+        // 최종 화면 레벨에 따라 다른 클래스 추가
+        contentArea.classList.add(`final-view-L${level}`);
+    } else {
+        data.forEach(item => {
+            const button = document.createElement('button');
+            button.className = 'list-item';
+            button.textContent = item.name;
+            button.dataset.id = item.id;
+            button.dataset.level = level;
+            button.dataset.menuId = context.menuId || context.id;
+            if (level > 2) button.dataset.lev2Id = context.id;
+            if (item.color) button.style.backgroundColor = item.color;
+            contentDiv.appendChild(button);
+        });
+    }
+    targetPanel.classList.add('visible');
+}
 
     // 6. 헬퍼 함수
     function setActive(level, target) {
