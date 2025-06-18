@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 5. 화면 렌더링
-    // --- 이 renderPanel 함수를 아래의 새로운 내용으로 통째로 교체해주세요 ---
+// --- 이 renderPanel 함수를 아래의 새로운 내용으로 통째로 교체해주세요 ---
 function renderPanel(level, data, context) {
     // 현재 레벨 이후의 모든 패널을 초기화
     for (let i = level; i <= 4; i++) {
@@ -82,10 +82,6 @@ function renderPanel(level, data, context) {
     if (!targetPanel) return;
 
     const contentDiv = targetPanel.querySelector('.panel-content');
-    
-    // [수정된 부분] 패널의 내용을 채우기 *전에* 스크롤 위치를 맨 위로 초기화합니다.
-    contentDiv.scrollTop = 0;
-
     const isFinal = !Array.isArray(data);
 
     // 최종 화면 클래스를 초기화
@@ -93,7 +89,6 @@ function renderPanel(level, data, context) {
 
     if (isFinal) {
         contentDiv.innerHTML = data.content;
-        // 최종 화면 레벨에 따라 다른 클래스 추가
         contentArea.classList.add(`final-view-L${level}`);
     } else {
         data.forEach(item => {
@@ -109,6 +104,11 @@ function renderPanel(level, data, context) {
         });
     }
     targetPanel.classList.add('visible');
+
+    // [최종 수정] 브라우저가 내용을 그린 후 스크롤을 초기화하도록 타이밍을 조정합니다.
+    setTimeout(() => {
+        contentDiv.scrollTop = 0;
+    }, 0);
 }
 
     // 6. 헬퍼 함수
