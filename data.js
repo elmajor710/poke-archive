@@ -49,8 +49,8 @@ pokemonGrade: {
     runeAndChip: {
         lev2: [ { "id": "rune", "name": "룬" }, { "id": "chip", "name": "칩" } ],
         lev3: {
-            rune: [ { "id": "counter", "name": "반격" }, { "id": "sparkle", "name": "반짝임" }, { "id": "aegis", "name": "비호" }, { "id": "diamond", "name": "금강" }, { "id": "shield", "name": "실드" }, { "id": "defense", "name": "방어" }, { "id": "berserker", name: "전투광" }, { "id": "critical", name: "치명" }, { "id": "power", name: "강격" } ],
-            chip: [ { "id": "sacrifice", name: "헌제" }, { "id": "terror", name: "공포" }, { "id": "psychic", name: "초능" }, { "id": "snakeghost", name: "뱀유령" }, { "id": "pavise", name: "방패" }, { "id": "carapace", name: "귀갑" }, { "id": "wolfwalker", name: "늑대행자" }, { "id": "frogthorn", name: "개구리가시" }, { "id": "firedance", name: "화무" } ]
+            rune: [ { "id": "counter", "name": "반격 / Counter" }, { "id": "sparkle", "name": "반짝임 / Shine" }, { "id": "aegis", "name": "비호 / Shelter" }, { "id": "diamond", "name": "금강 / King Kong" }, { "id": "shield", "name": "실드 / Shield" }, { "id": "defense", "name": "방어 / Defend" }, { "id": "berserker", name: "전투광 / Warlike" }, { "id": "critical", name: "치명 / Deadly" }, { "id": "power", name: "강격 / Punch" } ],
+            chip: [ { "id": "sacrifice", name: "헌제 / Sacrifice" }, { "id": "terror", name: "공포 / Fear" }, { "id": "psychic", name: "초능 / Psychic" }, { "id": "snakeghost", name: "뱀유령 / Snake Soul" }, { "id": "pavise", name: "방패 / Fist Shield" }, { "id": "carapace", name: "귀갑 / Tortoise Shell" }, { "id": "wolfwalker", name: "늑대행자 / Lone Wolf" }, { "id": "frogthorn", name: "개구리가시 / Frog Thorn" }, { "id": "firedance", name: "화무 / Fire Dance" } ]
         },
         lev4: {
             counter: { content: `<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2F9FyNr%2FbtsOxx2LAy2%2Fk8M0rvXZ4gV7yDHTlVajoK%2Fimg.png" alt="반격 룬" style="width:100%; max-width:150px; margin-bottom: 10px;"><p>서포트 룬스톤<br>반격3개 <span style="color: red;">공명(빨간색)</span>: 반사율+12%</p>` },
