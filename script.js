@@ -82,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentDiv = targetPanel.querySelector('.panel-content');
         const isFinal = !Array.isArray(data);
         
-        // 이전에 적용했던 전체화면 관련 클래스를 먼저 초기화
         app.classList.remove('fullscreen-active');
         
         if (isFinal) {

@@ -22,14 +22,10 @@ const DB = {
     pokemonGrade: {
         lev2: [ { id: 'SS', name: 'SS' }, { id: 'Splus', name: 'S+' }, { id: 'S', name: 'S' } ],
         lev3: { 
-            SS: [ {id: 'mewtwo', name: '뮤츠'}, { id: 'megaMewtwoX', name: '메가뮤츠X' }, { id: 'megaMewtwoY', name: '메가뮤츠Y' } ],
-            Splus: [ {id: 'darkrai', name: '다크라이'} ],
-            S: [ {id: 'lucario', name: '루카리오'} ]
+            SS: [ {id: 'mewtwo', name: '뮤츠'}, { id: 'megaMewtwoX', name: '메가뮤츠X' }, { id: 'megaMewtwoY', name: '메가뮤츠Y' } ], Splus: [ {id: 'darkrai', name: '다크라이'} ], S: [ {id: 'lucario', name: '루카리오'} ]
         },
         lev4: { 
-            mewtwo: { name: '뮤츠', content: '<h3>뮤츠</h3><p>강력한 유전자를 가졌다.</p>' },
-            darkrai: { name: '다크라이', content: '<h3>다크라이</h3><p>악몽을 꾸게 한다.</p>' },
-            lucario: { name: '루카리오', content: '<h3>루카리오</h3><p>파동을 다룬다.</p>'},
+            mewtwo: { name: '뮤츠', content: '<h3>뮤츠</h3><p>강력한 유전자를 가졌다.</p>' }, darkrai: { name: '다크라이', content: '<h3>다크라이</h3><p>악몽을 꾸게 한다.</p>' }, lucario: { name: '루카리오', content: '<h3>루카리오</h3><p>파동을 다룬다.</p>'},
             megaMewtwoX: { name: '메가뮤츠X', content: `<div class="pokemon-detail-card">...</div>` },
             megaMewtwoY: { name: '메가뮤츠Y', content: `<div class="pokemon-detail-card">...</div>` }
         }
@@ -37,14 +33,10 @@ const DB = {
     item: {
         lev2: [ {id:'red', name:'빨간색', color:'#E74C3C'}, {id:'orange',name:'주황색', color:'#E67E22'}, {id:'purple',name:'보라색', color:'#9B59B6'} ],
         lev3: { 
-            red: [ {id:'rustySword', name:'녹슨 검'} ],
-            orange: [ {id:'oranBerry', name:'오랭열매'} ],
-            purple: [ {id:'masterBall', name:'마스터볼'} ],
+            red: [ {id:'rustySword', name:'녹슨 검'} ], orange: [ {id:'oranBerry', name:'오랭열매'} ], purple: [ {id:'masterBall', name:'마스터볼'} ],
         },
         lev4: { 
-            rustySword: { name:'녹슨 검', content: '<h3>녹슨 검</h3><p>자시안에게 힘을 준다.</p>' },
-            oranBerry: { name: '오랭열매', content: '<h3>오랭열매</h3><p>HP를 10 회복한다.</p>' },
-            masterBall: { name: '마스터볼', content: '<h3>마스터볼</h3><p>반드시 포켓몬을 잡는다.</p>' }
+            rustySword: { name:'녹슨 검', content: '<h3>녹슨 검</h3><p>자시안에게 힘을 준다.</p>' }, oranBerry: { name: '오랭열매', content: '<h3>오랭열매</h3><p>HP를 10 회복한다.</p>' }, masterBall: { name: '마스터볼', content: '<h3>마스터볼</h3><p>반드시 포켓몬을 잡는다.</p>' }
         }
     },
     runeAndChip: {
@@ -54,26 +46,16 @@ const DB = {
             chip: [ { "id": "sacrifice", name: "헌제(Sacrifice)" }, { "id": "terror", name: "공포(Terror)" }, { "id": "psychic", name: "초능(Psychic)" }, { "id": "snakeghost", name: "뱀유령(Snakeghost)" }, { "id": "pavise", name: "방패(Pavise)" }, { "id": "carapace", name: "귀갑(Carapace)" }, { "id": "wolfwalker", name: "늑대행자(Lone Wolf)" }, { "id": "frogthorn", name: "개구리가시(Frogthorn)" }, { "id": "firedance", name: "화무(Fire Dance)" } ]
         },
         lev4: {
-            counter: { name: "반격(Counter)", content: `...` },
-            sparkle: { name: "반짝임(Sparkle)", content: `...` },
-            // 모든 룬과 칩의 상세 데이터 포함
+            // 모든 룬과 칩의 상세 데이터...
         }
     },
     deck: {
         lev2: [ { id: 'fireDeck', name: '불덱' }, { id: 'waterFairyDeck', name: '물페어리덱' }, { id: 'electricDeck', name: '전기덱' }, { id: 'grassDeck', name: '풀덱' } ],
-        lev3: {
-            "fireDeck": { "name": "불덱", "content": "<h3>🔥 불덱 구성원</h3><p>원시 그란돈<br>마샤도<br>이터나투스<br>레시라무<br>이로치 칠색조<br>큐레무</p>" },
-            "waterFairyDeck": { "name": "물페어리덱", "content": "<h3>💧 물페어리덱 구성원</h3><p>원시 가이오가<br>마나피<br>아쿠아단 마기아나<br>디안시<br>제르네아스<br>이로치 메가 가디안</p>" },
-            "electricDeck": { "name": "전기덱", "content": "<h3>⚡ 전기덱 구성원</h3><p>제라오라<br>아르세우스<br>레지에레키<br>카푸꼬꼬꼭<br>제크로무<br>볼트로스</p>" },
-            "grassDeck": { "name": "풀덱", "content": "<h3>🍃 풀덱 구성원</h3><p>자루도<br>고릴타<br>조로아크<br>버드렉스<br>세레비<br>쉐이미</p>" }
-        }
+        lev3: { "fireDeck": { "name": "불덱", "content": "<h3>🔥 불덱 구성원</h3><p>원시 그란돈<br>마샤도<br>이터나투스<br>레시라무<br>이로치 칠색조<br>큐레무</p>" }, "waterFairyDeck": { "name": "물페어리덱", "content": "<h3>💧 물페어리덱 구성원</h3><p>원시 가이오가<br>마나피<br>아쿠아단 마기아나<br>디안시<br>제르네아스<br>이로치 메가 가디안</p>" }, "electricDeck": { "name": "전기덱", "content": "<h3>⚡ 전기덱 구성원</h3><p>제라오라<br>아르세우스<br>레지에레키<br>카푸꼬꼬꼭<br>제크로무<br>볼트로스</p>" }, "grassDeck": { "name": "풀덱", "content": "<h3>🍃 풀덱 구성원</h3><p>자루도<br>고릴타<br>조로아크<br>버드렉스<br>세레비<br>쉐이미</p>" } }
     },
     calendar: {
         lev2: [ { id: 'ranking', name: '랭킹뽑기' }, { id: 'limited', name: '한정뽑기' } ],
-        lev3: {
-            "ranking": { "name": "랭킹뽑기", "content": `...` },
-            "limited": { "name": "한정뽑기", "content": `...` }
-        }
+        lev3: { "ranking": { "name": "랭킹뽑기", "content": `...` }, "limited": { "name": "한정뽑기", "content": `...` } }
     },
     tips: {
         lev2: [ { id: 'star', name: 'S+급·S급 단계별 성급재료 총정리표' }, { id: 'guide', name: '포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10' }, { id: 'megaEvolution', name: '포켓몬 메가진화 조건 총정리' } ],
