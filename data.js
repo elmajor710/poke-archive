@@ -15,9 +15,72 @@ const DB = {
         },
         lev4: { 
             kyogre: { name: '가이오가', content: '<h3>가이오가</h3><p>바다를 넓힌 포켓몬으로 알려져있다.</p>' }, charizard: { name: '리자몽', content: '<h3>리자몽</h3><p>맹렬한 불꽃을 내뿜는다.</p>' }, snorlax: { name: '잠만보', content: '<h3>잠만보</h3><p>먹고 자는게 일상이다.</p>'},
-            megaMewtwoX: { name: '메가뮤츠X', content: `<div class="pokemon-detail-card"><h2>메가뮤츠X</h2><p class="pokemon-meta"><strong>포지션:</strong> 수라권의 & 살해 의도 감지</p><div class="pokemon-main-info"><div class="pokemon-image"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbQdfHo%2FbtsOFrO0H80%2Fr92gWZpsYd1b1zdALNaxe0%2Fimg.png" alt="메가뮤츠X"></div><div class="pokemon-stats"><p><strong>등급:</strong> SS</p><strong>종족값: 780</strong><table border="1"><thead><tr><th>HP</th><th>공격</th><th>방어</th><th>특공</th><th>특방</th><th>스피드</th></tr></thead><tbody><tr><td>106</td><td>190</td><td>100</td><td>154</td><td>100</td><td>130</td></tr></tbody></table></div></div><div class="pokemon-skills"><h3 class="section-title">스킬</h3><h4 class="subsection-title">Active: 진기권</h4><ul><li><strong>진기권ㆍ중격권:</strong> 적 단일 목표를 공격해 120% 물리공격 +96의 물리피해를 입히며, 이번 공격은 30% 저항 무시율과 15% 물리 공격 보너스가 포함됩니다.</li><li><strong>진기권ㆍ붕권:</strong> 중격권의 기반 위에 피해 계수가 15% 증가하고, 15%의 흡혈 효과가 부가됩니다.</li><li><strong>진기권ㆍ충권:</strong> 붕권의 기반 위에, 피해 계수가 15% 증가하고, 대상의 10% 물리 피해 감소를 무시하며, 주요 대상에게 물리 공격의 50%에 해당하는 물리 관통 피해를 입힙니다.</li></ul><h4 class="subsection-title">Active: 진기권ㆍ유선권</h4><p>쿨다운 3턴, 현재 단계의 [진기권]을 1회 사용하고, 1턴 동안 [힘을 빌려 힘을 쓰다] 상태에 들어갑니다. 해당 기간 동안 20% 저항률 증가</p><h4 class="subsection-title">Active: 진기권ㆍ잔상권</h4><p>이 스킬은 권의가 4점을 획득한 후에 사용할 수 있으며, 쿨다운은 3턴입니다. 사용 시 현재 단계의 [진기권]을 한 번 사용하여 지원 잔상을 생성합니다. 40%의 확률로 메가뮤츠X가 2회의 주동적인 공격을 대신 받습니다.</p><h4 class="subsection-title">Ultimate: 수라화경</h4><p>이 스킬은 [진기권]이 진급할 때마다 활성화되며, 주요 대상을 [수라장]으로 끌어들입니다. 메가뮤츠X의 물리 공격이 대상보다 높을 때, 등장 후 적의 현재 HP에서 5%를 차감하고, 받는 피해를 5%만큼 감소시킵니다. 또한, 입히는 피해는 5%만큼 증가합니다.<br><strong>[11성 개방]:</strong> 각 진화마다 [수라장]내의 지속 시간이 1턴씩 연장됩니다. (최대 5라운드)</p><h4 class="subsection-title">Passive: 수라권의 & 백전불태</h4><p><strong>수라권의:</strong> 진기권을 사용할 때마다 1점의 [권의]를 획득합니다. [권의]가 4점씩 쌓일 때마다 필살기 [수라화경]이 해제됩니다.<br><strong>백전불태:</strong> HP가 5%씩 감소할 때마다 초기 물리 공격과 저항 무시율이 1%씩 증가합니다.</p><ul><li><strong>[6성] 살해의도 감지:</strong> 은신한 적을 감지하고 공격할 수 있으며, 자신이 주요 공격 대상일 때 받는 피해가 5%만큼 감소합니다.</li><li><strong>[7성] 최고의 투지:</strong> 처음 5턴 동안 자신이 팀 중 물리 공격이 가장 높을 경우, 추가로 1턴을 얻습니다.</li><li><strong>[8성] 에스퍼 리더:</strong> 처음으로 치명적인 피해를 입을 때, 대상을 [사투경]으로 끌어들입니다.</li></ul></div><div class="pokemon-recommendations"><h3 class="section-title">추천 정보</h3><table class="recommendation-table"><tr><th>추천 성격</th><td>유쾌함(Jolly), 고집이강함(Adamant)</td></tr><tr><th>추천 아이템</th><td><div class="recommendation-grid"><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fbif6hb%2FbtsOFPV774N%2FDUfXhWr9707rOzogAEmiz1%2Fimg.png" alt="녹슨검(빨간색 등급)"><span>녹슨검(Immortal Sword)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fs4eKF%2FbtsOFr9krbe%2FbDWFyYF3rtiUp0Ks76CIX1%2Fimg.png" alt="녹슨검(주황색 등급)"><span>녹슨검(Immortal Sword)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fb89o30%2FbtsODXafo02%2FSfKv38V9ic8QQrdxouoh91%2Fimg.png" alt="신비한 목걸이"><span>신비한 목걸이(Mysterious Necklace)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FnBIcP%2FbtsOF3T6EIe%2FKKtKcz44VJ8Ke1z9gelZvk%2Fimg.png" alt="선홍색 가시날"><span>선홍색 가시날(Scarlet Thorn Blade)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FlLPdR%2FbtsOEBZbYM7%2FJpL3I9vRaLU3dM9XGlxJnk%2Fimg.png" alt="스프링 글러브"><span>스프링 글러브(Spring Glove)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fb0HoIO%2FbtsOFnMAWs8%2FWjCHgXCMmpkTg0LHV8bvI0%2Fimg.png" alt="금속코트"><span>금속코트(Metal Coat)</span></div></div></td></tr><tr><th>추천 룬</th><td><div class="recommendation-grid"><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fxs8x9%2FbtsOxxPh1Nr%2FMun91YmWOgAB8pTnceOHzk%2Fimg.png" alt="강격"><span>강격(Power)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbU9JRa%2FbtsOv8izvWj%2FIf5dAZJsul5BwpbV6ECDuk%2Fimg.png" alt="치명"><span>치명(Deadly)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbI8qmg%2FbtsOx9mICsj%2FHPekYM5s0k8xFLHYQoLdG1%2Fimg.png" alt="전투광"><span>전투광(Warlike)</span></div></div></td></tr><tr><th>추천 칩</th><td><div class="recommendation-grid"><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcvD4ic%2FbtsOwxo9URU%2FAkK0KJQV79AK5MGMMi4nEk%2Fimg.png" alt="개구리가시"><span>개구리가시(Frogthorn)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcUh4D2%2FbtsOx40jDq4%2FyXEinUS88JPLxcuACYkjr1%2Fimg.png" alt="늑대행자"><span>늑대행자(Lone Wolf)</span></div></div></td></tr></table></div></div>` },
-            megaMewtwoY: { name: '메가뮤츠Y', content: `<div class="pokemon-detail-card"><h2>메가뮤츠Y</h2><p class="pokemon-meta"><strong>포지션:</strong> 정신 이중 형태 & 정신조작</p><div class="pokemon-main-info"><div class="pokemon-image"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FltMKg%2FbtsOFg73tVi%2F3G4TpAsSkrDRuRkBDHWLbK%2Fimg.png" alt="메가뮤츠Y"></div><div class="pokemon-stats"><p><strong>등급:</strong> SS</p><strong>종족값: 780</strong><table border="1"><thead><tr><th>HP</th><th>공격</th><th>방어</th><th>특공</th><th>특방</th><th>스피드</th></tr></thead><tbody><tr><td>106</td><td>150</td><td>70</td><td>194</td><td>120</td><td>140</td></tr></tbody></table></div></div><div class="pokemon-skills"><h3 class="section-title">스킬</h3><h4 class="subsection-title">Active: 정신파동</h4><p>적 단일 목표를 부딪히며 100% 특수 공격 +96의 특수 피해를 입히고, 2턴 동안 [특수공격Ⅱ]와 [속도Ⅱ]를 얻습니다.</p><h4 class="subsection-title">Active: 형태의 반전</h4><p>본체 형태에서 사용 가능하며, 쿨다운은 3턴입니다.<br>적 세로 라인을 공격해 160% 특수공격 +96의 특수 피해를 입히고, 대상의 분노를 60포인트 흡수하고, 자신에게 있는 무작위 1/2 등급의 디버프 효과를 [내면 세계]에 2턴 동안 저장합니다.</p><h4 class="subsection-title">Active: 정신 파괴</h4><p>정신체 형태에서 사용 가능하며, 쿨다운은 3턴입니다.<br>적 전체 목표를 공격해 50% 특수 공격 +96의 특수 피해를 입히고, [내면 세계]를 사용한 후, 본체 형태로 변환됩니다.</p><h4 class="subsection-title">Ultimate: 정신환멸</h4><p>적 전체 목표를 공격해 180% 특수 공격 +144의 특수피해를 입히고, 자신이 [정신체] 형태로 변환되며, [내면 세계]에 봉인된 디버프 효과를 해제하여 적 전체에게 2턴 동안 부여합니다.<br><strong>[11성 개방]:</strong> 필살기를 사용 후, 아군 포켓몬이 입힌 피해가 [내면 세계]에 기록되며, 다음 큰 턴이 끝날 때 [정신 구상화]를 사용합니다.</p><h4 class="subsection-title">Passive: 정신조작 & 내부 및 외부 세계</h4><p><strong>정신조작:</strong> 아군 에스퍼 타입 포켓몬은 에스퍼 타입 포켓몬의 수x1.5%만큼의 물리 공격과 특수 공격이 증가하며, 5%의 관통 피해가 추가됩니다.<br><strong>내부 및 외부 세계:</strong> 자신만의 독립된 [내면세계] 정신 공간을 소유하고 있으며, 자신이 입히는 모든 피해는 특수 공격 관통 피해로 변환됩니다.</p><ul><li><strong>[6성] 공존:</strong> 본체 또는 정신체로 전환할 때, 다른 형태의 HP가 10% 회복됩니다.</li><li><strong>[7성] 최고의 투지:</strong> 처음 5턴 동안 자신의 초기 특수 공격이 아군 중 가장 높을 경우, 추가로 1턴을 얻습니다.</li><li><strong>[8성] 분해 및 재형태화:</strong> 본체가 전투 중 처음으로 치명적인 피해를 입으면, 본체는 파괴되며 [정신체]로 변이합니다.</li></ul></div><div class="pokemon-recommendations"><h3 class="section-title">추천 정보</h3><table class="recommendation-table"><tr><th>추천 성격</th><td>겁이많음(Timid), 내성적(Modest)</td></tr><tr><th>추천 아이템</th><td><div class="recommendation-grid"><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fbif6hb%2FbtsOFPV774N%2FDUfXhWr9707rOzogAEmiz1%2Fimg.png" alt="녹슨검(빨간색 등급)"><span>녹슨검(Immortal Sword)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fs4eKF%2FbtsOFr9krbe%2FbDWFyYF3rtiUp0Ks76CIX1%2Fimg.png" alt="녹슨검(주황색 등급)"><span>녹슨검(Immortal Sword)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fb89o30%2FbtsODXafo02%2FSfKv38V9ic8QQrdxouoh91%2Fimg.png" alt="신비한 목걸이"><span>신비한 목걸이(Mysterious Necklace)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbacrVF%2FbtsOFjqeU6T%2FbaV3ieJbumw6GI0ac7Z5u1%2Fimg.png" alt="울트라 프리즘"><span>울트라 프리즘(Ultimate Prism)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcypX3P%2FbtsOFCpacVH%2FjAx2VhiTaM3Wqp5laJxhfk%2Fimg.png" alt="맹렬한 방울"><span>맹렬한 방울(Swiftly Bell)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FSfITP%2FbtsOGmlDHJH%2Fbuetn7KvTdkYsZ01mKcQO1%2Fimg.png" alt="왕의 징표석"><span>왕의 징표석(King's Rock)</span></div></div></td></tr><tr><th>추천 룬</th><td><div class="recommendation-grid"><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fxs8x9%2FbtsOxxPh1Nr%2FMun91YmWOgAB8pTnceOHzk%2Fimg.png" alt="강격"><span>강격(Power)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbI8qmg%2FbtsOx9mICsj%2FHPekYM5s0k8xFLHYQoLdG1%2Fimg.png" alt="전투광"><span>전투광(Warlike)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbU9JRa%2FbtsOv8izvWj%2FIf5dAZJsul5BwpbV6ECDuk%2Fimg.png" alt="치명"><span>치명(Deadly)</span></div></div></td></tr><tr><th>추천 칩</th><td><div class="recommendation-grid"><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcUh4D2%2FbtsOx40jDq4%2FyXEinUS88JPLxcuACYkjr1%2Fimg.png" alt="늑대행자"><span>늑대행자(Lone Wolf)</span></div><div class="reco-item"><img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FGSHbB%2FbtsOx98anu1%2FlX42okgwuVKWR0ufIGTvgK%2Fimg.png" alt="화무"><span>화무(Fire Dance)</span></div></div></td></tr></table></div></div>` }
+            megaMewtwoX: { name: '메가뮤츠X', content: `<div class="pokemon-detail-card">...</div>` },
+            megaMewtwoY: { name: '메가뮤츠Y', content: `<div class="pokemon-detail-card">...</div>` }
+        }
+    },
+    pokemonGrade: {
+        lev2: [ { id: 'SS', name: 'SS' }, { id: 'Splus', name: 'S+' }, { id: 'S', name: 'S' } ],
+        lev3: { 
+            SS: [ {id: 'mewtwo', name: '뮤츠'}, { id: 'megaMewtwoX', name: '메가뮤츠X' }, { id: 'megaMewtwoY', name: '메가뮤츠Y' } ],
+            Splus: [ {id: 'darkrai', name: '다크라이'} ],
+            S: [ {id: 'lucario', name: '루카리오'} ]
+        },
+        lev4: { 
+            mewtwo: { name: '뮤츠', content: '<h3>뮤츠</h3><p>강력한 유전자를 가졌다.</p>' },
+            darkrai: { name: '다크라이', content: '<h3>다크라이</h3><p>악몽을 꾸게 한다.</p>' },
+            lucario: { name: '루카리오', content: '<h3>루카리오</h3><p>파동을 다룬다.</p>'},
+            megaMewtwoX: { name: '메가뮤츠X', content: `<div class="pokemon-detail-card">...</div>` },
+            megaMewtwoY: { name: '메가뮤츠Y', content: `<div class="pokemon-detail-card">...</div>` }
+        }
+    },
+    item: {
+        lev2: [ {id:'red', name:'빨간색', color:'#E74C3C'}, {id:'orange',name:'주황색', color:'#E67E22'}, {id:'purple',name:'보라색', color:'#9B59B6'} ],
+        lev3: { 
+            red: [ {id:'rustySword', name:'녹슨 검'} ],
+            orange: [ {id:'oranBerry', name:'오랭열매'} ],
+            purple: [ {id:'masterBall', name:'마스터볼'} ],
+        },
+        lev4: { 
+            rustySword: { name:'녹슨 검', content: '<h3>녹슨 검</h3><p>자시안에게 힘을 준다.</p>' },
+            oranBerry: { name: '오랭열매', content: '<h3>오랭열매</h3><p>HP를 10 회복한다.</p>' },
+            masterBall: { name: '마스터볼', content: '<h3>마스터볼</h3><p>반드시 포켓몬을 잡는다.</p>' }
+        }
+    },
+    runeAndChip: {
+        lev2: [ { "id": "rune", name: "룬" }, { "id": "chip", name: "칩" } ],
+        lev3: {
+            rune: [ { "id": "counter", name: "반격(Counter)" }, { "id": "sparkle", name: "반짝임(Sparkle)" }, { "id": "aegis", name: "비호(Aegis)" }, { "id": "diamond", name: "금강(Diamond)" }, { "id": "shield", name: "실드(Shield)" }, { "id": "defense", name: "방어(Defense)" }, { "id": "berserker", name: "전투광(Warlike)" }, { "id": "critical", name: "치명(Deadly)" }, { "id": "power", name: "강격(Power)" } ],
+            chip: [ { "id": "sacrifice", name: "헌제(Sacrifice)" }, { "id": "terror", name: "공포(Terror)" }, { "id": "psychic", name: "초능(Psychic)" }, { "id": "snakeghost", name: "뱀유령(Snakeghost)" }, { "id": "pavise", name: "방패(Pavise)" }, { "id": "carapace", name: "귀갑(Carapace)" }, { "id": "wolfwalker", name: "늑대행자(Lone Wolf)" }, { "id": "frogthorn", name: "개구리가시(Frogthorn)" }, { "id": "firedance", name: "화무(Fire Dance)" } ]
+        },
+        lev4: {
+            counter: { name: "반격(Counter)", content: `...` },
+            sparkle: { name: "반짝임(Sparkle)", content: `...` },
+            // 모든 룬과 칩의 상세 데이터 포함
+        }
+    },
+    deck: {
+        lev2: [ { id: 'fireDeck', name: '불덱' }, { id: 'waterFairyDeck', name: '물페어리덱' }, { id: 'electricDeck', name: '전기덱' }, { id: 'grassDeck', name: '풀덱' } ],
+        lev3: {
+            "fireDeck": { "name": "불덱", "content": "<h3>🔥 불덱 구성원</h3><p>원시 그란돈<br>마샤도<br>이터나투스<br>레시라무<br>이로치 칠색조<br>큐레무</p>" },
+            "waterFairyDeck": { "name": "물페어리덱", "content": "<h3>💧 물페어리덱 구성원</h3><p>원시 가이오가<br>마나피<br>아쿠아단 마기아나<br>디안시<br>제르네아스<br>이로치 메가 가디안</p>" },
+            "electricDeck": { "name": "전기덱", "content": "<h3>⚡ 전기덱 구성원</h3><p>제라오라<br>아르세우스<br>레지에레키<br>카푸꼬꼬꼭<br>제크로무<br>볼트로스</p>" },
+            "grassDeck": { "name": "풀덱", "content": "<h3>🍃 풀덱 구성원</h3><p>자루도<br>고릴타<br>조로아크<br>버드렉스<br>세레비<br>쉐이미</p>" }
+        }
+    },
+    calendar: {
+        lev2: [ { id: 'ranking', name: '랭킹뽑기' }, { id: 'limited', name: '한정뽑기' } ],
+        lev3: {
+            "ranking": { "name": "랭킹뽑기", "content": `...` },
+            "limited": { "name": "한정뽑기", "content": `...` }
+        }
+    },
+    tips: {
+        lev2: [ { id: 'star', name: 'S+급·S급 단계별 성급재료 총정리표' }, { id: 'guide', name: '포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10' }, { id: 'megaEvolution', name: '포켓몬 메가진화 조건 총정리' } ],
+        lev3: {
+            "star": { "name": "S+급·S급 단계별 성급재료 총정리표", "content": `...` },
+            "guide": { "name": "포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10", "content": `...` },
+            "megaEvolution": { "name": "포켓몬 메가진화 조건 총정리", "content": `...` }
+        }
     }
-},
-// ... (rest of the DB object) ...
 };
