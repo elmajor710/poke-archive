@@ -29,41 +29,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 4. 클릭 핸들러
-    function handleMenuClick(button) {
-        setActive(parseInt(button.dataset.level), button);
-        if (!isAdmin) refreshAdSlot(); // 관리자 모드가 아닐 때만 광고 새로고침
-        
-        const context = button.dataset;
-        const nextLevel = parseInt(context.level) + 1;
-        let nextData;
-        if (nextLevel === 2) nextData = DB[context.id]?.lev2;
-        else if (nextLevel === 3) nextData = DB[context.menuId]?.lev3?.[context.id];
-        else if (nextLevel === 4) nextData = DB[context.menuId]?.lev4?.[context.id];
-        renderPanel(nextLevel, nextData, context);
+    // --- 이 handleMenuClick 함수 전체를 아래의 새로운 내용으로 교체해주세요 ---
+function handleMenuClick(button) {
+    const level = parseInt(button.dataset.level);
+    const id = button.dataset.id;
+    const context = button.dataset.context;
+
+    // 현재 상태 저장
+    const currentData = getDataByPath(currentDataContext, currentDataPath);
+    if (currentData) {
+        navigationHistory.push({
+            path: [...currentDataPath],
+            context: currentDataContext
+        });
     }
 
-    function handleBackClick(button) {
-        const parentPanel = button.closest('.panel');
-        parentPanel.classList.remove('visible');
-        contentArea.classList.remove('final-view-L3', 'final-view-L4');
-        setActive(parseInt(parentPanel.id.slice(-1)) - 1, null);
-    }
+    // 새 경로 설정
+    currentDataContext = context || id;
+    currentDataPath = [id];
 
-    function handleAdClick() {
-        if (isAdmin) return;
-        const now = Date.now();
-        let adClicks = JSON.parse(localStorage.getItem('adClicks')) || [];
-        adClicks = adClicks.filter(timestamp => (now - timestamp) < AD_CLICK_TIME_WINDOW);
-        adClicks.push(now);
-        localStorage.setItem('adClicks', JSON.stringify(adClicks));
-        if (adClicks.length >= AD_CLICK_LIMIT) {
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(0, 0, 0, 0);
-            localStorage.setItem('adBlockUntil', tomorrow.getTime());
-            hideAdWithMessage('광고가 일시 중단되었습니다.');
-        }
+    // 새 데이터 렌더링
+    const nextData = getDataByPath(currentDataContext, currentDataPath);
+    renderContent(nextData);
+
+    // 스크롤 위치 초기화
+    const contentPanel = document.querySelector('.content');
+    if(contentPanel) {
+        contentPanel.scrollTop = 0;
     }
+}
 
     // 5. 렌더링 및 광고 관리
     function renderPanel(level, data, context) {
