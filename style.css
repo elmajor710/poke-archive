@@ -296,3 +296,10 @@ header h1 {
     align-items: center;
     justify-content: flex-start;
 }
+
+/* --- @media 블록 안에 아래 코드를 추가해주세요 --- */
+
+/* [추가] 모바일 전체 화면 모드 스타일 */
+#app-container.fullscreen-active #sidebar {
+    display: none; /* 전체 화면일 때 사이드바 숨기기 */
+}
