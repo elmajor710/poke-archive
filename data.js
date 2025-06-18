@@ -11,58 +11,61 @@ const DB = {
     pokemonType: {
         lev2: [ { id: 'normal', name: '노말', color: '#A8A878' }, { id: 'fire', name: '불', color: '#F08030' }, { id: 'water', name: '물', color: '#6890F0' }, { id: 'grass', name: '풀', color: '#78C850' }, { id: 'electric', name: '전기', color: '#F8D030' }, { id: 'ice', name: '얼음', color: '#98D8D8' }, { id: 'fighting', name: '격투', color: '#C03028' }, { id: 'poison', name: '독', color: '#A040A0' }, { id: 'ground', name: '땅', color: '#E0C068' }, { id: 'flying', name: '비행', color: '#A890F0' }, { id: 'psychic', name: '에스퍼', color: '#F85888' }, { id: 'bug', name: '벌레', color: '#A8B820' }, { id: 'rock', name: '바위', color: '#B8A038' }, { id: 'ghost', name: '유령', color: '#705898' }, { id: 'dragon', name: '드래곤', color: '#7038F8' }, { id: 'dark', name: '악', color: '#705848' }, { id: 'steel', name: '강철', color: '#B8B8D0' }, { id: 'fairy', name: '페어리', color: '#EE99AC' } ],
         lev3: { 
-            water: [ { id: 'kyogre', name: '가이오가' } ], fire: [ { id: 'charizard', name: '리자몽' } ], normal: [ { id: 'snorlax', name: '잠만보' } ], grass: [ { id: 'bulbasaur', name: '이상해씨' } ], electric: [ { id: 'pikachu', name: '피카츄' } ], ice: [ { id: 'lapras', name: '라프라스' } ], fighting: [ { id: 'machamp', name: '괴력몬' }, { id: 'megaMewtwoX', name: '메가뮤츠X' } ], poison: [ { id: 'gengar', name: '팬텀' } ], ground: [ { id: 'rhydon', name: '코뿌리' } ], flying: [ { id: 'pidgeot', name: '피죤투' } ], psychic: [ { id: 'alakazam', name: '후딘' }, { id: 'megaMewtwoX', name: '메가뮤츠X' }, { id: 'megaMewtwoY', name: '메가뮤츠Y' } ], bug: [ { id: 'scyther', name: '스라크' } ], rock: [ { id: 'golem', name: '딱구리' } ], ghost: [ { id: 'gengar2', name: '팬텀' } ], dragon: [ { id: 'dragonite', name: '망나뇽' } ], dark: [ { id: 'tyranitar', name: '마기라스' } ], steel: [ { id: 'scizor', name: '핫삼' } ], fairy: [ { id: 'gardevoir', name: '가디안' } ]
+            water: [ { id: 'kyogre', name: '가이오가' }, {id: 'manaphy', name: '마나피'} ],
+            fire: [ { id: 'charizard', name: '리자몽' } ],
+            fighting: [ { id: 'megaMewtwoX', name: '메가뮤츠X' } ],
         },
         lev4: { 
-            kyogre: { name: '가이오가', content: '<h3>가이오가</h3><p>바다를 넓힌 포켓몬으로 알려져있다.</p>' }, charizard: { name: '리자몽', content: '<h3>리자몽</h3><p>맹렬한 불꽃을 내뿜는다.</p>' }, snorlax: { name: '잠만보', content: '<h3>잠만보</h3><p>먹고 자는게 일상이다.</p>'},
-            megaMewtwoX: { name: '메가뮤츠X', content: `<div class="pokemon-detail-card">...</div>` },
-            megaMewtwoY: { name: '메가뮤츠Y', content: `<div class="pokemon-detail-card">...</div>` }
+            kyogre: { name: '원시 가이오가', grade: 'SS', types: ['물'], skills: { active: '근원의파동', passive: '시작의바다' }, items: ['item_blueorb'], runes: ['rune_aegis'], chips: ['chip_wolfwalker'], imgUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/200.png' },
+            manaphy: { name: '마나피', grade: 'S+', types: ['물'], skills: { active: '하트스왑', passive: '촉촉바디' }, items: ['item_mysticwater'], runes: [], chips: [], imgUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/490.png' },
+            charizard: { name: '리자몽', grade: 'A', types: ['불', '비행'], skills: { active: '화염방사', passive: '맹화' }, items: [], runes: [], chips: [], imgUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png' },
+            megaMewtwoX: { name: '메가뮤츠X', grade: 'SS', types: ['에스퍼', '격투'], skills: { active: '사이코브레이크', passive: '불굴의마음' }, items: ['item_rustySword'], runes: ['rune_berserker'], chips: ['chip_firedance'], imgUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10046.png' }
         }
     },
     pokemonGrade: {
         lev2: [ { id: 'SS', name: 'SS' }, { id: 'Splus', name: 'S+' }, { id: 'S', name: 'S' } ],
         lev3: { 
-            SS: [ {id: 'mewtwo', name: '뮤츠'}, { id: 'megaMewtwoX', name: '메가뮤츠X' }, { id: 'megaMewtwoY', name: '메가뮤츠Y' } ], Splus: [ {id: 'darkrai', name: '다크라이'} ], S: [ {id: 'lucario', name: '루카리오'} ]
+            SS: [ {id: 'megaMewtwoX', name: '메가뮤츠X'} ], Splus: [ {id: 'darkrai', name: '다크라이'} ], S: [ {id: 'lucario', name: '루카리오'} ]
         },
         lev4: { 
-            mewtwo: { name: '뮤츠', content: '<h3>뮤츠</h3><p>강력한 유전자를 가졌다.</p>' }, darkrai: { name: '다크라이', content: '<h3>다크라이</h3><p>악몽을 꾸게 한다.</p>' }, lucario: { name: '루카리오', content: '<h3>루카리오</h3><p>파동을 다룬다.</p>'},
-            megaMewtwoX: { name: '메가뮤츠X', content: `<div class="pokemon-detail-card">...</div>` },
-            megaMewtwoY: { name: '메가뮤츠Y', content: `<div class="pokemon-detail-card">...</div>` }
+             megaMewtwoX: { name: '메가뮤츠X', grade: 'SS', types: ['에스퍼', '격투'], skills: { active: '사이코브레이크', passive: '불굴의마음' }, items: ['item_rustySword'], runes: ['rune_berserker'], chips: ['chip_firedance'], imgUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10046.png' }
         }
     },
     item: {
         lev2: [ {id:'red', name:'빨간색', color:'#E74C3C'}, {id:'orange',name:'주황색', color:'#E67E22'}, {id:'purple',name:'보라색', color:'#9B59B6'} ],
         lev3: { 
-            red: [ {id:'rustySword', name:'녹슨 검'} ], orange: [ {id:'oranBerry', name:'오랭열매'} ], purple: [ {id:'masterBall', name:'마스터볼'} ],
+            red: [ {id:'item_rustySword', name:'녹슨 검(Rusty Sword)'} ], orange: [ {id:'item_oranBerry', name:'오랭열매(Oran Berry)'} ], purple: [ {id:'item_masterBall', name:'마스터볼(Master Ball)'} ],
         },
         lev4: { 
-            rustySword: { name:'녹슨 검', content: '<h3>녹슨 검</h3><p>자시안에게 힘을 준다.</p>' }, oranBerry: { name: '오랭열매', content: '<h3>오랭열매</h3><p>HP를 10 회복한다.</p>' }, masterBall: { name: '마스터볼', content: '<h3>마스터볼</h3><p>반드시 포켓몬을 잡는다.</p>' }
+            item_rustySword: { name:'녹슨 검(Rusty Sword)', type: '전용 아이템', effect: '자시안에게 힘을 부여한다.', imgUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rusty-sword.png', description: '<h3>녹슨 검</h3><p>오래된 검이지만, 특정 포켓몬에게 강대한 힘을 이끌어내는 신비한 힘이 깃들어 있다.</p>' }, 
+            item_oranBerry: { name: '오랭열매(Oran Berry)', type: '회복 아이템', effect: 'HP를 10 회복한다.', imgUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png', description: '<h3>오랭열매</h3><p>포켓몬에게 주면 HP를 약간 회복시켜주는 나무열매. 달콤하고 맛있다.</p>'},
+            item_masterBall: { name: '마스터볼(Master Ball)', type: '포획 아이템', effect: '반드시 포켓몬을 잡는다.', imgUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png', description: '<h3>마스터볼</h3><p>궁극의 성능을 자랑하는 볼. 야생 포켓몬을 반드시 잡을 수 있다.</p>' }
         }
     },
     runeAndChip: {
         lev2: [ { "id": "rune", name: "룬" }, { "id": "chip", name: "칩" } ],
         lev3: {
-            rune: [ { "id": "counter", name: "반격(Counter)" }, { "id": "sparkle", name: "반짝임(Sparkle)" }, { "id": "aegis", name: "비호(Aegis)" }, { "id": "diamond", name: "금강(Diamond)" }, { "id": "shield", name: "실드(Shield)" }, { "id": "defense", name: "방어(Defense)" }, { "id": "berserker", name: "전투광(Warlike)" }, { "id": "critical", name: "치명(Deadly)" }, { "id": "power", name: "강격(Power)" } ],
-            chip: [ { "id": "sacrifice", name: "헌제(Sacrifice)" }, { "id": "terror", name: "공포(Terror)" }, { "id": "psychic", name: "초능(Psychic)" }, { "id": "snakeghost", name: "뱀유령(Snakeghost)" }, { "id": "pavise", name: "방패(Pavise)" }, { "id": "carapace", name: "귀갑(Carapace)" }, { "id": "wolfwalker", name: "늑대행자(Lone Wolf)" }, { "id": "frogthorn", name: "개구리가시(Frogthorn)" }, { "id": "firedance", name: "화무(Fire Dance)" } ]
+            rune: [ { "id": "rune_berserker", name: "전투광(Warlike)" }, { "id": "rune_aegis", name: "비호(Aegis)" } ],
+            chip: [ { "id": "chip_firedance", name: "화무(Fire Dance)" }, { "id": "chip_wolfwalker", name: "늑대행자(Lone Wolf)"} ]
         },
         lev4: {
-            // 모든 룬과 칩의 상세 데이터...
+            rune_berserker: { name: '전투광(Warlike)', setImage: '전투광 룬 세트', effect: '공격 시 데미지가 대폭 증가한다.', imgUrl: 'https://via.placeholder.com/64/FFD700/000000?text=R', description: '<h3>전투광 룬</h3><p>공격적인 성향을 극한으로 끌어올리는 룬 세트의 일부입니다.</p>'},
+            chip_firedance: { name: '화무(Fire Dance)', setImage: '화무 칩 세트', effect: '불타입 기술의 위력이 상승한다.', imgUrl: 'https://via.placeholder.com/64/FF6347/000000?text=C', description: '<h3>화무 칩</h3><p>타오르는 불꽃의 춤을 형상화한 칩입니다.</p>'}
         }
     },
     deck: {
-        lev2: [ { id: 'fireDeck', name: '불덱' }, { id: 'waterFairyDeck', name: '물페어리덱' }, { id: 'electricDeck', name: '전기덱' }, { id: 'grassDeck', name: '풀덱' } ],
-        lev3: { "fireDeck": { "name": "불덱", "content": "<h3>🔥 불덱 구성원</h3><p>원시 그란돈<br>마샤도<br>이터나투스<br>레시라무<br>이로치 칠색조<br>큐레무</p>" }, "waterFairyDeck": { "name": "물페어리덱", "content": "<h3>💧 물페어리덱 구성원</h3><p>원시 가이오가<br>마나피<br>아쿠아단 마기아나<br>디안시<br>제르네아스<br>이로치 메가 가디안</p>" }, "electricDeck": { "name": "전기덱", "content": "<h3>⚡ 전기덱 구성원</h3><p>제라오라<br>아르세우스<br>레지에레키<br>카푸꼬꼬꼭<br>제크로무<br>볼트로스</p>" }, "grassDeck": { "name": "풀덱", "content": "<h3>🍃 풀덱 구성원</h3><p>자루도<br>고릴타<br>조로아크<br>버드렉스<br>세레비<br>쉐이미</p>" } }
+        lev2: [ { id: 'fireDeck', name: '불덱' }, { id: 'waterFairyDeck', name: '물페어리덱' } ],
+        lev3: { "fireDeck": { "name": "불덱", "content": "<h3>🔥 불덱 구성원</h3><p>원시 그란돈<br>마샤도<br>이터나투스<br>레시라무<br>이로치 칠색조<br>큐레무</p>" }, "waterFairyDeck": { "name": "물페어리덱", "content": "<h3>💧 물페어리덱 구성원</h3><p>원시 가이오가<br>마나피<br>아쿠아단 마기아나<br>디안시<br>제르네아스<br>이로치 메가 가디안</p>" } }
     },
     calendar: {
         lev2: [ { id: 'ranking', name: '랭킹뽑기' }, { id: 'limited', name: '한정뽑기' } ],
-        lev3: { "ranking": { "name": "랭킹뽑기", "content": `...` }, "limited": { "name": "한정뽑기", "content": `...` } }
+        lev3: { "ranking": { "name": "랭킹뽑기", "content": "<h3>기간: 25.06.19 ~ 25.06.26</h3><p>이번주 랭킹뽑기 대상: <b>메가 레쿠쟈</b></p>" }, "limited": { "name": "한정뽑기", "content": "<h3>기간: 25.06.20 ~ 25.06.22</h3><p>주말 한정뽑기: <b>챔피언 피카츄</b></p>" } }
     },
     tips: {
-        lev2: [ { id: 'star', name: 'S+급·S급 단계별 성급재료 총정리표' }, { id: 'guide', name: '포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10' }, { id: 'megaEvolution', name: '포켓몬 메가진화 조건 총정리' } ],
+        lev2: [ { id: 'star', name: 'S+급·S급 성급재료' }, { id: 'guide', name: '초보자 가이드 TOP10' } ],
         lev3: {
-            "star": { "name": "S+급·S급 단계별 성급재료 총정리표", "content": `...` },
-            "guide": { "name": "포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10", "content": `...` },
-            "megaEvolution": { "name": "포켓몬 메가진화 조건 총정리", "content": `...` }
+            "star": { "name": "S+급·S급 단계별 성급재료 총정리표", "content": "<h3>성급 재료 가이드</h3><p>내용 준비중입니다...</p>" },
+            "guide": { "name": "포켓몬 유저라면 꼭 알아야 할 초보자 가이드 TOP10", "content": "<h3>초보자 가이드</h3><p>내용 준비중입니다...</p>" }
         }
     }
 };

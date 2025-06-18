@@ -7,7 +7,7 @@
 }
 body {
     margin: 0;
-    font-family: sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -32,6 +32,8 @@ header h1 {
     align-items: center;
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
+    padding: 5px;
+    box-sizing: border-box;
 }
 #app-container {
     display: flex;
@@ -65,6 +67,7 @@ header h1 {
 .panel-header {
     padding: 10px 15px;
     border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
 }
 .panel-content {
     padding: 10px;
@@ -76,6 +79,10 @@ header h1 {
     padding: 12px; margin-bottom: 5px;
     border: 1px solid #eee; background: #f9f9f9;
     border-radius: 6px; font-size: 16px; cursor: pointer;
+    transition: background-color 0.2s;
+}
+.menu-item:hover, .list-item:hover {
+    background-color: #f1f1f1;
 }
 .menu-item.active, .list-item.active {
     background-color: var(--active-color);
@@ -87,87 +94,109 @@ header h1 {
     display: none !important;
 }
 #content-area.final-view-L4 #lev4-panel {
-    width: 100%;
-    border-right: none;
+    width: 100%; border-right: none;
 }
 #content-area.final-view-L3 #lev2-panel {
     display: none !important;
 }
 #content-area.final-view-L3 #lev3-panel {
-    width: 100%;
-    border-right: none;
+    width: 100%; border-right: none;
 }
-@media (max-width: 768px) {
-    :root {
-        --sidebar-width: 120px;
-    }
-    header h1 {
-        font-size: 1.2em;
-    }
-    #app-container.fullscreen-active #sidebar {
-        display: none;
-    }
-    .panel {
-        flex: 1;
-        min-width: 0;
-    }
-    #content-area {
-        overflow-x: hidden;
-    }
-    #sidebar, .panel-content {
-        padding: 8px;
-    }
-    .menu-item, .list-item {
-        font-size: 14px;
-        padding: 10px 8px;
-    }
-    .panel-header {
-        padding: 8px 10px;
-        font-size: 15px;
-    }
-    .back-btn {
-        font-size: 14px;
-    }
+
+/* --- 상세 정보 카드 스타일 --- */
+.detail-card {
+    padding: 15px;
+}
+.detail-card h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+}
+.pokemon-main-info {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.pokemon-main-info img {
+    width: 120px;
+    height: 120px;
+    background: #f0f0f0;
+    border-radius: 8px;
+}
+.pokemon-stats p {
+    margin: 5px 0;
+    font-size: 1em;
+}
+.pokemon-stats .type-badge {
+    padding: 3px 8px;
+    border-radius: 12px;
+    color: white;
+    font-size: 0.8em;
+    margin-right: 5px;
+}
+.detail-section {
+    margin-top: 20px;
+}
+.detail-section h4 {
+    margin-bottom: 10px;
+    border-left: 3px solid #ccc;
+    padding-left: 8px;
+}
+.item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    gap: 10px;
+}
+.item-grid img {
+    width: 64px;
+    height: 64px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    background-color: #fafafa;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+.item-grid img:hover {
+    transform: scale(1.1);
 }
 
 /* --- 팝업창 스타일 --- */
 #popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
-    display: none; /* 기본 숨김 */
-    justify-content: center;
-    align-items: center;
+    display: none;
+    justify-content: center; align-items: center;
     z-index: 10000;
 }
 #popup-overlay.visible {
-    display: flex; /* 보일 때 */
+    display: flex;
 }
 #popup-content {
-    background: #fff;
-    padding: 30px;
-    border-radius: 10px;
-    max-width: 600px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
+    background: #fff; padding: 20px 30px; border-radius: 10px;
+    max-width: 500px; width: 90%;
+    max-height: 80vh; overflow-y: auto;
     position: relative;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 #popup-close {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 28px;
-    font-weight: bold;
-    color: #aaa;
-    background: none;
-    border: none;
-    cursor: pointer;
+    position: absolute; top: 10px; right: 15px;
+    font-size: 28px; font-weight: bold; color: #aaa;
+    background: none; border: none; cursor: pointer;
 }
-#popup-close:hover {
-    color: #333;
+#popup-close:hover { color: #333; }
+#popup-body h3 { margin-top: 0; }
+
+@media (max-width: 768px) {
+    :root { --sidebar-width: 120px; }
+    header h1 { font-size: 1.2em; }
+    #app-container.fullscreen-active #sidebar,
+    #app-container.fullscreen-active #lev2-panel,
+    #app-container.fullscreen-active #lev3-panel { display: none; }
+    .panel { flex: 1; min-width: 0; }
+    #content-area { overflow-x: hidden; }
+    .menu-item, .list-item { font-size: 14px; padding: 10px 8px; }
+    .pokemon-main-info { flex-direction: column; }
 }
