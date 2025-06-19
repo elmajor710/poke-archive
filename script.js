@@ -97,6 +97,12 @@ function recordAdClick() {
         return;
     }
 
+function resetAdBlock() {
+    localStorage.removeItem(AD_STORAGE_KEY);
+    console.log("Ad block data has been reset. Reloading the page...");
+    window.location.reload();
+}
+
     const now = Date.now();
     let validClicks = data.clicks.filter(timestamp => (now - timestamp) < AD_TIME_WINDOW_MS);
     validClicks.push(now);
