@@ -222,12 +222,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+/* script.js 파일에서 refreshAd 함수를 찾아 아래의 전체 코드로 교체해주세요. */
+
 // --- 여기부터 ---
 function refreshAd() {
-    try {
-        const adContainer = document.getElementById('ads-container');
-        if (!adContainer) return;
+    const adContainer = document.getElementById('ads-container');
+    if (!adContainer) return;
 
+    // AdManager에게 광고를 표시해도 되는지 확인
+    if (!window.AdManager || !AdManager.canShowAd()) {
+        adContainer.innerHTML = ''; // 광고 컨테이너 비우기
+        adContainer.style.display = 'none'; // 광고 컨테이너 숨기기
+        console.log("Ad display prevented by AdManager.");
+        return; // 여기서 함수 종료
+    }
+
+    // 광고 표시가 허용되면, 컨테이너를 다시 보이게 함
+    adContainer.style.display = 'block';
+    if(window.innerWidth <= 768) {
+        adContainer.style.display = 'flex';
+    }
+
+
+    // 아래는 기존 광고 로드 로직 (requestAnimationFrame 포함)
+    try {
         requestAnimationFrame(() => {
             adContainer.innerHTML = '';
             
@@ -235,26 +253,15 @@ function refreshAd() {
             adIns.className = 'adsbygoogle';
             adIns.style.display = 'block';
             adIns.dataset.adClient = 'ca-pub-2125965839205311';
-
-            // 화면 너비를 확인하여 모바일/PC에 다른 광고 전략 적용
-            if (window.innerWidth <= 768) {
-                // 모바일: 고정 크기 광고 (320x100)
-                console.log("Ad refreshed for MOBILE with FIXED SIZE (320x100).");
-                adIns.dataset.adSlot = '2123059829'; // 모바일용 슬롯 (반응형 단위지만 고정값으로 요청)
-                adIns.style.width = '320px';
-                adIns.style.height = '100px';
-            } else {
-                // PC: 반응형 광고
-                console.log("Ad refreshed for PC with RESPONSIVE unit.");
-                adIns.dataset.adSlot = '2123059829'; // PC용 슬롯
-                adIns.dataset.adFormat = 'auto';
-                adIns.dataset.fullWidthResponsive = 'true';
-            }
+            adIns.dataset.adSlot = '2123059829';
+            adIns.dataset.adFormat = 'auto';
+            adIns.dataset.fullWidthResponsive = 'true';
             
             adContainer.appendChild(adIns);
             
             try {
                 (window.adsbygoogle = window.adsbygoogle || []).push({});
+                console.log("Ad refreshed with simplified CSS.");
             } catch (pushError) {
                 console.error("adsbygoogle.push() failed: ", pushError);
             }

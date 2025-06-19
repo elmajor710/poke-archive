@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nirvana's Poke-Archive</title>
-    <link rel="icon" href="data:;base64,iVBORw0KGgo="> <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo="> 
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311" crossorigin="anonymous"></script>
@@ -13,6 +14,12 @@
         <h1>Nirvana's Poke-Archive</h1>
     </header>
 
+    <div id="test-ui" style="padding: 10px; background: #fffbe6; border-bottom: 1px solid #ccc;">
+        <b>테스트 패널:</b>
+        <button onclick="AdManager.recordClick()">임시 광고 클릭</button>
+        <button onclick="AdManager.resetData()">기록 초기화</button>
+        <div id="test-status" style="margin-top: 5px; font-size: 14px;"></div>
+    </div>
     <div id="ads-container">
         </div>
 
@@ -34,6 +41,7 @@
     </div>
 
     <script src="data.js"></script>
+    <script src="ads-manager.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
