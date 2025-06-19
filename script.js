@@ -228,29 +228,24 @@ function refreshAd() {
         const adContainer = document.getElementById('ads-container');
         if (!adContainer) return;
 
-        // requestAnimationFrame을 사용하여 브라우저가 렌더링 준비가 될 때 광고 로직 실행
         requestAnimationFrame(() => {
-            // 광고를 담을 컨테이너 비우기
             adContainer.innerHTML = '';
             
-            // 새로운 반응형 광고 슬롯(<ins>) 생성
             const adIns = document.createElement('ins');
             adIns.className = 'adsbygoogle';
             adIns.style.display = 'block';
             
-            // 반응형 광고 속성 설정 및 새로운 슬롯 ID 적용
+            // 반응형 광고 속성 설정
             adIns.dataset.adClient = 'ca-pub-2125965839205311';
-            adIns.dataset.adSlot = '2123059829'; // 새로 발급받은 슬롯 ID
+            adIns.dataset.adSlot = '2123059829';
             adIns.dataset.adFormat = 'auto';
             adIns.dataset.fullWidthResponsive = 'true';
             
-            // 컨테이너에 새로운 광고 슬롯 추가
             adContainer.appendChild(adIns);
             
-            // 광고 push 실행
             try {
                 (window.adsbygoogle = window.adsbygoogle || []).push({});
-                console.log("Ad refreshed with NEW RESPONSIVE unit (Slot: 2123059829).");
+                console.log("Ad refreshed with simplified CSS.");
             } catch (pushError) {
                 console.error("adsbygoogle.push() failed: ", pushError);
             }
