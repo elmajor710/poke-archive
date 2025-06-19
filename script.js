@@ -1,65 +1,10 @@
 // ------------ START: 이 아래의 코드로 script.js 파일 전체를 교체해주세요. ------------
 
-// =======================================================================
-// 무효 트래픽 방지 (강제 새로고침) 기능
-// =======================================================================
-
-// --- 설정값 (제이티님께서 원하시면 이 숫자들을 직접 수정하실 수 있습니다) ---
-const AD_CLICK_LIMIT = 3; // 3회 클릭
-const AD_TIME_WINDOW_MS = 5 * 60 * 1000; // 5분
-const AD_STORAGE_KEY = 'adClickHistory';
-
-/** 관리자 모드인지 확인하는 함수 */
-function isAdminMode() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('admin') === 'true';
-}
-
-/** 광고 클릭을 처리하는 함수 */
-function handleAdClick() {
-    const now = Date.now();
-    let clickHistory = [];
-    try {
-        const storedHistory = localStorage.getItem(AD_STORAGE_KEY);
-        if (storedHistory) {
-            clickHistory = JSON.parse(storedHistory);
-        }
-    } catch (e) {
-        console.error("Error reading click history:", e);
-        clickHistory = [];
-    }
-
-    // 설정된 시간(5분)이 지난 기록은 삭제
-    const validClicks = clickHistory.filter(timestamp => (now - timestamp) < AD_TIME_WINDOW_MS);
-    
-    // 새로운 클릭 기록 추가
-    validClicks.push(now);
-
-    console.log(`Ad click detected. Count in last 5 minutes: ${validClicks.length}`);
-    
-    // 클릭 횟수가 제한에 도달했는지 확인
-    if (validClicks.length >= AD_CLICK_LIMIT) {
-        console.warn(`CLICK LIMIT REACHED! (${AD_CLICK_LIMIT} clicks in 5 minutes). Forcing page reload to disrupt invalid activity.`);
-        // 기록을 초기화하고 페이지를 강제로 새로고침하여 공격을 방해
-        localStorage.removeItem(AD_STORAGE_KEY);
-        window.location.reload(true);
-    } else {
-        // 제한에 도달하지 않았으면, 최신 기록을 저장
-        localStorage.setItem(AD_STORAGE_KEY, JSON.stringify(validClicks));
-    }
-}
-
-
-// =======================================================================
-// UI 제어 기능
-// =======================================================================
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- 변수 설정 ---
     const app = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
     const contentArea = document.getElementById('content-area');
-    const adsContainer = document.getElementById('ads-container');
     const panels = {
         lev2: document.getElementById('lev2-panel'),
         lev3: document.getElementById('lev3-panel'),
@@ -75,15 +20,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function initialize() {
         sidebar.innerHTML = DB.sidebarMenu.map(item => `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`).join('');
         addEventListeners();
+        
+        // 페이지의 모든 요소가 준비된 후, 마지막에 광고를 딱 한 번 호출
+        try {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+            console.log("Ad push command executed.");
+        } catch (e) {
+            console.error("Ad push failed:", e);
+        }
     }
 
     // --- 이벤트 리스너 ---
     function addEventListeners() {
-        // 관리자 모드가 아닐 때만 광고 클릭 감지기능 활성화
-        if (!isAdminMode()) {
-            adsContainer.addEventListener('click', handleAdClick);
-        }
-        
         app.addEventListener('click', (e) => {
             const button = e.target.closest('button');
             if (button) {
