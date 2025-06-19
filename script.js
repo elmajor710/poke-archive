@@ -225,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function refreshAd() {
         try {
             const adContainer = document.getElementById('ads-container');
+            if (!adContainer) return;
             adContainer.innerHTML = '';
             
             const adIns = document.createElement('ins');
@@ -236,8 +237,13 @@ document.addEventListener('DOMContentLoaded', () => {
             adIns.dataset.fullWidthResponsive = 'true';
             
             adContainer.appendChild(adIns);
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-            console.log("Ad refreshed.");
+            
+            // 광고 push를 아주 잠깐 지연시켜 너비(width) 계산 시간 확보
+            setTimeout(() => {
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+                console.log("Ad refreshed.");
+            }, 50);
+
         } catch (e) {
             console.error("Ad refresh failed: ", e);
         }

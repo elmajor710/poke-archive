@@ -32,9 +32,15 @@ const DB = {
         }
     },
     item: {
-        lev2: [ {id:'red', name:'빨간색', color:'#E74C3C'}, {id:'orange',name:'주황색', color:'#E67E22'}, {id:'purple',name:'보라색', color:'#9B59B6'} ],
+        lev2: [ 
+            {id:'god', name:'빨강(God)', color:'#E74C3C'}, 
+            {id:'legendary',name:'주황(Legendary)', color:'#E67E22'}, 
+            {id:'epic',name:'보라(Epic)', color:'#9B59B6'} 
+        ],
         lev3: { 
-            red: [ {id:'item_rustySword', name:'녹슨 검(Rusty Sword)'} ], orange: [ {id:'item_oranBerry', name:'오랭열매(Oran Berry)'} ], purple: [ {id:'item_masterBall', name:'마스터볼(Master Ball)'} ],
+            god: [ {id:'item_rustySword', name:'녹슨 검(Rusty Sword)'} ], 
+            legendary: [ {id:'item_oranBerry', name:'오랭열매(Oran Berry)'} ], 
+            epic: [ {id:'item_masterBall', name:'마스터볼(Master Ball)'} ],
         },
         lev4: { 
             item_rustySword: { name:'녹슨 검(Rusty Sword)', type: '전용 아이템', effect: '자시안에게 힘을 부여한다.', imgUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rusty-sword.png', description: '<h3>녹슨 검</h3><p>오래된 검이지만, 특정 포켓몬에게 강대한 힘을 이끌어내는 신비한 힘이 깃들어 있다.</p>' }, 
