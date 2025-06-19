@@ -1,13 +1,53 @@
 // ------------ START: 이 아래의 코드로 script.js 파일 전체를 교체해주세요. ------------
 
-document.addEventListener('DOMContentLoaded', () => {
-    // =======================================================================
-    // 1. 변수 및 상수 설정
-    // =======================================================================
-    const AD_CLICK_LIMIT = 3;
-    const AD_TIME_WINDOW_MS = 5 * 60 * 1000;
-    const AD_STORAGE_KEY = 'adClickHistory';
+// =======================================================================
+// 광고 관리 기능 (전역 스코프)
+// =======================================================================
 
+// --- 설정값 ---
+const AD_CLICK_LIMIT = 3;
+const AD_TIME_WINDOW_MS = 5 * 60 * 1000;
+const AD_STORAGE_KEY = 'adClickHistory';
+
+/** 관리자 모드인지 확인하는 함수 */
+function isAdminMode() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('admin') === 'true';
+}
+
+/** 광고 클릭을 처리하는 함수 (콘솔에서 테스트 가능하도록 전역 스코프로 이동) */
+function handleAdClick() {
+    if (isAdminMode()) return;
+
+    const now = Date.now();
+    let clickHistory = [];
+    try {
+        const storedHistory = localStorage.getItem(AD_STORAGE_KEY);
+        if (storedHistory) clickHistory = JSON.parse(storedHistory);
+    } catch (e) {
+        clickHistory = [];
+    }
+
+    const validClicks = clickHistory.filter(timestamp => (now - timestamp) < AD_TIME_WINDOW_MS);
+    validClicks.push(now);
+
+    console.log(`Ad click detected. Count in last 5 minutes: ${validClicks.length}`);
+    
+    if (validClicks.length >= AD_CLICK_LIMIT) {
+        console.warn(`CLICK LIMIT REACHED! (${AD_CLICK_LIMIT} clicks in 5 minutes). Forcing page reload to disrupt invalid activity.`);
+        localStorage.removeItem(AD_STORAGE_KEY);
+        window.location.reload(true);
+    } else {
+        localStorage.setItem(AD_STORAGE_KEY, JSON.stringify(validClicks));
+    }
+}
+
+// =======================================================================
+// UI 제어 기능 (DOMContentLoaded '상자' 시작)
+// =======================================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    // --- 변수 설정 ---
     const app = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
     const contentArea = document.getElementById('content-area');
@@ -20,101 +60,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const popupOverlay = document.getElementById('popup-overlay');
     const popupBody = document.getElementById('popup-body');
     const popupCloseBtn = document.getElementById('popup-close');
-    
     let activeButtons = {};
     let isMobile = window.innerWidth <= 768;
 
-    // =======================================================================
-    // 2. 핵심 로직 함수
-    // =======================================================================
-
-    /** 관리자 모드인지 확인 */
-    function isAdminMode() {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('admin') === 'true';
-    }
-
-    /** 광고 슬롯을 새로고침하는 함수 (과거 코드를 기반으로 한 강력한 방식) */
-    function refreshAdSlot() {
-        if (isAdminMode()) {
-            adsContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: #888;">관리자 모드입니다.</div>';
-            return;
-        }
-
-        adsContainer.innerHTML = ''; // 컨테이너 비우기
-
-        // 화면 크기에 따라 다른 광고 슬롯을 생성
-        const adIns = document.createElement('ins');
-        adIns.className = "adsbygoogle";
-        adIns.style.display = "block";
-        adIns.dataset.adClient = "ca-pub-2125965839205311";
-
-        if (isMobile) {
-            // 모바일: 320x100 고정 크기
-            adIns.style.width = "320px";
-            adIns.style.height = "100px";
-            adIns.dataset.adSlot = "2123059829"; // 슬롯 ID는 예시이며, 고정 크기용으로 새로 만드신 것이 있다면 그것으로 교체
-        } else {
-            // PC: 반응형
-            adIns.dataset.adSlot = "2123059829";
-            adIns.dataset.adFormat = "auto";
-            adIns.dataset.fullWidthResponsive = "true";
-        }
-
-        const adPushScript = document.createElement('script');
-        adPushScript.innerHTML = "(adsbygoogle = window.adsbygoogle || []).push({});";
-
-        adsContainer.appendChild(adIns);
-        adsContainer.appendChild(adPushScript);
-        console.log(`Ad slot refreshed. (isMobile: ${isMobile})`);
-    }
-
-    /** 광고 클릭을 처리하는 함수 (무효 트래픽 방지) */
-    function handleAdClick() {
-        if (isAdminMode()) return;
-
-        const now = Date.now();
-        let clickHistory = [];
-        try {
-            const storedHistory = localStorage.getItem(AD_STORAGE_KEY);
-            if (storedHistory) clickHistory = JSON.parse(storedHistory);
-        } catch (e) {
-            clickHistory = [];
-        }
-
-        const validClicks = clickHistory.filter(timestamp => (now - timestamp) < AD_TIME_WINDOW_MS);
-        validClicks.push(now);
-
-        if (validClicks.length >= AD_CLICK_LIMIT) {
-            console.warn(`CLICK LIMIT REACHED! Forcing page reload.`);
-            localStorage.removeItem(AD_STORAGE_KEY);
-            window.location.reload(true);
-        } else {
-            localStorage.setItem(AD_STORAGE_KEY, JSON.stringify(validClicks));
-        }
-    }
-
-    // =======================================================================
-    // 3. UI 및 이벤트 처리 함수 (이전과 대부분 동일)
-    // =======================================================================
-
+    // --- 초기화 ---
     function initialize() {
         sidebar.innerHTML = DB.sidebarMenu.map(item => `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`).join('');
         addEventListeners();
-        refreshAdSlot(); // 페이지 최초 로드 시 광고 표시
     }
 
+    // --- 이벤트 리스너 ---
     function addEventListeners() {
-        adsContainer.addEventListener('click', handleAdClick);
+        // 관리자 모드가 아닐 때만 광고 클릭 감지기능 활성화
+        if (!isAdminMode()) {
+            adsContainer.addEventListener('click', handleAdClick);
+        }
+        
         app.addEventListener('click', (e) => {
             const button = e.target.closest('button');
             if (button) {
                 if (button.classList.contains('back-btn')) handleBackClick(button);
                 else if (button.dataset.level) handleMenuClick(button);
+                return;
             }
             const popupTrigger = e.target.closest('[data-popup-id]');
             if(popupTrigger) handlePopupTrigger(popupTrigger);
         });
+
         popupOverlay.addEventListener('click', (e) => {
             if (e.target === popupOverlay || e.target === popupCloseBtn) {
                 popupOverlay.classList.remove('visible');
@@ -123,8 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('resize', () => { isMobile = window.innerWidth <= 768; });
     }
 
+    // --- 클릭 핸들러 ---
     function handleMenuClick(button) {
-        refreshAdSlot(); // 카테고리 이동 시 광고 새로고침
         const level = parseInt(button.dataset.level);
         const id = button.dataset.id;
         const context = button.dataset;
@@ -138,9 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (nextLevel === 4) nextData = DB[menuId]?.lev4?.[id];
         renderPanel(nextLevel, nextData, { ...context, menuId });
     }
-    
-    // ... 이하 handleBackClick, renderPanel, createDetailHtml 등 모든 UI 관련 함수는 이전과 동일합니다 ...
-    // ... (이하 생략된 코드는 이전 버전에서 그대로 가져오시면 됩니다) ...
+
     function handleBackClick(button) {
         const parentPanel = button.closest('.panel');
         parentPanel.classList.remove('visible');
@@ -149,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setActive(level - 1, null);
     }
     
+    // --- 렌더링 함수 등 나머지 코드는 이전과 동일 ... ---
     function renderPanel(level, data, context) {
         for (let i = level; i <= 4; i++) {
             if (panels[`lev${i}`]) {
@@ -242,8 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
             activeButtons[level] = target;
         }
     }
-
+    
     initialize();
 });
-
-// ------------ END: 이 위의 코드로 script.js 파일 전체를 교체해주세요. ------------
