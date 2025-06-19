@@ -222,32 +222,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    function refreshAd() {
-        try {
-            const adContainer = document.getElementById('ads-container');
-            if (!adContainer) return;
-            adContainer.innerHTML = '';
-            
-            const adIns = document.createElement('ins');
-            adIns.className = 'adsbygoogle';
-            adIns.style.display = 'block';
-            adIns.dataset.adClient = 'ca-pub-2125965839205311';
-            adIns.dataset.adSlot = '5532734526';
-            adIns.dataset.adFormat = 'auto';
-            adIns.dataset.fullWidthResponsive = 'true';
-            
-            adContainer.appendChild(adIns);
-            
-            // 광고 push를 아주 잠깐 지연시켜 너비(width) 계산 시간 확보
-            setTimeout(() => {
-                (window.adsbygoogle = window.adsbygoogle || []).push({});
-                console.log("Ad refreshed.");
-            }, 50);
+    // --- 여기부터 ---
+function refreshAd() {
+    try {
+        const adContainer = document.getElementById('ads-container');
+        if (!adContainer) return;
 
-        } catch (e) {
-            console.error("Ad refresh failed: ", e);
+        // 컨테이너의 너비가 실제로 잡혔는지 확인
+        if (adContainer.offsetWidth === 0) {
+            // 아직 너비가 0이면, 잠시 후 다시 시도
+            setTimeout(refreshAd, 100); 
+            return;
         }
+
+        adContainer.innerHTML = '';
+        
+        const adIns = document.createElement('ins');
+        adIns.className = 'adsbygoogle';
+        adIns.style.display = 'block';
+        adIns.dataset.adClient = 'ca-pub-2125965839205311';
+        adIns.dataset.adSlot = '5532734526';
+        adIns.dataset.adFormat = 'auto';
+        adIns.dataset.fullWidthResponsive = 'true';
+        
+        adContainer.appendChild(adIns);
+        
+        // 너비가 확보된 후 광고 push 실행
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+        console.log("Ad refreshed successfully.");
+
+    } catch (e) {
+        console.error("Ad refresh failed: ", e);
     }
+}
+// --- 여기까지 ---
     
     initialize();
 });
