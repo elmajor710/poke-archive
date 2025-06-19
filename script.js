@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // --- 여기부터 ---
+// --- 여기부터 ---
 function refreshAd() {
     try {
         const adContainer = document.getElementById('ads-container');
@@ -234,18 +234,27 @@ function refreshAd() {
             const adIns = document.createElement('ins');
             adIns.className = 'adsbygoogle';
             adIns.style.display = 'block';
-            
-            // 반응형 광고 속성 설정
             adIns.dataset.adClient = 'ca-pub-2125965839205311';
-            adIns.dataset.adSlot = '2123059829';
-            adIns.dataset.adFormat = 'auto';
-            adIns.dataset.fullWidthResponsive = 'true';
+
+            // 화면 너비를 확인하여 모바일/PC에 다른 광고 전략 적용
+            if (window.innerWidth <= 768) {
+                // 모바일: 고정 크기 광고 (320x100)
+                console.log("Ad refreshed for MOBILE with FIXED SIZE (320x100).");
+                adIns.dataset.adSlot = '2123059829'; // 모바일용 슬롯 (반응형 단위지만 고정값으로 요청)
+                adIns.style.width = '320px';
+                adIns.style.height = '100px';
+            } else {
+                // PC: 반응형 광고
+                console.log("Ad refreshed for PC with RESPONSIVE unit.");
+                adIns.dataset.adSlot = '2123059829'; // PC용 슬롯
+                adIns.dataset.adFormat = 'auto';
+                adIns.dataset.fullWidthResponsive = 'true';
+            }
             
             adContainer.appendChild(adIns);
             
             try {
                 (window.adsbygoogle = window.adsbygoogle || []).push({});
-                console.log("Ad refreshed with simplified CSS.");
             } catch (pushError) {
                 console.error("adsbygoogle.push() failed: ", pushError);
             }
@@ -255,7 +264,6 @@ function refreshAd() {
         console.error("Ad refresh setup failed: ", e);
     }
 }
-
 // --- 여기까지 ---
     
     initialize();

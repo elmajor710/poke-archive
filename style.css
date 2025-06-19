@@ -197,8 +197,11 @@ header h1 {
 
     /* --- 모바일 광고 컨테이너 높이 제한 추가 --- */
     #ads-container {
-        height: 100px;     /* 높이를 100px로 고정 */
-        display: block;    /* flex 대신 block으로 되돌려 안정성 확보 */
+        height: 100px;     /* 모바일 광고 컨테이너 높이를 100px로 고정 */
+        display: flex;     /* 광고를 수직/수평 중앙에 배치 */
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;  /* 만약을 위해 overflow도 유지 */
     }
     /* -------------------------------------- */
 
