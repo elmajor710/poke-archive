@@ -22,7 +22,6 @@ const AdManager = {
             const data = localStorage.getItem(this.STORAGE_KEY);
             if (data) {
                 const parsed = JSON.parse(data);
-                // 데이터 구조가 올바른지 확인
                 if (Array.isArray(parsed.clicks) && typeof parsed.blockUntil !== 'undefined') {
                     return parsed;
                 }
@@ -30,7 +29,6 @@ const AdManager = {
         } catch (e) {
             console.error("Error reading from localStorage:", e);
         }
-        // 데이터가 없거나 잘못된 경우 기본 구조 반환
         return { clicks: [], blockUntil: null };
     },
 
@@ -42,17 +40,16 @@ const AdManager = {
             console.error("Error writing to localStorage:", e);
         }
     },
-
-    // ▼▼▼ 이 함수를 여기에 추가해주세요 ▼▼▼
+    
+    // 관리자 모드인지 확인하는 함수 (누락되었던 함수)
     isAdminMode: function() {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('admin') === 'true';
     },
-    
+
     // 광고를 표시할 수 있는지 확인
     canShowAd: function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('admin') === 'true') {
+        if (this.isAdminMode()) {
             console.log("Admin mode: Ads hidden.");
             return false;
         }
@@ -109,9 +106,9 @@ const AdManager = {
         }
     },
 
-    // 클릭 기록 (버그 수정된 버전)
+    // 클릭 기록
     recordClick: function() {
-        if (this.isAdminMode()) return; // 관리자 모드에서는 클릭 기록 안함
+        if (this.isAdminMode()) return;
         
         const data = this._getData();
         if (data.blockUntil && Date.now() < data.blockUntil) {
@@ -121,7 +118,6 @@ const AdManager = {
 
         const now = Date.now();
         
-        // 1시간이 지난 클릭 기록은 삭제
         let validClicks = data.clicks.filter(timestamp => (now - timestamp) < this.TIME_WINDOW_MS);
         validClicks.push(now);
         
@@ -142,5 +138,3 @@ const AdManager = {
         this._setData(data);
     }
 };
-
-// AdManager 초기화는 script.js에서 호출합니다.
