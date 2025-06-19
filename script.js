@@ -77,40 +77,49 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- 렌더링 함수 등 나머지 코드는 이전과 동일 ... ---
     
+    // --- 여기부터 ---
     function renderPanel(level, data, context) {
-        for (let i = level; i <= 4; i++) {
-            if (panels[`lev${i}`]) {
-                panels[`lev${i}`].classList.remove('visible');
-                panels[`lev${i}`].querySelector('.panel-content').innerHTML = '';
-            }
+    for (let i = level; i <= 4; i++) {
+        if (panels[`lev${i}`]) {
+            panels[`lev${i}`].classList.remove('visible');
+            panels[`lev${i}`].querySelector('.panel-content').innerHTML = '';
         }
-        if (!data) return;
-        const targetPanel = panels[`lev${level}`];
-        if (!targetPanel) return;
-        const contentDiv = targetPanel.querySelector('.panel-content');
-        const isFinal = !Array.isArray(data);
-        app.classList.remove('fullscreen-active');
-        if (isFinal) {
-            contentDiv.innerHTML = createDetailHtml(data, context.menuId);
-            contentArea.className = 'final-view-L' + level;
-            const isPokemonDetail = context.menuId === 'pokemonType' || context.menuId === 'pokemonGrade';
-            if (isMobile && level === 4 && isPokemonDetail) {
-                 app.classList.add('fullscreen-active');
-            }
-        } else {
-            contentArea.className = '';
-            data.forEach(item => {
-                const button = document.createElement('button');
-                button.className = 'list-item';
-                button.textContent = item.name;
-                Object.assign(button.dataset, { id: item.id, level: level, menuId: context.menuId });
-                if (level > 2) button.dataset.lev2Id = context.id;
-                if (item.color) button.style.backgroundColor = item.color;
-                contentDiv.appendChild(button);
-            });
-        }
-        targetPanel.classList.add('visible');
     }
+    if (!data) return;
+    const targetPanel = panels[`lev${level}`];
+    if (!targetPanel) return;
+    const contentDiv = targetPanel.querySelector('.panel-content');
+    const isFinal = !Array.isArray(data);
+    app.classList.remove('fullscreen-active');
+    if (isFinal) {
+        contentDiv.innerHTML = createDetailHtml(data, context.menuId);
+        contentArea.className = 'final-view-L' + level;
+        const isPokemonDetail = context.menuId === 'pokemonType' || context.menuId === 'pokemonGrade';
+        if (isMobile && level === 4 && isPokemonDetail) {
+             app.classList.add('fullscreen-active');
+        }
+    } else {
+        contentArea.className = '';
+        data.forEach(item => {
+            const button = document.createElement('button');
+            button.className = 'list-item';
+            button.textContent = item.name;
+            Object.assign(button.dataset, { id: item.id, level: level, menuId: context.menuId });
+            if (level > 2) button.dataset.lev2Id = context.id;
+            
+            // ▼▼▼ 이 부분이 수정되었습니다 ▼▼▼
+            if (item.color) {
+                // 직접 스타일을 지정하는 대신, CSS 클래스를 추가합니다.
+                button.classList.add(`type-${item.id}`);
+            }
+            // ▲▲▲ 여기까지 ▲▲▲
+
+            contentDiv.appendChild(button);
+        });
+    }
+    targetPanel.classList.add('visible');
+}
+// --- 여기까지 ---
 
     function createDetailHtml(data, menuId) {
         if (menuId === 'pokemonType' || menuId === 'pokemonGrade') return createPokemonDetailHtml(data);
