@@ -1,4 +1,7 @@
+// script.js 파일의 모든 내용을 지우고 아래 코드로 교체해주세요.
+
 document.addEventListener('DOMContentLoaded', () => {
+    // 변수 설정
     const app = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
     const contentArea = document.getElementById('content-area');
@@ -14,12 +17,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeButtons = {};
     let isMobile = window.innerWidth <= 768;
 
+    // 초기화 함수
     function initialize() {
         sidebar.innerHTML = DB.sidebarMenu.map(item => `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`).join('');
         addEventListeners();
-        refreshAd(); // 초기 광고 로드
+        AdManager.initialize(); // AdManager 초기화 (광고 로드 및 클릭 리스너 설정)
     }
 
+    // 이벤트 리스너 설정
     function addEventListeners() {
         app.addEventListener('click', (e) => {
             const button = e.target.closest('button');
@@ -40,12 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('resize', () => { isMobile = window.innerWidth <= 768; });
     }
 
+    // 메뉴 클릭 핸들러 (이제 광고 새로고침 로직 없음)
     function handleMenuClick(button) {
         const level = parseInt(button.dataset.level);
         const id = button.dataset.id;
         const context = button.dataset;
         
-        refreshAd(); // 메뉴 클릭 시 광고 새로고침
         setActive(level, button);
 
         const nextLevel = level + 1;
@@ -68,21 +73,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleBackClick(button) {
         const parentPanel = button.closest('.panel');
         parentPanel.classList.remove('visible');
-        app.classList.remove('fullscreen-active');
         contentArea.classList.remove('final-view-L3', 'final-view-L4');
         const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel',''));
         setActive(level - 1, null);
     }
     
     function renderPanel(level, data, context) {
-        // Clear subsequent panels
         for (let i = level; i <= 4; i++) {
             if (panels[`lev${i}`]) {
                 panels[`lev${i}`].classList.remove('visible');
                 panels[`lev${i}`].querySelector('.panel-content').innerHTML = '';
             }
         }
-
         if (!data) return;
         
         const targetPanel = panels[`lev${level}`];
@@ -113,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 contentDiv.appendChild(button);
             });
         }
-        
         targetPanel.classList.add('visible');
     }
 
@@ -127,7 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function createPokemonDetailHtml(p) {
         const findItem = (id) => DB.item.lev4[id] || {};
         const findRuneChip = (id) => DB.runeAndChip.lev4[id] || {};
-
         return `
             <div class="detail-card pokemon-detail-card">
                 <div class="pokemon-main-info">
@@ -143,60 +143,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p><strong>액티브:</strong> ${p.skills.active}</p>
                     <p><strong>패시브:</strong> ${p.skills.passive}</p>
                 </div>
-                ${p.items?.length > 0 ? `
-                <div class="detail-section">
-                    <h4>추천 아이템</h4>
-                    <div class="item-grid">
-                        ${p.items.map(id => {
-                            const item = findItem(id);
-                            return `<img src="${item.imgUrl}" alt="${item.name}" data-popup-id="${id}" data-popup-type="item">`;
-                        }).join('')}
-                    </div>
-                </div>` : ''}
-                ${p.runes?.length > 0 ? `
-                <div class="detail-section">
-                    <h4>추천 룬</h4>
-                    <div class="item-grid">
-                        ${p.runes.map(id => {
-                            const rune = findRuneChip(id);
-                            return `<img src="${rune.imgUrl}" alt="${rune.name}" data-popup-id="${id}" data-popup-type="runeAndChip">`;
-                        }).join('')}
-                    </div>
-                </div>` : ''}
-                 ${p.chips?.length > 0 ? `
-                <div class="detail-section">
-                    <h4>추천 칩</h4>
-                    <div class="item-grid">
-                         ${p.chips.map(id => {
-                            const chip = findRuneChip(id);
-                            return `<img src="${chip.imgUrl}" alt="${chip.name}" data-popup-id="${id}" data-popup-type="runeAndChip">`;
-                        }).join('')}
-                    </div>
-                </div>` : ''}
+                ${p.items?.length > 0 ? `<div class="detail-section"><h4>추천 아이템</h4><div class="item-grid">${p.items.map(id => `<img src="${findItem(id).imgUrl}" alt="${findItem(id).name}" data-popup-id="${id}" data-popup-type="item">`).join('')}</div></div>` : ''}
+                ${p.runes?.length > 0 ? `<div class="detail-section"><h4>추천 룬</h4><div class="item-grid">${p.runes.map(id => `<img src="${findRuneChip(id).imgUrl}" alt="${findRuneChip(id).name}" data-popup-id="${id}" data-popup-type="runeAndChip">`).join('')}</div></div>` : ''}
+                ${p.chips?.length > 0 ? `<div class="detail-section"><h4>추천 칩</h4><div class="item-grid">${p.chips.map(id => `<img src="${findRuneChip(id).imgUrl}" alt="${findRuneChip(id).name}" data-popup-id="${id}" data-popup-type="runeAndChip">`).join('')}</div></div>` : ''}
             </div>
         `;
     }
 
     function createItemDetailHtml(item) {
-        return `
-            <div class="detail-card">
-                <h3>${item.name}</h3>
-                <img src="${item.imgUrl}" alt="${item.name}" style="float: left; margin-right: 15px; width: 96px; height: 96px;">
-                <p><strong>기초 타입:</strong> ${item.type}</p>
-                <p><strong>휴대 효과:</strong> ${item.effect}</p>
-            </div>
-        `;
+        return `<div class="detail-card"><h3>${item.name}</h3><img src="${item.imgUrl}" alt="${item.name}" style="float: left; margin-right: 15px; width: 96px; height: 96px;"><p><strong>기초 타입:</strong> ${item.type}</p><p><strong>휴대 효과:</strong> ${item.effect}</p></div>`;
     }
     
     function createRuneChipDetailHtml(rc) {
-         return `
-            <div class="detail-card">
-                <h3>${rc.name}</h3>
-                <img src="${rc.imgUrl}" alt="${rc.name}" style="float: left; margin-right: 15px; width: 96px; height: 96px;">
-                <p><strong>세트 효과:</strong> ${rc.setImage}</p>
-                <p><strong>효과:</strong> ${rc.effect}</p>
-            </div>
-        `;
+        return `<div class="detail-card"><h3>${rc.name}</h3><img src="${rc.imgUrl}" alt="${rc.name}" style="float: left; margin-right: 15px; width: 96px; height: 96px;"><p><strong>세트 효과:</strong> ${rc.setImage}</p><p><strong>효과:</strong> ${rc.effect}</p></div>`;
     }
 
     function handlePopupTrigger(element) {
@@ -222,13 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-/* script.js 파일에서 refreshAd 함수를 찾아 아래의 전체 코드로 교체해주세요. */
-
-// --- 여기부터 ---
-function refreshAd() {
-    // 모든 동적 광고 로직을 비활성화합니다.
-}
-// --- 여기까지 ---
-    
+    // 최종 초기화 실행
     initialize();
 });
