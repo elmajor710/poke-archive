@@ -1,130 +1,57 @@
 // ------------ START: 이 아래의 코드로 script.js 파일 전체를 교체해주세요. ------------
 
 // =======================================================================
-// 광고 관리 기능 & 리셋 기능
+// 무효 트래픽 방지 (강제 새로고침) 기능
 // =======================================================================
 
-// --- 설정값 ---
-const AD_CLICK_LIMIT = 5;
-const AD_TIME_WINDOW_MS = 60 * 60 * 1000;
-const AD_STORAGE_KEY = 'adClickData';
+// --- 설정값 (제이티님께서 원하시면 이 숫자들을 직접 수정하실 수 있습니다) ---
+const AD_CLICK_LIMIT = 3; // 3회 클릭
+const AD_TIME_WINDOW_MS = 5 * 60 * 1000; // 5분
+const AD_STORAGE_KEY = 'adClickHistory';
 
-// ▼▼▼ 리셋 함수를 이곳, '상자 밖(전역 스코프)'으로 이동하여 콘솔에서 접근 가능하도록 함 ▼▼▼
-function jt_reset_ad_block_status_2025() {
-    localStorage.removeItem(AD_STORAGE_KEY);
-    console.log("Ad block data has been reset. Reloading the page...");
-    window.location.reload();
-}
-
-// --- 광고 관리 함수들 ---
-
+/** 관리자 모드인지 확인하는 함수 */
 function isAdminMode() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('admin') === 'true';
 }
 
-function getAdData() {
-    try {
-        const data = localStorage.getItem(AD_STORAGE_KEY);
-        if (data) {
-            const parsed = JSON.parse(data);
-            if (Array.isArray(parsed.clicks) && typeof parsed.blockUntil !== 'undefined') {
-                return parsed;
-            }
-        }
-    } catch (e) {
-        console.error("Error reading ad data from localStorage:", e);
-    }
-    return { clicks: [], blockUntil: null };
-}
-
-function setAdData(data) {
-    try {
-        localStorage.setItem(AD_STORAGE_KEY, JSON.stringify(data));
-    } catch (e) {
-        console.error("Error writing ad data to localStorage:", e);
-    }
-}
-
-function canShowAd() {
-    if (isAdminMode()) {
-        console.log("Admin mode: Ads hidden.");
-        return false;
-    }
-    const data = getAdData();
-    if (data.blockUntil && Date.now() < data.blockUntil) {
-        const blockEndTime = new Date(data.blockUntil).toLocaleString();
-        console.warn(`Ads currently blocked until: ${blockEndTime}`);
-        return false;
-    }
-    return true;
-}
-
-function loadInitialAd() {
-    if (!canShowAd()) {
-        hideAdContainer("광고가 일시 중단되었습니다.");
-        return;
-    }
-
-    const adContainer = document.getElementById('ads-container');
-    if (!adContainer) return;
-
-    requestAnimationFrame(() => {
-        adContainer.innerHTML = '';
-        const adIns = document.createElement('ins');
-        adIns.className = 'adsbygoogle';
-        adIns.style.display = 'block';
-        adIns.dataset.adClient = 'ca-pub-2125965839205311';
-        adIns.dataset.adSlot = '2123059829';
-        adIns.dataset.adFormat = 'auto';
-        adIns.dataset.fullWidthResponsive = 'true';
-        adContainer.appendChild(adIns);
-        try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-            console.log("Ad loaded successfully.");
-        } catch (e) {
-            console.error("adsbygoogle.push() failed: ", e);
-        }
-    });
-}
-
-function hideAdContainer(message) {
-    const adContainer = document.getElementById('ads-container');
-    if (adContainer) {
-        adContainer.innerHTML = `<div style="text-align:center; padding: 20px; color: #888;">${message}</div>`;
-    }
-}
-
-function recordAdClick() {
-    if (isAdminMode()) return;
-    
-    const data = getAdData();
-    if (data.blockUntil && Date.now() < data.blockUntil) {
-        console.log("Clicks not recorded while ads are blocked.");
-        return;
-    }
-
+/** 광고 클릭을 처리하는 함수 */
+function handleAdClick() {
     const now = Date.now();
-    let validClicks = data.clicks.filter(timestamp => (now - timestamp) < AD_TIME_WINDOW_MS);
-    validClicks.push(now);
-    data.clicks = validClicks;
-
-    console.log(`Ad click recorded. Count in last hour: ${data.clicks.length}`);
-
-    if (data.clicks.length >= AD_CLICK_LIMIT) {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0);
-        data.blockUntil = tomorrow.getTime();
-        console.warn(`CLICK LIMIT REACHED! Ads will be blocked until ${tomorrow.toLocaleString()}`);
-        hideAdContainer('광고가 일시 중단되었습니다.');
+    let clickHistory = [];
+    try {
+        const storedHistory = localStorage.getItem(AD_STORAGE_KEY);
+        if (storedHistory) {
+            clickHistory = JSON.parse(storedHistory);
+        }
+    } catch (e) {
+        console.error("Error reading click history:", e);
+        clickHistory = [];
     }
-    setAdData(data);
+
+    // 설정된 시간(5분)이 지난 기록은 삭제
+    const validClicks = clickHistory.filter(timestamp => (now - timestamp) < AD_TIME_WINDOW_MS);
+    
+    // 새로운 클릭 기록 추가
+    validClicks.push(now);
+
+    console.log(`Ad click detected. Count in last 5 minutes: ${validClicks.length}`);
+    
+    // 클릭 횟수가 제한에 도달했는지 확인
+    if (validClicks.length >= AD_CLICK_LIMIT) {
+        console.warn(`CLICK LIMIT REACHED! (${AD_CLICK_LIMIT} clicks in 5 minutes). Forcing page reload to disrupt invalid activity.`);
+        // 기록을 초기화하고 페이지를 강제로 새로고침하여 공격을 방해
+        localStorage.removeItem(AD_STORAGE_KEY);
+        window.location.reload(true);
+    } else {
+        // 제한에 도달하지 않았으면, 최신 기록을 저장
+        localStorage.setItem(AD_STORAGE_KEY, JSON.stringify(validClicks));
+    }
 }
 
 
 // =======================================================================
-// UI 제어 기능 (DOMContentLoaded '상자' 시작)
+// UI 제어 기능
 // =======================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -148,12 +75,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function initialize() {
         sidebar.innerHTML = DB.sidebarMenu.map(item => `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`).join('');
         addEventListeners();
-        loadInitialAd();
     }
 
     // --- 이벤트 리스너 ---
     function addEventListeners() {
-        adsContainer.addEventListener('click', recordAdClick);
+        // 관리자 모드가 아닐 때만 광고 클릭 감지기능 활성화
+        if (!isAdminMode()) {
+            adsContainer.addEventListener('click', handleAdClick);
+        }
         
         app.addEventListener('click', (e) => {
             const button = e.target.closest('button');
@@ -198,7 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setActive(level - 1, null);
     }
     
-    // --- 렌더링 함수 ---
+    // --- 렌더링 함수 등 나머지 코드는 이전과 동일 ... ---
+    
     function renderPanel(level, data, context) {
         for (let i = level; i <= 4; i++) {
             if (panels[`lev${i}`]) {
