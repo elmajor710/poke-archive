@@ -1,21 +1,18 @@
 // ------------ START: 이 아래의 코드로 script.js 파일 전체를 교체해주세요. ------------
 
 // =======================================================================
-// 광고 관리 기능 (전역 스코프)
+// 무효 트래픽 방지 기능
 // =======================================================================
 
-// --- 설정값 ---
 const AD_CLICK_LIMIT = 3;
 const AD_TIME_WINDOW_MS = 5 * 60 * 1000;
 const AD_STORAGE_KEY = 'adClickHistory';
 
-/** 관리자 모드인지 확인하는 함수 */
 function isAdminMode() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('admin') === 'true';
 }
 
-/** 광고 클릭을 처리하는 함수 (콘솔에서 테스트 가능하도록 전역 스코프로 이동) */
 function handleAdClick() {
     if (isAdminMode()) return;
 
@@ -24,26 +21,48 @@ function handleAdClick() {
     try {
         const storedHistory = localStorage.getItem(AD_STORAGE_KEY);
         if (storedHistory) clickHistory = JSON.parse(storedHistory);
-    } catch (e) {
-        clickHistory = [];
-    }
+    } catch (e) { clickHistory = []; }
 
     const validClicks = clickHistory.filter(timestamp => (now - timestamp) < AD_TIME_WINDOW_MS);
     validClicks.push(now);
 
     console.log(`Ad click detected. Count in last 5 minutes: ${validClicks.length}`);
-    
+
     if (validClicks.length >= AD_CLICK_LIMIT) {
-        console.warn(`CLICK LIMIT REACHED! (${AD_CLICK_LIMIT} clicks in 5 minutes). Forcing page reload to disrupt invalid activity.`);
-        localStorage.removeItem(AD_STORAGE_KEY);
+        console.warn(`CLICK LIMIT REACHED! Forcing page reload.`);
+        localStorage.setItem(AD_STORAGE_KEY, JSON.stringify(validClicks)); // 기록 후 새로고침
         window.location.reload(true);
     } else {
         localStorage.setItem(AD_STORAGE_KEY, JSON.stringify(validClicks));
     }
 }
 
+/** 페이지 로드 시, 차단된 사용자인지 확인하고 광고를 숨기는 함수 */
+function checkAndHideAdIfBlocked() {
+    const adsContainer = document.getElementById('ads-container');
+    if (!adsContainer) return;
+
+    if (isAdminMode()) {
+        adsContainer.style.display = 'none';
+        console.log("Admin mode: Ad container hidden.");
+        return;
+    }
+
+    let clickHistory = [];
+    try {
+        const storedHistory = localStorage.getItem(AD_STORAGE_KEY);
+        if (storedHistory) clickHistory = JSON.parse(storedHistory);
+    } catch (e) { clickHistory = []; }
+
+    if (clickHistory.length >= AD_CLICK_LIMIT) {
+        adsContainer.style.display = 'none';
+        console.warn("User is blocked. Ad container hidden.");
+    }
+}
+
+
 // =======================================================================
-// UI 제어 기능 (DOMContentLoaded '상자' 시작)
+// UI 제어 기능
 // =======================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -67,12 +86,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function initialize() {
         sidebar.innerHTML = DB.sidebarMenu.map(item => `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`).join('');
         addEventListeners();
+        checkAndHideAdIfBlocked(); // 페이지 로드 후, 차단 여부 확인
     }
 
     // --- 이벤트 리스너 ---
     function addEventListeners() {
-        // 관리자 모드가 아닐 때만 광고 클릭 감지기능 활성화
-        if (!isAdminMode()) {
+        if (adsContainer) {
             adsContainer.addEventListener('click', handleAdClick);
         }
         
@@ -86,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const popupTrigger = e.target.closest('[data-popup-id]');
             if(popupTrigger) handlePopupTrigger(popupTrigger);
         });
-
         popupOverlay.addEventListener('click', (e) => {
             if (e.target === popupOverlay || e.target === popupCloseBtn) {
                 popupOverlay.classList.remove('visible');
@@ -120,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // --- 렌더링 함수 등 나머지 코드는 이전과 동일 ... ---
+    
     function renderPanel(level, data, context) {
         for (let i = level; i <= 4; i++) {
             if (panels[`lev${i}`]) {
