@@ -1,13 +1,20 @@
 // ------------ START: 이 아래의 코드로 script.js 파일 전체를 교체해주세요. ------------
 
 // =======================================================================
-// 광고 관리 기능 (AdManager)
+// 광고 관리 기능 & 리셋 기능
 // =======================================================================
 
 // --- 설정값 ---
 const AD_CLICK_LIMIT = 5;
 const AD_TIME_WINDOW_MS = 60 * 60 * 1000;
 const AD_STORAGE_KEY = 'adClickData';
+
+// ▼▼▼ 리셋 함수를 이곳, '상자 밖(전역 스코프)'으로 이동하여 콘솔에서 접근 가능하도록 함 ▼▼▼
+function jt_reset_ad_block_status_2025() {
+    localStorage.removeItem(AD_STORAGE_KEY);
+    console.log("Ad block data has been reset. Reloading the page...");
+    window.location.reload();
+}
 
 // --- 광고 관리 함수들 ---
 
@@ -97,12 +104,6 @@ function recordAdClick() {
         return;
     }
 
-function jt_reset_ad_block_status_2025() {
-    localStorage.removeItem(AD_STORAGE_KEY);
-    console.log("Ad block data has been reset. Reloading the page...");
-    window.location.reload();
-}
-
     const now = Date.now();
     let validClicks = data.clicks.filter(timestamp => (now - timestamp) < AD_TIME_WINDOW_MS);
     validClicks.push(now);
@@ -121,8 +122,9 @@ function jt_reset_ad_block_status_2025() {
     setAdData(data);
 }
 
+
 // =======================================================================
-// UI 제어 기능
+// UI 제어 기능 (DOMContentLoaded '상자' 시작)
 // =======================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -146,12 +148,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function initialize() {
         sidebar.innerHTML = DB.sidebarMenu.map(item => `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`).join('');
         addEventListeners();
-        loadInitialAd(); // 광고는 여기서 딱 한번만 로드
+        loadInitialAd();
     }
 
     // --- 이벤트 리스너 ---
     function addEventListeners() {
-        adsContainer.addEventListener('click', recordAdClick); // 광고 컨테이너 클릭 시 클릭 기록
+        adsContainer.addEventListener('click', recordAdClick);
         
         app.addEventListener('click', (e) => {
             const button = e.target.closest('button');
