@@ -188,13 +188,35 @@ header h1 {
 #popup-body h3 { margin-top: 0; }
 
 @media (max-width: 768px) {
-    :root { --sidebar-width: 120px; }
-    header h1 { font-size: 1.2em; }
+    :root { 
+        --sidebar-width: 120px; 
+    }
+    header h1 { 
+        font-size: 1.2em; 
+    }
+
+    /* --- 모바일 광고 컨테이너 높이 제한 추가 --- */
+    #ads-container {
+        max-height: 150px; /* 광고의 최대 높이를 150px로 제한 */
+    }
+    /* -------------------------------------- */
+
     #app-container.fullscreen-active #sidebar,
     #app-container.fullscreen-active #lev2-panel,
     #app-container.fullscreen-active #lev3-panel { display: none; }
-    .panel { flex: 1; min-width: 0; }
-    #content-area { overflow-x: hidden; }
-    .menu-item, .list-item { font-size: 14px; padding: 10px 8px; }
-    .pokemon-main-info { flex-direction: column; }
+    
+    .panel { 
+        flex: 1; 
+        min-width: 0; 
+    }
+    #content-area { 
+        overflow-x: hidden; 
+    }
+    .menu-item, .list-item { 
+        font-size: 14px; 
+        padding: 10px 8px; 
+    }
+    .pokemon-main-info { 
+        flex-direction: column; 
+    }
 }
