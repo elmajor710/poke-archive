@@ -42,6 +42,12 @@ const AdManager = {
             console.error("Error writing to localStorage:", e);
         }
     },
+
+    // ▼▼▼ 이 함수를 여기에 추가해주세요 ▼▼▼
+    isAdminMode: function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('admin') === 'true';
+    },
     
     // 광고를 표시할 수 있는지 확인
     canShowAd: function() {
