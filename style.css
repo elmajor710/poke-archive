@@ -25,12 +25,13 @@ header h1 {
     font-size: 1.5em;
 }
 #ads-container {
-    display: block; /* flex에서 block으로 변경하여 단순화 */
-    width: 100%;    /* 너비를 명시적으로 설정 */
+    display: block;
+    width: 100%;
     min-height: 50px;
     background-color: #f8f9fa;
     border-bottom: 1px solid var(--border-color);
     box-sizing: border-box;
+    overflow: hidden; /* 이 줄을 추가하여 컨테이너를 벗어나는 내용을 숨깁니다 */
 }
 #app-container {
     display: flex;
