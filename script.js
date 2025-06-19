@@ -97,7 +97,7 @@ function recordAdClick() {
         return;
     }
 
-function resetAdBlock() {
+function jt_reset_ad_block_status_2025() {
     localStorage.removeItem(AD_STORAGE_KEY);
     console.log("Ad block data has been reset. Reloading the page...");
     window.location.reload();
