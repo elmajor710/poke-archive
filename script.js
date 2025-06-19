@@ -226,55 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- 여기부터 ---
 function refreshAd() {
-    const adContainer = document.getElementById('ads-container');
-    if (!adContainer) return;
-
-    // AdManager에게 광고를 표시해도 되는지 최종 확인
-    if (!window.AdManager || !AdManager.canShowAd()) {
-        adContainer.innerHTML = ''; // 광고 컨테이너의 내용만 비웁니다.
-        // display:none을 사용하지 않아 컨테이너 자체는 자리를 유지합니다.
-        console.log("Ad display prevented by AdManager. Container cleared.");
-        return; // 여기서 함수 종료
-    }
-
-    // 광고 표시가 허용되면, 컨테이너가 보이도록 설정 (이전 상태 복구)
-    adContainer.style.display = 'block';
-    if(window.innerWidth <= 768) {
-        adContainer.style.display = 'flex';
-    }
-
-    // 아래는 기존 광고 로드 로직
-    try {
-        requestAnimationFrame(() => {
-            // 더블체크: push 직전에 한번 더 확인
-            if (!AdManager.canShowAd()) {
-                adContainer.innerHTML = '';
-                return;
-            }
-
-            adContainer.innerHTML = '';
-            
-            const adIns = document.createElement('ins');
-            adIns.className = 'adsbygoogle';
-            adIns.style.display = 'block';
-            adIns.dataset.adClient = 'ca-pub-2125965839205311';
-            adIns.dataset.adSlot = '2123059829';
-            adIns.dataset.adFormat = 'auto';
-            adIns.dataset.fullWidthResponsive = 'true';
-            
-            adContainer.appendChild(adIns);
-            
-            try {
-                (window.adsbygoogle = window.adsbygoogle || []).push({});
-                console.log("Ad refreshed successfully.");
-            } catch (pushError) {
-                console.error("adsbygoogle.push() failed: ", pushError);
-            }
-        });
-
-    } catch (e) {
-        console.error("Ad refresh setup failed: ", e);
-    }
+    // 모든 동적 광고 로직을 비활성화합니다.
 }
 // --- 여기까지 ---
     
