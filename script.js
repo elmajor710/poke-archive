@@ -223,38 +223,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // --- 여기부터 ---
+// --- 여기부터 ---
 function refreshAd() {
     try {
         const adContainer = document.getElementById('ads-container');
         if (!adContainer) return;
 
-        // 컨테이너의 너비가 실제로 잡혔는지 확인
-        if (adContainer.offsetWidth === 0) {
-            // 아직 너비가 0이면, 잠시 후 다시 시도
-            setTimeout(refreshAd, 100); 
-            return;
-        }
-
-        adContainer.innerHTML = '';
-        
-        const adIns = document.createElement('ins');
-        adIns.className = 'adsbygoogle';
-        adIns.style.display = 'block';
-        adIns.dataset.adClient = 'ca-pub-2125965839205311';
-        adIns.dataset.adSlot = '5532734526';
-        adIns.dataset.adFormat = 'auto';
-        adIns.dataset.fullWidthResponsive = 'true';
-        
-        adContainer.appendChild(adIns);
-        
-        // 너비가 확보된 후 광고 push 실행
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-        console.log("Ad refreshed successfully.");
+        // requestAnimationFrame을 사용하여 브라우저가 렌더링 준비가 될 때 광고 로직 실행
+        requestAnimationFrame(() => {
+            // 광고를 담을 컨테이너 비우기
+            adContainer.innerHTML = '';
+            
+            // 새로운 광고 슬롯(<ins>) 생성
+            const adIns = document.createElement('ins');
+            adIns.className = 'adsbygoogle';
+            adIns.style.display = 'block';
+            adIns.dataset.adClient = 'ca-pub-2125965839205311';
+            adIns.dataset.adSlot = '5532734526';
+            adIns.dataset.adFormat = 'auto';
+            adIns.dataset.fullWidthResponsive = 'true';
+            
+            // 컨테이너에 새로운 광고 슬롯 추가
+            adContainer.appendChild(adIns);
+            
+            // 광고 push 실행
+            try {
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+                console.log("Ad refreshed via requestAnimationFrame.");
+            } catch (pushError) {
+                console.error("adsbygoogle.push() failed inside rAF: ", pushError);
+            }
+        });
 
     } catch (e) {
-        console.error("Ad refresh failed: ", e);
+        console.error("Ad refresh setup failed: ", e);
     }
 }
+
 // --- 여기까지 ---
     
     initialize();
