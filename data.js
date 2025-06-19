@@ -56,7 +56,9 @@ const DB = {
         },
         lev4: {
             rune_berserker: { name: '전투광(Warlike)', setImage: '전투광 룬 세트', effect: '공격 시 데미지가 대폭 증가한다.', imgUrl: 'https://via.placeholder.com/64/FFD700/000000?text=R', description: '<h3>전투광 룬</h3><p>공격적인 성향을 극한으로 끌어올리는 룬 세트의 일부입니다.</p>'},
-            chip_firedance: { name: '화무(Fire Dance)', setImage: '화무 칩 세트', effect: '불타입 기술의 위력이 상승한다.', imgUrl: 'https://via.placeholder.com/64/FF6347/000000?text=C', description: '<h3>화무 칩</h3><p>타오르는 불꽃의 춤을 형상화한 칩입니다.</p>'}
+            rune_aegis: { name: '비호(Aegis)', setImage: '비호 룬 세트', effect: '받는 데미지를 감소시킨다.', imgUrl: 'https://via.placeholder.com/64/4682B4/FFFFFF?text=R', description: '<h3>비호 룬</h3><p>견고한 방패처럼 아군을 보호하는 룬입니다.</p>'},
+            chip_firedance: { name: '화무(Fire Dance)', setImage: '화무 칩 세트', effect: '불타입 기술의 위력이 상승한다.', imgUrl: 'https://via.placeholder.com/64/FF6347/000000?text=C', description: '<h3>화무 칩</h3><p>타오르는 불꽃의 춤을 형상화한 칩입니다.</p>'},
+            chip_wolfwalker: { name: '늑대행자(Lone Wolf)', setImage: '늑대행자 칩 세트', effect: '주변에 아군이 없을 때 강해진다.', imgUrl: 'https://via.placeholder.com/64/A9A9A9/FFFFFF?text=C', description: '<h3>늑대행자 칩</h3><p>고독한 늑대처럼 단독으로 행동할 때 진가를 발휘하는 칩입니다.</p>'}
         }
     },
     deck: {
