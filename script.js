@@ -74,9 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
     const finalLevelForCategory = categoryInfo ? categoryInfo.levels : 0;
-    const isFinal = !Array.isArray(data) || level >= finalLevelForCategory;
+    const isFinal = !Array.isArray(data);
     
-    // [수정] 최종 레벨에 도달했을 때만 클래스를 추가하고, 아니면 제거합니다.
     if (isFinal) {
         app.className = `final-view-L${finalLevelForCategory}`;
         contentDiv.innerHTML = data.content || "데이터가 없습니다.";
@@ -89,7 +88,10 @@ document.addEventListener('DOMContentLoaded', () => {
             button.dataset.id = item.id;
             button.dataset.level = level;
             button.dataset.menuId = menuId;
-            // 색상 적용 로직은 추후 다른 단계에서 추가하겠습니다.
+            // [수정됨] item.color 값이 있으면, type-* 클래스를 추가합니다.
+            if (item.color) {
+                button.classList.add(`type-${item.color}`);
+            }
             contentDiv.appendChild(button);
         });
     }
