@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex v1.2-final-debug');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex v1.3-stable');
 
     const app = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
@@ -89,12 +89,11 @@ document.addEventListener('DOMContentLoaded', () => {
         targetPanel.classList.add('visible');
     }
     
-    // [수정] initialize 함수
+    // [수정] initialize 함수 - 버그 수정된 로직을 다시 활성화합니다.
     function initialize() {
-        /*
-        // --- [임시 비활성화] 포켓몬 등급 메뉴를 동적으로 생성하는 로직 ---
+        // --- [수정 완료] 포켓몬 등급 메뉴를 동적으로 생성하는 로직 ---
         const gradeCategory = 'pokemonGrade';
-        if (DB[gradeCategory] && DB.pokemonType) {
+        if (DB[gradeCategory] && DB.pokemonType?.lev4) {
             const grades = {};
             Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
                 if (pokemon.grade) {
@@ -104,14 +103,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             DB[gradeCategory].lev3 = {};
-            Object.keys(grades).forEach(gradeKey => {
-                 const gradeId = gradeKey.toLowerCase().replace('+', 'Plus');
-                 DB[gradeCategory].lev3[gradeId] = grades[gradeKey].map(p => ({id: p.id, name: p.name}));
+            Object.keys(grades).forEach(gradeKey => { // gradeKey는 'S+', 'S'
+                 // gradeKey('S+')와 일치하는 name을 가진 lev2 항목을 찾아, 그 항목의 id('sPlus')를 사용합니다.
+                 const gradeInfo = DB.pokemonGrade.lev2.find(g => g.name === gradeKey);
+                 if (gradeInfo) {
+                    const gradeId = gradeInfo.id; // 'sPlus' 또는 's'
+                    DB[gradeCategory].lev3[gradeId] = grades[gradeKey].map(p => ({id: p.id, name: p.name}));
+                 }
             });
         }
-        */
 
-        // 사이드바를 그리는 부분은 그대로 실행됩니다.
         sidebar.innerHTML = DB.sidebarMenu.map(item => `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`).join('');
         addEventListeners();
     }
