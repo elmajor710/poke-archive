@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- [디버그 모드] ---
-    console.log('스크립트 초기화 완료. Nirvana Pokedex v1.1-debug');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex v1.2-final-debug');
 
     const app = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
@@ -12,29 +11,45 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeButtons = {};
 
     function renderCalendarView(contentDiv, data) {
-        // ... (이전과 동일)
+        let html = `<h2>${data.name}</h2>`;
+        html += `<p>${data.description}</p><hr>`;
+        if (data.events && data.events.length > 0) {
+            html += '<div class="event-list">';
+            data.events.forEach(event => {
+                const typeClass = event.type === 'ranking' ? 'label-ranking' : 'label-limited';
+                html += `<div class="event-item"><span class="event-date">${event.date}</span><span class="event-type ${typeClass}">${event.type === 'ranking' ? '랭킹' : '한정'}</span><span class="event-title">${event.title}</span></div>`;
+            });
+            html += '</div>';
+        } else {
+            html += '<p>예정된 이벤트가 없습니다.</p>';
+        }
+        contentDiv.innerHTML = html;
     }
+
     function renderPokemonView(contentDiv, data) {
-        // ... (이전과 동일)
+        contentDiv.innerHTML = `<h2>${data.name} (${data.grade})</h2><p>포켓몬 상세 화면 개발 예정입니다.</p>`;
     }
+
     function renderSimpleView(contentDiv, data) {
-        // ... (이전과 동일)
+        let html = `<h2>${data.name}</h2>`;
+        if (data.imageURL && data.imageURL.startsWith('http')) {
+            html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin-bottom: 10px;">`;
+        }
+        if (data.description) {
+            html += `<p>${data.description.replace(/\n/g, '<br>')}</p>`;
+        }
+        contentDiv.innerHTML = html;
     }
 
     function renderPanel(level, data, menuId) {
         const targetPanel = panels[`lev${level}`];
         if (!targetPanel) return;
 
-        // --- [디버그 로그 추가] ---
-        console.log(`--- renderPanel 호출 (level: ${level}, menuId: ${menuId}) ---`);
-        console.log('전달받은 데이터:', data);
-
         const contentDiv = targetPanel.querySelector('.panel-content');
         contentDiv.innerHTML = '';
         setTimeout(() => { contentDiv.scrollTop = 0; }, 0);
 
         if (!data) {
-            console.log('결과: 데이터가 없으므로 "데이터가 없습니다." 출력');
             contentDiv.innerHTML = "데이터가 없습니다.";
             targetPanel.classList.add('visible');
             return;
@@ -44,59 +59,119 @@ document.addEventListener('DOMContentLoaded', () => {
         const finalLevelForCategory = categoryInfo ? categoryInfo.levels : 0;
         const isFinal = !Array.isArray(data);
         
-        console.log(`isFinal: ${isFinal}, 최종 레벨: ${finalLevelForCategory}`);
-
         if (isFinal) {
-            const classNameToSet = `final-view-L${finalLevelForCategory}`;
-            console.log(`최종 화면입니다. app-container에 클래스 "${classNameToSet}"를 설정합니다.`);
-            app.className = classNameToSet;
-            
+            app.className = `final-view-L${finalLevelForCategory}`;
             Object.values(panels).forEach(p => p.classList.remove('visible'));
 
             if (data.events) {
-                console.log('뷰 타입: Calendar View');
                 renderCalendarView(contentDiv, data);
             } else if (data.stats && data.skills) {
-                console.log('뷰 타입: Pokemon View');
                 renderPokemonView(contentDiv, data);
             } else if (data.description) {
-                console.log('뷰 타입: Simple View');
                 renderSimpleView(contentDiv, data);
             } else {
-                console.log('뷰 타입: Fallback Content View');
                 contentDiv.innerHTML = data.content || "콘텐츠를 표시할 수 없습니다.";
             }
 
         } else {
-            console.log('목록 화면입니다. app-container 클래스를 초기화합니다.');
             app.className = "";
-            // ... (이하 목록 생성 로직은 동일)
+            data.forEach(item => {
+                const button = document.createElement('button');
+                button.className = 'list-item';
+                button.textContent = item.name;
+                button.dataset.id = item.id;
+                button.dataset.level = level;
+                button.dataset.menuId = menuId;
+                if (item.color) { button.classList.add(`type-${item.color}`); }
+                contentDiv.appendChild(button);
+            });
         }
         targetPanel.classList.add('visible');
-        console.log('----------------------------------------------------');
-    }
-
-    // --- 나머지 함수들은 이전과 동일합니다 ---
-    function initialize() {
-        // ...
-    }
-    function addEventListeners() {
-        // ...
-    }
-    function handleMenuClick(button) {
-        // ...
-    }
-    function getNextData(currentLevel, id, menuId) {
-        // ...
-    }
-    function handleBackClick(button) {
-        // ...
-    }
-    function setActive(level, target) {
-        // ...
     }
     
-    // (이전과 동일한 전체 코드를 여기에 붙여넣으세요)
-    // 이전 답변에서 드렸던 script.js의 나머지 함수들을 여기에 복사해서 사용하시면 됩니다.
-    // 여기서는 설명을 위해 renderPanel 외 함수들은 생략했습니다.
+    // [수정] initialize 함수
+    function initialize() {
+        /*
+        // --- [임시 비활성화] 포켓몬 등급 메뉴를 동적으로 생성하는 로직 ---
+        const gradeCategory = 'pokemonGrade';
+        if (DB[gradeCategory] && DB.pokemonType) {
+            const grades = {};
+            Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
+                if (pokemon.grade) {
+                    if (!grades[pokemon.grade]) grades[pokemon.grade] = [];
+                    grades[pokemon.grade].push({ ...pokemon, id: pokemonId });
+                }
+            });
+
+            DB[gradeCategory].lev3 = {};
+            Object.keys(grades).forEach(gradeKey => {
+                 const gradeId = gradeKey.toLowerCase().replace('+', 'Plus');
+                 DB[gradeCategory].lev3[gradeId] = grades[gradeKey].map(p => ({id: p.id, name: p.name}));
+            });
+        }
+        */
+
+        // 사이드바를 그리는 부분은 그대로 실행됩니다.
+        sidebar.innerHTML = DB.sidebarMenu.map(item => `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`).join('');
+        addEventListeners();
+    }
+
+    function addEventListeners() {
+        app.addEventListener('click', e => {
+            const button = e.target.closest('button');
+            if (!button) return;
+            if (button.classList.contains('back-btn')) handleBackClick(button);
+            else if (button.dataset.level) handleMenuClick(button);
+        });
+    }
+
+    function handleMenuClick(button) {
+        const level = parseInt(button.dataset.level);
+        const id = button.dataset.id;
+        const menuId = button.dataset.menuId || id;
+        if (level === 1) { app.className = ""; }
+        setActive(level, button);
+        for (let i = level + 1; i <= 4; i++) {
+             if (panels[`lev${i}`]) { panels[`lev${i}`].classList.remove('visible'); }
+        }
+        const nextLevel = level + 1;
+        const nextData = getNextData(level, id, menuId);
+        renderPanel(nextLevel, nextData, menuId);
+    }
+    
+    function getNextData(currentLevel, id, menuId) {
+        const nextLevel = currentLevel + 1;
+        if (nextLevel === 2) return DB[menuId]?.lev2;
+        if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
+        if (nextLevel === 4) {
+            if (menuId === 'pokemonGrade') {
+                return DB.pokemonType.lev4[id];
+            }
+            return DB[menuId]?.lev4?.[id];
+        }
+        return null;
+    }
+
+    function handleBackClick(button) {
+        const parentPanel = button.closest('.panel');
+        const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
+        parentPanel.classList.remove('visible');
+        setActive(level - 1, null);
+        app.className = ""; 
+    }
+
+    function setActive(level, target) {
+        for (let i = level; i <= 4; i++) {
+            if (activeButtons[i]) {
+                activeButtons[i].classList.remove('active');
+                activeButtons[i] = null;
+            }
+        }
+        if (target) {
+            target.classList.add('active');
+            activeButtons[level] = target;
+        }
+    }
+    
+    initialize();
 });
