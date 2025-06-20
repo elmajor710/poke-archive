@@ -1,128 +1,161 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- 1. 기본 요소 및 변수 설정 ---
+    // 1. 변수 설정
     const app = document.getElementById('app-container');
-    const adsContainer = document.getElementById('ads-container');
     const sidebar = document.getElementById('sidebar');
     const contentArea = document.getElementById('content-area');
-    const panels = {
-        lev2: document.getElementById('lev2-panel'),
-        lev3: document.getElementById('lev3-panel'),
-        lev4: document.getElementById('lev4-panel'),
-    };
-    let activeButtons = {}; // 활성화된 버튼 추적용
-    let isMobile = window.innerWidth <= 768;
+    const adsContainer = document.getElementById('ads-container');
+    const panels = { lev2: document.getElementById('lev2-panel'), lev3: document.getElementById('lev3-panel'), lev4: document.getElementById('lev4-panel') };
+    let activeButtons = {};
+    let isAdmin = false;
+    const AD_CLICK_LIMIT = 5;
+    const AD_CLICK_TIME_WINDOW = 60 * 60 * 1000;
 
-    // --- 2. 초기화 ---
+    // 2. 초기화
     function initialize() {
-        // 사이드바 메뉴 생성
-        sidebar.innerHTML = DB.sidebarMenu.map(item => 
-            `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`
-        ).join('');
-        
-        // 이벤트 리스너 설정
+        sidebar.innerHTML = DB.sidebarMenu.map(item => `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`).join('');
+        checkAdStatusAndLoad();
         addEventListeners();
     }
 
-    // --- 3. 이벤트 리스너 ---
+    // 3. 이벤트 리스너
     function addEventListeners() {
-        // 앱 전체에서 발생하는 모든 클릭을 감지 (이벤트 위임)
         app.addEventListener('click', (e) => {
             const button = e.target.closest('button');
-            if (!button) return; // 버튼이 아니면 무시
-
-            // 뒤로가기 버튼 클릭 처리
-            if (button.classList.contains('back-btn')) {
-                handleBackClick(button);
-                return;
-            }
-            // 메뉴 또는 리스트 아이템 클릭 처리
-            if (button.dataset.level) {
-                handleMenuClick(button);
-            }
+            if (!button) return;
+            if (button.classList.contains('back-btn')) handleBackClick(button);
+            else if (button.dataset.level) handleMenuClick(button);
         });
-        
-        window.addEventListener('resize', () => { isMobile = window.innerWidth <= 768; });
+        adsContainer.addEventListener('click', handleAdClick);
     }
 
-    // --- 4. 클릭 핸들러 ---
+    // 4. 클릭 핸들러
     function handleMenuClick(button) {
-    const level = parseInt(button.dataset.level);
-    const id = button.dataset.id;
-    const context = button.dataset;
-
-    setActive(level, button);
-
-    // 광고 새로고침 코드 추가
-    (adsbygoogle = window.adsbygoogle || []).push({});
-
-    const nextLevel = level + 1;
-// ... 이하 생략
+        setActive(parseInt(button.dataset.level), button);
+        if (!isAdmin) refreshAdSlot(); // 관리자 모드가 아닐 때만 광고 새로고침
+        
+        const context = button.dataset;
+        const nextLevel = parseInt(context.level) + 1;
+        let nextData;
+        if (nextLevel === 2) nextData = DB[context.id]?.lev2;
+        else if (nextLevel === 3) nextData = DB[context.menuId]?.lev3?.[context.id];
+        else if (nextLevel === 4) nextData = DB[context.menuId]?.lev4?.[context.id];
+        renderPanel(nextLevel, nextData, context);
+    }
 
     function handleBackClick(button) {
-		const parentPanel = button.closest('.panel');
-		parentPanel.classList.remove('visible');
+        const parentPanel = button.closest('.panel');
+        parentPanel.classList.remove('visible');
+        contentArea.classList.remove('final-view-L3', 'final-view-L4');
+        setActive(parseInt(parentPanel.id.slice(-1)) - 1, null);
+    }
 
-		// 뒤로가기 시 모든 최종 화면 클래스 제거
-		contentArea.classList.remove('final-view-L3', 'final-view-L4');
+    function handleAdClick() {
+        if (isAdmin) return;
+        const now = Date.now();
+        let adClicks = JSON.parse(localStorage.getItem('adClicks')) || [];
+        adClicks = adClicks.filter(timestamp => (now - timestamp) < AD_CLICK_TIME_WINDOW);
+        adClicks.push(now);
+        localStorage.setItem('adClicks', JSON.stringify(adClicks));
+        if (adClicks.length >= AD_CLICK_LIMIT) {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+            localStorage.setItem('adBlockUntil', tomorrow.getTime());
+            hideAdWithMessage('광고가 일시 중단되었습니다.');
+        }
+    }
 
-		const level = parseInt(parentPanel.id.slice(-1));
-		setActive(level - 1, null);
-	}
-
-    // --- 5. 화면 렌더링 ---
+    // 5. 렌더링 및 광고 관리
     function renderPanel(level, data, context) {
-		// 현재 레벨 이후의 모든 패널을 초기화
-		for (let i = level; i <= 4; i++) {
-			panels[`lev${i}`].classList.remove('visible');
-			panels[`lev${i}`].querySelector('.panel-content').innerHTML = '';
-		}
-
-		if (!data) return; 
-
-		const targetPanel = panels[`lev${level}`];
-		if (!targetPanel) return;
-
-		const contentDiv = targetPanel.querySelector('.panel-content');
-		const isFinal = !Array.isArray(data);
-
-		// 최종 화면 클래스를 초기화
-		contentArea.classList.remove('final-view-L3', 'final-view-L4');
-
-		if (isFinal) {
-			contentDiv.innerHTML = data.content;
-			// 최종 화면 레벨에 따라 다른 클래스 추가
-			contentArea.classList.add(`final-view-L${level}`);
-		} else {
-			data.forEach(item => {
-				const button = document.createElement('button');
-				button.className = 'list-item';
-				button.textContent = item.name;
-				button.dataset.id = item.id;
-				button.dataset.level = level;
-				button.dataset.menuId = context.menuId || context.id;
-				if (level > 2) button.dataset.lev2Id = context.id;
-				if (item.color) button.style.backgroundColor = item.color;
-				contentDiv.appendChild(button);
-			});
-		}
-		targetPanel.classList.add('visible');
-	}
-
-    // --- 6. 헬퍼 함수 ---
-    function setActive(level, target) {
-        // 현재 레벨과 하위 레벨의 활성화 상태 초기화
         for (let i = level; i <= 4; i++) {
-            if (activeButtons[i]) {
-                activeButtons[i].classList.remove('active');
-                activeButtons[i] = null;
-            }
+            panels[`lev${i}`].classList.remove('visible');
+            panels[`lev${i}`].querySelector('.panel-content').innerHTML = '';
+        }
+        if (!data) return;
+        const targetPanel = panels[`lev${level}`];
+        if (!targetPanel) return;
+        const contentDiv = targetPanel.querySelector('.panel-content');
+        const isFinal = !Array.isArray(data);
+        contentArea.classList.remove('final-view-L3', 'final-view-L4');
+        if (isFinal) {
+            contentDiv.innerHTML = data.content;
+            contentArea.classList.add(`final-view-L${level}`);
+        } else {
+            data.forEach(item => {
+                const button = document.createElement('button');
+                button.className = 'list-item';
+                button.textContent = item.name;
+                Object.assign(button.dataset, { id: item.id, level: level, menuId: context.menuId || context.id });
+                if (level > 2) button.dataset.lev2Id = context.id;
+                if (item.color) button.style.backgroundColor = item.color;
+                contentDiv.appendChild(button);
+            });
+        }
+        targetPanel.classList.add('visible');
+    }
+
+    function checkAdStatusAndLoad() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const blockUntil = localStorage.getItem('adBlockUntil');
+        if (urlParams.get('admin') === 'true') {
+            isAdmin = true;
+            hideAdWithMessage('관리자 모드입니다.');
+        } else if (blockUntil && Date.now() < parseInt(blockUntil)) {
+            hideAdWithMessage('광고가 일시 중단되었습니다.');
+        } else {
+            refreshAdSlot(); // 정상적인 경우 첫 광고 로드
+        }
+    }
+
+    function hideAdWithMessage(message) {
+        adsContainer.innerHTML = `<div class="ad-message">${message}</div>`;
+    }
+
+    // --- 이 "refreshAdSlot" 함수를 통째로 교체해주세요 ---
+    // --- 이 "refreshAdSlot" 함수를 통째로 교체해주세요 ---
+    function refreshAdSlot() {
+    // 광고가 숨겨진 상태이거나 관리자 모드이면 함수를 실행하지 않음
+    if (adsContainer.querySelector('.ad-message')) {
+        return;
+    }
+
+    // 광고 슬롯을 동적으로 생성하여 push 오류를 원천 차단
+    adsContainer.innerHTML = ''; // 기존 광고 제거
+    
+    // 광고 로딩 스크립트
+    const adScript = document.createElement('script');
+    adScript.async = true;
+    adScript.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311";
+    adScript.crossOrigin = "anonymous";
+    // 스크립트 로드 실패 시 오류를 콘솔에 기록 (디버깅용)
+    adScript.onerror = () => console.error("AdSense script failed to load.");
+
+    // 실제 광고 슬롯
+    const adIns = document.createElement('ins');
+    adIns.className = "adsbygoogle";
+    // [수정] 광고 슬롯 자체에 최소 크기를 지정하여 'No slot size' 오류 방지
+    Object.assign(adIns.style, { display: 'block', width: '100%', minHeight: '50px', textAlign: 'center' });
+    // [최종 수정] fullWidthResponsive를 "false"로 변경합니다.
+    Object.assign(adIns.dataset, { adClient: "ca-pub-2125965839205311", adSlot: "5532734526", adFormat: "auto", fullWidthResponsive: "false" });
+    
+    // 광고 실행 스크립트
+    const adPushScript = document.createElement('script');
+    adPushScript.innerHTML = "(adsbygoogle = window.adsbygoogle || []).push({});";
+
+    adsContainer.append(adScript, adIns, adPushScript);
+    }
+    
+    // 6. 헬퍼 함수
+    function setActive(level, target) {
+        for (let i = level; i <= 4; i++) {
+            if (activeButtons[i]) activeButtons[i].classList.remove('active');
+            activeButtons[i] = null;
         }
         if (target) {
             target.classList.add('active');
             activeButtons[level] = target;
         }
     }
-    
-    // --- 초기화 함수 실행 ---
+
     initialize();
 });
