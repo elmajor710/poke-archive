@@ -68,28 +68,51 @@ header h1 { margin: 0; font-size: 1.5em; }
     border-right: none;
 }
 
-/* --- 이 @media 블록 전체를 아래의 새로운 내용으로 교체해주세요 --- */
+/* style.css 파일의 @media 블록을 아래 코드로 통째로 교체하세요 */
+
 @media (max-width: 768px) {
     :root {
-        /* 사이드바 너비를 120px로 줄입니다. */
         --sidebar-width: 120px;
     }
     header h1 {
         font-size: 1.2em;
     }
     #ads-container {
-        height: 100px;
-        max-height: 100px;
+        min-height: 50px;
     }
+
+    /* [핵심 수정] 자식 패널들을 제어할 기준점으로 만들고, 패널이 넘치지 않게 숨김 처리합니다. */
     #content-area {
-        /* 모바일에서 가로 스크롤을 확실히 금지합니다. */
-        overflow-x: hidden; 
+        position: relative;
+        overflow: hidden;
     }
+
+    /* [핵심 수정] 패널들을 겹치는 레이어로 만들고 슬라이드 애니메이션을 적용합니다. */
     .panel {
-        /* 패널들이 고정 너비 대신, 주어진 공간을 나눠 갖도록 합니다. */
-        flex: 1;
-        min-width: 0; /* 패널이 내용물보다 더 작아질 수 있도록 허용 (중요!) */
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #fff; /* 패널이 겹칠 때 비치지 않도록 배경색을 확실히 지정합니다. */
+        
+        /* 패널을 오른쪽 화면 밖에 배치했다가, .visible 클래스가 붙으면 화면 안으로 들어오도록 설정합니다. */
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        
+        /* 데스크탑의 flex 관련 스타일을 덮어쓰고, 내부 레이아웃은 유지합니다. */
+        flex-shrink: 0;
+        border-right: none;
+        display: flex; 
+        flex-direction: column;
     }
+
+    /* JS가 추가하는 .visible 클래스를 이용해 패널을 화면 안으로 슬라이드합니다. */
+    .panel.visible {
+        transform: translateX(0);
+    }
+
+    /* 기존의 다른 모바일 스타일(폰트, 패딩 등)은 그대로 유지합니다. */
     #sidebar, .panel-content {
         padding: 8px;
     }
@@ -97,7 +120,7 @@ header h1 { margin: 0; font-size: 1.5em; }
         font-size: 14px;
         padding: 10px 8px;
     }
-    .panel-header, .back-btn {
+    .panel-header .back-btn {
         padding: 8px 10px;
         font-size: 14px;
     }
