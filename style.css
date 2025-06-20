@@ -44,6 +44,10 @@ header h1 { margin: 0; font-size: 1.5em; }
     font-weight: 600;
 }
 
+/* ========================================================== */
+/* ▼▼▼▼▼ 이 부분을 아래의 새 코드로 교체하세요 ▼▼▼▼▼ */
+/* ========================================================== */
+
 /* [수정됨] 최종 화면에서 다른 패널 숨김 처리 (기획서 규칙) */
 /* Lev.4가 최종일 때: Lev.1, 2, 3 숨김 */
 #app-container.final-view-L4 #sidebar,
@@ -68,7 +72,6 @@ header h1 { margin: 0; font-size: 1.5em; }
     border-right: none;
 }
 
-/* style.css 파일의 @media 블록을 아래 코드로 통째로 교체하세요 */
 
 @media (max-width: 768px) {
     :root {
@@ -81,38 +84,38 @@ header h1 { margin: 0; font-size: 1.5em; }
         min-height: 50px;
     }
 
-    /* [핵심 수정] 자식 패널들을 제어할 기준점으로 만들고, 패널이 넘치지 않게 숨김 처리합니다. */
     #content-area {
         position: relative;
         overflow: hidden;
     }
 
-    /* [핵심 수정] 패널들을 겹치는 레이어로 만들고 슬라이드 애니메이션을 적용합니다. */
     .panel {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: #fff; /* 패널이 겹칠 때 비치지 않도록 배경색을 확실히 지정합니다. */
-        
-        /* 패널을 오른쪽 화면 밖에 배치했다가, .visible 클래스가 붙으면 화면 안으로 들어오도록 설정합니다. */
+        background-color: #fff;
         transform: translateX(100%);
         transition: transform 0.3s ease-in-out;
-        
-        /* 데스크탑의 flex 관련 스타일을 덮어쓰고, 내부 레이아웃은 유지합니다. */
         flex-shrink: 0;
         border-right: none;
         display: flex; 
         flex-direction: column;
     }
 
-    /* JS가 추가하는 .visible 클래스를 이용해 패널을 화면 안으로 슬라이드합니다. */
     .panel.visible {
         transform: translateX(0);
     }
+    
+    /* [수정] final-view에서 패널이 화면을 꽉 채우도록 수정 */
+    #app-container.final-view-L4 #lev4-panel,
+    #app-container.final-view-L3 #lev3-panel {
+        /* position: absolute 상태이므로 width 100%가 이미 적용되어 있음 */
+        /* 슬라이드 애니메이션과 충돌하지 않도록 transform을 초기화 */
+        transform: translateX(0);
+    }
 
-    /* 기존의 다른 모바일 스타일(폰트, 패딩 등)은 그대로 유지합니다. */
     #sidebar, .panel-content {
         padding: 8px;
     }
@@ -125,6 +128,10 @@ header h1 { margin: 0; font-size: 1.5em; }
         font-size: 14px;
     }
 }
+
+/* ========================================================== */
+/* ▲▲▲▲▲ 교체할 부분은 여기까지입니다 ▲▲▲▲▲ */
+/* ========================================================== */
 
 /* style.css 파일 맨 아래의 포켓몬 타입 색상 클래스 부분을 아래 코드로 통째로 교체하세요. */
 
