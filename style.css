@@ -1,159 +1,80 @@
 :root {
-
-    --sidebar-width: 240px;
-
-    --panel-width: 300px;
-
-    --primary-color: #007bff;
-
-    --active-color: #e6f2ff;
-
-    --border-color: #dee2e6;
-
+    --sidebar-width: 240px;
+    --panel-width: 300px;
+    --primary-color: #007bff;
+    --active-color: #e6f2ff;
+    --border-color: #dee2e6;
 }
-
 body {
-
-    margin: 0;
-
-    font-family: sans-serif;
-
-    display: flex;
-
-    height: 100vh;
-
-    overflow: hidden;
-
+    margin: 0;
+    font-family: sans-serif;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
 }
-
 #app-container {
-
-    display: flex;
-
-    width: 100%;
-
-    height: 100%;
-
+    display: flex;
+    width: 100%;
+    height: 100%;
 }
-
 #sidebar {
-
-    width: var(--sidebar-width);
-
-    border-right: 1px solid var(--border-color);
-
-    padding: 10px;
-
-    overflow-y: auto;
-
-    flex-shrink: 0;
-
+    width: var(--sidebar-width);
+    border-right: 1px solid var(--border-color);
+    padding: 10px;
+    overflow-y: auto;
+    flex-shrink: 0;
 }
-
 #content-area {
-
-    flex-grow: 1;
-
-    display: flex;
-
+    flex-grow: 1;
+    display: flex;
 }
-
 .panel {
-
-    width: var(--panel-width);
-
-    border-right: 1px solid var(--border-color);
-
-    background: #fff;
-
-    display: none; /* 기본 숨김 */
-
-    flex-direction: column;
-
+    width: var(--panel-width);
+    border-right: 1px solid var(--border-color);
+    background: #fff;
+    display: none; /* 기본 숨김 */
+    flex-direction: column;
 }
-
 .panel.visible {
-
-    display: flex; /* 보일 때만 나타남 */
-
+    display: flex; /* 보일 때만 나타남 */
 }
-
 .panel-header {
-
-    padding: 10px 15px;
-
-    border-bottom: 1px solid var(--border-color);
-
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
 }
-
 .panel-content {
-
-    padding: 10px;
-
-    overflow-y: auto;
-
-    flex-grow: 1;
-
+    padding: 10px;
+    overflow-y: auto;
+    flex-grow: 1;
 }
-
 .menu-item, .list-item {
-
-    display: block; width: 100%; text-align: left;
-
-    padding: 12px; margin-bottom: 5px;
-
-    border: 1px solid #eee; background: #f9f9f9;
-
-    border-radius: 6px; font-size: 16px; cursor: pointer;
-
+    display: block; width: 100%; text-align: left;
+    padding: 12px; margin-bottom: 5px;
+    border: 1px solid #eee; background: #f9f9f9;
+    border-radius: 6px; font-size: 16px; cursor: pointer;
 }
-
 .menu-item.active, .list-item.active {
-
-    background-color: var(--active-color);
-
-    border-left: 4px solid var(--primary-color);
-
-    font-weight: 600;
-
+    background-color: var(--active-color);
+    border-left: 4px solid var(--primary-color);
+    font-weight: 600;
 }
 
-
-
-/* 최종 콘텐츠 보기 모드 스타일 (수정됨) */
-
+/* 최종 콘텐츠 보기 모드 스타일 */
 /* Lev.4가 최종 화면일 때 */
-
 #content-area.final-view-L4 #lev2-panel,
-
 #content-area.final-view-L4 #lev3-panel {
-
-    display: none !important;
-
+    display: none !important;
 }
-
 #content-area.final-view-L4 #lev4-panel {
-
-    width: 100%;
-
-    border-right: none;
-
+    width: 100%;
+    border-right: none;
 }
-
-
 
 /* Lev.3가 최종 화면일 때 */
-
 #content-area.final-view-L3 #lev2-panel {
-
-    display: none !important;
-
+    display: none !important;
 }
-
 #content-area.final-view-L3 #lev3-panel {
-
-    width: 100%;
-
-    border-right: none;
-
+    width: 100%;
+    border-right: none;
 }

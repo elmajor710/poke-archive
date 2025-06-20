@@ -1,53 +1,27 @@
 <!DOCTYPE html>
-
 <html lang="ko">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Nirvana's Poke-Archive</title>
-
-<link rel="stylesheet" href="style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nirvana's Poke-Archive</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+    <div id="ads-container"></div>
 
-<div id="ads-container"></div>
+    <div id="app-container">
+        <aside id="sidebar"></aside>
 
+        <main id="content-area">
+            <section id="lev2-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
+            <section id="lev3-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
+            <section id="lev4-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
+        </main>
+    </div>
 
+    <div id="popup-overlay" class="hidden"><div id="popup-content"><button id="popup-close">&times;</button><div id="popup-body"></div></div></div>
 
-<div id="app-container">
-
-<aside id="sidebar"></aside>
-
-
-
-<main id="content-area">
-
-<section id="lev2-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
-
-<section id="lev3-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
-
-<section id="lev4-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
-
-</main>
-
-</div>
-
-
-
-<div id="popup-overlay" class="hidden"><div id="popup-content"><button id="popup-close">&times;</button><div id="popup-body"></div></div></div>
-
-
-
-<script src="data.js"></script>
-
-<script src="script.js"></script>
-
+    <script src="data.js"></script>
+    <script src="script.js"></script>
 </body>
-
 </html>
