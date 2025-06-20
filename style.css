@@ -208,6 +208,8 @@ header h1 { margin: 0; font-size: 1.5em; }
     align-items: flex-start;
     justify-content: flex-start;
     min-height: 120px;
+    /* [수정] 내용이 많아져도 칸의 높이가 늘어나지 않도록 overflow 속성 추가 */
+    overflow: hidden; 
 }
 .calendar-date.other-month {
     color: #ccc;
@@ -223,6 +225,7 @@ header h1 { margin: 0; font-size: 1.5em; }
     border-radius: 3px;
     margin-bottom: 3px;
     width: 100%;
+    /* [수정] 텍스트가 길어지면 ... 으로 표시되도록 수정 */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
