@@ -114,3 +114,24 @@ body {
         padding: 8px 10px;
     }
 }
+
+/* --- 애드센스 광고 컨테이너 스타일 --- */
+#ads-container {
+    position: fixed; /* 화면 기준으로 위치 고정 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 9999; /* 다른 모든 요소들보다 위에 있도록 설정 */
+    background-color: #f8f9fa; /* 광고 로딩 전 배경색 */
+    min-height: 50px; /* 광고가 없을 때 최소 높이 유지 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* 광고 때문에 메인 앱이 가려지지 않도록, 앱 컨테이너에 상단 여백 추가 */
+#app-container {
+    /* 광고 컨테이너 높이만큼 아래로 내림 (대략적인 값) */
+    margin-top: 60px; 
+}
