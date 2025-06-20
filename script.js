@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- [디버그 모드] ---
+    console.log('스크립트 초기화 완료. Nirvana Pokedex v1.1-debug');
+
     const app = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
     const panels = {
@@ -8,47 +11,30 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let activeButtons = {};
 
-    // --- 화면 생성기 함수들 (이전과 동일) ---
     function renderCalendarView(contentDiv, data) {
-        let html = `<h2>${data.name}</h2>`;
-        html += `<p>${data.description}</p><hr>`;
-        if (data.events && data.events.length > 0) {
-            html += '<div class="event-list">';
-            data.events.forEach(event => {
-                const typeClass = event.type === 'ranking' ? 'label-ranking' : 'label-limited';
-                html += `<div class="event-item"><span class="event-date">${event.date}</span><span class="event-type ${typeClass}">${event.type === 'ranking' ? '랭킹' : '한정'}</span><span class="event-title">${event.title}</span></div>`;
-            });
-            html += '</div>';
-        } else {
-            html += '<p>예정된 이벤트가 없습니다.</p>';
-        }
-        contentDiv.innerHTML = html;
+        // ... (이전과 동일)
     }
-
     function renderPokemonView(contentDiv, data) {
-        contentDiv.innerHTML = `<h2>${data.name} (${data.grade})</h2><p>포켓몬 상세 화면 개발 예정입니다.</p>`;
+        // ... (이전과 동일)
     }
-
     function renderSimpleView(contentDiv, data) {
-        let html = `<h2>${data.name}</h2>`;
-        if (data.imageURL && data.imageURL.startsWith('http')) {
-            html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin-bottom: 10px;">`;
-        }
-        html += `<p>${data.description.replace(/\n/g, '<br>')}</p>`;
-        contentDiv.innerHTML = html;
+        // ... (이전과 동일)
     }
 
-    // --- [수정됨] renderPanel 함수 ---
-    // 최종 화면(isFinal)일 때, 다른 패널들을 확실히 숨기는 로직이 추가되었습니다.
     function renderPanel(level, data, menuId) {
         const targetPanel = panels[`lev${level}`];
         if (!targetPanel) return;
+
+        // --- [디버그 로그 추가] ---
+        console.log(`--- renderPanel 호출 (level: ${level}, menuId: ${menuId}) ---`);
+        console.log('전달받은 데이터:', data);
 
         const contentDiv = targetPanel.querySelector('.panel-content');
         contentDiv.innerHTML = '';
         setTimeout(() => { contentDiv.scrollTop = 0; }, 0);
 
         if (!data) {
+            console.log('결과: 데이터가 없으므로 "데이터가 없습니다." 출력');
             contentDiv.innerHTML = "데이터가 없습니다.";
             targetPanel.classList.add('visible');
             return;
@@ -58,124 +44,59 @@ document.addEventListener('DOMContentLoaded', () => {
         const finalLevelForCategory = categoryInfo ? categoryInfo.levels : 0;
         const isFinal = !Array.isArray(data);
         
+        console.log(`isFinal: ${isFinal}, 최종 레벨: ${finalLevelForCategory}`);
+
         if (isFinal) {
-            app.className = `final-view-L${finalLevelForCategory}`;
+            const classNameToSet = `final-view-L${finalLevelForCategory}`;
+            console.log(`최종 화면입니다. app-container에 클래스 "${classNameToSet}"를 설정합니다.`);
+            app.className = classNameToSet;
             
-            // [핵심 수정] 최종 화면을 표시하기 전, 모든 패널을 일단 숨깁니다.
             Object.values(panels).forEach(p => p.classList.remove('visible'));
 
             if (data.events) {
+                console.log('뷰 타입: Calendar View');
                 renderCalendarView(contentDiv, data);
             } else if (data.stats && data.skills) {
+                console.log('뷰 타입: Pokemon View');
                 renderPokemonView(contentDiv, data);
             } else if (data.description) {
+                console.log('뷰 타입: Simple View');
                 renderSimpleView(contentDiv, data);
             } else {
+                console.log('뷰 타입: Fallback Content View');
                 contentDiv.innerHTML = data.content || "콘텐츠를 표시할 수 없습니다.";
             }
 
         } else {
+            console.log('목록 화면입니다. app-container 클래스를 초기화합니다.');
             app.className = "";
-            data.forEach(item => {
-                const button = document.createElement('button');
-                button.className = 'list-item';
-                button.textContent = item.name;
-                button.dataset.id = item.id;
-                button.dataset.level = level;
-                button.dataset.menuId = menuId;
-                if (item.color) { button.classList.add(`type-${item.color}`); }
-                contentDiv.appendChild(button);
-            });
+            // ... (이하 목록 생성 로직은 동일)
         }
         targetPanel.classList.add('visible');
+        console.log('----------------------------------------------------');
     }
 
-    // --- [수정됨] initialize 함수 ---
-    // 포켓몬 등급 목록 생성 시, 각 포켓몬의 고유 id를 정확히 참조하도록 수정했습니다.
+    // --- 나머지 함수들은 이전과 동일합니다 ---
     function initialize() {
-        const gradeCategory = 'pokemonGrade';
-        if (DB[gradeCategory] && DB.pokemonType) {
-            const grades = {};
-            // Object.entries를 사용해 포켓몬의 고유 id(key)와 데이터(pokemon)를 모두 가져옵니다.
-            Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
-                if (pokemon.grade) {
-                    if (!grades[pokemon.grade]) grades[pokemon.grade] = [];
-                    // 데이터에 고유 id를 포함하여 저장합니다.
-                    grades[pokemon.grade].push({ ...pokemon, id: pokemonId });
-                }
-            });
-
-            DB[gradeCategory].lev3 = {};
-            Object.keys(grades).forEach(gradeKey => {
-                 const gradeId = gradeKey.toLowerCase().replace('+', 'Plus');
-                 // 버튼 생성 시, 이름이 아닌 고유 id를 사용하도록 수정합니다.
-                 DB[gradeCategory].lev3[gradeId] = grades[gradeKey].map(p => ({id: p.id, name: p.name}));
-            });
-        }
-
-        sidebar.innerHTML = DB.sidebarMenu.map(item => `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`).join('');
-        addEventListeners();
+        // ...
     }
-
     function addEventListeners() {
-        app.addEventListener('click', e => {
-            const button = e.target.closest('button');
-            if (!button) return;
-            if (button.classList.contains('back-btn')) handleBackClick(button);
-            else if (button.dataset.level) handleMenuClick(button);
-        });
+        // ...
     }
-
     function handleMenuClick(button) {
-        const level = parseInt(button.dataset.level);
-        const id = button.dataset.id;
-        const menuId = button.dataset.menuId || id;
-        if (level === 1) { app.className = ""; }
-        setActive(level, button);
-        for (let i = level + 1; i <= 4; i++) {
-             if (panels[`lev${i}`]) { panels[`lev${i}`].classList.remove('visible'); }
-        }
-        const nextLevel = level + 1;
-        const nextData = getNextData(level, id, menuId);
-        renderPanel(nextLevel, nextData, menuId);
+        // ...
     }
-    
-    // --- [수정됨] getNextData 함수 ---
-    // '포켓몬 등급' 카테고리에서 포켓몬을 선택했을 때, pokemonType에서 데이터를 가져오도록 수정했습니다.
     function getNextData(currentLevel, id, menuId) {
-        const nextLevel = currentLevel + 1;
-        if (nextLevel === 2) return DB[menuId]?.lev2;
-        if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
-        if (nextLevel === 4) {
-            // '포켓몬 등급' 메뉴의 최종 데이터는 '포켓몬 타입' 데이터를 참조합니다.
-            if (menuId === 'pokemonGrade') {
-                return DB.pokemonType.lev4[id];
-            }
-            return DB[menuId]?.lev4?.[id];
-        }
-        return null;
+        // ...
     }
-
     function handleBackClick(button) {
-        const parentPanel = button.closest('.panel');
-        const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
-        parentPanel.classList.remove('visible');
-        setActive(level - 1, null);
-        app.className = ""; 
+        // ...
     }
-
     function setActive(level, target) {
-        for (let i = level; i <= 4; i++) {
-            if (activeButtons[i]) {
-                activeButtons[i].classList.remove('active');
-                activeButtons[i] = null;
-            }
-        }
-        if (target) {
-            target.classList.add('active');
-            activeButtons[level] = target;
-        }
+        // ...
     }
     
-    initialize();
+    // (이전과 동일한 전체 코드를 여기에 붙여넣으세요)
+    // 이전 답변에서 드렸던 script.js의 나머지 함수들을 여기에 복사해서 사용하시면 됩니다.
+    // 여기서는 설명을 위해 renderPanel 외 함수들은 생략했습니다.
 });
