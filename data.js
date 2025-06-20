@@ -9,20 +9,14 @@ const DB = {
         { id: 'tips', name: '팁&노하우', levels: 3 },
     ],
     pokemonType: {
-        lev2: [ 
-            { id: 'water', name: '물', color: 'water' }, 
-            { id: 'fire', name: '불', color: 'fire' },
-            { id: 'normal', name: '노말', color: 'normal' }
-        ],
+        lev2: [ { id: 'water', name: '물' }, { id: 'fire', name: '불' } ],
         lev3: { 
             water: [ { id: 'kyogre', name: '가이오가' } ],
             fire: [ { id: 'charizard', name: '리자몽' } ],
-            normal: [ { id: 'snorlax', name: '잠만보' }]
         },
         lev4: { 
             kyogre: { name: '가이오가', content: '가이오가 최종 설명 (Lev.4)' },
-            charizard: { name: '리자몽', content: '리자몽 최종 설명 (Lev.4)' },
-            snorlax: { name: '잠만보', content: '잠만보 최종 설명 (Lev.4)' }
+            charizard: { name: '리자몽', content: '리자몽 최종 설명 (Lev.4)' }
         }
     },
     pokemonGrade: {
