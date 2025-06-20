@@ -154,3 +154,86 @@ header h1 { margin: 0; font-size: 1.5em; }
 .type-dark { background-color: #705848 !important; color: black; }
 .type-steel { background-color: #B8B8D0 !important; color: black; }
 .type-fairy { background-color: #EE99AC !important; color: black; }
+
+/* ============================================= */
+/* 캘린더 스타일                                 */
+/* ============================================= */
+.calendar-container {
+    padding: 15px;
+    background: #fff;
+    border-radius: 8px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.calendar-header h2 {
+    margin: 0;
+    font-size: 1.8em;
+}
+.calendar-nav button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 0 5px;
+}
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    flex-grow: 1;
+}
+.calendar-day-name, .calendar-date {
+    text-align: center;
+    padding: 10px;
+    border-radius: 5px;
+}
+.calendar-day-name {
+    font-weight: bold;
+    background-color: #f2f2f2;
+}
+.calendar-date {
+    border: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    min-height: 120px;
+}
+.calendar-date.other-month {
+    color: #ccc;
+    background-color: #f9f9f9;
+}
+.date-number {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.date-event {
+    font-size: 12px;
+    padding: 3px 5px;
+    border-radius: 3px;
+    margin-bottom: 3px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.event-ranking {
+    background-color: #e6f2ff;
+    color: #007bff;
+    border-left: 3px solid #007bff;
+}
+.event-limited {
+    background-color: #fff0e6;
+    color: #ff5722;
+    border-left: 3px solid #ff5722;
+}
