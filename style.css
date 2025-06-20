@@ -1,133 +1,159 @@
-/* style.css 파일의 모든 내용을 지우고 아래 코드로 교체해주세요. */
-
 :root {
-    --sidebar-width: 240px;
-    --panel-width: 300px;
-    --primary-color: #007bff;
-    --active-color: #e6f2ff;
-    --border-color: #dee2e6;
+
+    --sidebar-width: 240px;
+
+    --panel-width: 300px;
+
+    --primary-color: #007bff;
+
+    --active-color: #e6f2ff;
+
+    --border-color: #dee2e6;
+
 }
 
 body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    display: flex; /* Grid 레이아웃 폐기, 안정적인 Flexbox로 복귀 */
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-}
 
-header {
-    background-color: var(--primary-color);
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-    flex-shrink: 0; /* 높이가 줄어들지 않도록 설정 */
-    position: relative;
-    z-index: 20;
-}
+    margin: 0;
 
-header h1 {
-    margin: 0;
-    font-size: 1.5em;
-}
+    font-family: sans-serif;
 
-#ads-container {
-    display: block;
-    width: 100%;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid var(--border-color);
-    box-sizing: border-box;
-    flex-shrink: 0;
-    position: relative; /* 자식 요소의 위치 제어를 위해 추가 */
-    overflow: hidden; /* 내부 요소가 넘치지 않도록 설정 */
+    display: flex;
+
+    height: 100vh;
+
+    overflow: hidden;
+
 }
 
 #app-container {
-    display: flex;
-    width: 100%;
-    flex-grow: 1;
-    min-height: 0;
-    position: relative;
-    z-index: 10;
+
+    display: flex;
+
+    width: 100%;
+
+    height: 100%;
+
 }
 
 #sidebar {
-    width: var(--sidebar-width);
-    border-right: 1px solid var(--border-color);
-    padding: 10px;
-    overflow-y: auto;
-    flex-shrink: 0;
-    background-color: white;
+
+    width: var(--sidebar-width);
+
+    border-right: 1px solid var(--border-color);
+
+    padding: 10px;
+
+    overflow-y: auto;
+
+    flex-shrink: 0;
+
 }
 
 #content-area {
-    flex-grow: 1;
-    display: flex;
-    overflow-x: auto; /* 패널이 많아지면 여기서만 스크롤되도록 설정 */
+
+    flex-grow: 1;
+
+    display: flex;
+
 }
 
 .panel {
-    width: var(--panel-width);
-    border-right: 1px solid var(--border-color);
-    background: #fff;
-    display: none;
-    flex-direction: column;
-    flex-shrink: 0;
+
+    width: var(--panel-width);
+
+    border-right: 1px solid var(--border-color);
+
+    background: #fff;
+
+    display: none; /* 기본 숨김 */
+
+    flex-direction: column;
+
 }
 
-.panel.visible { display: flex; }
-.panel-header { padding: 10px 15px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-.panel-content { padding: 10px; overflow-y: auto; flex-grow: 1; }
+.panel.visible {
+
+    display: flex; /* 보일 때만 나타남 */
+
+}
+
+.panel-header {
+
+    padding: 10px 15px;
+
+    border-bottom: 1px solid var(--border-color);
+
+}
+
+.panel-content {
+
+    padding: 10px;
+
+    overflow-y: auto;
+
+    flex-grow: 1;
+
+}
 
 .menu-item, .list-item {
-    display: block; width: 100%; text-align: left;
-    padding: 12px; margin-bottom: 5px;
-    border: 1px solid #eee; background: #f9f9f9;
-    border-radius: 6px; font-size: 16px; cursor: pointer;
-    transition: background-color 0.2s;
+
+    display: block; width: 100%; text-align: left;
+
+    padding: 12px; margin-bottom: 5px;
+
+    border: 1px solid #eee; background: #f9f9f9;
+
+    border-radius: 6px; font-size: 16px; cursor: pointer;
+
 }
 
-.menu-item:hover, .list-item:hover { background-color: #f1f1f1; }
 .menu-item.active, .list-item.active {
-    background-color: var(--active-color);
-    border-left: 4px solid var(--primary-color);
-    font-weight: 600;
+
+    background-color: var(--active-color);
+
+    border-left: 4px solid var(--primary-color);
+
+    font-weight: 600;
+
 }
 
-/* 포켓몬 타입별 색상 클래스 */
-.type-normal { background-color: #A8A878 !important; color: white; }
-.type-fire { background-color: #F08030 !important; color: white; }
-/* ... (나머지 타입 색상 클래스는 이전과 동일) ... */
 
 
-#content-area.final-view-L4 #lev2-panel, #content-area.final-view-L4 #lev3-panel { display: none !important; }
-#content-area.final-view-L4 #lev4-panel { width: 100%; border-right: none; }
-#content-area.final-view-L3 #lev2-panel { display: none !important; }
-#content-area.final-view-L3 #lev3-panel { width: 100%; border-right: none; }
+/* 최종 콘텐츠 보기 모드 스타일 (수정됨) */
 
-#popup-overlay, #popup-content, #popup-close { /* 이전과 동일 */ }
+/* Lev.4가 최종 화면일 때 */
 
-@media (max-width: 768px) {
-    :root { --sidebar-width: 120px; }
-    header h1 { font-size: 1.2em; }
-    
-    /* 모바일 광고 컨테이너 크기 및 넘침 문제 해결 */
-    #ads-container {
-        height: 100px;
-        max-height: 100px; /* 높이를 100px로 강제 */
-        min-height: auto; /* 기존 min-height 무시 */
-        display: flex; /* 내부 광고를 중앙 정렬하기 위해 flex 사용 */
-        align-items: center;
-        justify-content: center;
-    }
-    
-    #app-container.fullscreen-active #sidebar,
-    #app-container.fullscreen-active #lev2-panel,
-    #app-container.fullscreen-active #lev3-panel { display: none; }
-    
-    .panel { flex: 1; min-width: 0; }
-    #content-area { overflow-x: hidden; } /* 모바일 가로 스크롤 방지 */
-    .menu-item, .list-item { font-size: 14px; padding: 10px 8px; }
-    .pokemon-main-info { flex-direction: column; }
+#content-area.final-view-L4 #lev2-panel,
+
+#content-area.final-view-L4 #lev3-panel {
+
+    display: none !important;
+
+}
+
+#content-area.final-view-L4 #lev4-panel {
+
+    width: 100%;
+
+    border-right: none;
+
+}
+
+
+
+/* Lev.3가 최종 화면일 때 */
+
+#content-area.final-view-L3 #lev2-panel {
+
+    display: none !important;
+
+}
+
+#content-area.final-view-L3 #lev3-panel {
+
+    width: 100%;
+
+    border-right: none;
+
 }
