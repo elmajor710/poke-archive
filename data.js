@@ -9,7 +9,26 @@ const DB = {
         { id: 'tips', name: '팁&노하우', levels: 3 },
     ],
     pokemonType: {
-        lev2: [ { id: 'water', name: '물' }, { id: 'fire', name: '불' } ],
+        lev2: [
+            { id: 'normal', name: '노말', color: 'normal' },
+            { id: 'fire', name: '불', color: 'fire' },
+            { id: 'water', name: '물', color: 'water' },
+            { id: 'grass', name: '풀', color: 'grass' },
+            { id: 'electric', name: '전기', color: 'electric' },
+            { id: 'ice', name: '얼음', color: 'ice' },
+            { id: 'fighting', name: '격투', color: 'fighting' },
+            { id: 'poison', name: '독', color: 'poison' },
+            { id: 'ground', name: '땅', color: 'ground' },
+            { id: 'flying', name: '비행', color: 'flying' },
+            { id: 'psychic', name: '에스퍼', color: 'psychic' },
+            { id: 'bug', name: '벌레', color: 'bug' },
+            { id: 'rock', name: '바위', color: 'rock' },
+            { id: 'ghost', name: '유령', color: 'ghost' },
+            { id: 'dragon', name: '드래곤', color: 'dragon' },
+            { id: 'dark', name: '악', color: 'dark' },
+            { id: 'steel', name: '강철', color: 'steel' },
+            { id: 'fairy', name: '페어리', color: 'fairy' }
+        ],
         lev3: { 
             water: [ { id: 'kyogre', name: '가이오가' } ],
             fire: [ { id: 'charizard', name: '리자몽' } ],
