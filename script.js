@@ -62,41 +62,57 @@ document.addEventListener('DOMContentLoaded', () => {
         app.className = ""; // 뒤로가기 시 항상 뷰 상태 초기화
     }
     
-    function renderPanel(level, data, menuId) {
-        const targetPanel = panels[`lev${level}`];
-        if (!targetPanel) return;
-
-        const contentDiv = targetPanel.querySelector('.panel-content');
-        contentDiv.innerHTML = '';
-        setTimeout(() => { contentDiv.scrollTop = 0; }, 0);
-
-        if (!data) {
-            targetPanel.classList.remove('visible');
-            return;
+    // --- 이 renderPanel 함수를 아래의 새로운 내용으로 통째로 교체해주세요 ---
+function renderPanel(level, data, menuId) {
+    // 현재 레벨 이후의 모든 패널을 초기화
+    for (let i = level; i <= 4; i++) {
+        const panelContent = panels[`lev${i}`]?.querySelector('.panel-content');
+        if (panelContent) {
+            panels[`lev${i}`].classList.remove('visible');
+            panelContent.innerHTML = '';
         }
+    }
 
-        const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
-        const finalLevelForCategory = categoryInfo ? categoryInfo.levels : 0;
-        
-        const isFinal = !Array.isArray(data) || level >= finalLevelForCategory;
+    if (!data) return;
 
-        if (isFinal) {
-            app.className = `final-view-L${level}`;
-            contentDiv.innerHTML = data.content || "데이터가 없습니다.";
-        } else {
-            data.forEach(item => {
-                const button = document.createElement('button');
-                button.className = 'list-item';
-                button.textContent = item.name;
-                button.dataset.id = item.id;
-                button.dataset.level = level;
-                button.dataset.menuId = menuId;
-                if (item.color) button.classList.add(`type-${item.color}`);
-                contentDiv.appendChild(button);
-            });
+    const targetPanel = panels[`lev${level}`];
+    if (!targetPanel) return;
+
+    const contentDiv = targetPanel.querySelector('.panel-content');
+    setTimeout(() => { contentDiv.scrollTop = 0; }, 0);
+
+    const isFinal = !Array.isArray(data);
+    const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
+    const finalLevelForCategory = categoryInfo ? categoryInfo.levels : 0;
+    
+    // [수정] 최종 레벨에 도달했는지 정확하게 판단
+    if (isFinal || level >= finalLevelForCategory) {
+        // 최종 화면일 경우, 올바른 클래스를 app-container에 추가
+        app.className = `final-view-L${finalLevelForCategory}`;
+        // 최종 레벨에 맞는 패널에 콘텐츠를 표시
+        const finalPanel = panels[`lev${finalLevelForCategory}`];
+        if (finalPanel) {
+            finalPanel.querySelector('.panel-content').innerHTML = data.content || "데이터가 없습니다.";
+            finalPanel.classList.add('visible');
         }
+    } else {
+        // 중간 단계일 경우, 뷰 클래스 초기화
+        app.className = "";
+        data.forEach(item => {
+            const button = document.createElement('button');
+            button.className = 'list-item';
+            button.textContent = item.name;
+            button.dataset.id = item.id;
+            button.dataset.level = level;
+            button.dataset.menuId = menuId;
+            if (item.color) {
+                button.classList.add(`type-${item.color}`);
+            }
+            contentDiv.appendChild(button);
+        });
         targetPanel.classList.add('visible');
     }
+}
 
     function setActive(level, target) {
         for (let i = level; i <= 4; i++) {
