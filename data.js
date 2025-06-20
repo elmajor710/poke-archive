@@ -66,7 +66,7 @@ const DB = {
         }
     },
     item: {
-        lev2: [ {id:'red', name:'빨간색', color:'#E74C3C'}, {id:'orange',name:'주황색', color:'#E67E22'}, {id:'purple',name:'보라색', color:'#9B59B6'} ],
+        lev2: [ {id:'red', name:'빨간색(God)(God)(God)', color:'#E74C3C'}, {id:'orange',name:'주황색(Ledgendary)(Legendary)', color:'#E67E22'}, {id:'purple',name:'보라색(Epic)(Epic)', color:'#9B59B6'} ],
         lev3: { 
             red: [ {id:'rustySword', name:'녹슨 검'} ],
             orange: [ {id:'oranBerry', name:'오랭열매'} ],
