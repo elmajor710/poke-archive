@@ -67,3 +67,38 @@ header h1 { margin: 0; font-size: 1.5em; }
     width: 100%;
     border-right: none;
 }
+
+/* --- 이 @media 블록 전체를 아래의 새로운 내용으로 교체해주세요 --- */
+@media (max-width: 768px) {
+    :root {
+        /* 사이드바 너비를 120px로 줄입니다. */
+        --sidebar-width: 120px;
+    }
+    header h1 {
+        font-size: 1.2em;
+    }
+    #ads-container {
+        height: 100px;
+        max-height: 100px;
+    }
+    #content-area {
+        /* 모바일에서 가로 스크롤을 확실히 금지합니다. */
+        overflow-x: hidden; 
+    }
+    .panel {
+        /* 패널들이 고정 너비 대신, 주어진 공간을 나눠 갖도록 합니다. */
+        flex: 1;
+        min-width: 0; /* 패널이 내용물보다 더 작아질 수 있도록 허용 (중요!) */
+    }
+    #sidebar, .panel-content {
+        padding: 8px;
+    }
+    .menu-item, .list-item {
+        font-size: 14px;
+        padding: 10px 8px;
+    }
+    .panel-header, .back-btn {
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+}
