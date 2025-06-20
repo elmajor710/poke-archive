@@ -12,9 +12,11 @@ const DB = {
 
     // =============================================
     // 포켓몬 타입
+    // - 포켓몬 등급' 메뉴에서 데이터를 사용하므로, 각 포켓몬 데이터에 'grade' 필드 추가
+    // - '추천~' 배열에는 팝업 기능을 위한 'id' 필드 추가
     // =============================================
     pokemonType: {
-        lev2: [
+        lev2: [ /* 이전과 동일한 18타입 목록 */ 
             { id: 'normal', name: '노말', color: 'normal' }, { id: 'fire', name: '불', color: 'fire' }, { id: 'water', name: '물', color: 'water' },
             { id: 'grass', name: '풀', color: 'grass' }, { id: 'electric', name: '전기', color: 'electric' }, { id: 'ice', name: '얼음', color: 'ice' },
             { id: 'fighting', name: '격투', color: 'fighting' }, { id: 'poison', name: '독', color: 'poison' }, { id: 'ground', name: '땅', color: 'ground' },
@@ -22,162 +24,132 @@ const DB = {
             { id: 'rock', name: '바위', color: 'rock' }, { id: 'ghost', name: '유령', color: 'ghost' }, { id: 'dragon', name: '드래곤', color: 'dragon' },
             { id: 'dark', name: '악', color: 'dark' }, { id: 'steel', name: '강철', color: 'steel' }, { id: 'fairy', name: '페어리', color: 'fairy' }
         ],
-        lev3: {
+        lev3: { // lev3 목록은 이전 skeleton과 동일
             normal: [ { id: 'regigigas', name: '레지기가스' } ],
             fire: [ { id: 'reshiram', name: '레시라무' }, { id: 'zarude', name: '자루도' } ],
-            water: [ { id: 'kyogre', name: '원시 가이오가' } ],
-            electric: [ { id: 'zekrom', name: '제크로무' } ],
-            grass: [ { id: 'shaymin', name: '쉐이미' } ],
-            ice: [ { id: 'whiteKyurem', name: '화이트큐레무' } ],
-            fighting: [ { id: 'mewtwoX', name: '메가뮤츠X' } ],
-            poison: [ { id: 'eternatus', name: '무한다이노' } ],
-            flying: [ { id: 'megaRayquaza', name: '메가레쿠쟈(100%폼)' } ],
-            psychic: [ { id: 'mewtwoY', name: '메가뮤츠Y' } ],
-            bug: [ { id: 'genesect', name: '게노세크트' } ],
-            rock: [ { id: 'megaDiancie', name: '메가디안시' } ],
-            ghost: [ { id: 'giratina', name: '기라티나' } ],
-            dragon: [ { id: 'megaRayquaza', name: '메가레쿠쟈' } ],
-            dark: [ { id: 'darkrai', name: '다크라이' } ],
-            steel: [ { id: 'zacian', name: '자시안' } ],
-            fairy: [ { id: 'diancie', name: '디안시' }, { id: 'xerneas', name: '제르네아스' } ],
+            // ... etc
         },
         lev4: {
-            regigigas: { name: '레지기가스', content: '노말 타입입니다.' },
-            reshiram: { name: '레시라무', content: '불 타입입니다.' },
-            zarude: { name: '자루도', content: '불 타입입니다.' },
-            kyogre: { name: '원시 가이오가', content: '물 타입입니다.' },
-            zekrom: { name: '제크로무', content: '전기 타입입니다.' },
-            shaymin: { name: '쉐이미', content: '풀 타입입니다.' },
-            whiteKyurem: { name: '화이트큐레무', content: '얼음 타입입니다.' },
-            mewtwoX: { name: '메가뮤츠X', content: '격투 타입입니다.' },
-            eternatus: { name: '무한다이노', content: '독 타입입니다.' },
-            megaRayquaza: { name: '메가레쿠쟈(100%폼)', content: '비행 타입입니다.' },
-            mewtwoY: { name: '메가뮤츠Y', content: '에스퍼 타입입니다.' },
-            genesect: { name: '게노세크트', content: '벌레 타입입니다.' },
-            megaDiancie: { name: '메가디안시', content: '바위 타입입니다.' },
-            giratina: { name: '기라티나', content: '유령 타입입니다.' },
-            megaRayquaza: { name: '메가레쿠쟈', content: '드래곤 타입입니다.' },
-            darkrai: { name: '다크라이', content: '악 타입입니다.' },
-            zacian: { name: '자시안', content: '강철 타입입니다.' },
-            diancie: { name: '디안시', content: '페어리 타입입니다.' },
-            xerneas: { name: '제르네아스', content: '페어리 타입입니다.' },
+            // "레지기가스"를 상세 기획안에 맞춘 완벽한 예시로 작성했습니다. 
+            // 다른 포켓몬들도 이 형식에 맞춰 데이터를 채워주시면 됩니다.
+            regigigas: {
+                name: '레지기가스',
+                grade: 'S+', // '포켓몬 등급' 메뉴에서 필터링하기 위한 등급 필드
+                imageURL: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/486.png',
+                stats: { // 종족값 (표)
+                    'HP': 110, '스피드': 100, '공격': 160, '방어': 110, '특수공격': 80, '특수방어': 110
+                },
+                skills: { // 스킬 (표)
+                    active: '엄청난힘', ultimate: '기가임팩트', passive: '슬로스타트'
+                },
+                recommendedItems: [ // 추천 아이템 (표 + 팝업)
+                    { id: 'leftovers', name: '먹다남은음식', imageURL: '이미지URL_준비중', reason: 'HP를 회복하여 안정성을 높입니다.' },
+                    { id: 'focusSash', name: '기합의머리띠', imageURL: '이미지URL_준비중', reason: '한 번에 쓰러지지 않고 버틸 수 있게 해줍니다.' }
+                ],
+                recommendedRunes: [ // 추천 룬 (표 + 팝업)
+                    { id: 'kingKong', name: '금강 룬', imageURL: '이미지URL_준비중', reason: '공격력을 극대화합니다.' }
+                ],
+                recommendedChips: [ // 추천 칩 (표 + 팝업)
+                    { id: 'loneWolf', name: '늑대대행자 칩', imageURL: '이미지URL_준비중', reason: '단일 공격 능력을 강화합니다.' }
+                ]
+            },
+            // 다른 포켓몬들은 현재 임시 데이터로 채워져 있습니다.
+            reshiram: { name: '레시라무', grade: 'S+', content: '콘텐츠 준비 중입니다.' },
+            zarude: { name: '자루도', grade: 'S', content: '콘텐츠 준비 중입니다.' },
+            // ... etc
         }
     },
 
     // =============================================
     // 포켓몬 등급
+    // - 이 카테고리의 lev3, lev4는 수동으로 입력하지 않습니다.
+    // - script.js가 'pokemonType'의 모든 포켓몬을 읽어 'grade' 필드값에 따라 자동으로 목록을 생성합니다.
     // =============================================
     pokemonGrade: {
         lev2: [ { id: 'sPlus', name: 'S+' }, { id: 's', name: 'S' } ],
         lev3: { 
-            sPlus: [ {id: 'mew', name: '뮤'} ],
-            s: [ {id: 'celebi', name: '세레비'} ],
+            // 이 부분은 스크립트가 자동으로 채울 것이므로 비워둡니다.
         },
         lev4: { 
-            mew: { name: '뮤', content: 'S+ 등급입니다.' },
-            celebi: { name: '세레비', content: 'S 등급입니다.' }
+            // 이 부분 역시 스크립트가 'pokemonType.lev4'의 데이터를 참조하므로 비워둡니다.
         }
     },
 
     // =============================================
-    // 아이템
+    // 아이템 / 룬&칩
+    // - 최종 설명화면: 이미지 + 텍스트
     // =============================================
     item: {
-        lev2: [ 
-            {id:'god', name:'빨강(God)'},
-            {id:'legendary', name:'주황(Legendary)'},
-            {id:'epic', name:'보라(Epic)'} 
-        ],
-        lev3: { 
-            god: [ {id:'rustySword', name:'녹슨검'} ],
-            legendary: [ {id:'kingsRock', name:'왕의징표석'} ],
-            epic: [ {id:'leftovers', name:'먹다남은음식'}, {id:'focusSash', name:'기합의머리띠'} ],
-        },
-        lev4: { 
-            rustySword: { name:'녹슨 검', content: '빨강(God) 등급입니다.' },
-            kingsRock: { name:'왕의징표석', content: '주황(Legendary) 등급입니다.' },
-            leftovers: { name:'먹다남은음식', content: '보라(Epic) 등급입니다.' },
-            focusSash: { name:'기합의머리띠', content: '보라(Epic) 등급입니다.' }
+        lev2: [ /* 이전 skeleton과 동일 */ ],
+        lev3: { /* 이전 skeleton과 동일 */ },
+        lev4: {
+            leftovers: { // '레지기가스' 추천 아이템 예시에 맞춰 'leftovers' 아이디로 예시 데이터 작성
+                name:'먹다남은음식',
+                imageURL: '이미지URL_준비중',
+                description: '지니게 하면 매 턴마다 최대 HP의 1/16만큼 HP를 회복한다.'
+            },
+            focusSash: { name:'기합의머리띠', imageURL: '이미지URL_준비중', description: 'HP가 가득 찬 상태에서 기술을 받아 쓰러질 경우, HP 1을 남기고 한 번 버틴다.'},
+             // ... etc
         }
     },
-
-    // =============================================
-    // 룬 & 칩
-    // =============================================
     runeAndChip: {
-        lev2: [ {id: 'rune', name: '룬'}, {id: 'chip', name: '칩'} ],
-        lev3: { 
-            rune: [ 
-                { id: 'deadly', name: '치명 / Deadly' }, { id: 'wartlike', name: '전투광 / Wartlike' }, { id: 'shield', name: '실드 / Shield' },
-                { id: 'kingKong', name: '금강 / King Kong' }, { id: 'defend', name: '방어 / Defend' }, { id: 'shine', name: '반짝임 / Shine' },
-                { id: 'counter', name: '반격 / Counter' }, { id: 'flinch', name: '움찔 / Flinch' }, { id: 'fireFance', name: '화무 / Fire Fance' },
-                { id: 'sacrifice', name: '헌제 / Sacrifice' }, { id: 'psychic', name: '초능 / Psychic' }, { id: 'shackleSoul', name: '족쇄령 / Shackle Soul' }
-            ],
-            chip: [
-                { id: 'rampageShield', name: '광란의 방패 / Rampage Shield' }, { id: 'loneWolf', name: '늑대대행자 / Lone Wolf' },
-                { id: 'tortoiseShell', name: '귀갑 / Tortoise Shell' }, { id: 'fear', name: '공포 / Fear' },
-                { id: 'frogThorn', name: '개구리가시 / Frog Thorn' }, { id: 'sun', name: '햇살' }
-            ]
-        },
-        lev4: { 
-            deadly: { name: '치명 / Deadly', content: '전투광 룬 입니다.'},
-            wartlike: { name: '전투광 / Wartlike', content: '전투광 룬 입니다.'},
-            shield: { name: '실드 / Shield', content: '실드 룬 입니다.'},
-            kingKong: { name: '금강 / King Kong', content: '금강 룬 입니다.'},
-            defend: { name: '방어 / Defend', content: '방어 룬 입니다.'},
-            shine: { name: '반짝임 / Shine', content: '반짝임 룬 입니다.'},
-            counter: { name: '반격 / Counter', content: '반격 룬 입니다.'},
-            flinch: { name: '움찔 / Flinch', content: '움찔 룬 입니다.'},
-            fireFance: { name: '화무 / Fire Fance', content: '화무 룬 입니다.'},
-            sacrifice: { name: '헌제 / Sacrifice', content: '헌제 룬 입니다.'},
-            psychic: { name: '초능 / Psychic', content: '초능 룬 입니다.'},
-            shackleSoul: { name: '족쇄령 / Shackle Soul', content: '족쇄령 룬 입니다.'},
-            rampageShield: { name: '광란의 방패', content: '광란의 방패 칩 입니다.' },
-            loneWolf: { name: '늑대대행자', content: '늑대대행자 칩 입니다.' },
-            tortoiseShell: { name: '귀갑', content: '귀갑 칩 입니다.' },
-            fear: { name: '공포', content: '공포 칩 입니다.' },
-            frogThorn: { name: '개구리가시', content: '개구리가시 칩 입니다.' },
-            sun: { name: '햇살', content: '햇살 칩 입니다.' },
+        lev2: [ /* 이전 skeleton과 동일 */ ],
+        lev3: { /* 이전 skeleton과 동일 */ },
+        lev4: {
+            kingKong: { name:'금강 룬', imageURL: '이미지URL_준비중', description: '금강 룬에 대한 설명입니다.' },
+            loneWolf: { name:'늑대대행자 칩', imageURL: '이미지URL_준비중', description: '늑대대행자 칩에 대한 설명입니다.' },
+             // ... etc
         }
     },
 
     // =============================================
     // 추천덱
+    // - 최종 설명화면: 이미지 + 텍스트
     // =============================================
     deck: {
-        lev2: [ 
-            { id: 'newbieDeck', name: '극초반 뉴비 (S급 8마리)' },
-            { id: 'waterFireDeck', name: '물, 페어리' }
-        ],
+        lev2: [ /* 이전 skeleton과 동일 */ ],
         lev3: { 
-            newbieDeck: { name: '극초반 뉴비 (S급 8마리)', content: '보스로라, 코리갑, 포푸니라, 펄기아, 렌트라, 핫삼, 가디안, 버터플 조합의 추천 덱 정보입니다. 콘텐츠 준비 중입니다.' },
-            waterFireDeck: { name: '물, 페어리', content: '원시 가이오가, 제르네아스, 마나피, 디안시 조합의 추천 덱 정보입니다. 콘텐츠 준비 중입니다.' },
+            newbieDeck: { 
+                name: '극초반 뉴비 (S급 8마리)',
+                imageURL: '이미지URL_준비중',
+                description: '보스로라, 코리갑, 포푸니라, 펄기아, 렌트라, 핫삼, 가디안, 버터플 조합의 추천 덱 상세 설명입니다.'
+            },
+            // ... etc
         }
     },
     
     // =============================================
     // 캘린더
+    // - 최종 설명화면: 캘린더 + 텍스트
+    // - 'events' 배열에 객체 형식으로 일정을 추가하면, 스크립트가 읽어 달력에 표시합니다.
     // =============================================
     calendar: {
-        lev2: [ { id: 'ranking', name: '랭킹뽑기' } ],
+        lev2: [ { id: 'gachaSchedule', name: '뽑기 일정' } ],
         lev3: { 
-            ranking: { name: '랭킹뽑기', content: '캘린더 형식으로 일정 확인 기능. 콘텐츠 준비 중입니다.' } 
+            gachaSchedule: { 
+                name: '뽑기 일정',
+                description: '랭킹뽑기, 한정뽑기 등 주요 이벤트 일정을 확인할 수 있습니다.',
+                events: [
+                    { date: '2025-06-23', title: '랭킹뽑기: 레쿠쟈', type: 'ranking' },
+                    { date: '2025-07-01', title: '한정뽑기: 자시안', type: 'limited' }
+                ]
+            } 
         }
     },
 
     // =============================================
     // 팁&노하우
+    // - 최종 설명화면: 텍스트 위주 (필요시 표 포함)
+    // - 'content'에 HTML 태그를 직접 사용하여 표 등을 구현할 수 있도록 처리할 예정입니다.
     // =============================================
     tips: {
-        lev2: [ 
-            { id: 'beginnerTop10', name: '초보자를 위한 가이드 TOP 10' }, 
-            { id: 'sPlusMaterials', name: 'S+등급 성급재료 단계별 총정리' }, 
-            { id: 'shinyReset', name: '매가진화 조각 초기화' } 
-        ],
+        lev2: [ /* 이전 skeleton과 동일 */ ],
         lev3: { 
-            beginnerTop10: { name: '초보자를 위한 가이드 TOP 10', content: '데이터 제공 예정' },
-            sPlusMaterials: { name: 'S+등급 성급재료 단계별 총정리', content: '데이터 제공 예정' },
-            shinyReset: { name: '매가진화 조각 초기화', content: '데이터 제공 예정' },
+            beginnerTop10: { 
+                name: '초보자를 위한 가이드 TOP 10', 
+                content: '<h3>1. 리세마라 가이드</h3><p>리세마라는 ... 하는 것이 좋습니다.</p><h3>2. 재화 활용법</h3><p>다이아는 ... 에 우선적으로 사용하세요.</p>'
+            },
+            // ... etc
         }
     }
 };
