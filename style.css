@@ -126,26 +126,24 @@ header h1 { margin: 0; font-size: 1.5em; }
     }
 }
 
-/* --- 이 코드 블록 전체를 style.css 파일 맨 아래에 추가해주세요 --- */
+/* style.css 파일 맨 아래의 포켓몬 타입 색상 클래스 부분을 아래 코드로 통째로 교체하세요. */
 
 /* 포켓몬 타입별 색상 클래스 */
-.type-normal { background-color: #A8A878 !important; color: white; }
-.type-fire { background-color: #F08030 !important; color: white; }
-.type-water { background-color: #6890F0 !important; color: white; }
-.type-grass { background-color: #78C850 !important; color: white; }
+.type-normal { background-color: #A8A878 !important; color: black; }
+.type-fire { background-color: #F08030 !important; color: black; }
+.type-water { background-color: #6890F0 !important; color: black; }
+.type-grass { background-color: #78C850 !important; color: black; }
 .type-electric { background-color: #F8D030 !important; color: black; }
 .type-ice { background-color: #98D8D8 !important; color: black; }
-/* [수정됨] 격투 - 가독성을 위해 연한 색으로 변경 */
-.type-fighting { background-color: #D56760 !important; color: white; } 
-/* [수정됨] 독 - 가독성을 위해 연한 색으로 변경 */
-.type-poison { background-color: #B369B3 !important; color: white; } 
+.type-fighting { background-color: #D56760 !important; color: black; }
+.type-poison { background-color: #B369B3 !important; color: black; }
 .type-ground { background-color: #E0C068 !important; color: black; }
-.type-flying { background-color: #A890F0 !important; color: white; }
-.type-psychic { background-color: #F85888 !important; color: white; }
-.type-bug { background-color: #A8B820 !important; color: white; }
-.type-rock { background-color: #B8A038 !important; color: white; }
-.type-ghost { background-color: #705898 !important; color: white; }
-.type-dragon { background-color: #7038F8 !important; color: white; }
-.type-dark { background-color: #705848 !important; color: white; }
+.type-flying { background-color: #A890F0 !important; color: black; }
+.type-psychic { background-color: #F85888 !important; color: black; }
+.type-bug { background-color: #A8B820 !important; color: black; }
+.type-rock { background-color: #B8A038 !important; color: black; }
+.type-ghost { background-color: #705898 !important; color: black; }
+.type-dragon { background-color: #7038F8 !important; color: black; }
+.type-dark { background-color: #705848 !important; color: black; }
 .type-steel { background-color: #B8B8D0 !important; color: black; }
 .type-fairy { background-color: #EE99AC !important; color: black; }
