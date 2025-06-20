@@ -58,40 +58,42 @@ document.addEventListener('DOMContentLoaded', () => {
         app.className = ""; 
     }
     
+    // --- 이 renderPanel 함수를 아래의 새로운 내용으로 통째로 교체해주세요 ---
     function renderPanel(level, data, menuId) {
-        const targetPanel = panels[`lev${level}`];
-        if (!targetPanel) return;
+    const targetPanel = panels[`lev${level}`];
+    if (!targetPanel) return;
 
-        const contentDiv = targetPanel.querySelector('.panel-content');
-        contentDiv.innerHTML = '';
-        setTimeout(() => { contentDiv.scrollTop = 0; }, 0);
+    const contentDiv = targetPanel.querySelector('.panel-content');
+    contentDiv.innerHTML = '';
+    setTimeout(() => { contentDiv.scrollTop = 0; }, 0);
 
-        if (!data) {
-            targetPanel.classList.remove('visible');
-            return;
-        }
+    if (!data) {
+        targetPanel.classList.remove('visible');
+        return;
+    }
 
-        const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
-        const finalLevelForCategory = categoryInfo ? categoryInfo.levels : 0;
-        
-        const isFinal = !Array.isArray(data);
-        
-        if (isFinal) {
-            // 최종 화면일 경우, 기획서 규칙에 따라 올바른 클래스를 app-container에 추가
-            app.className = `final-view-L${finalLevelForCategory}`;
-            contentDiv.innerHTML = data.content || "데이터가 없습니다.";
-        } else {
-            data.forEach(item => {
-                const button = document.createElement('button');
-                button.className = 'list-item';
-                button.textContent = item.name;
-                button.dataset.id = item.id;
-                button.dataset.level = level;
-                button.dataset.menuId = menuId;
-                contentDiv.appendChild(button);
-            });
-        }
-        targetPanel.classList.add('visible');
+    const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
+    const finalLevelForCategory = categoryInfo ? categoryInfo.levels : 0;
+    const isFinal = !Array.isArray(data) || level >= finalLevelForCategory;
+    
+    // [수정] 최종 레벨에 도달했을 때만 클래스를 추가하고, 아니면 제거합니다.
+    if (isFinal) {
+        app.className = `final-view-L${finalLevelForCategory}`;
+        contentDiv.innerHTML = data.content || "데이터가 없습니다.";
+    } else {
+        app.className = "";
+        data.forEach(item => {
+            const button = document.createElement('button');
+            button.className = 'list-item';
+            button.textContent = item.name;
+            button.dataset.id = item.id;
+            button.dataset.level = level;
+            button.dataset.menuId = menuId;
+            // 색상 적용 로직은 추후 다른 단계에서 추가하겠습니다.
+            contentDiv.appendChild(button);
+        });
+    }
+    targetPanel.classList.add('visible');
     }
 
     function setActive(level, target) {
