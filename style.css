@@ -5,6 +5,7 @@
     --active-color: #e6f2ff;
     --border-color: #dee2e6;
 }
+
 body {
     margin: 0;
     font-family: sans-serif;
@@ -13,6 +14,7 @@ body {
     height: 100vh;
     overflow: hidden;
 }
+
 header {
     background-color: var(--primary-color);
     color: white;
@@ -20,10 +22,12 @@ header {
     padding: 10px 0;
     flex-shrink: 0;
 }
+
 header h1 {
     margin: 0;
     font-size: 1.5em;
 }
+
 #ads-container {
     background-color: #f8f9fa;
     min-height: 60px;
@@ -32,13 +36,17 @@ header h1 {
     align-items: center;
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
 }
+
 #app-container {
     display: flex;
     width: 100%;
     flex-grow: 1;
     min-height: 0;
 }
+
 #sidebar {
     width: var(--sidebar-width);
     border-right: 1px solid var(--border-color);
@@ -46,11 +54,13 @@ header h1 {
     overflow-y: auto;
     flex-shrink: 0;
 }
+
 #content-area {
     flex-grow: 1;
     display: flex;
     overflow-x: auto;
 }
+
 .panel {
     width: var(--panel-width);
     border-right: 1px solid var(--border-color);
@@ -59,29 +69,35 @@ header h1 {
     flex-direction: column;
     flex-shrink: 0;
 }
+
 .panel.visible {
     display: flex;
 }
+
 .panel-header {
     padding: 10px 15px;
     border-bottom: 1px solid var(--border-color);
 }
+
 .panel-content {
     padding: 10px;
     overflow-y: auto;
     flex-grow: 1;
 }
+
 .menu-item, .list-item {
     display: block; width: 100%; text-align: left;
     padding: 12px; margin-bottom: 5px;
     border: 1px solid #eee; background: #f9f9f9;
     border-radius: 6px; font-size: 16px; cursor: pointer;
 }
+
 .menu-item.active, .list-item.active {
     background-color: var(--active-color);
     border-left: 4px solid var(--primary-color);
     font-weight: 600;
 }
+
 #content-area.final-view-L4 #lev2-panel,
 #content-area.final-view-L4 #lev3-panel {
     display: none !important;
@@ -98,7 +114,36 @@ header h1 {
     border-right: none;
 }
 
-/* --- 모바일 반응형 스타일 (768px 이하 화면에 적용) --- */
+/* 포켓몬 타입별 색상 클래스 */
+.type-normal { background-color: #A8A878 !important; color: white; }
+.type-fire { background-color: #F08030 !important; color: white; }
+/* ... (나머지 타입 색상 클래스는 이전과 동일) ... */
+
+
+#popup-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none;
+    justify-content: center; align-items: center;
+    z-index: 10000;
+}
+#popup-overlay.visible { display: flex; }
+#popup-content {
+    background: #fff; padding: 20px 30px; border-radius: 10px;
+    max-width: 500px; width: 90%;
+    max-height: 80vh; overflow-y: auto;
+    position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+#popup-close {
+    position: absolute; top: 10px; right: 15px;
+    font-size: 28px; font-weight: bold; color: #aaa;
+    background: none; border: none; cursor: pointer;
+}
+#popup-close:hover { color: #333; }
+
+
 @media (max-width: 768px) {
     :root {
         --sidebar-width: 120px;
@@ -106,6 +151,12 @@ header h1 {
     header h1 {
         font-size: 1.2em;
     }
+
+    #ads-container {
+        height: 100px;
+        max-height: 100px;
+    }
+    
     #content-area {
         overflow-x: hidden;
     }
@@ -127,30 +178,4 @@ header h1 {
     .back-btn {
         font-size: 14px;
     }
-    /* [최종 수정] 모바일 광고 크기 강제 제한 */
-    #ads-container,
-    #ads-container .adsbygoogle {
-        max-height: 90px !important;
-        overflow: hidden !important;
-    }
-}
-
-/* --- 기타 유틸리티 스타일 --- */
-.ad-message {
-    color: #6c757d;
-    font-size: 14px;
-    padding: 20px 0;
-}
-#sidebar button, #content-area button {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-#ad-click-detector {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
