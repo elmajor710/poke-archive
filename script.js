@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex v6.2-final');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex v7.0-final');
 
     const app = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
@@ -10,11 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let activeButtons = {};
     let selectedDateEl = null;
+    let monthEventsCache = new Map(); // 월별 이벤트 캐시
 
-    function getEventsForDate(dateStr) {
+    function getEventsForDate(dateStr, year, month) {
         const targetDate = new Date(dateStr + 'T00:00:00');
         if (isNaN(targetDate.getTime())) return [];
-
         const foundEvents = [];
         const gachaData = DB.calendar.lev3.gachaSchedule;
 
@@ -27,24 +27,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-
         (gachaData.recurringEvents || []).forEach(event => {
             let occurrenceStart = new Date(event.startDate + 'T00:00:00');
             if (isNaN(occurrenceStart.getTime())) return;
-            
-            const stopDate = new Date(targetDate);
-            stopDate.setFullYear(stopDate.getFullYear() + 1);
-
-            while (occurrenceStart <= stopDate) {
+            const stopDate = new Date(year, month + 2, 0);
+            while (occurrenceStart < stopDate) {
                 const occurrenceEnd = new Date(occurrenceStart);
                 occurrenceEnd.setDate(occurrenceStart.getDate() + (event.durationDays - 1));
-
-                if(targetDate >= occurrenceStart && targetDate <= occurrenceEnd) {
-                    foundEvents.push(event);
-                    break; 
+                if (targetDate >= occurrenceStart && targetDate <= occurrenceEnd) {
+                    foundEvents.push({ ...event, date: dateStr });
+                    break;
                 }
-                if(occurrenceStart > targetDate) break;
-
+                if (occurrenceStart > targetDate) break;
                 occurrenceStart.setDate(occurrenceStart.getDate() + (event.recurrence.interval * 7));
             }
         });
@@ -79,42 +73,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const targetYear = targetDate.getFullYear();
         const targetMonth = targetDate.getMonth();
         contentDiv.innerHTML = '';
+        monthEventsCache.clear();
         const monthNames = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
         const calendarContainer = document.createElement('div');
         calendarContainer.className = 'calendar-container';
         calendarContainer.innerHTML = `<div class="calendar-header"><h2>${targetYear}년 ${monthNames[targetMonth]}</h2><div class="calendar-nav"><button class="calendar-nav-btn" data-action="prev-month">&lt; 이전</button><button class="calendar-nav-btn" data-action="next-month">다음 &gt;</button></div></div><div class="calendar-legend"><div class="legend-item"><div class="legend-color-box" style="background-color: #FF4500;"></div><span>랭킹뽑기</span></div><div class="legend-item"><div class="legend-color-box" style="background-color: #1E90FF;"></div><span>한정뽑기</span></div><div class="legend-item"><div class="legend-color-box" style="background-color: #32CD32;"></div><span>복냥이</span></div></div><div class="calendar-grid"></div><div class="calendar-agenda-view"><p>날짜를 선택하여 일정을 확인하세요.</p></div>`;
         const grid = calendarContainer.querySelector('.calendar-grid');
         const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-        weekdays.forEach(day => {
-            const dayNameEl = document.createElement('div');
-            dayNameEl.className = 'calendar-day-name';
-            dayNameEl.textContent = day;
-            grid.appendChild(dayNameEl);
-        });
-        const monthEvents = new Map();
-        for (let day = 1; day <= new Date(targetYear, targetMonth + 1, 0).getDate(); day++) {
+        weekdays.forEach(day => { grid.appendChild(document.createElement('div')).className = `calendar-day-name`; grid.lastChild.textContent = day; });
+        
+        const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+        for (let day = 1; day <= daysInMonth; day++) {
             const dateStr = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            monthEvents.set(day, getEventsForDate(dateStr));
+            monthEventsCache.set(day, getEventsForDate(dateStr, targetYear, targetMonth));
         }
         const firstDayOfMonth = new Date(targetYear, targetMonth, 1).getDay();
-        for (let i = 0; i < firstDayOfMonth; i++) {
-            const emptyCell = document.createElement('div');
-            emptyCell.className = 'calendar-date other-month';
-            grid.appendChild(emptyCell);
-        }
-        for (let day = 1; day <= new Date(targetYear, targetMonth + 1, 0).getDate(); day++) {
+        for (let i = 0; i < firstDayOfMonth; i++) { grid.appendChild(document.createElement('div')).className = 'calendar-date other-month'; }
+        for (let day = 1; day <= daysInMonth; day++) {
             const dateCell = document.createElement('div');
             dateCell.className = 'calendar-date';
             const dateStr = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             dateCell.dataset.date = dateStr;
-            const dateNumberEl = document.createElement('div');
-            dateNumberEl.className = 'date-number';
-            dateNumberEl.textContent = day;
-            dateCell.appendChild(dateNumberEl);
-            if (monthEvents.has(day) && monthEvents.get(day).length > 0) {
+            dateCell.innerHTML = `<div class="date-number">${day}</div>`;
+            const eventsForDay = monthEventsCache.get(day);
+            if (eventsForDay && eventsForDay.length > 0) {
                 const indicatorList = document.createElement('div');
                 indicatorList.className = 'event-indicator-list';
-                const uniqueTypes = [...new Set(monthEvents.get(day).map(e => e.type))];
+                const uniqueTypes = [...new Set(eventsForDay.map(e => e.type))];
                 uniqueTypes.forEach(type => {
                     const indicator = document.createElement('div');
                     indicator.className = `event-indicator indicator-${type || 'default'}`;
@@ -224,7 +209,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(selectedDateEl) selectedDateEl.classList.remove('selected');
                 dateCell.classList.add('selected');
                 selectedDateEl = dateCell;
-                const dayEvents = getEventsForDate(date);
+                const day = new Date(date + 'T00:00:00').getDate();
+                const dayEvents = monthEventsCache.get(day) || [];
                 renderAgenda(date, dayEvents);
                 return;
             }
