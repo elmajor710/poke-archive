@@ -2,23 +2,28 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('스크립트 초기화 완료. Nirvana Pokedex v5.0-final-calendar');
 
     const app = document.getElementById('app-container');
-    // ... (이전과 동일한 변수 선언)
-    let selectedDateEl = null; // 선택된 날짜 요소를 추적하기 위한 변수
+    const sidebar = document.getElementById('sidebar');
+    const panels = {
+        lev2: document.getElementById('lev2-panel'),
+        lev3: document.getElementById('lev3-panel'),
+        lev4: document.getElementById('lev4-panel'),
+    };
+    let activeButtons = {};
+    let selectedDateEl = null;
 
-    // --- 신규 함수: 클릭된 날짜의 일정을 하단에 표시 ---
     function renderAgenda(date, events) {
         const agendaView = app.querySelector('.calendar-agenda-view');
         if (!agendaView) return;
 
         const weekdayNames = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
-        const dateObj = new Date(date);
+        const dateObj = new Date(date + 'T00:00:00');
         
         let html = `<div class="agenda-header">${dateObj.getDate()}일 ${weekdayNames[dateObj.getDay()]}</div>`;
 
-        if (events.length > 0) {
+        if (events && events.length > 0) {
             events.forEach(event => {
                 const type = event.type || 'default';
-                const color = type === 'ranking' ? '#FF4500' : type === 'limited' ? '#1E90FF' : '#32CD32';
+                const color = type === 'ranking' ? '#FF4500' : type === 'limited' ? '#1E90FF' : (type === 'special' ? '#32CD32' : '#888');
                 html += `
                     <div class="agenda-item">
                         <div class="agenda-item-color" style="background-color: ${color};"></div>
@@ -32,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
         agendaView.innerHTML = html;
     }
 
-    // [수정됨] renderCalendarView 함수 - 최종 UI 구현
     function renderCalendarView(contentDiv, data, year, month) {
         const targetDate = new Date();
         if (year !== undefined && month !== undefined) {
@@ -50,8 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const calendarContainer = document.createElement('div');
         calendarContainer.className = 'calendar-container';
     
-        // ... (헤더, 요일 부분은 이전과 동일)
-        // [핵심 수정] 하단 설명 영역(agenda-view) 추가
         calendarContainer.innerHTML = `
             <div class="calendar-header">
                 <h2>${targetYear}년 ${monthNames[targetMonth]}</h2>
@@ -73,27 +75,64 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     
         const monthEvents = new Map();
-        (data.events || []).forEach(event => { /* ... 이전과 동일 ... */ });
-        (data.recurringEvents || []).forEach(event => { /* ... 이전과 동일 ... */ });
-
+        (data.events || []).forEach(event => {
+            const startDate = new Date(event.startDate + 'T00:00:00');
+            const endDate = new Date(event.endDate + 'T00:00:00');
+            let currentDate = new Date(startDate);
+            while (currentDate <= endDate) {
+                if (currentDate.getFullYear() === targetYear && currentDate.getMonth() === targetMonth) {
+                    const day = currentDate.getDate();
+                    if (!monthEvents.has(day)) monthEvents.set(day, []);
+                    monthEvents.get(day).push(event);
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        });
+        (data.recurringEvents || []).forEach(event => {
+            let currentDate = new Date(event.startDate + 'T00:00:00');
+            const viewEndDate = new Date(targetYear, targetMonth + 2, 0);
+            while (currentDate < viewEndDate) {
+                if(currentDate.getFullYear() > targetYear || (currentDate.getFullYear() === targetYear && currentDate.getMonth() > targetMonth)) {
+                    break;
+                }
+                if (currentDate.getFullYear() === targetYear && currentDate.getMonth() === targetMonth) {
+                    for (let i = 0; i < event.durationDays; i++) {
+                        const eventDay = new Date(currentDate);
+                        eventDay.setDate(eventDay.getDate() + i);
+                        if (eventDay.getMonth() === targetMonth) {
+                            const day = eventDay.getDate();
+                            if (!monthEvents.has(day)) monthEvents.set(day, []);
+                            monthEvents.get(day).push(event);
+                        }
+                    }
+                }
+                currentDate.setDate(currentDate.getDate() + (event.recurrence.interval * 7));
+            }
+        });
+        
         const firstDayOfMonth = new Date(targetYear, targetMonth, 1).getDay();
         const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
     
-        for (let i = 0; i < firstDayOfMonth; i++) { /* ... 이전과 동일 ... */ }
+        for (let i = 0; i < firstDayOfMonth; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.className = 'calendar-date other-month';
+            grid.appendChild(emptyCell);
+        }
     
         for (let day = 1; day <= daysInMonth; day++) {
             const dateCell = document.createElement('div');
             dateCell.className = 'calendar-date';
             const dateStr = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            dateCell.dataset.date = dateStr; // 클릭 이벤트를 위해 날짜 정보 저장
+            dateCell.dataset.date = dateStr;
     
-            dateCell.innerHTML = `<div class="date-number">${day}</div>`;
+            const dateNumberEl = document.createElement('div');
+            dateNumberEl.className = 'date-number';
+            dateNumberEl.textContent = day;
+            dateCell.appendChild(dateNumberEl);
             
-            // [핵심 수정] 텍스트 대신 색상 표시기(밑줄)를 추가
             if (monthEvents.has(day)) {
                 const indicatorList = document.createElement('div');
                 indicatorList.className = 'event-indicator-list';
-                // 중복 타입 제거 (한 종류의 이벤트가 여러 개 있어도 밑줄은 하나만)
                 const uniqueTypes = [...new Set(monthEvents.get(day).map(e => e.type))];
                 uniqueTypes.forEach(type => {
                     const indicator = document.createElement('div');
@@ -110,7 +149,91 @@ document.addEventListener('DOMContentLoaded', () => {
         contentDiv.dataset.currentMonth = targetMonth;
     }
     
-    // [수정됨] addEventListeners 함수 - 날짜 클릭 로직 추가
+    function renderPokemonView(contentDiv, data) {
+        let html = `<h2>${data.name} (${data.grade || ''})</h2>`;
+        if (data.imageURL && data.imageURL.startsWith('http')) {
+            html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin-bottom: 10px;">`;
+        }
+        html += `<p>포켓몬 상세 화면 개발 예정입니다.</p>`;
+        contentDiv.innerHTML = html;
+    }
+
+    function renderSimpleView(contentDiv, data) {
+        let html = `<h2>${data.name}</h2>`;
+        if (data.imageURL && data.imageURL.startsWith('http')) {
+            html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin-bottom: 10px;">`;
+        }
+        if (data.description) {
+            html += `<p>${data.description.replace(/\n/g, '<br>')}</p>`;
+        }
+        contentDiv.innerHTML = html;
+    }
+
+    function renderPanel(level, data, menuId) {
+        const targetPanel = panels[`lev${level}`];
+        if (!targetPanel) return;
+        const contentDiv = targetPanel.querySelector('.panel-content');
+        contentDiv.innerHTML = '';
+        setTimeout(() => { contentDiv.scrollTop = 0; }, 0);
+        if (!data) {
+            contentDiv.innerHTML = "데이터가 없습니다.";
+            targetPanel.classList.add('visible');
+            return;
+        }
+        const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
+        const finalLevelForCategory = categoryInfo ? categoryInfo.levels : 0;
+        const isFinal = !Array.isArray(data);
+        if (isFinal) {
+            app.className = `final-view-L${finalLevelForCategory}`;
+            Object.values(panels).forEach(p => p.classList.remove('visible'));
+            if (data.events || data.recurringEvents) {
+                renderCalendarView(contentDiv, data);
+            } else if (data.stats && data.skills) {
+                renderPokemonView(contentDiv, data);
+            } else if (data.description) {
+                renderSimpleView(contentDiv, data);
+            } else {
+                contentDiv.innerHTML = data.content || "콘텐츠를 표시할 수 없습니다.";
+            }
+        } else {
+            app.className = "";
+            data.forEach(item => {
+                const button = document.createElement('button');
+                button.className = 'list-item';
+                button.textContent = item.name;
+                button.dataset.id = item.id;
+                button.dataset.level = level;
+                button.dataset.menuId = menuId;
+                if (item.color) { button.classList.add(`type-${item.color}`); }
+                contentDiv.appendChild(button);
+            });
+        }
+        targetPanel.classList.add('visible');
+    }
+    
+    function initialize() {
+        const gradeCategory = 'pokemonGrade';
+        if (DB[gradeCategory] && DB.pokemonType?.lev4) {
+            const grades = {};
+            Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
+                if (pokemon && pokemon.grade) {
+                    if (!grades[pokemon.grade]) grades[pokemon.grade] = [];
+                    grades[pokemon.grade].push({ ...pokemon, id: pokemonId });
+                }
+            });
+            DB[gradeCategory].lev3 = {};
+            Object.keys(grades).forEach(gradeKey => {
+                 const gradeInfo = DB.pokemonGrade.lev2.find(g => g.name === gradeKey);
+                 if (gradeInfo) {
+                    const gradeId = gradeInfo.id;
+                    DB[gradeCategory].lev3[gradeId] = grades[gradeKey].map(p => ({id: p.id, name: p.name}));
+                 }
+            });
+        }
+        sidebar.innerHTML = DB.sidebarMenu.map(item => `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`).join('');
+        addEventListeners();
+    }
+
     function addEventListeners() {
         app.addEventListener('click', e => {
             const button = e.target.closest('button');
@@ -118,42 +241,116 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (dateCell && !dateCell.classList.contains('other-month')) {
                 const date = dateCell.dataset.date;
-                const year = new Date(date).getFullYear();
-                const month = new Date(date).getMonth();
-                const day = new Date(date).getDate();
-
-                // 선택 효과 처리
                 if(selectedDateEl) selectedDateEl.classList.remove('selected');
                 dateCell.classList.add('selected');
                 selectedDateEl = dateCell;
 
-                // 하단에 일정 표시
                 const gachaData = DB.calendar.lev3.gachaSchedule;
-                const allEvents = [...(gachaData.events || []), ...(gachaData.recurringEvents || [])];
+                const allStaticEvents = gachaData.events || [];
+                const allRecurringEvents = gachaData.recurringEvents || [];
+                const clickedDate = new Date(date + 'T00:00:00');
                 
                 const dayEvents = [];
-                allEvents.forEach(event => {
-                    if(event.recurrence) { // 반복 이벤트 처리
-                         // ... (반복 이벤트 날짜 계산 로직)
-                    } else { // 고정 이벤트 처리
-                        const startDate = new Date(event.startDate);
-                        const endDate = new Date(event.endDate);
-                        if(new Date(date) >= startDate && new Date(date) <= endDate) {
-                            dayEvents.push(event);
-                        }
+
+                allStaticEvents.forEach(event => {
+                    const startDate = new Date(event.startDate + 'T00:00:00');
+                    const endDate = new Date(event.endDate + 'T00:00:00');
+                    if(clickedDate >= startDate && clickedDate <= endDate) {
+                        dayEvents.push(event);
                     }
                 });
+
+                allRecurringEvents.forEach(event => {
+                    let currentDate = new Date(event.startDate + 'T00:00:00');
+                    const stopDate = new Date(clickedDate);
+                    stopDate.setMonth(stopDate.getMonth() + 2);
+
+                    while(currentDate < stopDate) {
+                        const startDate = new Date(currentDate);
+                        const endDate = new Date(startDate);
+                        endDate.setDate(startDate.getDate() + (event.durationDays - 1));
+                        
+                        if(clickedDate >= startDate && clickedDate <= endDate) {
+                            dayEvents.push(event);
+                            break;
+                        }
+                        if(startDate > clickedDate) break;
+
+                        currentDate.setDate(currentDate.getDate() + event.recurrence.interval * 7);
+                    }
+                });
+
                 renderAgenda(date, dayEvents);
                 return;
             }
 
             if (button && button.classList.contains('calendar-nav-btn')) {
-                // ... (이전과 동일)
+                const action = button.dataset.action;
+                const calendarPanel = button.closest('.panel-content');
+                let year = parseInt(calendarPanel.dataset.currentYear);
+                let month = parseInt(calendarPanel.dataset.currentMonth);
+                if (action === 'prev-month') {
+                    month--;
+                    if (month < 0) { month = 11; year--; }
+                } else if (action === 'next-month') {
+                    month++;
+                    if (month > 11) { month = 0; year++; }
+                }
+                const gachaData = DB.calendar.lev3.gachaSchedule;
+                renderCalendarview(calendarPanel, gachaData, year, month);
+                return; 
             }
-            // ... (나머지 클릭 이벤트 처리)
+            if (button && button.classList.contains('back-btn')) handleBackClick(button);
+            else if (button && button.dataset.level) handleMenuClick(button);
         });
     }
 
-    // 나머지 모든 함수는 이전 버전과 동일합니다.
-    // ... (이전 답변의 전체 script.js 코드에서 renderCalendarView와 addEventListeners 함수만 교체)
+    function handleMenuClick(button) {
+        const level = parseInt(button.dataset.level);
+        const id = button.dataset.id;
+        const menuId = button.dataset.menuId || id;
+        if (level === 1) { app.className = ""; selectedDateEl = null; }
+        setActive(level, button);
+        for (let i = level + 1; i <= 4; i++) {
+             if (panels[`lev${i}`]) { panels[`lev${i}`].classList.remove('visible'); }
+        }
+        const nextLevel = level + 1;
+        const nextData = getNextData(level, id, menuId);
+        renderPanel(nextLevel, nextData, menuId);
+    }
+    
+    function getNextData(currentLevel, id, menuId) {
+        const nextLevel = currentLevel + 1;
+        if (nextLevel === 2) return DB[menuId]?.lev2;
+        if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
+        if (nextLevel === 4) {
+            if (menuId === 'pokemonGrade') { return DB.pokemonType.lev4[id]; }
+            return DB[menuId]?.lev4?.[id];
+        }
+        return null;
+    }
+
+    function handleBackClick(button) {
+        const parentPanel = button.closest('.panel');
+        const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
+        parentPanel.classList.remove('visible');
+        setActive(level - 1, null);
+        app.className = ""; 
+        selectedDateEl = null;
+    }
+
+    function setActive(level, target) {
+        for (let i = level; i <= 4; i++) {
+            if (activeButtons[i]) {
+                activeButtons[i].classList.remove('active');
+                activeButtons[i] = null;
+            }
+        }
+        if (target) {
+            target.classList.add('active');
+            activeButtons[level] = target;
+        }
+    }
+    
+    initialize();
 });

@@ -44,24 +44,15 @@ header h1 { margin: 0; font-size: 1.5em; }
     font-weight: 600;
 }
 
-/* ========================================================== */
-/* ▼▼▼▼▼ 이 부분을 아래의 새 코드로 교체하세요 ▼▼▼▼▼ */
-/* ========================================================== */
-
-/* [수정됨] 최종 화면에서 다른 패널 숨김 처리 (기획서 규칙) */
-/* Lev.4가 최종일 때: Lev.1, 2, 3 숨김 */
 #app-container.final-view-L4 #sidebar,
 #app-container.final-view-L4 #lev2-panel,
 #app-container.final-view-L4 #lev3-panel {
     display: none;
 }
-/* Lev.3이 최종일 때: Lev.1, 2 숨김 */
 #app-container.final-view-L3 #sidebar,
 #app-container.final-view-L3 #lev2-panel {
     display: none;
 }
-
-/* 공통 규칙 */
 #app-container.final-view-L4 #content-area,
 #app-container.final-view-L3 #content-area {
     overflow-x: hidden;
@@ -72,70 +63,28 @@ header h1 { margin: 0; font-size: 1.5em; }
     border-right: none;
 }
 
-
 @media (max-width: 768px) {
-    :root {
-        --sidebar-width: 120px;
-    }
-    header h1 {
-        font-size: 1.2em;
-    }
-    #ads-container {
-        min-height: 50px;
-    }
-
-    #content-area {
-        position: relative;
-        overflow: hidden;
-    }
-
+    :root { --sidebar-width: 120px; }
+    header h1 { font-size: 1.2em; }
+    #ads-container { min-height: 50px; }
+    #content-area { position: relative; overflow: hidden; }
     .panel {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: #fff;
-        transform: translateX(100%);
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: #fff; transform: translateX(100%);
         transition: transform 0.3s ease-in-out;
-        flex-shrink: 0;
-        border-right: none;
-        display: flex; 
-        flex-direction: column;
+        flex-shrink: 0; border-right: none;
+        display: flex; flex-direction: column;
     }
-
-    .panel.visible {
-        transform: translateX(0);
-    }
-    
-    /* [수정] final-view에서 패널이 화면을 꽉 채우도록 수정 */
+    .panel.visible { transform: translateX(0); }
     #app-container.final-view-L4 #lev4-panel,
     #app-container.final-view-L3 #lev3-panel {
-        /* position: absolute 상태이므로 width 100%가 이미 적용되어 있음 */
-        /* 슬라이드 애니메이션과 충돌하지 않도록 transform을 초기화 */
         transform: translateX(0);
     }
-
-    #sidebar, .panel-content {
-        padding: 8px;
-    }
-    .menu-item, .list-item {
-        font-size: 14px;
-        padding: 10px 8px;
-    }
-    .panel-header .back-btn {
-        padding: 8px 10px;
-        font-size: 14px;
-    }
+    #sidebar, .panel-content { padding: 8px; }
+    .menu-item, .list-item { font-size: 14px; padding: 10px 8px; }
+    .panel-header .back-btn { padding: 8px 10px; font-size: 14px; }
 }
 
-/* ========================================================== */
-/* ▲▲▲▲▲ 교체할 부분은 여기까지입니다 ▲▲▲▲▲ */
-/* ========================================================== */
-
-/* style.css 파일 맨 아래의 포켓몬 타입 색상 클래스 부분을 아래 코드로 통째로 교체하세요. */
-
-/* 포켓몬 타입별 색상 클래스 */
 .type-normal { background-color: #A8A878 !important; color: black; }
 .type-fire { background-color: #F08030 !important; color: black; }
 .type-water { background-color: #6890F0 !important; color: black; }
@@ -155,115 +104,46 @@ header h1 { margin: 0; font-size: 1.5em; }
 .type-steel { background-color: #B8B8D0 !important; color: black; }
 .type-fairy { background-color: #EE99AC !important; color: black; }
 
-/* ============================================= */
-/* 캘린더 스타일                                 */
-/* ============================================= */
-/* style.css의 캘린더 스타일 부분을 아래 코드로 업데이트해주세요. */
-/* 기존 .calendar-container 부터 .event-limited 까지의 내용을 모두 교체하셔도 됩니다. */
-
 .calendar-container {
-    padding: 15px;
-    background: #fff;
-    border-radius: 8px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+    padding: 15px; background: #fff; border-radius: 8px;
+    height: 100%; display: flex; flex-direction: column;
 }
 .calendar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: flex; justify-content: space-between; align-items: center;
     margin-bottom: 20px;
 }
-.calendar-header h2 {
-    margin: 0;
-    font-size: 1.8em;
-}
+.calendar-header h2 { margin: 0; font-size: 1.8em; }
 .calendar-nav button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    margin: 0 5px;
+    background-color: #007bff; color: white; border: none;
+    padding: 8px 15px; border-radius: 5px; cursor: pointer;
+    font-size: 16px; margin: 0 5px;
 }
 .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    flex-grow: 1;
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 5px; flex-grow: 1;
 }
-.calendar-day-name {
-    font-weight: bold;
-    text-align: center;
-    padding: 10px;
-}
+.calendar-day-name { font-weight: bold; text-align: center; padding: 10px; }
 .calendar-date {
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    padding: 8px;
-    height: 100px; 
-    overflow: hidden; 
-    cursor: pointer;
+    border: 1px solid #e0e0e0; border-radius: 5px; padding: 8px;
+    height: 100px; overflow: hidden; cursor: pointer;
     transition: background-color 0.2s;
 }
-.calendar-date:hover {
-    background-color: #f8f9fa;
-}
-/* [추가] 선택된 날짜 스타일 */
-.calendar-date.selected {
-    background-color: #e6f2ff;
-    border: 2px solid #007bff;
-}
-.calendar-date.other-month {
-    color: #ccc;
-    background-color: #f9f9f9;
-    cursor: default;
-}
-.date-number {
-    font-weight: bold;
-    font-size: 14px;
-    margin-bottom: 5px;
-}
-/* [수정] 이벤트 표시기(밑줄) 스타일 */
-.event-indicator-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px; /* 밑줄 사이 간격 */
-}
-.event-indicator {
-    height: 4px;
-    width: 100%;
-    border-radius: 2px;
-}
+.calendar-date:hover { background-color: #f8f9fa; }
+.calendar-date.selected { background-color: #e6f2ff; border: 2px solid #007bff; }
+.calendar-date.other-month { color: #ccc; background-color: #f9f9f9; cursor: default; }
+.date-number { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+.event-indicator-list { display: flex; flex-direction: column; gap: 4px; }
+.event-indicator { height: 4px; width: 100%; border-radius: 2px; }
 .indicator-ranking { background-color: #FF4500; }
 .indicator-limited { background-color: #1E90FF; }
 .indicator-special { background-color: #32CD32; }
-
-/* [추가] 캘린더 하단 상세 설명 영역 스타일 */
 .calendar-agenda-view {
-    margin-top: 20px;
-    padding: 15px;
-    border-top: 2px solid #f0f0f0;
-    flex-shrink: 0; /* 내용이 많아져도 줄어들지 않음 */
+    margin-top: 20px; padding: 15px; border-top: 2px solid #f0f0f0;
+    flex-shrink: 0; min-height: 100px;
 }
-.agenda-header {
-    font-size: 1.2em;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
+.agenda-header { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
 .agenda-item {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 8px;
+    display: flex; align-items: center; padding: 10px;
+    border-radius: 5px; margin-bottom: 8px; background-color: #f8f9fa;
 }
-.agenda-item-color {
-    width: 5px;
-    height: 25px;
-    margin-right: 10px;
-    border-radius: 3px;
-}
+.agenda-item-color { width: 5px; height: 25px; margin-right: 10px; border-radius: 3px; }
