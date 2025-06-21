@@ -1,303 +1,237 @@
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex v6.2-final');
+:root {
+    --sidebar-width: 240px;
+    --panel-width: 300px;
+    --primary-color: #007bff;
+    --active-color: #e6f2ff;
+    --border-color: #dee2e6;
+}
+body {
+    margin: 0; font-family: sans-serif; display: flex;
+    flex-direction: column; height: 100vh; overflow: hidden;
+}
+header {
+    background-color: var(--primary-color); color: white;
+    text-align: center; padding: 10px 0; flex-shrink: 0;
+}
+header h1 { margin: 0; font-size: 1.5em; }
+#ads-container {
+    background-color: #f8f9fa; min-height: 60px; display: flex;
+    justify-content: center; align-items: center;
+    border-bottom: 1px solid var(--border-color); flex-shrink: 0;
+}
+#app-container {
+    display: flex; width: 100%; flex-grow: 1; min-height: 0;
+}
+#sidebar {
+    width: var(--sidebar-width); border-right: 1px solid var(--border-color);
+    padding: 10px; overflow-y: auto; flex-shrink: 0;
+}
+#content-area { flex-grow: 1; display: flex; overflow-x: auto; }
+.panel {
+    width: var(--panel-width); border-right: 1px solid var(--border-color);
+    background: #fff; display: none; flex-direction: column; flex-shrink: 0;
+}
+.panel.visible { display: flex; }
+.panel-header { padding: 10px 15px; border-bottom: 1px solid var(--border-color); }
+.panel-content { padding: 10px; overflow-y: auto; flex-grow: 1; }
+.menu-item, .list-item {
+    display: block; width: 100%; text-align: left; padding: 12px; margin-bottom: 5px;
+    border: 1px solid #eee; background: #f9f9f9; border-radius: 6px;
+    font-size: 16px; cursor: pointer;
+}
+.menu-item.active, .list-item.active {
+    background-color: var(--active-color); border-left: 4px solid var(--primary-color);
+    font-weight: 600;
+}
+#app-container.final-view-L4 #sidebar,
+#app-container.final-view-L4 #lev2-panel,
+#app-container.final-view-L4 #lev3-panel {
+    display: none;
+}
+#app-container.final-view-L3 #sidebar,
+#app-container.final-view-L3 #lev2-panel {
+    display: none;
+}
+#app-container.final-view-L4 #content-area,
+#app-container.final-view-L3 #content-area {
+    overflow-x: hidden;
+}
+#app-container.final-view-L4 #lev4-panel,
+#app-container.final-view-L3 #lev3-panel {
+    width: 100%;
+    border-right: none;
+}
 
-    const app = document.getElementById('app-container');
-    const sidebar = document.getElementById('sidebar');
-    const panels = {
-        lev2: document.getElementById('lev2-panel'),
-        lev3: document.getElementById('lev3-panel'),
-        lev4: document.getElementById('lev4-panel'),
-    };
-    let activeButtons = {};
-    let selectedDateEl = null;
-
-    function getEventsForDate(dateStr) {
-        const targetDate = new Date(dateStr + 'T00:00:00');
-        if (isNaN(targetDate.getTime())) return [];
-
-        const foundEvents = [];
-        const gachaData = DB.calendar.lev3.gachaSchedule;
-
-        (gachaData.events || []).forEach(event => {
-            const startDate = new Date(event.startDate + 'T00:00:00');
-            const endDate = new Date(event.endDate + 'T00:00:00');
-            if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
-                if (targetDate >= startDate && targetDate <= endDate) {
-                    foundEvents.push(event);
-                }
-            }
-        });
-
-        (gachaData.recurringEvents || []).forEach(event => {
-            let occurrenceStart = new Date(event.startDate + 'T00:00:00');
-            if (isNaN(occurrenceStart.getTime())) return;
-            
-            const stopDate = new Date(targetDate);
-            stopDate.setFullYear(stopDate.getFullYear() + 1);
-
-            while (occurrenceStart <= stopDate) {
-                 const occurrenceEnd = new Date(occurrenceStart);
-                 occurrenceEnd.setDate(occurrenceStart.getDate() + (event.durationDays - 1));
-
-                 if(targetDate >= occurrenceStart && targetDate <= occurrenceEnd) {
-                    foundEvents.push(event);
-                    break; 
-                 }
-                 if(occurrenceStart > targetDate) break;
-
-                 occurrenceStart.setDate(occurrenceStart.getDate() + (event.recurrence.interval * 7));
-            }
-        });
-        return foundEvents;
+@media (max-width: 768px) {
+    :root { --sidebar-width: 120px; }
+    header h1 { font-size: 1.2em; }
+    #ads-container { min-height: 50px; }
+    #content-area { position: relative; overflow: hidden; }
+    .panel {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: #fff; transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        flex-shrink: 0; border-right: none;
+        /* [핵심 수정] 여기서 display:flex를 제거하여 기본 상태(display:none)를 유지합니다. */
+        flex-direction: column;
     }
+    .panel.visible { transform: translateX(0); }
+    #app-container.final-view-L4 #lev4-panel,
+    #app-container.final-view-L3 #lev3-panel {
+        transform: translateX(0);
+    }
+    #sidebar, .panel-content { padding: 8px; }
+    .menu-item, .list-item { font-size: 14px; padding: 10px 8px; }
+    .panel-header .back-btn { padding: 8px 10px; font-size: 14px; }
+}
 
-    function renderAgenda(date, events) {
-        const agendaView = app.querySelector('.calendar-agenda-view');
-        if (!agendaView) return;
-        const weekdayNames = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
-        const dateObj = new Date(date + 'T00:00:00');
-        let html = `<div class="agenda-header">${dateObj.getDate()}일 ${weekdayNames[dateObj.getDay()]}</div>`;
-        if (events && events.length > 0) {
-            events.forEach(event => {
-                const type = event.type || 'default';
-                const color = type === 'ranking' ? '#FF4500' : type === 'limited' ? '#1E90FF' : (type === 'special' ? '#32CD32' : '#888');
-                html += `<div class="agenda-item"><div class="agenda-item-color" style="background-color: ${color};"></div><div class="agenda-item-title">${event.title}</div></div>`;
-            });
-        } else {
-            html += `<p>선택된 날짜에 일정이 없습니다.</p>`;
-        }
-        agendaView.innerHTML = html;
-    }
+.type-normal { background-color: #A8A878 !important; color: black; }
+.type-fire { background-color: #F08030 !important; color: black; }
+.type-water { background-color: #6890F0 !important; color: black; }
+.type-grass { background-color: #78C850 !important; color: black; }
+.type-electric { background-color: #F8D030 !important; color: black; }
+.type-ice { background-color: #98D8D8 !important; color: black; }
+.type-fighting { background-color: #D56760 !important; color: black; }
+.type-poison { background-color: #B369B3 !important; color: black; }
+.type-ground { background-color: #E0C068 !important; color: black; }
+.type-flying { background-color: #A890F0 !important; color: black; }
+.type-psychic { background-color: #F85888 !important; color: black; }
+.type-bug { background-color: #A8B820 !important; color: black; }
+.type-rock { background-color: #B8A038 !important; color: black; }
+.type-ghost { background-color: #705898 !important; color: black; }
+.type-dragon { background-color: #7038F8 !important; color: black; }
+.type-dark { background-color: #705848 !important; color: black; }
+.type-steel { background-color: #B8B8D0 !important; color: black; }
+.type-fairy { background-color: #EE99AC !important; color: black; }
 
-    function renderCalendarView(contentDiv, data, year, month) {
-        const targetDate = new Date();
-        if (year !== undefined && month !== undefined) {
-            targetDate.setFullYear(year, month, 1);
-        } else {
-            targetDate.setFullYear(2025, 5, 1);
-        }
-        const targetYear = targetDate.getFullYear();
-        const targetMonth = targetDate.getMonth();
-        contentDiv.innerHTML = '';
-        const monthNames = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
-        const calendarContainer = document.createElement('div');
-        calendarContainer.className = 'calendar-container';
-        calendarContainer.innerHTML = `<div class="calendar-header"><h2>${targetYear}년 ${monthNames[targetMonth]}</h2><div class="calendar-nav"><button class="calendar-nav-btn" data-action="prev-month">&lt; 이전</button><button class="calendar-nav-btn" data-action="next-month">다음 &gt;</button></div></div><div class="calendar-legend"><div class="legend-item"><div class="legend-color-box" style="background-color: #FF4500;"></div><span>랭킹뽑기</span></div><div class="legend-item"><div class="legend-color-box" style="background-color: #1E90FF;"></div><span>한정뽑기</span></div><div class="legend-item"><div class="legend-color-box" style="background-color: #32CD32;"></div><span>복냥이</span></div></div><div class="calendar-grid"></div><div class="calendar-agenda-view"><p>날짜를 선택하여 일정을 확인하세요.</p></div>`;
-        const grid = calendarContainer.querySelector('.calendar-grid');
-        const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-        weekdays.forEach(day => {
-            const dayNameEl = document.createElement('div');
-            dayNameEl.className = 'calendar-day-name';
-            dayNameEl.textContent = day;
-            grid.appendChild(dayNameEl);
-        });
-        const monthEvents = new Map();
-        const staticEvents = data.events || [];
-        const recurringRules = data.recurringEvents || [];
-        for (let day = 1; day <= new Date(targetYear, targetMonth + 1, 0).getDate(); day++) {
-            const dateStr = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            monthEvents.set(day, getEventsForDate(dateStr));
-        }
-        const firstDayOfMonth = new Date(targetYear, targetMonth, 1).getDay();
-        for (let i = 0; i < firstDayOfMonth; i++) {
-            const emptyCell = document.createElement('div');
-            emptyCell.className = 'calendar-date other-month';
-            grid.appendChild(emptyCell);
-        }
-        for (let day = 1; day <= new Date(targetYear, targetMonth + 1, 0).getDate(); day++) {
-            const dateCell = document.createElement('div');
-            dateCell.className = 'calendar-date';
-            const dateStr = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            dateCell.dataset.date = dateStr;
-            const dateNumberEl = document.createElement('div');
-            dateNumberEl.className = 'date-number';
-            dateNumberEl.textContent = day;
-            dateCell.appendChild(dateNumberEl);
-            if (monthEvents.has(day) && monthEvents.get(day).length > 0) {
-                const indicatorList = document.createElement('div');
-                indicatorList.className = 'event-indicator-list';
-                const uniqueTypes = [...new Set(monthEvents.get(day).map(e => e.type))];
-                uniqueTypes.forEach(type => {
-                    const indicator = document.createElement('div');
-                    indicator.className = `event-indicator indicator-${type || 'default'}`;
-                    indicatorList.appendChild(indicator);
-                });
-                dateCell.appendChild(indicatorList);
-            }
-            grid.appendChild(dateCell);
-        }
-        contentDiv.appendChild(calendarContainer);
-        contentDiv.dataset.currentYear = targetYear;
-        contentDiv.dataset.currentMonth = targetMonth;
-    }
-    
-    function renderPokemonView(contentDiv, data) {
-        let html = `<h2>${data.name} (${data.grade || ''})</h2>`;
-        if (data.imageURL && data.imageURL.startsWith('http')) {
-            html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin-bottom: 10px;">`;
-        }
-        html += `<p>포켓몬 상세 화면 개발 예정입니다.</p>`;
-        contentDiv.innerHTML = html;
-    }
+.calendar-container {
+    padding: 10px;
+    background: #fff;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; 
+}
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+.calendar-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+}
+.calendar-nav button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 0 5px;
+}
+.calendar-legend {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding-left: 5px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+.legend-color-box {
+    width: 15px;
+    height: 15px;
+    margin-right: 5px;
+    border-radius: 3px;
+}
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px; 
+    flex-shrink: 0;
+}
+.calendar-day-name {
+    font-weight: bold;
+    text-align: center;
+    padding: 5px;
+    font-size: 12px;
+}
+.calendar-date {
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 5px;
+    min-height: 55px; 
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+.calendar-date:hover {
+    background-color: #f8f9fa;
+}
+.calendar-date.selected {
+    background-color: #e6f2ff;
+    border: 2px solid #007bff;
+}
+.calendar-date.other-month {
+    color: #ccc;
+    background-color: #f9f9f9;
+    cursor: default;
+}
+.date-number {
+    font-weight: bold;
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+.event-indicator-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.event-indicator {
+    height: 4px;
+    width: 90%;
+    margin: 0 auto;
+    border-radius: 2px;
+}
+.indicator-ranking { background-color: #FF4500; }
+.indicator-limited { background-color: #1E90FF; }
+.indicator-special { background-color: #32CD32; }
 
-    function renderSimpleView(contentDiv, data) {
-        let html = `<h2>${data.name}</h2>`;
-        if (data.imageURL && data.imageURL.startsWith('http')) {
-            html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin-bottom: 10px;">`;
-        }
-        if (data.description) {
-            html += `<p>${data.description.replace(/\n/g, '<br>')}</p>`;
-        }
-        contentDiv.innerHTML = html;
-    }
-
-    function renderPanel(level, data, menuId) {
-        const targetPanel = panels[`lev${level}`];
-        if (!targetPanel) return;
-        const contentDiv = targetPanel.querySelector('.panel-content');
-        contentDiv.innerHTML = '';
-        setTimeout(() => { contentDiv.scrollTop = 0; }, 0);
-        if (!data) {
-            contentDiv.innerHTML = "데이터가 없습니다.";
-            targetPanel.classList.add('visible');
-            return;
-        }
-        const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
-        const finalLevelForCategory = categoryInfo ? categoryInfo.levels : 0;
-        const isFinal = !Array.isArray(data);
-        if (isFinal) {
-            app.className = `final-view-L${finalLevelForCategory}`;
-            Object.values(panels).forEach(p => p.classList.remove('visible'));
-            if (data.events || data.recurringEvents) {
-                renderCalendarView(contentDiv, data);
-            } else if (data.stats && data.skills) {
-                renderPokemonView(contentDiv, data);
-            } else if (data.description) {
-                renderSimpleView(contentDiv, data);
-            } else {
-                contentDiv.innerHTML = data.content || "콘텐츠를 표시할 수 없습니다.";
-            }
-        } else {
-            app.className = "";
-            data.forEach(item => {
-                const button = document.createElement('button');
-                button.className = 'list-item';
-                button.textContent = item.name;
-                button.dataset.id = item.id;
-                button.dataset.level = level;
-                button.dataset.menuId = menuId;
-                if (item.color) { button.classList.add(`type-${item.color}`); }
-                contentDiv.appendChild(button);
-            });
-        }
-        targetPanel.classList.add('visible');
-    }
-    
-    function initialize() {
-        const gradeCategory = 'pokemonGrade';
-        if (DB[gradeCategory] && DB.pokemonType?.lev4) {
-            const grades = {};
-            Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
-                if (pokemon && pokemon.grade) {
-                    if (!grades[pokemon.grade]) grades[pokemon.grade] = [];
-                    grades[pokemon.grade].push({ ...pokemon, id: pokemonId });
-                }
-            });
-            DB[gradeCategory].lev3 = {};
-            Object.keys(grades).forEach(gradeKey => {
-                 const gradeInfo = DB.pokemonGrade.lev2.find(g => g.name === gradeKey);
-                 if (gradeInfo) {
-                    const gradeId = gradeInfo.id;
-                    DB[gradeCategory].lev3[gradeId] = grades[gradeKey].map(p => ({id: p.id, name: p.name}));
-                 }
-            });
-        }
-        sidebar.innerHTML = DB.sidebarMenu.map(item => `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`).join('');
-        addEventListeners();
-    }
-
-    function addEventListeners() {
-        app.addEventListener('click', e => {
-            const button = e.target.closest('button');
-            const dateCell = e.target.closest('.calendar-date');
-
-            if (dateCell && !dateCell.classList.contains('other-month')) {
-                const date = dateCell.dataset.date;
-                if(selectedDateEl) selectedDateEl.classList.remove('selected');
-                dateCell.classList.add('selected');
-                selectedDateEl = dateCell;
-                const dayEvents = getEventsForDate(date);
-                renderAgenda(date, dayEvents);
-                return;
-            }
-
-            if (button && button.classList.contains('calendar-nav-btn')) {
-                const action = button.dataset.action;
-                const calendarPanel = button.closest('.panel-content');
-                let year = parseInt(calendarPanel.dataset.currentYear);
-                let month = parseInt(calendarPanel.dataset.currentMonth);
-                if (action === 'prev-month') {
-                    month--;
-                    if (month < 0) { month = 11; year--; }
-                } else if (action === 'next-month') {
-                    month++;
-                    if (month > 11) { month = 0; year++; }
-                }
-                const gachaData = DB.calendar.lev3.gachaSchedule;
-                renderCalendarView(calendarPanel, gachaData, year, month);
-                return; 
-            }
-            if (button && button.classList.contains('back-btn')) handleBackClick(button);
-            else if (button && button.dataset.level) handleMenuClick(button);
-        });
-    }
-
-    function handleMenuClick(button) {
-        const level = parseInt(button.dataset.level);
-        const id = button.dataset.id;
-        const menuId = button.dataset.menuId || id;
-        if (level === 1) { app.className = ""; selectedDateEl = null; }
-        setActive(level, button);
-        for (let i = level + 1; i <= 4; i++) {
-             if (panels[`lev${i}`]) { panels[`lev${i}`].classList.remove('visible'); }
-        }
-        const nextLevel = level + 1;
-        const nextData = getNextData(level, id, menuId);
-        renderPanel(nextLevel, nextData, menuId);
-    }
-    
-    function getNextData(currentLevel, id, menuId) {
-        const nextLevel = currentLevel + 1;
-        if (nextLevel === 2) return DB[menuId]?.lev2;
-        if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
-        if (nextLevel === 4) {
-            if (menuId === 'pokemonGrade') { return DB.pokemonType.lev4[id]; }
-            return DB[menuId]?.lev4?.[id];
-        }
-        return null;
-    }
-
-    function handleBackClick(button) {
-        const parentPanel = button.closest('.panel');
-        const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
-        parentPanel.classList.remove('visible');
-        setActive(level - 1, null);
-        app.className = ""; 
-        selectedDateEl = null;
-    }
-
-    function setActive(level, target) {
-        for (let i = level; i <= 4; i++) {
-            if (activeButtons[i]) {
-                activeButtons[i].classList.remove('active');
-                activeButtons[i] = null;
-            }
-        }
-        if (target) {
-            target.classList.add('active');
-            activeButtons[level] = target;
-        }
-    }
-    
-    initialize();
-});
+.calendar-agenda-view {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid #f0f0f0;
+    flex-shrink: 0; 
+    height: 150px; 
+    overflow-y: auto;
+}
+.agenda-header {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding: 0 5px;
+}
+.agenda-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    background-color: #f8f9fa;
+}
+.agenda-item-color {
+    width: 5px;
+    height: 25px;
+    margin-right: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
