@@ -10,24 +10,12 @@ const DB = {
     ],
     pokemonType: {
         lev2: [ 
-            { id: 'normal', name: '노말', color: 'normal' },
-            { id: 'fire', name: '불', color: 'fire' },
-            { id: 'water', name: '물', color: 'water' },
-            { id: 'grass', name: '풀', color: 'grass' },
-            { id: 'electric', name: '전기', color: 'electric' },
-            { id: 'ice', name: '얼음', color: 'ice' },
-            { id: 'fighting', name: '격투', color: 'fighting' },
-            { id: 'poison', name: '독', color: 'poison' },
-            { id: 'ground', name: '땅', color: 'ground' },
-            { id: 'flying', name: '비행', color: 'flying' },
-            { id: 'psychic', name: '에스퍼', color: 'psychic' },
-            { id: 'bug', name: '벌레', color: 'bug' },
-            { id: 'rock', name: '바위', color: 'rock' },
-            { id: 'ghost', name: '유령', color: 'ghost' },
-            { id: 'dragon', name: '드래곤', color: 'dragon' },
-            { id: 'dark', name: '악', color: 'dark' },
-            { id: 'steel', name: '강철', color: 'steel' },
-            { id: 'fairy', name: '페어리', color: 'fairy' }
+            { id: 'normal', name: '노말', color: 'normal' }, { id: 'fire', name: '불', color: 'fire' }, { id: 'water', name: '물', color: 'water' },
+            { id: 'grass', name: '풀', color: 'grass' }, { id: 'electric', name: '전기', color: 'electric' }, { id: 'ice', name: '얼음', color: 'ice' },
+            { id: 'fighting', name: '격투', color: 'fighting' }, { id: 'poison', name: '독', color: 'poison' }, { id: 'ground', name: '땅', color: 'ground' },
+            { id: 'flying', name: '비행', color: 'flying' }, { id: 'psychic', name: '에스퍼', color: 'psychic' }, { id: 'bug', name: '벌레', color: 'bug' },
+            { id: 'rock', name: '바위', color: 'rock' }, { id: 'ghost', name: '유령', color: 'ghost' }, { id: 'dragon', name: '드래곤', color: 'dragon' },
+            { id: 'dark', name: '악', color: 'dark' }, { id: 'steel', name: '강철', color: 'steel' }, { id: 'fairy', name: '페어리', color: 'fairy' }
         ],
         lev3: { 
             normal: [ { id: 'regigigas', name: '레지기가스' } ],
