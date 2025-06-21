@@ -265,11 +265,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 (gachaData.recurringEvents || []).forEach(event => {
                     let currentDate = new Date(event.startDate + 'T00:00:00');
                     const stopDate = new Date(clickedDate);
-                    stopDate.setFullYear(stopDate.getFullYear() + 1); // 1년 뒤까지만 계산
+                    stopDate.setFullYear(stopDate.getFullYear() + 1);
+
                     while(currentDate < stopDate) {
                         const startDate = new Date(currentDate);
                         const endDate = new Date(startDate);
                         endDate.setDate(startDate.getDate() + (event.durationDays - 1));
+                        
                         if(clickedDate >= startDate && clickedDate <= endDate) {
                             dayEvents.push(event);
                             break;

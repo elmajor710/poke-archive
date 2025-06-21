@@ -43,6 +43,7 @@ header h1 { margin: 0; font-size: 1.5em; }
     background-color: var(--active-color); border-left: 4px solid var(--primary-color);
     font-weight: 600;
 }
+
 #app-container.final-view-L4 #sidebar,
 #app-container.final-view-L4 #lev2-panel,
 #app-container.final-view-L4 #lev3-panel {
@@ -103,6 +104,9 @@ header h1 { margin: 0; font-size: 1.5em; }
 .type-steel { background-color: #B8B8D0 !important; color: black; }
 .type-fairy { background-color: #EE99AC !important; color: black; }
 
+/* ============================================= */
+/* 캘린더 스타일 (최종 수정본)                   */
+/* ============================================= */
 .calendar-container {
     padding: 10px;
     background: #fff;
@@ -167,7 +171,7 @@ header h1 { margin: 0; font-size: 1.5em; }
     border: 1px solid #e0e0e0;
     border-radius: 5px;
     padding: 5px;
-    min-height: 65px; 
+    min-height: 55px; 
     cursor: pointer;
     transition: background-color 0.2s;
     display: flex;
@@ -204,19 +208,20 @@ header h1 { margin: 0; font-size: 1.5em; }
 .indicator-ranking { background-color: #FF4500; }
 .indicator-limited { background-color: #1E90FF; }
 .indicator-special { background-color: #32CD32; }
+
 .calendar-agenda-view {
     margin-top: 15px;
     padding-top: 15px;
     border-top: 2px solid #f0f0f0;
-    flex-grow: 1;
-    overflow-y: auto;
-    min-height: 0;
+    flex-shrink: 0;
+    height: 150px; /* [핵심 수정] 고정 높이를 지정하여 공간 확보 */
+    overflow-y: auto; /* [핵심 수정] 내용이 많으면 이 안에서 스크롤 */
 }
 .agenda-header {
     font-size: 1.2em;
     font-weight: bold;
     margin-bottom: 10px;
-    padding: 0 10px;
+    padding: 0 5px;
 }
 .agenda-item {
     display: flex;
