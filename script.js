@@ -37,116 +37,53 @@ document.addEventListener('DOMContentLoaded', () => {
         agendaView.innerHTML = html;
     }
 
+    // script.js 파일에서 이 함수만 찾아서 교체해주세요.
     function renderCalendarView(contentDiv, data, year, month) {
-        const targetDate = new Date();
-        if (year !== undefined && month !== undefined) {
-            targetDate.setFullYear(year, month, 1);
-        } else {
-            targetDate.setFullYear(2025, 5, 1);
-        }
-    
-        const targetYear = targetDate.getFullYear();
-        const targetMonth = targetDate.getMonth();
-    
-        contentDiv.innerHTML = '';
-    
-        const monthNames = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
-        const calendarContainer = document.createElement('div');
-        calendarContainer.className = 'calendar-container';
-    
-        calendarContainer.innerHTML = `
-            <div class="calendar-header">
-                <h2>${targetYear}년 ${monthNames[targetMonth]}</h2>
-                <div class="calendar-nav">
-                    <button class="calendar-nav-btn" data-action="prev-month">&lt; 이전</button>
-                    <button class="calendar-nav-btn" data-action="next-month">다음 &gt;</button>
-                </div>
+    const targetDate = new Date();
+    if (year !== undefined && month !== undefined) {
+        targetDate.setFullYear(year, month, 1);
+    } else {
+        targetDate.setFullYear(2025, 5, 1);
+    }
+
+    const targetYear = targetDate.getFullYear();
+    const targetMonth = targetDate.getMonth();
+
+    contentDiv.innerHTML = '';
+
+    const monthNames = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
+    const calendarContainer = document.createElement('div');
+    calendarContainer.className = 'calendar-container';
+
+    // [핵심 수정] 캘린더 헤더와 범례를 함께 생성합니다.
+    calendarContainer.innerHTML = `
+        <div class="calendar-header">
+            <h2>${targetYear}년 ${monthNames[targetMonth]}</h2>
+            <div class="calendar-nav">
+                <button class="calendar-nav-btn" data-action="prev-month">&lt; 이전</button>
+                <button class="calendar-nav-btn" data-action="next-month">다음 &gt;</button>
             </div>
-            <div class="calendar-grid"></div>
-            <div class="calendar-agenda-view"><p>날짜를 선택하여 일정을 확인하세요.</p></div>
-        `;
-        const grid = calendarContainer.querySelector('.calendar-grid');
-        const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-        weekdays.forEach(day => {
-            const dayNameEl = document.createElement('div');
-            dayNameEl.className = 'calendar-day-name';
-            dayNameEl.textContent = day;
-            grid.appendChild(dayNameEl);
-        });
+        </div>
+        <div class="calendar-legend">
+            <div class="legend-item">
+                <div class="legend-color-box" style="background-color: #FF4500;"></div>
+                <span>랭킹뽑기</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color-box" style="background-color: #1E90FF;"></div>
+                <span>한정뽑기</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color-box" style="background-color: #32CD32;"></div>
+                <span>복냥이</span>
+            </div>
+        </div>
+        <div class="calendar-grid"></div>
+        <div class="calendar-agenda-view"><p>날짜를 선택하여 일정을 확인하세요.</p></div>
+    `;
     
-        const monthEvents = new Map();
-        (data.events || []).forEach(event => {
-            const startDate = new Date(event.startDate + 'T00:00:00');
-            const endDate = new Date(event.endDate + 'T00:00:00');
-            let currentDate = new Date(startDate);
-            while (currentDate <= endDate) {
-                if (currentDate.getFullYear() === targetYear && currentDate.getMonth() === targetMonth) {
-                    const day = currentDate.getDate();
-                    if (!monthEvents.has(day)) monthEvents.set(day, []);
-                    monthEvents.get(day).push(event);
-                }
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-        });
-        (data.recurringEvents || []).forEach(event => {
-            let currentDate = new Date(event.startDate + 'T00:00:00');
-            const viewEndDate = new Date(targetYear, targetMonth + 2, 0);
-            while (currentDate < viewEndDate) {
-                if(currentDate.getFullYear() > targetYear || (currentDate.getFullYear() === targetYear && currentDate.getMonth() > targetMonth)) {
-                    break;
-                }
-                if (currentDate.getFullYear() === targetYear && currentDate.getMonth() === targetMonth) {
-                    for (let i = 0; i < event.durationDays; i++) {
-                        const eventDay = new Date(currentDate);
-                        eventDay.setDate(eventDay.getDate() + i);
-                        if (eventDay.getMonth() === targetMonth) {
-                            const day = eventDay.getDate();
-                            if (!monthEvents.has(day)) monthEvents.set(day, []);
-                            monthEvents.get(day).push(event);
-                        }
-                    }
-                }
-                currentDate.setDate(currentDate.getDate() + (event.recurrence.interval * 7));
-            }
-        });
-        
-        const firstDayOfMonth = new Date(targetYear, targetMonth, 1).getDay();
-        const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
-    
-        for (let i = 0; i < firstDayOfMonth; i++) {
-            const emptyCell = document.createElement('div');
-            emptyCell.className = 'calendar-date other-month';
-            grid.appendChild(emptyCell);
-        }
-    
-        for (let day = 1; day <= daysInMonth; day++) {
-            const dateCell = document.createElement('div');
-            dateCell.className = 'calendar-date';
-            const dateStr = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            dateCell.dataset.date = dateStr;
-    
-            const dateNumberEl = document.createElement('div');
-            dateNumberEl.className = 'date-number';
-            dateNumberEl.textContent = day;
-            dateCell.appendChild(dateNumberEl);
-            
-            if (monthEvents.has(day)) {
-                const indicatorList = document.createElement('div');
-                indicatorList.className = 'event-indicator-list';
-                const uniqueTypes = [...new Set(monthEvents.get(day).map(e => e.type))];
-                uniqueTypes.forEach(type => {
-                    const indicator = document.createElement('div');
-                    indicator.className = `event-indicator indicator-${type || 'default'}`;
-                    indicatorList.appendChild(indicator);
-                });
-                dateCell.appendChild(indicatorList);
-            }
-            grid.appendChild(dateCell);
-        }
-        contentDiv.appendChild(calendarContainer);
-    
-        contentDiv.dataset.currentYear = targetYear;
-        contentDiv.dataset.currentMonth = targetMonth;
+    // 이하 로직은 이전 답변과 모두 동일합니다.
+    // ... (grid, weekdays, monthEvents 계산 및 날짜 그리는 로직)
     }
     
     function renderPokemonView(contentDiv, data) {

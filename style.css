@@ -118,6 +118,12 @@ header h1 { margin: 0; font-size: 1.5em; }
     padding: 8px 15px; border-radius: 5px; cursor: pointer;
     font-size: 16px; margin: 0 5px;
 }
+.calendar-legend {
+    display: flex; gap: 15px; margin-bottom: 15px;
+    padding-left: 5px; flex-wrap: wrap;
+}
+.legend-item { display: flex; align-items: center; font-size: 14px; }
+.legend-color-box { width: 15px; height: 15px; margin-right: 5px; border-radius: 3px; }
 .calendar-grid {
     display: grid; grid-template-columns: repeat(7, 1fr);
     gap: 5px; flex-grow: 1;
@@ -139,7 +145,7 @@ header h1 { margin: 0; font-size: 1.5em; }
 .indicator-special { background-color: #32CD32; }
 .calendar-agenda-view {
     margin-top: 20px; padding: 15px; border-top: 2px solid #f0f0f0;
-    flex-shrink: 0; min-height: 100px;
+    flex-shrink: 0; max-height: 250px; overflow-y: auto;
 }
 .agenda-header { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
 .agenda-item {
