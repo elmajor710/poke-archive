@@ -8,38 +8,35 @@ const DB = {
         { id: 'calendar', name: '캘린더', levels: 3 },
         { id: 'tips', name: '팁&노하우', levels: 3 },
     ],
-    // data.js 파일에서 이 pokemonType 객체 부분만 찾아서 통째로 교체해주세요.
     pokemonType: {
-    lev2: [ 
-        { id: 'normal', name: '노말', color: 'normal' },
-        { id: 'fire', name: '불', color: 'fire' },
-        { id: 'water', name: '물', color: 'water' },
-        { id: 'grass', name: '풀', color: 'grass' },
-        { id: 'electric', name: '전기', color: 'electric' },
-        { id: 'ice', name: '얼음', color: 'ice' },
-        { id: 'fighting', name: '격투', color: 'fighting' },
-        { id: 'poison', name: '독', color: 'poison' },
-        { id: 'ground', name: '땅', color: 'ground' },
-        { id: 'flying', name: '비행', color: 'flying' },
-        { id: 'psychic', name: '에스퍼', color: 'psychic' },
-        { id: 'bug', name: '벌레', color: 'bug' },
-        { id: 'rock', name: '바위', color: 'rock' },
-        { id: 'ghost', name: '유령', color: 'ghost' },
-        { id: 'dragon', name: '드래곤', color: 'dragon' },
-        { id: 'dark', name: '악', color: 'dark' },
-        { id: 'steel', name: '강철', color: 'steel' },
-        { id: 'fairy', name: '페어리', color: 'fairy' }
-    ],
-    lev3: { 
-        normal: [ { id: 'regigigas', name: '레지기가스' } ],
-        fire: [ { id: 'reshiram', name: '레시라무' } ],
-        // 다른 타입들의 lev3 데이터는 나중에 추가하시면 됩니다.
-    },
-    lev4: {
-        regigigas: { name: '레지기가스', grade: 'S+', imageURL: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/486.png', stats: { 'HP': 110, '스피드': 100, '공격': 160, '방어': 110, '특수공격': 80, '특수방어': 110 }, skills: { active: '엄청난힘', ultimate: '기가임팩트', passive: '슬로스타트' }, recommendedItems: [ { id: 'leftovers', name: '먹다남은음식', imageURL: '이미지URL_준비중', reason: 'HP를 회복하여 안정성을 높입니다.' } ], recommendedRunes: [ { id: 'kingKong', name: '금강 룬', imageURL: '이미지URL_준비중', reason: '공격력을 극대화합니다.' } ], recommendedChips: [ { id: 'loneWolf', name: '늑대대행자 칩', imageURL: '이미지URL_준비중', reason: '단일 공격 능력을 강화합니다.' } ] },
-        reshiram: { name: '레시라무', grade: 'S+', content: '콘텐츠 준비 중입니다.' },
-        // 다른 포켓몬들의 lev4 데이터는 나중에 추가하시면 됩니다.
-    }
+        lev2: [ 
+            { id: 'normal', name: '노말', color: 'normal' },
+            { id: 'fire', name: '불', color: 'fire' },
+            { id: 'water', name: '물', color: 'water' },
+            { id: 'grass', name: '풀', color: 'grass' },
+            { id: 'electric', name: '전기', color: 'electric' },
+            { id: 'ice', name: '얼음', color: 'ice' },
+            { id: 'fighting', name: '격투', color: 'fighting' },
+            { id: 'poison', name: '독', color: 'poison' },
+            { id: 'ground', name: '땅', color: 'ground' },
+            { id: 'flying', name: '비행', color: 'flying' },
+            { id: 'psychic', name: '에스퍼', color: 'psychic' },
+            { id: 'bug', name: '벌레', color: 'bug' },
+            { id: 'rock', name: '바위', color: 'rock' },
+            { id: 'ghost', name: '유령', color: 'ghost' },
+            { id: 'dragon', name: '드래곤', color: 'dragon' },
+            { id: 'dark', name: '악', color: 'dark' },
+            { id: 'steel', name: '강철', color: 'steel' },
+            { id: 'fairy', name: '페어리', color: 'fairy' }
+        ],
+        lev3: { 
+            normal: [ { id: 'regigigas', name: '레지기가스' } ],
+            fire: [ { id: 'reshiram', name: '레시라무' } ],
+        },
+        lev4: {
+            regigigas: { name: '레지기가스', grade: 'S+', imageURL: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/486.png', stats: { 'HP': 110, '스피드': 100, '공격': 160, '방어': 110, '특수공격': 80, '특수방어': 110 }, skills: { active: '엄청난힘', ultimate: '기가임팩트', passive: '슬로스타트' }, recommendedItems: [ { id: 'leftovers', name: '먹다남은음식', imageURL: '이미지URL_준비중', reason: 'HP를 회복하여 안정성을 높입니다.' } ], recommendedRunes: [ { id: 'kingKong', name: '금강 룬', imageURL: '이미지URL_준비중', reason: '공격력을 극대화합니다.' } ], recommendedChips: [ { id: 'loneWolf', name: '늑대대행자 칩', imageURL: '이미지URL_준비중', reason: '단일 공격 능력을 강화합니다.' } ] },
+            reshiram: { name: '레시라무', grade: 'S+', content: '콘텐츠 준비 중입니다.' },
+        }
     },
     pokemonGrade: {
         lev2: [ { id: 'sPlus', name: 'S+' }, { id: 's', name: 'S' } ],
