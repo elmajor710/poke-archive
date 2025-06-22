@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex v8.0-final-stable');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex v8.0-final');
 
     const app = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
         lev4: document.getElementById('lev4-panel'),
     };
     let activeButtons = {};
-    let selectedDateEl = null;
     let monthEventsCache = new Map();
 
     function showModal(title, contentHTML) {
@@ -44,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const targetDate = new Date(dateStr + 'T00:00:00');
         if (isNaN(targetDate.getTime())) return [];
         const foundEvents = [];
-
+        
         (gachaData.events || []).forEach(event => {
             const startDate = new Date(event.startDate + 'T00:00:00');
             const endDate = new Date(event.endDate + 'T00:00:00');
@@ -83,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             targetDate.setFullYear(2025, 5, 1);
         }
-    
         const targetYear = targetDate.getFullYear();
         const targetMonth = targetDate.getMonth();
         contentDiv.innerHTML = '';
@@ -96,10 +94,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
         weekdays.forEach(day => { const el = grid.appendChild(document.createElement('div')); el.className = 'calendar-day-name'; el.textContent = day; });
         
+        const gachaData = DB.calendar.lev3.gachaSchedule;
         const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
         for (let day = 1; day <= daysInMonth; day++) {
             const dateStr = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            monthEventsCache.set(day, getEventsForDate(dateStr, data));
+            monthEventsCache.set(day, getEventsForDate(dateStr, gachaData));
         }
         const firstDayOfMonth = new Date(targetYear, targetMonth, 1).getDay();
         for (let i = 0; i < firstDayOfMonth; i++) { grid.appendChild(document.createElement('div')).className = 'calendar-date other-month'; }
@@ -215,10 +214,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (dateCell && !dateCell.classList.contains('other-month')) {
                 const date = dateCell.dataset.date;
-                if (selectedDateEl) selectedDateEl.classList.remove('selected');
-                dateCell.classList.add('selected');
-                selectedDateEl = dateCell;
-                
                 const day = new Date(date + 'T00:00:00').getDate();
                 const dayEvents = monthEventsCache.get(day) || [];
                 

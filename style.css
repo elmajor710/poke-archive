@@ -33,9 +33,7 @@ header h1 { margin: 0; font-size: 1.5em; }
 }
 .panel.visible { display: flex; }
 .panel-header { padding: 10px 15px; border-bottom: 1px solid var(--border-color); }
-/* [수정] panel-content가 전체 높이를 차지하도록 수정 */
-.panel-content { padding: 0; overflow-y: auto; flex-grow: 1; }
-
+.panel-content { padding: 10px; overflow-y: auto; flex-grow: 1; }
 .menu-item, .list-item {
     display: block; width: 100%; text-align: left; padding: 12px; margin-bottom: 5px;
     border: 1px solid #eee; background: #f9f9f9; border-radius: 6px;
@@ -45,25 +43,15 @@ header h1 { margin: 0; font-size: 1.5em; }
     background-color: var(--active-color); border-left: 4px solid var(--primary-color);
     font-weight: 600;
 }
-
 #app-container.final-view-L4 #sidebar,
 #app-container.final-view-L4 #lev2-panel,
-#app-container.final-view-L4 #lev3-panel {
-    display: none;
-}
+#app-container.final-view-L4 #lev3-panel { display: none; }
 #app-container.final-view-L3 #sidebar,
-#app-container.final-view-L3 #lev2-panel {
-    display: none;
-}
+#app-container.final-view-L3 #lev2-panel { display: none; }
 #app-container.final-view-L4 #content-area,
-#app-container.final-view-L3 #content-area {
-    overflow-x: hidden;
-}
+#app-container.final-view-L3 #content-area { overflow-x: hidden; }
 #app-container.final-view-L4 #lev4-panel,
-#app-container.final-view-L3 #lev3-panel {
-    width: 100%;
-    border-right: none;
-}
+#app-container.final-view-L3 #lev3-panel { width: 100%; border-right: none; }
 
 @media (max-width: 768px) {
     :root { --sidebar-width: 120px; }
@@ -79,28 +67,34 @@ header h1 { margin: 0; font-size: 1.5em; }
     }
     .panel.visible { transform: translateX(0); display: flex; }
     #app-container.final-view-L4 #lev4-panel,
-    #app-container.final-view-L3 #lev3-panel {
-        transform: translateX(0);
-    }
-    #sidebar { padding: 8px; }
+    #app-container.final-view-L3 #lev3-panel { transform: translateX(0); }
+    #sidebar, .panel-content { padding: 8px; }
     .menu-item, .list-item { font-size: 14px; padding: 10px 8px; }
     .panel-header .back-btn { padding: 8px 10px; font-size: 14px; }
 }
 
 .type-normal { background-color: #A8A878 !important; color: black; }
 .type-fire { background-color: #F08030 !important; color: black; }
-/* ... (다른 타입 색상 스타일은 이전과 동일) ... */
+.type-water { background-color: #6890F0 !important; color: black; }
+.type-grass { background-color: #78C850 !important; color: black; }
+.type-electric { background-color: #F8D030 !important; color: black; }
+.type-ice { background-color: #98D8D8 !important; color: black; }
+.type-fighting { background-color: #D56760 !important; color: black; }
+.type-poison { background-color: #B369B3 !important; color: black; }
+.type-ground { background-color: #E0C068 !important; color: black; }
+.type-flying { background-color: #A890F0 !important; color: black; }
+.type-psychic { background-color: #F85888 !important; color: black; }
+.type-bug { background-color: #A8B820 !important; color: black; }
+.type-rock { background-color: #B8A038 !important; color: black; }
+.type-ghost { background-color: #705898 !important; color: black; }
+.type-dragon { background-color: #7038F8 !important; color: black; }
+.type-dark { background-color: #705848 !important; color: black; }
+.type-steel { background-color: #B8B8D0 !important; color: black; }
+.type-fairy { background-color: #EE99AC !important; color: black; }
 
-/* ============================================= */
-/* 캘린더 스타일 (최종 수정본)                   */
-/* ============================================= */
 .calendar-container {
-    padding: 10px;
-    background: #fff;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden; 
+    padding: 10px; background: #fff; height: 100%;
+    display: flex; flex-direction: column; overflow: hidden; 
 }
 .calendar-header {
     display: flex; justify-content: space-between; align-items: center;
@@ -122,16 +116,13 @@ header h1 { margin: 0; font-size: 1.5em; }
     display: grid; grid-template-columns: repeat(7, 1fr);
     gap: 2px; flex-shrink: 0;
 }
-.calendar-day-name {
-    font-weight: bold; text-align: center; padding: 5px; font-size: 12px;
-}
+.calendar-day-name { font-weight: bold; text-align: center; padding: 5px; font-size: 12px; }
 .calendar-date {
     border: 1px solid #e0e0e0; border-radius: 5px; padding: 5px;
-    min-height: 55px; cursor: pointer;
-    transition: background-color 0.2s; display: flex; flex-direction: column;
+    min-height: 80px; cursor: pointer; transition: background-color 0.2s;
+    display: flex; flex-direction: column;
 }
 .calendar-date:hover { background-color: #f8f9fa; }
-.calendar-date.selected { background-color: #e6f2ff; border: 2px solid #007bff; }
 .calendar-date.other-month { color: #ccc; background-color: #f9f9f9; cursor: default; }
 .date-number { font-weight: bold; font-size: 12px; margin-bottom: 4px; }
 .event-indicator-list { display: flex; flex-direction: column; gap: 3px; }
@@ -139,24 +130,25 @@ header h1 { margin: 0; font-size: 1.5em; }
 .indicator-ranking { background-color: #FF4500; }
 .indicator-limited { background-color: #1E90FF; }
 .indicator-special { background-color: #32CD32; }
-
-/* [핵심 수정] 하단 설명 영역 레이아웃 */
-.calendar-agenda-view {
-    margin-top: 15px;
-    padding: 15px 10px; /* 좌우 패딩 추가 */
-    border-top: 2px solid #f0f0f0;
-    flex-grow: 1; /* 남는 공간을 모두 차지 */
-    overflow-y: auto; /* 내용이 많으면 이 안에서 스크롤 */
-    min-height: 0; /* Flexbox 스크롤을 위한 중요 속성 */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 1000;
 }
-.agenda-header {
-    font-size: 1.2em; font-weight: bold; margin-bottom: 10px;
+.modal-content {
+    background: white; padding: 20px; border-radius: 8px;
+    max-width: 500px; width: 90%; max-height: 80vh;
+    overflow-y: auto; position: relative;
 }
+.modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;
+}
+.modal-header h2 { margin: 0; font-size: 1.3em; }
+.modal-close-btn { font-size: 24px; font-weight: bold; cursor: pointer; border: none; background: none; }
 .agenda-item {
     display: flex; align-items: center; padding: 10px;
     border-radius: 5px; margin-bottom: 8px; background-color: #f8f9fa;
 }
-.agenda-item-color {
-    width: 5px; height: 25px; margin-right: 10px;
-    border-radius: 3px; flex-shrink: 0;
-}
+.agenda-item-color { width: 5px; height: 25px; margin-right: 10px; border-radius: 3px; flex-shrink: 0; }
