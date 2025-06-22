@@ -32,9 +32,27 @@ const DB = {
         lev4: {}
     },
     item: {
-        lev2: [ {id:'god', name:'빨강(God)'}, {id:'legendary', name:'주황(Legendary)'}, {id:'epic', name:'보라(Epic)'} ],
-        lev3: { god: [ {id:'rustySword', name:'녹슨검'} ], legendary: [ {id:'kingsRock', name:'왕의징표석'} ], epic: [ {id:'leftovers', name:'먹다남은음식'}, {id:'focusSash', name:'기합의머리띠'} ], },
-        lev4: { rustySword: { name:'녹슨검', imageURL: '이미지URL_준비중', description: '자시안에게 지니게 하면 강철타입으로 변화하며, 공격이 1.2배 강해진다.' }, kingsRock: { name:'왕의징표석', imageURL: '이미지URL_준비중', description: '공격 기술에 10% 확률로 풀죽음 효과를 부여한다.' }, leftovers: { name:'먹다남은음식', imageURL: '이미지URL_준비중', description: '지니게 하면 매 턴마다 최대 HP의 1/16만큼 HP를 회복한다.' }, focusSash: { name:'기합의머리띠', imageURL: '이미지URL_준비중', description: 'HP가 가득 찬 상태에서 기술을 받아 쓰러질 경우, HP 1을 남기고 한 번 버틴다.'} }
+        lev2: [ 
+            {id:'god', name:'빨강(God)'},
+            {id:'legendary', name:'주황(Legendary)'},
+            {id:'epic', name:'보라(Epic)'} 
+        ],
+        lev3: { 
+            god: [ {id:'녹슨검', name:'녹슨검'} ],
+            legendary: [ {id:'kingsRock', name:'왕의징표석'} ], 
+            epic: [ {id:'leftovers', name:'먹다남은음식'}, {id:'focusSash', name:'기합의머리띠'} ], 
+        },
+        lev4: { 
+            '녹슨검': {
+                name: '녹슨검',
+                imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbxtDeD%2FbtsOKJ36Be7%2FUrXuXYDmF5ADlMKoNkTlpK%2Fimg.png',
+                baseStats: { 'HP': 3872, '스피드': 77, '공격': 774, '방어': 310, '특수공격': 774, '특수방어': 310 },
+                description: '휴대 시 피해 보너스 5% 증가, 최종 피해 보너스 5% 증가, 스피드 10% 증가\n창세법칙: 팀에 소지자와 자연 타입이 같은 아군이 2명 및 이상일 경우, 처음 3라운드 동안 아군 전체의 8% 물리&특수 공격과 4% 스피드는 증가한다. (같은 타입의 포켓몬이 50% 추가 부스트를 얻습니다.)\n검개천문: 전투 시작 전 2라운드에 거대한 검을 떨어뜨려 [참격] 적의 HP 최고 목표, [참격]: 대상 현재 HP의 15%를 직접 참격(상한은 자신의 물리&특수 공격의 250%), HP가 50% 이상인 대상의 참격 계수가 25%로 증가됩니다.\n쌍검합벽: 아군이 동시에 녹슨 검을 소지하고 있는 경우 아군 2명은 같은 라운드에 한 번 서로를 전투에 초대할 수 있습니다. 이 초대장에는 데미지 30%의 [참격] 효과가 함께 제공됩니다. 전투마다 최대 1회 발동.'
+            },
+            kingsRock: { name:'왕의징표석', imageURL: '이미지URL_준비중', description: '공격 기술에 10% 확률로 풀죽음 효과를 부여한다.' },
+            leftovers: { name:'먹다남은음식', imageURL: '이미지URL_준비중', description: '지니게 하면 매 턴마다 최대 HP의 1/16만큼 HP를 회복한다.' },
+            focusSash: { name:'기합의머리띠', imageURL: '이미지URL_준비중', description: 'HP가 가득 찬 상태에서 기술을 받아 쓰러질 경우, HP 1을 남기고 한 번 버틴다.'}
+        }
     },
     runeAndChip: {
         lev2: [ {id: 'rune', name: '룬'}, {id: 'chip', name: '칩'} ],
