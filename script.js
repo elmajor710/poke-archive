@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex v8.3-item-stats');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex v8.3-item-stats-final');
 
     const appContainer = document.getElementById('app-container');
     const adminPanel = document.getElementById('admin-panel');
@@ -14,9 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const adminContent = document.getElementById('admin-content');
         const codeOutput = document.getElementById('code-output');
-
+        
         function renderAddItemForm() {
             const formContainer = document.getElementById('admin-form-container');
+            if (!formContainer) return;
             formContainer.innerHTML = `
                 <h4>아이템 추가</h4>
                 <div class="form-group">
@@ -130,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
             lev4: document.getElementById('lev4-panel'),
         };
         let activeButtons = {};
+        let selectedDateEl = null;
         let monthEventsCache = new Map();
 
         function showModal(title, contentHTML) {
@@ -241,17 +243,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.imageURL && data.imageURL.startsWith('http')) {
                 html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin: 10px 0;">`;
             }
-        
             if (data.baseStats && Object.values(data.baseStats).some(v => v > 0)) {
-                html += '<h4>기초 타입</h4><table class="stats-table">';
+                html += '<h4>기초 타입</h4><table class="stats-table" style="width:100%; border-collapse: collapse;">';
                 Object.entries(data.baseStats).forEach(([stat, value]) => {
                     if (value > 0) {
-                        html += `<tr><td>${stat}</td><td>+${value}</td></tr>`;
+                        html += `<tr style="border-bottom: 1px solid #eee;"><td style="padding: 5px;">${stat}</td><td style="padding: 5px;">+${value}</td></tr>`;
                     }
                 });
                 html += '</table>';
             }
-        
             if (data.description) {
                 html += '<h4 style="margin-top: 15px;">휴대 효과</h4>';
                 html += `<p>${data.description.replace(/\n/g, '<br>')}</p>`;
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const finalLevelForCategory = categoryInfo ? categoryInfo.levels : 0;
             const isFinal = !Array.isArray(data);
             if (isFinal) {
-                app.className = `final-view-L${finalLevelForCategory}`;
+                appContainer.className = `final-view-L${finalLevelForCategory}`;
                 Object.values(panels).forEach(p => p.classList.remove('visible'));
                 if (data.events || data.recurringEvents) {
                     renderCalendarView(contentDiv, data);
@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     contentDiv.innerHTML = data.content || "콘텐츠를 표시할 수 없습니다.";
                 }
             } else {
-                app.className = "";
+                appContainer.className = "";
                 data.forEach(item => {
                     const button = document.createElement('button');
                     button.className = 'list-item';
@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function addEventListeners() {
-            app.addEventListener('click', e => {
+            appContainer.addEventListener('click', e => {
                 const button = e.target.closest('button');
                 const dateCell = e.target.closest('.calendar-date');
                 if (dateCell && !dateCell.classList.contains('other-month')) {
@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const level = parseInt(button.dataset.level);
             const id = button.dataset.id;
             const menuId = button.dataset.menuId || id;
-            if (level === 1) { app.className = ""; selectedDateEl = null; }
+            if (level === 1) { appContainer.className = ""; selectedDateEl = null; }
             setActive(level, button);
             for (let i = level + 1; i <= 4; i++) {
                 if (panels[`lev${i}`]) { panels[`lev${i}`].classList.remove('visible'); }
@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
             parentPanel.classList.remove('visible');
             setActive(level - 1, null);
-            app.className = ""; 
+            appContainer.className = ""; 
             selectedDateEl = null;
         }
 
