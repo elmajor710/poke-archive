@@ -1,58 +1,106 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex v8.1-admin-init');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex v8.2-admin-form');
 
-    // 공통으로 사용될 DOM 요소
+    // 공통 DOM 요소
     const appContainer = document.getElementById('app-container');
     const adminPanel = document.getElementById('admin-panel');
 
-    // URL을 확인하여 어떤 모드로 시작할지 결정
+    // URL 파라미터로 모드 결정
     const urlParams = new URLSearchParams(window.location.search);
     const isAdminMode = urlParams.get('admin') === 'true';
 
     if (isAdminMode) {
-        // =============== 운영자 모드 실행 ===============
+        // =================================================
+        // 운영자 모드 실행
+        // =================================================
         appContainer.style.display = 'none';
         adminPanel.style.display = 'block';
         
         const adminContent = document.getElementById('admin-content');
         const codeOutput = document.getElementById('code-output');
-
-        // script.js 파일에서 이 함수만 찾아서 교체해주세요.
-    function renderAdminDashboard() {
-    adminContent.innerHTML = `
-        <h3>데이터 추가 종류 선택</h3>
-        <select id="data-type-selector">
-            <option value="">-- 종류를 선택하세요 --</option>
-            <option value="pokemon">포켓몬</option>
-            <option value="item">아이템</option>
-            <option value="rune">룬</option>
-            <option value="chip">칩</option>
-            <option value="deck">추천덱</option>
-            <option value="calendar">캘린더</option>
-            <option value="tip">팁&노하우</option>
-        </select>
-        <div id="admin-form-container" style="margin-top: 20px;"></div>
-    `;
-
-    document.getElementById('data-type-selector').addEventListener('change', (e) => {
-        const type = e.target.value;
-        const formContainer = document.getElementById('admin-form-container');
         
-        if (type) {
-            // 선택된 메뉴의 한글 이름을 가져옵니다.
-            const selectedText = e.target.options[e.target.selectedIndex].text;
-            formContainer.innerHTML = `<h4>'${selectedText}' 추가 폼 (개발 예정)</h4>`;
-        } else {
-            formContainer.innerHTML = '';
+        function renderAddItemForm() {
+            const formContainer = document.getElementById('admin-form-container');
+            formContainer.innerHTML = `
+                <h4>아이템 추가</h4>
+                <div class="form-group">
+                    <label for="item-name">아이템 이름:</label>
+                    <input type="text" id="item-name" placeholder="예: 먹다남은음식">
+                </div>
+                <div class="form-group">
+                    <label for="item-image-url">이미지 URL:</label>
+                    <input type="text" id="item-image-url" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label for="item-description">설명:</label>
+                    <textarea id="item-description" rows="4" placeholder="아이템에 대한 설명을 입력하세요."></textarea>
+                </div>
+                <button id="generate-item-code" class="admin-button">코드 생성</button>
+            `;
         }
-        codeOutput.value = '';
-    });
-    }
+        
+        function handleGenerateItemCode() {
+            const name = document.getElementById('item-name').value;
+            const imageUrl = document.getElementById('item-image-url').value;
+            const description = document.getElementById('item-description').value;
+
+            if (!name || !description) {
+                alert('아이템 이름과 설명은 필수 항목입니다.');
+                return;
+            }
+
+            const id = name.replace(/[^a-zA-Z0-9가-힣]/g, '').toLowerCase();
+            const formattedDescription = description.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n');
+
+            const generatedCode = `'${id}': { \n    name: '${name}', \n    imageURL: '${imageUrl}', \n    description: '${formattedDescription}' \n},`;
+            codeOutput.value = generatedCode;
+            alert('코드가 생성되었습니다! 아래 텍스트 영역에서 복사하여 data.js에 추가하세요.');
+        }
+
+        function renderAdminDashboard() {
+            adminContent.innerHTML = `
+                <h3>데이터 추가 종류 선택</h3>
+                <select id="data-type-selector">
+                    <option value="">-- 종류를 선택하세요 --</option>
+                    <option value="pokemon">포켓몬</option>
+                    <option value="item">아이템</option>
+                    <option value="rune">룬</option>
+                    <option value="chip">칩</option>
+                    <option value="deck">추천덱</option>
+                    <option value="calendar">캘린더</option>
+                    <option value="tip">팁&노하우</option>
+                </select>
+                <div id="admin-form-container" style="margin-top: 20px;"></div>
+            `;
+        }
 
         renderAdminDashboard();
 
+        document.getElementById('data-type-selector').addEventListener('change', (e) => {
+            const type = e.target.value;
+            const formContainer = document.getElementById('admin-form-container');
+            codeOutput.value = '';
+            
+            if (type === 'item') {
+                renderAddItemForm();
+            } else if (type) {
+                const selectedText = e.target.options[e.target.selectedIndex].text;
+                formContainer.innerHTML = `<h4>'${selectedText}' 추가 폼 (개발 예정)</h4>`;
+            } else {
+                formContainer.innerHTML = '';
+            }
+        });
+
+        adminPanel.addEventListener('click', (e) => {
+            if (e.target.id === 'generate-item-code') {
+                handleGenerateItemCode();
+            }
+        });
+
     } else {
-        // =============== 일반 사용자 모드 실행 ===============
+        // =================================================
+        // 일반 사용자 모드 실행
+        // =================================================
         const sidebar = document.getElementById('sidebar');
         const panels = {
             lev2: document.getElementById('lev2-panel'),
@@ -127,10 +175,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const grid = calendarContainer.querySelector('.calendar-grid');
             const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
             weekdays.forEach(day => { const el = grid.appendChild(document.createElement('div')); el.className = 'calendar-day-name'; el.textContent = day; });
+            const gachaData = DB.calendar.lev3.gachaSchedule;
             const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                monthEventsCache.set(day, getEventsForDate(dateStr, data));
+                monthEventsCache.set(day, getEventsForDate(dateStr, gachaData));
             }
             const firstDayOfMonth = new Date(targetYear, targetMonth, 1).getDay();
             for (let i = 0; i < firstDayOfMonth; i++) { grid.appendChild(document.createElement('div')).className = 'calendar-date other-month'; }
@@ -158,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
             contentDiv.dataset.currentYear = targetYear;
             contentDiv.dataset.currentMonth = targetMonth;
         }
-        
+
         function renderPokemonView(contentDiv, data) {
             let html = `<h2>${data.name} (${data.grade || ''})</h2>`;
             if (data.imageURL && data.imageURL.startsWith('http')) { html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin-bottom: 10px;">`; }
@@ -322,5 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeButtons[level] = target;
             }
         }
+        
+        initialize();
     }
 });
