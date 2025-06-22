@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex v7.0-final');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex v8.0-final-stable');
 
     const app = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
@@ -10,13 +10,40 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let activeButtons = {};
     let selectedDateEl = null;
-    let monthEventsCache = new Map(); // 월별 이벤트 캐시
+    let monthEventsCache = new Map();
 
-    function getEventsForDate(dateStr, year, month) {
+    function showModal(title, contentHTML) {
+        const existingModal = document.querySelector('.modal-overlay');
+        if (existingModal) existingModal.remove();
+
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'modal-overlay';
+        
+        modalOverlay.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>${title}</h2>
+                    <button class="modal-close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    ${contentHTML}
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modalOverlay);
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay || e.target.closest('.modal-close-btn')) {
+                modalOverlay.remove();
+            }
+        });
+    }
+
+    function getEventsForDate(dateStr, gachaData) {
         const targetDate = new Date(dateStr + 'T00:00:00');
         if (isNaN(targetDate.getTime())) return [];
         const foundEvents = [];
-        const gachaData = DB.calendar.lev3.gachaSchedule;
 
         (gachaData.events || []).forEach(event => {
             const startDate = new Date(event.startDate + 'T00:00:00');
@@ -27,40 +54,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+
         (gachaData.recurringEvents || []).forEach(event => {
             let occurrenceStart = new Date(event.startDate + 'T00:00:00');
             if (isNaN(occurrenceStart.getTime())) return;
-            const stopDate = new Date(year, month + 2, 0);
-            while (occurrenceStart < stopDate) {
+            
+            const stopDate = new Date(targetDate);
+            stopDate.setFullYear(stopDate.getFullYear() + 1);
+
+            while (occurrenceStart <= stopDate) {
                 const occurrenceEnd = new Date(occurrenceStart);
                 occurrenceEnd.setDate(occurrenceStart.getDate() + (event.durationDays - 1));
                 if (targetDate >= occurrenceStart && targetDate <= occurrenceEnd) {
-                    foundEvents.push({ ...event, date: dateStr });
-                    break;
+                    foundEvents.push({ ...event, title: event.title });
+                    break; 
                 }
                 if (occurrenceStart > targetDate) break;
                 occurrenceStart.setDate(occurrenceStart.getDate() + (event.recurrence.interval * 7));
             }
         });
         return foundEvents;
-    }
-
-    function renderAgenda(date, events) {
-        const agendaView = app.querySelector('.calendar-agenda-view');
-        if (!agendaView) return;
-        const weekdayNames = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
-        const dateObj = new Date(date + 'T00:00:00');
-        let html = `<div class="agenda-header">${dateObj.getDate()}일 ${weekdayNames[dateObj.getDay()]}</div>`;
-        if (events && events.length > 0) {
-            events.forEach(event => {
-                const type = event.type || 'default';
-                const color = type === 'ranking' ? '#FF4500' : type === 'limited' ? '#1E90FF' : (type === 'special' ? '#32CD32' : '#888');
-                html += `<div class="agenda-item"><div class="agenda-item-color" style="background-color: ${color};"></div><div class="agenda-item-title">${event.title}</div></div>`;
-            });
-        } else {
-            html += `<p>선택된 날짜에 일정이 없습니다.</p>`;
-        }
-        agendaView.innerHTML = html;
     }
 
     function renderCalendarView(contentDiv, data, year, month) {
@@ -70,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             targetDate.setFullYear(2025, 5, 1);
         }
+    
         const targetYear = targetDate.getFullYear();
         const targetMonth = targetDate.getMonth();
         contentDiv.innerHTML = '';
@@ -77,15 +91,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const monthNames = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
         const calendarContainer = document.createElement('div');
         calendarContainer.className = 'calendar-container';
-        calendarContainer.innerHTML = `<div class="calendar-header"><h2>${targetYear}년 ${monthNames[targetMonth]}</h2><div class="calendar-nav"><button class="calendar-nav-btn" data-action="prev-month">&lt; 이전</button><button class="calendar-nav-btn" data-action="next-month">다음 &gt;</button></div></div><div class="calendar-legend"><div class="legend-item"><div class="legend-color-box" style="background-color: #FF4500;"></div><span>랭킹뽑기</span></div><div class="legend-item"><div class="legend-color-box" style="background-color: #1E90FF;"></div><span>한정뽑기</span></div><div class="legend-item"><div class="legend-color-box" style="background-color: #32CD32;"></div><span>복냥이</span></div></div><div class="calendar-grid"></div><div class="calendar-agenda-view"><p>날짜를 선택하여 일정을 확인하세요.</p></div>`;
+        calendarContainer.innerHTML = `<div class="calendar-header"><h2>${targetYear}년 ${monthNames[targetMonth]}</h2><div class="calendar-nav"><button class="calendar-nav-btn" data-action="prev-month">&lt; 이전</button><button class="calendar-nav-btn" data-action="next-month">다음 &gt;</button></div></div><div class="calendar-legend"><div class="legend-item"><div class="legend-color-box" style="background-color: #FF4500;"></div><span>랭킹뽑기</span></div><div class="legend-item"><div class="legend-color-box" style="background-color: #1E90FF;"></div><span>한정뽑기</span></div><div class="legend-item"><div class="legend-color-box" style="background-color: #32CD32;"></div><span>복냥이</span></div></div><div class="calendar-grid"></div>`;
         const grid = calendarContainer.querySelector('.calendar-grid');
         const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-        weekdays.forEach(day => { grid.appendChild(document.createElement('div')).className = `calendar-day-name`; grid.lastChild.textContent = day; });
+        weekdays.forEach(day => { const el = grid.appendChild(document.createElement('div')); el.className = 'calendar-day-name'; el.textContent = day; });
         
         const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
         for (let day = 1; day <= daysInMonth; day++) {
             const dateStr = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            monthEventsCache.set(day, getEventsForDate(dateStr, targetYear, targetMonth));
+            monthEventsCache.set(day, getEventsForDate(dateStr, data));
         }
         const firstDayOfMonth = new Date(targetYear, targetMonth, 1).getDay();
         for (let i = 0; i < firstDayOfMonth; i++) { grid.appendChild(document.createElement('div')).className = 'calendar-date other-month'; }
@@ -116,21 +130,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function renderPokemonView(contentDiv, data) {
         let html = `<h2>${data.name} (${data.grade || ''})</h2>`;
-        if (data.imageURL && data.imageURL.startsWith('http')) {
-            html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin-bottom: 10px;">`;
-        }
+        if (data.imageURL && data.imageURL.startsWith('http')) { html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin-bottom: 10px;">`; }
         html += `<p>포켓몬 상세 화면 개발 예정입니다.</p>`;
         contentDiv.innerHTML = html;
     }
 
     function renderSimpleView(contentDiv, data) {
         let html = `<h2>${data.name}</h2>`;
-        if (data.imageURL && data.imageURL.startsWith('http')) {
-            html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin-bottom: 10px;">`;
-        }
-        if (data.description) {
-            html += `<p>${data.description.replace(/\n/g, '<br>')}</p>`;
-        }
+        if (data.imageURL && data.imageURL.startsWith('http')) { html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin-bottom: 10px;">`; }
+        if (data.description) { html += `<p>${data.description.replace(/\n/g, '<br>')}</p>`; }
         contentDiv.innerHTML = html;
     }
 
@@ -140,11 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentDiv = targetPanel.querySelector('.panel-content');
         contentDiv.innerHTML = '';
         setTimeout(() => { contentDiv.scrollTop = 0; }, 0);
-        if (!data) {
-            contentDiv.innerHTML = "데이터가 없습니다.";
-            targetPanel.classList.add('visible');
-            return;
-        }
+        if (!data) { contentDiv.innerHTML = "데이터가 없습니다."; targetPanel.classList.add('visible'); return; }
         const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
         const finalLevelForCategory = categoryInfo ? categoryInfo.levels : 0;
         const isFinal = !Array.isArray(data);
@@ -177,26 +181,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function initialize() {
-        const gradeCategory = 'pokemonGrade';
-        if (DB[gradeCategory] && DB.pokemonType?.lev4) {
-            const grades = {};
-            Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
-                if (pokemon && pokemon.grade) {
-                    if (!grades[pokemon.grade]) grades[pokemon.grade] = [];
-                    grades[pokemon.grade].push({ ...pokemon, id: pokemonId });
-                }
-            });
-            DB[gradeCategory].lev3 = {};
-            Object.keys(grades).forEach(gradeKey => {
-                 const gradeInfo = DB.pokemonGrade.lev2.find(g => g.name === gradeKey);
-                 if (gradeInfo) {
-                    const gradeId = gradeInfo.id;
-                    DB[gradeCategory].lev3[gradeId] = grades[gradeKey].map(p => ({id: p.id, name: p.name}));
-                 }
-            });
+        try {
+            const gradeCategory = 'pokemonGrade';
+            if (DB[gradeCategory] && DB.pokemonType?.lev4) {
+                const grades = {};
+                Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
+                    if (pokemon && pokemon.grade) {
+                        if (!grades[pokemon.grade]) grades[pokemon.grade] = [];
+                        grades[pokemon.grade].push({ ...pokemon, id: pokemonId });
+                    }
+                });
+                DB[gradeCategory].lev3 = {};
+                Object.keys(grades).forEach(gradeKey => {
+                    const gradeInfo = DB.pokemonGrade.lev2.find(g => g.name === gradeKey);
+                    if (gradeInfo) {
+                        const gradeId = gradeInfo.id;
+                        DB[gradeCategory].lev3[gradeId] = grades[gradeKey].map(p => ({id: p.id, name: p.name}));
+                    }
+                });
+            }
+            sidebar.innerHTML = DB.sidebarMenu.map(item => `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`).join('');
+            addEventListeners();
+        } catch (error) {
+            console.error("초기화 중 오류 발생:", error);
+            document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. data.js 또는 script.js 파일을 확인해주세요.";
         }
-        sidebar.innerHTML = DB.sidebarMenu.map(item => `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`).join('');
-        addEventListeners();
     }
 
     function addEventListeners() {
@@ -206,12 +215,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (dateCell && !dateCell.classList.contains('other-month')) {
                 const date = dateCell.dataset.date;
-                if(selectedDateEl) selectedDateEl.classList.remove('selected');
+                if (selectedDateEl) selectedDateEl.classList.remove('selected');
                 dateCell.classList.add('selected');
                 selectedDateEl = dateCell;
+                
                 const day = new Date(date + 'T00:00:00').getDate();
                 const dayEvents = monthEventsCache.get(day) || [];
-                renderAgenda(date, dayEvents);
+                
+                if (dayEvents.length > 0) {
+                    const weekdayNames = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+                    const dateObj = new Date(date + 'T00:00:00');
+                    let modalHTML = '';
+                    dayEvents.forEach(event => {
+                        const type = event.type || 'default';
+                        const color = type === 'ranking' ? '#FF4500' : type === 'limited' ? '#1E90FF' : (type === 'special' ? '#32CD32' : '#888');
+                        modalHTML += `<div class="agenda-item"><div class="agenda-item-color" style="background-color: ${color};"></div><div class="agenda-item-title">${event.title}</div></div>`;
+                    });
+                    showModal(`${dateObj.getDate()}일 ${weekdayNames[dateObj.getDay()]}`, modalHTML);
+                }
                 return;
             }
 
