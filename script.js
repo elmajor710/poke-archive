@@ -17,29 +17,37 @@ document.addEventListener('DOMContentLoaded', () => {
         const adminContent = document.getElementById('admin-content');
         const codeOutput = document.getElementById('code-output');
 
-        function renderAdminDashboard() {
-            adminContent.innerHTML = `
-                <h3>데이터 추가 종류 선택</h3>
-                <select id="data-type-selector">
-                    <option value="">-- 종류를 선택하세요 --</option>
-                    <option value="pokemon">포켓몬</option>
-                    <option value="item">아이템</option>
-                    <option value="rune">룬</option>
-                    <option value="chip">칩</option>
-                </select>
-                <div id="admin-form-container" style="margin-top: 20px;"></div>
-            `;
+        // script.js 파일에서 이 함수만 찾아서 교체해주세요.
+    function renderAdminDashboard() {
+    adminContent.innerHTML = `
+        <h3>데이터 추가 종류 선택</h3>
+        <select id="data-type-selector">
+            <option value="">-- 종류를 선택하세요 --</option>
+            <option value="pokemon">포켓몬</option>
+            <option value="item">아이템</option>
+            <option value="rune">룬</option>
+            <option value="chip">칩</option>
+            <option value="deck">추천덱</option>
+            <option value="calendar">캘린더</option>
+            <option value="tip">팁&노하우</option>
+        </select>
+        <div id="admin-form-container" style="margin-top: 20px;"></div>
+    `;
 
-            document.getElementById('data-type-selector').addEventListener('change', (e) => {
-                const type = e.target.value;
-                // 나중에 각 타입에 맞는 폼을 생성하는 함수를 여기에 연결합니다.
-                document.getElementById('admin-form-container').innerHTML = `
-                    <h4>${type} 추가 폼 (개발 예정)</h4>
-                    <p>이곳에 각 항목에 맞는 입력 필드가 나타날 것입니다.</p>
-                `;
-                codeOutput.value = ''; // 종류 변경 시 출력창 초기화
-            });
+    document.getElementById('data-type-selector').addEventListener('change', (e) => {
+        const type = e.target.value;
+        const formContainer = document.getElementById('admin-form-container');
+        
+        if (type) {
+            // 선택된 메뉴의 한글 이름을 가져옵니다.
+            const selectedText = e.target.options[e.target.selectedIndex].text;
+            formContainer.innerHTML = `<h4>'${selectedText}' 추가 폼 (개발 예정)</h4>`;
+        } else {
+            formContainer.innerHTML = '';
         }
+        codeOutput.value = '';
+    });
+    }
 
         renderAdminDashboard();
 
