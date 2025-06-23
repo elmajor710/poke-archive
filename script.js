@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex v8.4-readability-fix');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex v8.5-final');
 
     const appContainer = document.getElementById('app-container');
     const adminPanel = document.getElementById('admin-panel');
@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isAdminMode = urlParams.get('admin') === 'true';
 
     if (isAdminMode) {
+        // =============== 운영자 모드 실행 ===============
         appContainer.style.display = 'none';
         adminPanel.style.display = 'block';
         
@@ -29,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="form-group"><label for="item-sp-attack">특수공격:</label><input type="number" id="item-sp-attack" value="0" style="width: 80%;"></div>
                     <div class="form-group"><label for="item-sp-defense">특수방어:</label><input type="number" id="item-sp-defense" value="0" style="width: 80%;"></div>
                 </div></fieldset>
-                <div class="form-group"><label for="item-description">설명 (휴대 효과):</label><textarea id="item-description" rows="4" style="width: 95%;" placeholder="아이템에 대한 설명을 입력하세요."></textarea></div>
+                <div class="form-group"><label for="item-description">설명 (휴대 효과):</label><textarea id="item-description" rows="10" style="width: 95%;" placeholder="아이템에 대한 설명을 입력하세요."></textarea></div>
                 <button id="generate-item-code" class="admin-button" style="margin-top:10px;">코드 생성</button>
             `;
         }
@@ -66,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const sidebar = document.getElementById('sidebar');
         const panels = { lev2: document.getElementById('lev2-panel'), lev3: document.getElementById('lev3-panel'), lev4: document.getElementById('lev4-panel') };
         let activeButtons = {};
-        let selectedDateEl = null;
         let monthEventsCache = new Map();
 
         function showModal(title, contentHTML) {
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 });
-                html += processedDescription;
+                html += `<div class="item-description">${processedDescription}</div>`;
             }
             contentDiv.innerHTML = html;
         }
@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const level = parseInt(button.dataset.level);
             const id = button.dataset.id;
             const menuId = button.dataset.menuId || id;
-            if (level === 1) { appContainer.className = ""; selectedDateEl = null; }
+            if (level === 1) { appContainer.className = ""; }
             setActive(level, button);
             for (let i = level + 1; i <= 4; i++) {
                 if (panels[`lev${i}`]) { panels[`lev${i}`].classList.remove('visible'); }
