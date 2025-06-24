@@ -102,7 +102,6 @@ header h1 { margin: 0; font-size: 1.5em; }
     color: #333;
 }
 .stats-table {
-    /* [핵심 수정] width: 100%를 제거하여 내용물에 맞게 크기가 조절되도록 합니다. */
     border-collapse: collapse;
     margin: 10px 0;
 }
@@ -125,7 +124,6 @@ header h1 { margin: 0; font-size: 1.5em; }
         display: contents;
     }
 }
-
 .calendar-container {
     padding: 10px; background: #fff; height: 100%;
     display: flex; flex-direction: column;

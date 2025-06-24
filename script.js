@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex v8.5-final');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex v9.0-final');
 
     const appContainer = document.getElementById('app-container');
     const adminPanel = document.getElementById('admin-panel');
@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const isAdminMode = urlParams.get('admin') === 'true';
 
     if (isAdminMode) {
-        // =============== 운영자 모드 실행 ===============
         appContainer.style.display = 'none';
         adminPanel.style.display = 'block';
         
@@ -67,6 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const sidebar = document.getElementById('sidebar');
         const panels = { lev2: document.getElementById('lev2-panel'), lev3: document.getElementById('lev3-panel'), lev4: document.getElementById('lev4-panel') };
         let activeButtons = {};
+        let selectedDateEl = null;
         let monthEventsCache = new Map();
 
         function showModal(title, contentHTML) {
@@ -189,20 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (data.description) {
                 html += '<h4 style="margin-top: 15px;">휴대 효과</h4>';
-                const descriptionLines = data.description.split('\\n');
-                let processedDescription = '';
-                descriptionLines.forEach(line => {
-                    const trimmedLine = line.trim();
-                    if (trimmedLine) {
-                        if (trimmedLine.includes(':')) {
-                            const parts = trimmedLine.split(':');
-                            processedDescription += `<p><strong>${parts[0]}:</strong> ${parts.slice(1).join(':')}</p>`;
-                        } else {
-                            processedDescription += `<p>${trimmedLine}</p>`;
-                        }
-                    }
-                });
-                html += `<div class="item-description">${processedDescription}</div>`;
+                html += `<div class="item-description">${data.description.replace(/\\n/g, '\n')}</div>`;
             }
             contentDiv.innerHTML = html;
         }
@@ -314,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const level = parseInt(button.dataset.level);
             const id = button.dataset.id;
             const menuId = button.dataset.menuId || id;
-            if (level === 1) { appContainer.className = ""; }
+            if (level === 1) { appContainer.className = ""; selectedDateEl = null; }
             setActive(level, button);
             for (let i = level + 1; i <= 4; i++) {
                 if (panels[`lev${i}`]) { panels[`lev${i}`].classList.remove('visible'); }
