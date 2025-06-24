@@ -115,11 +115,16 @@ header h1 { margin: 0; font-size: 1.5em; }
     color: #555;
     width: 40%;
 }
+/* style.css 파일에서 이 부분만 찾아서 교체해주세요. */
+
 @media (min-width: 769px) {
     .stats-table {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0 15px;
+        /* [핵심 수정] 화면 크기에 맞춰 열 개수를 자동으로 조절합니다. 
+           한 열의 최소 너비는 240px이며, 공간이 남으면 1fr(비율)만큼 차지합니다.
+        */
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 0 20px; /* 열 사이의 간격을 조금 더 줍니다. */
     }
     .stats-table tr {
         display: contents;
@@ -248,3 +253,4 @@ header h1 { margin: 0; font-size: 1.5em; }
     border-radius: 5px; margin-bottom: 8px; background-color: #f8f9fa;
 }
 .agenda-item-color { width: 5px; height: 25px; margin-right: 10px; border-radius: 3px; flex-shrink: 0; }
+
