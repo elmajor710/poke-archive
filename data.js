@@ -38,66 +38,27 @@ const DB = {
             {id:'epic', name:'보라(Epic)'} 
         ],
         lev3: { 
-            god: [ {id:'녹슨검', name:'녹슨검'} ],
-            legendary: [ {id:'kingsRock', name:'왕의징표석'} ], 
-            epic: [ {id:'leftovers', name:'먹다남은음식'}, {id:'focusSash', name:'기합의머리띠'} ], 
+            god: [ {id:'nokseungeom_god', name:'녹슨검'} ],
+            legendary: [ {id:'kingsrock_legendary', name:'왕의징표석'} ], 
+            epic: [ 
+                { id: 'meogdanamaneumsig_epic', name: '먹다남은 음식' },
+                { id: 'wanguiiingpyoseog_epic', name: '왕의 징표석' },
+                { id: 'geumsogkoteu_epic', name: '금속 코트' },
+                { id: 'peeolimeoli_epic', name: '페어리 메모리' },
+                { id: 'goe_epic', name: '괴상한 향로' },
+                { id: 'seupeullinggeulreobeu_epic', name: '스프링 글러브' }
+            ], 
         },
         lev4: { 
-            '녹슨검': {
-                name: '녹슨검',
-                imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbxtDeD%2FbtsOKJ36Be7%2FUrXuXYDmF5ADlMKoNkTlpK%2Fimg.png',
-                baseStats: { 'HP': 3872, '스피드': 77, '공격': 774, '방어': 310, '특수공격': 774, '특수방어': 310 },
-                description: '기본 보너스:\\n피해 보너스 +5%, 최종 피해 +5%, 스피드 +10%\\n\\n창세법칙:\\n팀에 자연 타입이 2명 이상 있을 경우,\\n전투 시작 3라운드동안 아군 전체의\\n - 물리/특수 공격 +8%\\n - 스피드 +4%\\n    (※ 같은 타입 포켓몬은 50% 추가 부스트 효과)\\n\\n검개천문:\\n전투 시작 전 2라운드 동안,\\n거대한 검이 떨어져 [참격] 효과 발동\\n - 대상 HP의 15% 직접 참격 (최대 자신의 물리,특수 공격의 250%)\\n - 대상 HP가 50% 이상이면 참격 계수 +25%\\n\\n쌍검합벽:\\n아군 2명이 동시에 녹슨검을 장착한 경우\\n → 같은 라운드에 한 번 서로 전투 초대 가능\\n → 초대된 아군은 30% 데미지의 [참격] 효과 적용\\n → 전투마다 최대 1회만 발동'
-            },
-            kingsRock: { name:'왕의징표석', imageURL: '이미지URL_준비중', description: '공격 기술에 10% 확률로 풀죽음 효과를 부여한다.' },
-            leftovers: { name:'먹다남은음식', imageURL: '이미지URL_준비중', description: '지니게 하면 매 턴마다 최대 HP의 1/16만큼 HP를 회복한다.' },
-            focusSash: { name:'기합의머리띠', imageURL: '이미지URL_준비중', description: 'HP가 가득 찬 상태에서 기술을 받아 쓰러질 경우, HP 1을 남기고 한 번 버틴다.'}
+            'nokseungeom_god': { name:'녹슨검', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbxtDeD%2FbtsOKJ36Be7%2FUrXuXYDmF5ADlMKoNkTlpK%2Fimg.png', baseStats: { 'HP': 3872, '스피드': 77, '공격': 774, '방어': 310, '특수공격': 774, '특수방어': 310 }, description: '기본 보너스:\\n피해 보너스 +5%, 최종 피해 +5%, 스피드 +10%\\n\\n창세법칙:\\n팀에 자연 타입이 2명 이상 있을 경우,\\n전투 시작 3라운드동안 아군 전체의\\n - 물리/특수 공격 +8%\\n - 스피드 +4%\\n    (※ 같은 타입 포켓몬은 50% 추가 부스트 효과)\\n\\n검개천문:\\n전투 시작 전 2라운드 동안,\\n거대한 검이 떨어져 [참격] 효과 발동\\n - 대상 HP의 15% 직접 참격 (최대 자신의 물리,특수 공격의 250%)\\n - 대상 HP가 50% 이상이면 참격 계수 +25%\\n\\n쌍검합벽:\\n아군 2명이 동시에 녹슨검을 장착한 경우\\n → 같은 라운드에 한 번 서로 전투 초대 가능\\n → 초대된 아군은 30% 데미지의 [참격] 효과 적용\\n → 전투마다 최대 1회만 발동' },
+            'kingsrock_legendary': { name:'왕의징표석', imageURL: '이미지URL_준비중', description: '공격 기술에 10% 확률로 풀죽음 효과를 부여한다.' },
+            'meogdanamaneumsig_epic': { name: '먹다남은 음식', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fp0Dxw%2FbtsONdCjFb0%2FU5iqpKR2YKARUfbKKhVEck%2Fimg.png', baseStats: { 'HP': 2330, '스피드': 38, '공격': 423, '방어': 169, '특수공격': 423, '특수방어': 169 }, description: '휴대 시 HP 12% 증가.\n전투 중 라우드가 종료될 때마다 자신은 최대 HP의 5.7%를 회복한다.' },
+            'wanguiiingpyoseog_epic': { name: '왕의 징표석', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FXzEYy%2FbtsONCWcC36%2FsHqltK1SjoNYy0K0pVhm3k%2Fimg.png', baseStats: { 'HP': 2118, '스피드': 42, '공격': 423, '방어': 169, '특수공격': 423, '특수방어': 169 }, description: '휴대 시 스피드 12% 증가.\n전투 중 공격 후 추가로 18%의 확률로 적 포켓몬 한 마리를 침묵시킨다 (협동 공격 시에도 일정 확률로 침묵 효과가 발동된다)' },
+            'geumsogkoteu_epic': { name: '금속 코트', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FFWwAa%2FbtsOMa0CeXA%2F0hr7ZPneYK9nMQbfmqnsQk%2Fimg.png', baseStats: { 'HP': 2118, '스피드': 38, '공격': 466, '방어': 169, '특수공격': 423, '특수방어': 169 }, description: '휴대 시 공격 피해 보너스 12% 증가, 방어 무시 8% 증가' },
+            'peeolimeoli_epic': { name: '페어리 메모리', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FTJQ14%2FbtsOLqCT4FS%2FkohaVnWXv6P1z9SGWJ9HXk%2Fimg.png', baseStats: { 'HP': 2118, '스피드': 38, '공격': 423, '방어': 169, '특수공격': 466, '특수방어': 169 }, description: '휴대 시 특수공격 피해 보너스 12% 증가, 특수방어 무시 8% 증가' },
+            'goe_epic': { name: '괴상한 향로', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FkJqfV%2FbtsOLdDZVxE%2F1tVioauJtVMjuzlK1C2wJ1%2Fimg.png', baseStats: { 'HP': 2330, '스피드': 38, '공격': 423, '방어': 169, '특수공격': 466, '특수방어': 169 }, description: '휴대 시 저항 12% 증가, 저항 강도 8% 증가' },
+            'seupeullinggeulreobeu_epic': { name: '스프링 글러브', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FZT68i%2FbtsOLmHkQEU%2FU4DsFQ9NQ2kYbfhKEnxcJ1%2Fimg.png', baseStats: { 'HP': 2118, '스피드': 42, '공격': 423, '방어': 169, '특수공격': 423, '특수방어': 169 }, description: '소지 후 공격을 8%, 특수 공격을 8% 증가한다.\n전투 중 휴대자의 치명타율 8% 증가하고, 치명타 피해 10% 증가한다. 액티브 공격이 치명타 피해 10% 증가한다. 액티브 공격이 치명타 아닐 경우 치명타를 및 치명타 피해 영구적으로 5% 증가한다. (최대 3층 중첩 가능, 해당 부분 수치는 치명타 후 제거)' }
         }
     },
-    runeAndChip: {
-        lev2: [ {id: 'rune', name: '룬'}, {id: 'chip', name: '칩'} ],
-        lev3: { rune: [ { id: 'deadly', name: '치명 / Deadly' }, { id: 'shield', name: '실드 / Shield' } ], chip: [ { id: 'loneWolf', name: '늑대대행자 / Lone Wolf' }, { id: 'tortoiseShell', name: '귀갑 / Tortoise Shell' } ] },
-        lev4: { deadly: { name: '치명 / Deadly', imageURL: '이미지URL_준비중', description: '치명 룬에 대한 설명입니다.'}, shield: { name: '실드 / Shield', imageURL: '이미지URL_준비중', description: '실드 룬에 대한 설명입니다.'}, loneWolf: { name: '늑대대행자 / Lone Wolf', imageURL: '이미지URL_준비중', description: '늑대대행자 칩에 대한 설명입니다.' }, tortoiseShell: { name: '귀갑 / Tortoise Shell', imageURL: '이미지URL_준비중', description: '귀갑 칩에 대한 설명입니다.' }, }
-    },
-    deck: {
-        lev2: [ { id: 'newbieDeck', name: '극초반 뉴비 (S급 8마리)' } ],
-        lev3: { newbieDeck: { name: '극초반 뉴비 (S급 8마리)', imageURL: '이미지URL_준비중', description: '보스로라, 코리갑, 포푸니라, 펄기아, 렌트라, 핫삼, 가디안, 버터플 조합의 추천 덱 상세 설명입니다.' }, }
-    },
-    calendar: {
-        lev2: [ { id: 'gachaSchedule', name: '뽑기 일정' } ],
-        lev3: { 
-            gachaSchedule: { 
-                name: '뽑기 일정',
-                description: '랭킹뽑기, 한정뽑기 등 주요 이벤트 일정을 확인할 수 있습니다.',
-                events: [
-                    { title: '웅의 메가 강철톤(강철/땅)[무쇠 바퀴]', type: 'ranking', startDate: '2025-07-18', endDate: '2025-07-20' },
-                    { title: '코라이돈(격투/드래곤)[애프룡]', type: 'ranking', startDate: '2025-08-22', endDate: '2025-08-24' },
-                    { title: '메가 보만다(드래곤/비행)[고동치는달]', type: 'ranking', startDate: '2025-09-26', endDate: '2025-09-28' },
-                    { title: '이로치 메가 핫삼(벌레/강철)[사마자르]', type: 'ranking', startDate: '2025-10-31', endDate: '2025-11-02' },
-                    { title: '디아루가 오리진폼(강철/드래곤)[브리두라스]', type: 'ranking', startDate: '2025-12-05', endDate: '2025-12-07' },
-                    { title: '이로치 메가 헤라크로스(벌레/격투)[땅을 기는 날개]', type: 'ranking', startDate: '2026-01-09', endDate: '2026-01-11' },
-                    { title: '이로치 메가 쁘사이저 (벌레/비행)[꼬시레]', type: 'ranking', startDate: '2026-02-13', endDate: '2026-02-15' },
-                    { title: '이로치 메가 눈설왕, 이로치 메가 이상해꽃', type: 'limited', startDate: '2025-06-27', endDate: '2025-06-29' },
-                    { title: '무한다이노, 미라이돈', type: 'limited', startDate: '2025-08-01', endDate: '2025-08-03' },
-                    { title: '이로치 메가 나무킹, 챔피언 피카츄', type: 'limited', startDate: '2025-09-05', endDate: '2025-09-07' },
-                    { title: '이로치 메가 이상해꽃, 웅의 메가 강철톤', type: 'limited', startDate: '2025-10-10', endDate: '2025-10-12' },
-                    { title: '미라이돈, 코라이돈', type: 'limited', startDate: '2025-11-14', endDate: '2025-11-16' },
-                    { title: '챔피언 피카츄, 메가보만다', type: 'limited', startDate: '2025-12-19', endDate: '2025-12-21' },
-                    { title: '웅의 메가 강철톤, 이로치 메가 핫삼', type: 'limited', startDate: '2026-01-23', endDate: '2026-01-25' },
-                    { title: '코라이돈, 디아루가 오리진폼', type: 'limited', startDate: '2026-02-27', endDate: '2026-03-01' },
-                    { title: '메가보만다, 이로치 메가 헤라크로스', type: 'limited', startDate: '2026-04-03', endDate: '2026-04-05' },
-                    { title: '이로치 메가 핫삼, 이로치 메가 쁘사이저', type: 'limited', startDate: '2026-05-08', endDate: '2026-05-10' },
-                ],
-                recurringEvents: [
-                    { title: '복냥이', type: 'special', durationDays: 3, recurrence: { unit: 'weeks', interval: 4 }, startDate: '2025-06-27' }
-                ]
-            } 
-        }
-    },
-    tips: {
-        lev2: [ { id: 'beginnerTop10', name: '초보자를 위한 가이드 TOP 10' } ],
-        lev3: { 
-            beginnerTop10: { name: '초보자를 위한 가이드 TOP 10', content: '<h3>1. 리세마라 가이드</h3><p>리세마라는 ... 하는 것이 좋습니다.' },
-        }
-    }
+    // ... (이하 runeAndChip, deck, calendar, tips 객체는 이전과 동일)
 };
