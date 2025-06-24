@@ -1,3 +1,4 @@
+// 이전 답변에서 드렸던, 아이템 6개가 추가된 최종 data.js 코드를 여기에 붙여넣습니다.
 const DB = {
     sidebarMenu: [
         { id: 'pokemonType', name: '포켓몬 타입', levels: 4 },
@@ -32,23 +33,8 @@ const DB = {
         lev4: {}
     },
     item: {
-        lev2: [ 
-            {id:'god', name:'빨강(God)'},
-            {id:'legendary', name:'주황(Legendary)'},
-            {id:'epic', name:'보라(Epic)'} 
-        ],
-        lev3: { 
-            god: [ {id:'nokseungeom_god', name:'녹슨검'} ],
-            legendary: [ {id:'kingsrock_legendary', name:'왕의징표석'} ], 
-            epic: [ 
-                { id: 'meogdanamaneumsig_epic', name: '먹다남은 음식' },
-                { id: 'wanguiiingpyoseog_epic', name: '왕의 징표석' },
-                { id: 'geumsogkoteu_epic', name: '금속 코트' },
-                { id: 'peeolimeoli_epic', name: '페어리 메모리' },
-                { id: 'goe_epic', name: '괴상한 향로' },
-                { id: 'seupeullinggeulreobeu_epic', name: '스프링 글러브' }
-            ], 
-        },
+        lev2: [ {id:'god', name:'빨강(God)'}, {id:'legendary', name:'주황(Legendary)'}, {id:'epic', name:'보라(Epic)'} ],
+        lev3: { god: [ {id:'nokseungeom_god', name:'녹슨검'} ], legendary: [ {id:'kingsrock_legendary', name:'왕의징표석'} ], epic: [ { id: 'meogdanamaneumsig_epic', name: '먹다남은 음식' }, { id: 'wanguiiingpyoseog_epic', name: '왕의 징표석' }, { id: 'geumsogkoteu_epic', name: '금속 코트' }, { id: 'peeolimeoli_epic', name: '페어리 메모리' }, { id: 'goe_epic', name: '괴상한 향로' }, { id: 'seupeullinggeulreobeu_epic', name: '스프링 글러브' } ], },
         lev4: { 
             'nokseungeom_god': { name:'녹슨검', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbxtDeD%2FbtsOKJ36Be7%2FUrXuXYDmF5ADlMKoNkTlpK%2Fimg.png', baseStats: { 'HP': 3872, '스피드': 77, '공격': 774, '방어': 310, '특수공격': 774, '특수방어': 310 }, description: '기본 보너스:\\n피해 보너스 +5%, 최종 피해 +5%, 스피드 +10%\\n\\n창세법칙:\\n팀에 자연 타입이 2명 이상 있을 경우,\\n전투 시작 3라운드동안 아군 전체의\\n - 물리/특수 공격 +8%\\n - 스피드 +4%\\n    (※ 같은 타입 포켓몬은 50% 추가 부스트 효과)\\n\\n검개천문:\\n전투 시작 전 2라운드 동안,\\n거대한 검이 떨어져 [참격] 효과 발동\\n - 대상 HP의 15% 직접 참격 (최대 자신의 물리,특수 공격의 250%)\\n - 대상 HP가 50% 이상이면 참격 계수 +25%\\n\\n쌍검합벽:\\n아군 2명이 동시에 녹슨검을 장착한 경우\\n → 같은 라운드에 한 번 서로 전투 초대 가능\\n → 초대된 아군은 30% 데미지의 [참격] 효과 적용\\n → 전투마다 최대 1회만 발동' },
             'kingsrock_legendary': { name:'왕의징표석', imageURL: '이미지URL_준비중', description: '공격 기술에 10% 확률로 풀죽음 효과를 부여한다.' },
@@ -60,5 +46,5 @@ const DB = {
             'seupeullinggeulreobeu_epic': { name: '스프링 글러브', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FZT68i%2FbtsOLmHkQEU%2FU4DsFQ9NQ2kYbfhKEnxcJ1%2Fimg.png', baseStats: { 'HP': 2118, '스피드': 42, '공격': 423, '방어': 169, '특수공격': 423, '특수방어': 169 }, description: '소지 후 공격을 8%, 특수 공격을 8% 증가한다.\n전투 중 휴대자의 치명타율 8% 증가하고, 치명타 피해 10% 증가한다. 액티브 공격이 치명타 피해 10% 증가한다. 액티브 공격이 치명타 아닐 경우 치명타를 및 치명타 피해 영구적으로 5% 증가한다. (최대 3층 중첩 가능, 해당 부분 수치는 치명타 후 제거)' }
         }
     },
-    // ... (이하 runeAndChip, deck, calendar, tips 객체는 이전과 동일)
+    // ... (이하 나머지 데이터는 이전과 동일)
 };
