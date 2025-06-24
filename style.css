@@ -62,7 +62,8 @@ header h1 { margin: 0; font-size: 1.5em; }
         position: absolute; top: 0; left: 0; width: 100%; height: 100%;
         background-color: #fff; transform: translateX(100%);
         transition: transform 0.3s ease-in-out;
-        flex-shrink: 0; border-right: none; flex-direction: column;
+        flex-shrink: 0; border-right: none;
+        flex-direction: column;
     }
     .panel.visible { transform: translateX(0); display: flex; }
     #app-container.final-view-L4 #lev4-panel,
@@ -101,7 +102,7 @@ header h1 { margin: 0; font-size: 1.5em; }
     color: #333;
 }
 .stats-table {
-    width: 100%;
+    /* [핵심 수정] width: 100%를 제거하여 내용물에 맞게 크기가 조절되도록 합니다. */
     border-collapse: collapse;
     margin: 10px 0;
 }
@@ -112,18 +113,19 @@ header h1 { margin: 0; font-size: 1.5em; }
 .stats-table td:first-child {
     font-weight: 600;
     color: #555;
-    width: 40%;
+    padding-right: 20px;
 }
 @media (min-width: 769px) {
     .stats-table {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(240px, auto));
         gap: 0 20px;
     }
     .stats-table tr {
         display: contents;
     }
 }
+
 .calendar-container {
     padding: 10px; background: #fff; height: 100%;
     display: flex; flex-direction: column;
