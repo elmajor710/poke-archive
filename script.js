@@ -7,16 +7,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const isAdminMode = urlParams.get('admin') === 'true';
 
     if (isAdminMode) {
-        // 운영자 모드 로직 (나중에 개발)
+        initializeAppAdminMode();
+    } else {
+        initializeAppUserMode();
+    }
+    
+    function initializeAppAdminMode() {
+        // 운영자 모드 로직
         appContainer.style.display = 'none';
         adminPanel.style.display = 'block';
         adminPanel.innerHTML = '<h2>운영자 모드 (개발 예정)</h2>';
-    } else {
-        // 일반 사용자 모드 초기화
-        initializeApp();
     }
-    
-    function initializeApp() {
+
+    function initializeAppUserMode() {
         const sidebar = document.getElementById('sidebar');
         const panels = { lev2: document.getElementById('lev2-panel'), lev3: document.getElementById('lev3-panel'), lev4: document.getElementById('lev4-panel') };
         let activeButtons = {};
@@ -41,7 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
             html += `<div class="grade">${data.grade} 등급</div>`;
             if (data.imageURL) { html += `<img src="${data.imageURL}" alt="${data.name.ko}" class="main-image">`; }
             if (data.stats) {
-                html += `<h4>종족값 (총합: ${data.totalStats || 'N/A'})</h4><table class="stats-table">`;
+                const totalStats = data.totalStats || Object.values(data.stats).reduce((a, b) => a + b, 0);
+                html += `<h4>종족값 (총합: ${totalStats})</h4><table class="stats-table">`;
                 Object.entries(data.stats).forEach(([stat, value]) => { html += `<tr><td>${stat}</td><td>${value}</td></tr>`; });
                 html += '</table>';
             }
@@ -56,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data[type] && data[type].length > 0) {
                     html += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
                     data[type].forEach(item => {
-                        const itemTypeForDB = type.replace('recommended', '').toLowerCase().replace('s', ''); // e.g. 'items' -> 'item'
+                        const itemTypeForDB = type.replace('recommended', '').toLowerCase().replace('s', '');
                         html += `<div class="recommend-item" data-item-id="${item.id}" data-item-type="${itemTypeForDB}">
                                     <img src="${item.imageURL}" alt="${item.name}"><span>${item.name}</span>
                                  </div>`;
@@ -119,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 appContainer.className = `final-view-L${finalLevelForCategory}`;
                 Object.values(panels).forEach(p => p.classList.remove('visible'));
                 if (data.events || data.recurringEvents) {
-                    renderCalendarView(contentDiv, data); // 캘린더 뷰어는 아직 미구현
+                    contentDiv.innerHTML = '캘린더 기능은 현재 비활성화 상태입니다.';
                 } else if (data.name?.ko && data.stats) {
                     renderPokemonView(contentDiv, data);
                 } else if (data.description) {

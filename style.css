@@ -97,7 +97,6 @@ header h1 { margin: 0; font-size: 1.5em; }
 .stats-table td:first-child { font-weight: 600; color: #555; padding-right: 20px; }
 @media (min-width: 769px) { .stats-table { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, auto)); gap: 0 20px; } .stats-table tr { display: contents; } }
 
-/* 포켓몬 상세 페이지 스타일 */
 .pokemon-detail-view { padding: 10px; }
 .pokemon-detail-view h2 { font-size: 2em; margin-bottom: 5px; }
 .pokemon-detail-view .grade { font-size: 1.2em; font-weight: bold; color: #888; margin-bottom: 15px; }
@@ -117,5 +116,3 @@ header h1 { margin: 0; font-size: 1.5em; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
 .modal-header h2 { margin: 0; font-size: 1.3em; }
 .modal-close-btn { font-size: 24px; font-weight: bold; cursor: pointer; border: none; background: none; }
-.agenda-item { display: flex; align-items: center; padding: 10px; border-radius: 5px; margin-bottom: 8px; background-color: #f8f9fa; }
-.agenda-item-color { width: 5px; height: 25px; margin-right: 10px; border-radius: 3px; flex-shrink: 0; }
