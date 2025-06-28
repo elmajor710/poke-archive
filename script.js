@@ -1,58 +1,51 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex v9.0-final');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex v10.0-final');
 
+    // =================================================
+    // 전역 변수 및 공통 DOM 요소
+    // =================================================
     const appContainer = document.getElementById('app-container');
     const adminPanel = document.getElementById('admin-panel');
-    
     const urlParams = new URLSearchParams(window.location.search);
     const isAdminMode = urlParams.get('admin') === 'true';
 
+    // =================================================
+    // 모드 결정 (운영자 / 일반 사용자)
+    // =================================================
     if (isAdminMode) {
-        // =============== 운영자 모드 실행 ===============
+        initializeAdminMode();
+    } else {
+        initializeApp();
+    }
+
+    // =================================================
+    // 운영자 모드 관련 함수들
+    // =================================================
+    function initializeAdminMode() {
         appContainer.style.display = 'none';
         adminPanel.style.display = 'block';
         
         const adminContent = document.getElementById('admin-content');
         const codeOutput = document.getElementById('code-output');
-        
+        const adminFormContainer = document.getElementById('admin-form-container');
+
         function renderAddItemForm() {
-            const formContainer = document.getElementById('admin-form-container');
-            if (!formContainer) return;
-
+            if (!adminFormContainer) return;
             const gradeOptions = DB.item.lev2.map(grade => `<option value="${grade.id}">${grade.name}</option>`).join('');
-
-            formContainer.innerHTML = `
+            adminFormContainer.innerHTML = `
                 <h4>아이템 추가</h4>
-                <div class="form-group" style="margin-bottom: 10px;">
-                    <label for="item-name">아이템 이름:</label>
-                    <input type="text" id="item-name" placeholder="예: 녹슨검" style="width: 95%;">
-                </div>
-                <div class="form-group" style="margin-bottom: 10px;">
-                    <label for="item-grade">아이템 등급:</label>
-                    <select id="item-grade">
-                        <option value="">-- 등급 선택 --</option>
-                        ${gradeOptions}
-                    </select>
-                </div>
-                <div class="form-group" style="margin-bottom: 10px;">
-                    <label for="item-image-url">이미지 URL:</label>
-                    <input type="text" id="item-image-url" placeholder="https://..." style="width: 95%;">
-                </div>
-                <fieldset style="margin-top:10px; border: 1px solid #ccc; padding: 10px;">
-                    <legend>기초 타입 (능력치)</legend>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div class="form-group"><label for="item-hp">HP:</label><input type="number" id="item-hp" value="0" style="width: 80%;"></div>
-                        <div class="form-group"><label for="item-speed">스피드:</label><input type="number" id="item-speed" value="0" style="width: 80%;"></div>
-                        <div class="form-group"><label for="item-attack">공격:</label><input type="number" id="item-attack" value="0" style="width: 80%;"></div>
-                        <div class="form-group"><label for="item-defense">방어:</label><input type="number" id="item-defense" value="0" style="width: 80%;"></div>
-                        <div class="form-group"><label for="item-sp-attack">특수공격:</label><input type="number" id="item-sp-attack" value="0" style="width: 80%;"></div>
-                        <div class="form-group"><label for="item-sp-defense">특수방어:</label><input type="number" id="item-sp-defense" value="0" style="width: 80%;"></div>
-                    </div>
-                </fieldset>
-                <div class="form-group" style="margin-top: 10px;">
-                    <label for="item-description">설명 (휴대 효과):</label>
-                    <textarea id="item-description" rows="10" style="width: 95%;" placeholder="아이템에 대한 설명을 입력하세요."></textarea>
-                </div>
+                <div class="form-group" style="margin-bottom: 10px;"><label>아이템 이름:</label><input type="text" id="item-name" style="width: 95%;"></div>
+                <div class="form-group" style="margin-bottom: 10px;"><label>아이템 등급:</label><select id="item-grade"><option value="">-- 등급 선택 --</option>${gradeOptions}</select></div>
+                <div class="form-group" style="margin-bottom: 10px;"><label>이미지 URL:</label><input type="text" id="item-image-url" style="width: 95%;"></div>
+                <fieldset style="margin-top:10px; border: 1px solid #ccc; padding: 10px;"><legend>기초 타입 (능력치)</legend><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div><label>HP:</label><input type="number" id="item-hp" value="0"></div>
+                    <div><label>스피드:</label><input type="number" id="item-speed" value="0"></div>
+                    <div><label>공격:</label><input type="number" id="item-attack" value="0"></div>
+                    <div><label>방어:</label><input type="number" id="item-defense" value="0"></div>
+                    <div><label>특수공격:</label><input type="number" id="item-sp-attack" value="0"></div>
+                    <div><label>특수방어:</label><input type="number" id="item-sp-defense" value="0"></div>
+                </div></fieldset>
+                <div class="form-group" style="margin-top: 10px;"><label>설명 (휴대 효과):</label><textarea id="item-description" rows="5" style="width: 95%;"></textarea></div>
                 <button id="generate-item-code" style="margin-top:15px; padding: 10px;">코드 생성</button>
             `;
         }
@@ -63,22 +56,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const imageUrl = document.getElementById('item-image-url').value;
             const description = document.getElementById('item-description').value;
             const stats = { 'HP': parseInt(document.getElementById('item-hp').value) || 0, '스피드': parseInt(document.getElementById('item-speed').value) || 0, '공격': parseInt(document.getElementById('item-attack').value) || 0, '방어': parseInt(document.getElementById('item-defense').value) || 0, '특수공격': parseInt(document.getElementById('item-sp-attack').value) || 0, '특수방어': parseInt(document.getElementById('item-sp-defense').value) || 0 };
-
-            if (!name || !grade || !description) {
-                alert('아이템 이름, 등급, 설명은 필수 항목입니다.');
-                return;
-            }
-            
+            if (!name || !grade || !description) { alert('아이템 이름, 등급, 설명은 필수 항목입니다.'); return; }
             const nameForId = name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
             const uniqueId = `${nameForId}_${grade}`;
             const formattedDescription = description.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n');
-
-            const lev4Code =`// 1. item.lev4 객체 안에 이 코드를 추가하세요.\n'${uniqueId}': {\n    name: '${name}',\n    imageURL: '${imageUrl}',\n    baseStats: {\n        'HP': ${stats.HP}, '스피드': ${stats.스피드}, '공격': ${stats.공격},\n        '방어': ${stats.방어}, '특수공격': ${stats.특수공격}, '특수방어': ${stats.특수방어}\n    },\n    description: '${formattedDescription}'\n},`;
-            
-            const lev3Code = `// 2. item.lev3['${grade}'] 배열 안에 이 코드를 추가하세요.\n{ id: '${uniqueId}', name: '${name}' },`;
-
-            codeOutput.value = `/* --- lev4에 추가할 코드 --- */\n${lev4Code}\n\n/* --- lev3.${grade}에 추가할 코드 --- */\n${lev3Code}`;
-            alert('코드가 2개 생성되었습니다! 아래 텍스트 영역에서 각 코드를 복사하여 data.js의 올바른 위치에 추가하세요.');
+            const lev4Code =`'${uniqueId}': {\n    name: '${name}',\n    imageURL: '${imageUrl}',\n    baseStats: {\n        'HP': ${stats.HP}, '스피드': ${stats.스피드}, '공격': ${stats.공격},\n        '방어': ${stats.방어}, '특수공격': ${stats.특수공격}, '특수방어': ${stats.특수방어}\n    },\n    description: '${formattedDescription}'\n},`;
+            const lev3Code = `{ id: '${uniqueId}', name: '${name}' },`;
+            codeOutput.value = `/* --- 1. item.lev4 객체 안에 추가할 코드 --- */\n${lev4Code}\n\n/* --- 2. item.lev3['${grade}'] 배열 안에 추가할 코드 --- */\n${lev3Code}`;
+            alert('코드가 2개 생성되었습니다!');
         }
 
         function renderAdminDashboard() {
@@ -89,17 +74,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('data-type-selector').addEventListener('change', (e) => {
             const type = e.target.value;
-            const formContainer = document.getElementById('admin-form-container');
             codeOutput.value = '';
             if (type === 'item') { renderAddItemForm(); } 
-            else if (type) { const selectedText = e.target.options[e.target.selectedIndex].text; formContainer.innerHTML = `<h4>'${selectedText}' 추가 폼 (개발 예정)</h4>`; } 
-            else { formContainer.innerHTML = ''; }
+            else if (type) { const selectedText = e.target.options[e.target.selectedIndex].text; document.getElementById('admin-form-container').innerHTML = `<h4>'${selectedText}' 추가 폼 (개발 예정)</h4>`; } 
+            else { document.getElementById('admin-form-container').innerHTML = ''; }
         });
 
         adminPanel.addEventListener('click', (e) => { if (e.target.id === 'generate-item-code') { handleGenerateItemCode(); } });
+    }
 
-    } else {
-        // =============== 일반 사용자 모드 실행 ===============
+    // =================================================
+    // 일반 사용자 모드 관련 함수들
+    // =================================================
+    function initializeApp() {
         const sidebar = document.getElementById('sidebar');
         const panels = { lev2: document.getElementById('lev2-panel'), lev3: document.getElementById('lev3-panel'), lev4: document.getElementById('lev4-panel') };
         let activeButtons = {};
@@ -128,9 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const startDate = new Date(event.startDate + 'T00:00:00');
                 const endDate = new Date(event.endDate + 'T00:00:00');
                 if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
-                    if (targetDate >= startDate && targetDate <= endDate) {
-                        foundEvents.push(event);
-                    }
+                    if (targetDate >= startDate && targetDate <= endDate) { foundEvents.push(event); }
                 }
             });
             (gachaData.recurringEvents || []).forEach(event => {
@@ -166,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const monthNames = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
             const calendarContainer = document.createElement('div');
             calendarContainer.className = 'calendar-container';
-            calendarContainer.innerHTML = `<div class="calendar-header"><h2>${targetYear}년 ${monthNames[targetMonth]}</h2><div class="calendar-nav"><button class="calendar-nav-btn" data-action="prev-month">&lt; 이전</button><button class="calendar-nav-btn" data-action="next-month">다음 &gt;</button></div></div><div class="calendar-legend"><div class="legend-item"><div class="legend-color-box" style="background-color: #FF4500;"></div><span>랭킹뽑기</span></div><div class="legend-item"><div class="legend-color-box" style="background-color: #1E90FF;"></div><span>한정뽑기</span></div><div class="legend-item"><div class="legend-color-box" style="background-color: #32CD32;"></div><span>복냥이</span></div></div><div class="calendar-grid"></div>`;
+            calendarContainer.innerHTML = `<div class="calendar-header"><h2>${targetYear}년 ${monthNames[targetMonth]}</h2><div class="calendar-nav"><button class="calendar-nav-btn" data-action="prev-month">&lt; 이전</button><button class="calendar-nav-btn" data-action="next-month">다음 &gt;</button></div></div><div class="calendar-legend"><div class="legend-item"><div class="legend-color-box" style="background-color: #FF4500;"></div><span>랭킹뽑기</span></div><div class="legend-item"><div class="legend-color-box" style="background-color: #1E90FF;"></div><span>한정뽑기</span></div><div class="legend-item"><div class="legend-color-box" style="background-color: #32CD32;"></div><span>복냥이</span></div></div><div class="calendar-grid"></div><div class="calendar-agenda-view"><p>날짜를 선택하여 일정을 확인하세요.</p></div>`;
             const grid = calendarContainer.querySelector('.calendar-grid');
             const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
             weekdays.forEach(day => { const el = grid.appendChild(document.createElement('div')); el.className = 'calendar-day-name'; el.textContent = day; });
@@ -204,24 +189,64 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         function renderPokemonView(contentDiv, data) {
-            let html = `<h2>${data.name} (${data.grade || ''})</h2>`;
-            if (data.imageURL && data.imageURL.startsWith('http')) { html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin-bottom: 10px;">`; }
-            html += `<p>포켓몬 상세 화면 개발 예정입니다.</p>`;
+            let html = `<div class="pokemon-detail-view">`;
+            html += `<h2>${data.name.ko} <span style="font-size:0.8em; color:#666;">${data.name.en}</span></h2>`;
+            html += `<div class="grade">${data.grade} 등급</div>`;
+            if (data.imageURL) { html += `<img src="${data.imageURL}" alt="${data.name.ko}" class="main-image">`; }
+            if (data.stats) {
+                html += `<h4>종족값 (총합: ${data.totalStats || 'N/A'})</h4><table class="stats-table">`;
+                Object.entries(data.stats).forEach(([stat, value]) => { html += `<tr><td>${stat}</td><td>${value}</td></tr>`; });
+                html += '</table>';
+            }
+            if (data.natures && data.natures.length > 0) { html += `<h4>추천 성격</h4><p>${data.natures.join(', ')}</p>`; }
+            if (data.skills && data.skills.length > 0) {
+                html += '<h4>스킬</h4><ul class="skill-list">';
+                data.skills.forEach((skill, index) => { html += `<li class="skill-item"><span class="skill-name" data-skill-index="${index}">${skill.name}</span><span class="skill-type">${skill.type}</span></li>`; });
+                html += '</ul>';
+            }
+            const recommendTypes = { recommendedItems: '추천 아이템', recommendedRunes: '추천 룬', recommendedChips: '추천 칩' };
+            for(const type in recommendTypes) {
+                if (data[type] && data[type].length > 0) {
+                    html += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
+                    data[type].forEach(item => {
+                        html += `<div class="recommend-item" data-item-id="${item.id}" data-item-type="${type.replace('recommended', '').toLowerCase()}">
+                                    <img src="${item.imageURL}" alt="${item.name}"><span>${item.name}</span>
+                                 </div>`;
+                    });
+                    html += `</div>`;
+                }
+            }
+            html += `</div>`;
             contentDiv.innerHTML = html;
+            
+            contentDiv.querySelectorAll('.skill-name').forEach(el => {
+                el.addEventListener('click', () => {
+                    const skillIndex = parseInt(el.dataset.skillIndex);
+                    const skill = data.skills[skillIndex];
+                    showModal(skill.name, `<p>${skill.description}</p>`);
+                });
+            });
+            contentDiv.querySelectorAll('.recommend-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    const itemId = el.dataset.itemId;
+                    const itemTypeKey = el.dataset.itemType.replace('s', '');
+                    const itemData = DB[`${itemTypeKey}AndChip`]?.lev4?.[itemId] || DB[itemTypeKey]?.lev4?.[itemId];
+                    if (itemData) {
+                        let itemDetailHtml = `<p>${itemData.description || '상세 정보가 없습니다.'}</p>`;
+                        showModal(itemData.name, itemDetailHtml);
+                    } else {
+                        alert('상세 정보를 찾을 수 없습니다.');
+                    }
+                });
+            });
         }
 
         function renderSimpleView(contentDiv, data) {
             let html = `<h2>${data.name}</h2>`;
-            if (data.imageURL && data.imageURL.startsWith('http')) {
-                html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin: 10px 0;">`;
-            }
+            if (data.imageURL && data.imageURL.startsWith('http')) { html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin: 10px 0;">`; }
             if (data.baseStats && Object.values(data.baseStats).some(v => v !== 0)) {
                 html += '<h4>기초 타입</h4><table class="stats-table">';
-                Object.entries(data.baseStats).forEach(([stat, value]) => {
-                    if (value !== 0) {
-                        html += `<tr><td>${stat}</td><td>+${value}</td></tr>`;
-                    }
-                });
+                Object.entries(data.baseStats).forEach(([stat, value]) => { if (value !== 0) { html += `<tr><td>${stat}</td><td>+${value}</td></tr>`; } });
                 html += '</table>';
             }
             if (data.description) {
@@ -244,15 +269,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isFinal) {
                 appContainer.className = `final-view-L${finalLevelForCategory}`;
                 Object.values(panels).forEach(p => p.classList.remove('visible'));
-                if (data.events || data.recurringEvents) {
-                    renderCalendarView(contentDiv, data);
-                } else if (data.stats && data.skills) {
-                    renderPokemonView(contentDiv, data);
-                } else if (data.description) {
-                    renderSimpleView(contentDiv, data);
-                } else {
-                    contentDiv.innerHTML = data.content || "콘텐츠를 표시할 수 없습니다.";
-                }
+                if (data.events || data.recurringEvents) { renderCalendarView(contentDiv, data); } 
+                else if (data.name?.ko && data.stats) { renderPokemonView(contentDiv, data); }
+                else if (data.description) { renderSimpleView(contentDiv, data); } 
+                else { contentDiv.innerHTML = data.content || "콘텐츠를 표시할 수 없습니다."; }
             } else {
                 appContainer.className = "";
                 data.forEach(item => {
@@ -285,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const gradeInfo = DB.pokemonGrade.lev2.find(g => g.name === gradeKey);
                         if (gradeInfo) {
                             const gradeId = gradeInfo.id;
-                            DB[gradeCategory].lev3[gradeId] = grades[gradeKey].map(p => ({id: p.id, name: p.name}));
+                            DB[gradeCategory].lev3[gradeId] = grades[gradeKey].map(p => ({id: p.id, name: p.name.ko}));
                         }
                     });
                 }
@@ -381,6 +401,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        initialize();
+        initializeApp();
     }
 });
