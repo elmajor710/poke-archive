@@ -1,4 +1,5 @@
 const DB = {
+    // [신규 추가] 각종 정의 목록 (성격 등)
     definitions: {
         natures: [
             { id: 'jolly', name: '유쾌함(Jolly)' },
