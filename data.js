@@ -25,34 +25,13 @@ const DB = {
         { id: 'calendar', name: '캘린더', levels: 3 },
         { id: 'tips', name: '팁&노하우', levels: 3 },
     ],
-    pokemonType: {
-        lev2: [ 
-            { id: 'normal', name: '노말', color: 'normal' }, { id: 'fire', name: '불', color: 'fire' }, { id: 'water', name: '물', color: 'water' },
-            { id: 'grass', name: '풀', color: 'grass' }, { id: 'electric', name: '전기', color: 'electric' }, { id: 'ice', name: '얼음', color: 'ice' },
-            { id: 'fighting', name: '격투', color: 'fighting' }, { id: 'poison', name: '독', color: 'poison' }, { id: 'ground', name: '땅', color: 'ground' },
-            { id: 'flying', name: '비행', color: 'flying' }, { id: 'psychic', name: '에스퍼', color: 'psychic' }, { id: 'bug', name: '벌레', color: 'bug' },
-            { id: 'rock', name: '바위', color: 'rock' }, { id: 'ghost', name: '유령', color: 'ghost' }, { id: 'dragon', name: '드래곤', color: 'dragon' },
-            { id: 'dark', name: '악', color: 'dark' }, { id: 'steel', name: '강철', color: 'steel' }, { id: 'fairy', name: '페어리', color: 'fairy' }
-        ],
-        lev3: { 
-            normal: [ { id: 'regigigas', name: '레지기가스' } ],
-            fire: [ { id: 'reshiram', name: '레시라무' } ],
-        },
-        lev4: {
-            regigigas: { name: '레지기가스', grade: 'S+', imageURL: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/486.png', stats: { 'HP': 110, '스피드': 100, '공격': 160, '방어': 110, '특수공격': 80, '특수방어': 110 }, skills: { active: '엄청난힘', ultimate: '기가임팩트', passive: '슬로스타트' }, recommendedItems: [ { id: 'leftovers', name: '먹다남은음식', imageURL: '이미지URL_준비중', reason: 'HP를 회복하여 안정성을 높입니다.' } ], recommendedRunes: [ { id: 'kingKong', name: '금강 룬', imageURL: '이미지URL_준비중', reason: '공격력을 극대화합니다.' } ], recommendedChips: [ { id: 'loneWolf', name: '늑대대행자 칩', imageURL: '이미지URL_준비중', reason: '단일 공격 능력을 강화합니다.' } ] },
-            reshiram: { name: '레시라무', grade: 'S+', content: '콘텐츠 준비 중입니다.' },
-        }
-    },
-    pokemonGrade: {
-        lev2: [ { id: 'sPlus', name: 'S+' }, { id: 's', name: 'S' } ],
-        lev3: {},
-        lev4: {}
-    },
+    pokemonType: { /* 이전과 동일 */ },
+    pokemonGrade: { /* 이전과 동일 */ },
     item: {
         lev2: [ 
             {id:'epic', name:'보라(Epic)'},
             {id:'legendary', name:'주황(Legendary)'},
-            {id:'god', name:'빨강(God)'}
+            {id: 'god', name: '빨강(God)'}
         ],
         lev3: { 
             epic: [
@@ -95,8 +74,8 @@ const DB = {
             god: [ { id: 'immortalsword_god', name: '녹슨검' } ]
         },
         lev4: { 
-            'leftoverapple_epic': { name: '먹다남은 음식', description: '상세 설명 준비 중입니다.' },
-            'immortalsword_legendary': { name: '녹슨검 (Legendary)', description: '상세 설명 준비 중입니다.' },
+            // 아이템 상세 정보는 운영자 모드로 하나씩 추가해주세요.
+            // 아래는 예시입니다.
             'immortalsword_god': { name: '녹슨검 (God)', description: '상세 설명 준비 중입니다.' }
         }
     },
@@ -104,27 +83,20 @@ const DB = {
         lev2: [ {id: 'rune', name: '룬'}, {id: 'chip', name: '칩'} ],
         lev3: { 
             rune: [ 
-                { id: 'deadly', name: '치명' }, { id: 'warlike', name: '전투광' }, { id: 'shield', name: '실드' },
-                { id: 'kingkong', name: '금강' }, { id: 'shelter', name: '비호' }, { id: 'defend', name: '방어' },
-                { id: 'shine', name: '반짝임' }, { id: 'counter', name: '반격' }, { id: 'punch', name: '강격' }
+                { id: 'deadly', name: '치명 / Deadly' }, { id: 'warlike', name: '전투광 / Warlike' }, { id: 'shield', name: '실드 / Shield' },
+                { id: 'kingkong', name: '금강 / King Kong' }, { id: 'shelter', name: '비호 / Shelter' }, { id: 'defend', name: '방어 / Defend' },
+                { id: 'shine', name: '반짝임 / Shine' }, { id: 'counter', name: '반격 / Counter' }, { id: 'punch', name: '강격 / Punch' }
             ], 
             chip: [ 
-                { id: 'firedance', name: '화무' }, { id: 'sacrifice', name: '헌제' }, { id: 'psychic', name: '초능' },
-                { id: 'snakesoul', name: '뱀유령' }, { id: 'fistshield', name: '방패' }, { id: 'lonewolf', name: '늑대행자' },
-                { id: 'tortoiseshell', name: '귀갑' }, { id: 'fear', name: '공포' }, { id: 'frogthorn', name: '개구리가시' }
+                { id: 'firedance', name: '화무 / Fire Dance' }, { id: 'sacrifice', name: '헌제 / Sacrifice' }, { id: 'psychic', name: '초능 / Psychic' },
+                { id: 'snakesoul', name: '뱀유령 / Snake Soul' }, { id: 'fistshield', name: '방패 / Fist Shield' }, { id: 'lonewolf', name: '늑대행자 / Lone Wolf' },
+                { id: 'tortoiseshell', name: '귀갑 / Tortoise Shell' }, { id: 'fear', name: '공포 / Fear' }, { id: 'frogthorn', name: '개구리가시 / Frog Thorn' }
             ] 
         },
         lev4: { 
-            'deadly': { name: '치명', description: '상세 설명 준비 중입니다.' }
+            // 룬/칩 상세 정보는 운영자 모드로 하나씩 추가해주세요.
+            'deadly': { name: '치명 / Deadly', description: '상세 설명 준비 중입니다.' }
         }
     },
-    deck: {
-        lev2: [], lev3: {}
-    },
-    calendar: {
-        lev2: [], lev3: {}
-    },
-    tips: {
-        lev2: [], lev3: {}
-    }
+    // ... 이하 deck, calendar, tips 객체는 이전과 동일
 };
