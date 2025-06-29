@@ -9,6 +9,10 @@ body {
     margin: 0; font-family: sans-serif; display: flex;
     flex-direction: column; height: 100vh; overflow: hidden;
 }
+/* [신규 추가] 운영자 모드일 때 body의 스크롤을 허용합니다. */
+body.admin-mode-active {
+    overflow-y: auto;
+}
 header {
     background-color: var(--primary-color); color: white;
     text-align: center; padding: 10px 0; flex-shrink: 0;
@@ -91,7 +95,7 @@ header h1 { margin: 0; font-size: 1.5em; }
 .type-fairy { background-color: #EE99AC !important; color: black; }
 
 .item-description { white-space: pre-wrap; line-height: 1.7; background-color: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 14px; color: #333; }
-.stats-table { border-collapse: collapse; margin: 10px 0; width: 100%; }
+.stats-table { border-collapse: collapse; margin: 10px 0; }
 .stats-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
 .stats-table td:first-child { font-weight: 600; color: #555; padding-right: 20px; }
 @media (min-width: 769px) { .stats-table { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, auto)); gap: 0 20px; } .stats-table tr { display: contents; } }
@@ -116,6 +120,7 @@ header h1 { margin: 0; font-size: 1.5em; }
 .modal-header h2 { margin: 0; font-size: 1.3em; }
 .modal-close-btn { font-size: 24px; font-weight: bold; cursor: pointer; border: none; background: none; }
 
+#admin-panel { padding: 20px; overflow-y: auto; }
 #admin-panel .form-group { margin-bottom: 15px; }
 #admin-panel .form-group label, #admin-panel legend { display: block; margin-bottom: 5px; font-weight: bold; }
 #admin-panel input[type="text"], #admin-panel input[type="number"], #admin-panel textarea, #admin-panel select { width: 95%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
