@@ -1,11 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex v9.2-final');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex v10.1-final-fix');
 
     const appContainer = document.getElementById('app-container');
-    const adminPanel = document.getElementById('admin-panel');
-    const urlParams = new URLSearchParams(window.location.search);
-    const isAdminMode = urlParams.get('admin') === 'true';
-
     const sidebar = document.getElementById('sidebar');
     const panels = {
         lev2: document.getElementById('lev2-panel'),
@@ -14,60 +10,44 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let activeButtons = {};
 
-    function renderSimpleView(contentDiv, data) {
-        let html = `<h2>${data.name}</h2>`;
-        if (data.imageURL && data.imageURL.startsWith('http')) {
-            html += `<img src="${data.imageURL}" alt="${data.name}" style="max-width: 150px; margin: 10px 0;">`;
-        }
-        if (data.baseStats && Object.values(data.baseStats).some(v => v !== 0)) {
-            html += '<h4>기초 타입</h4><table class="stats-table">';
-            Object.entries(data.baseStats).forEach(([stat, value]) => {
-                if (value !== 0) {
-                    html += `<tr><td>${stat}</td><td>+${value}</td></tr>`;
+    function showPanels(level) {
+        Object.values(panels).forEach(panel => panel.classList.remove('visible'));
+        appContainer.className = '';
+
+        const activeMenuId = activeButtons[1]?.dataset.id;
+        if (!activeMenuId) return; 
+
+        const categoryInfo = DB.sidebarMenu.find(item => item.id === activeMenuId);
+        const isFinalView = categoryInfo && level === categoryInfo.levels;
+
+        if (isFinalView) {
+            appContainer.className = `final-view-L${level}`;
+            if (panels[`lev${level}`]) {
+                panels[`lev${level}`].classList.add('visible');
+            }
+        } else {
+            for (let i = 2; i <= level; i++) {
+                if (panels[`lev${i}`]) {
+                    panels[`lev${i}`].classList.add('visible');
                 }
-            });
-            html += '</table>';
+            }
         }
-        if (data.description) {
-            html += '<h4 style="margin-top: 15px;">휴대 효과</h4>';
-            const descriptionLines = data.description.split('\\n');
-            let processedDescription = '';
-            descriptionLines.forEach(line => {
-                const trimmedLine = line.trim();
-                if (trimmedLine) {
-                    if (trimmedLine.includes(':')) {
-                        const parts = trimmedLine.split(':');
-                        processedDescription += `<p><strong>${parts[0]}:</strong> ${parts.slice(1).join(':')}</p>`;
-                    } else {
-                        processedDescription += `<p>${trimmedLine}</p>`;
-                    }
-                }
-            });
-            html += `<div class="item-description">${processedDescription}</div>`;
-        }
-        contentDiv.innerHTML = html;
     }
 
-    function renderPanel(level, data, menuId) {
-        const targetPanel = panels[`lev${level}`];
-        if (!targetPanel) return;
-        const contentDiv = targetPanel.querySelector('.panel-content');
+    function renderContent(panel, data, level, menuId) {
+        const contentDiv = panel.querySelector('.panel-content');
         contentDiv.innerHTML = '';
         setTimeout(() => { contentDiv.scrollTop = 0; }, 0);
+
         if (!data) {
             contentDiv.innerHTML = "데이터가 없습니다.";
-            targetPanel.classList.add('visible');
             return;
         }
+
         const isFinal = !Array.isArray(data);
         if (isFinal) {
-            const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
-            const finalLevelForCategory = categoryInfo ? categoryInfo.levels : 0;
-            appContainer.className = `final-view-L${finalLevelForCategory}`;
-            Object.values(panels).forEach(p => p.classList.remove('visible'));
-            renderSimpleView(contentDiv, data);
+            contentDiv.innerHTML = data.description || data.content || "상세 정보입니다.";
         } else {
-            appContainer.className = "";
             data.forEach(item => {
                 const button = document.createElement('button');
                 button.className = 'list-item';
@@ -81,9 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 contentDiv.appendChild(button);
             });
         }
-        targetPanel.classList.add('visible');
     }
-
+    
     function initialize() {
         sidebar.innerHTML = DB.sidebarMenu.map(item => `<button class="menu-item" data-level="1" data-id="${item.id}">${item.name}</button>`).join('');
         addEventListeners();
@@ -93,8 +72,18 @@ document.addEventListener('DOMContentLoaded', () => {
         appContainer.addEventListener('click', e => {
             const button = e.target.closest('button');
             if (!button) return;
-            if (button.classList.contains('back-btn')) handleBackClick(button);
-            else if (button.dataset.level) handleMenuClick(button);
+
+            if (button.classList.contains('back-btn')) {
+                const parentPanel = button.closest('.panel');
+                const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
+                
+                // [핵심 수정] 현재 레벨의 활성화된 버튼을 비활성화 합니다.
+                setActive(level, null);
+                // [핵심 수정] 이전 레벨의 화면 구성을 보여줍니다.
+                showPanels(level - 1);
+            } else if (button.dataset.level) {
+                handleMenuClick(button);
+            }
         });
     }
 
@@ -105,17 +94,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         setActive(level, button);
 
-        for (let i = level + 1; i <= 4; i++) {
-            if (panels[`lev${i}`]) {
-                panels[`lev${i}`].classList.remove('visible');
-            }
-        }
-        
         const nextLevel = level + 1;
         const nextData = getNextData(level, id, menuId);
-        renderPanel(nextLevel, nextData, menuId);
+        
+        const targetPanel = panels[`lev${nextLevel}`];
+        if (targetPanel) {
+            renderContent(targetPanel, nextData, nextLevel, menuId);
+            showPanels(nextLevel);
+        }
     }
-
+    
     function getNextData(currentLevel, id, menuId) {
         const nextLevel = currentLevel + 1;
         if (nextLevel === 2) return DB[menuId]?.lev2;
@@ -124,20 +112,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
-    function handleBackClick(button) {
-        const parentPanel = button.closest('.panel');
-        parentPanel.classList.remove('visible');
-        const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
-        setActive(level - 1, null);
-    }
-
     function setActive(level, target) {
-        if(activeButtons[level]) activeButtons[level].classList.remove('active');
-        if(target) {
+        for (let i = level; i <= 4; i++) {
+            if(activeButtons[i]) {
+                activeButtons[i].classList.remove('active');
+                activeButtons[i] = null;
+            }
+        }
+        if (target) {
             target.classList.add('active');
             activeButtons[level] = target;
         }
     }
-
+    
     initialize();
 });
