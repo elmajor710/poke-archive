@@ -116,7 +116,29 @@ const DB = {
             'deadly': { name: '치명 / Deadly', description: '상세 설명은 운영자 모드에서 추가해주세요.' }
         }
     },
-    deck: { lev2: [], lev3: {} },
-    calendar: { lev2: [], lev3: {} },
-    tips: { lev2: [], lev3: {} }
+    deck: {
+        lev2: [ { id: 'newbieDeck', name: '초보자 추천덱' } ],
+        lev3: { newbieDeck: { name: '초보자 추천덱', description: '콘텐츠 준비 중입니다.' } }
+    },
+    calendar: {
+        lev2: [ { id: 'gachaSchedule', name: '뽑기 일정' } ],
+        lev3: { 
+            gachaSchedule: { 
+                name: '뽑기 일정',
+                description: '랭킹뽑기, 한정뽑기 등 주요 이벤트 일정을 확인할 수 있습니다.',
+                events: [
+                    { title: '웅의 메가 강철톤(강철/땅)[무쇠 바퀴]', type: 'ranking', startDate: '2025-07-18', endDate: '2025-07-20' },
+                ],
+                recurringEvents: [
+                    { title: '복냥이', type: 'special', durationDays: 3, recurrence: { unit: 'weeks', interval: 4 }, startDate: '2025-06-27' }
+                ]
+            } 
+        }
+    },
+    tips: {
+        lev2: [ { id: 'beginnerTop10', name: '팁&노하우' } ],
+        lev3: { 
+            beginnerTop10: { name: '팁&노하우', content: '콘텐츠 준비 중입니다.' },
+        }
+    }
 };
