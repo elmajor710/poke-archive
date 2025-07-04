@@ -16,16 +16,13 @@ const DB = {
             { id: 'careful', name: '신중함/Careful' }
         ]
     },
-        // ▼▼▼▼▼ 신규 추가 ▼▼▼▼▼
     synergyEffects: [
         { id: 'diff6', name: '다른 타입 6마리', imageURL: 'https://i.imgur.com/g0t51J7.png', description: '다른 타입의 포켓몬 6마리 출전<br>HP +10%, 공격 +10%, 특수공격 +10%' },
         { id: 'same3', name: '같은 타입 3마리', imageURL: 'https://i.imgur.com/zJFdJ8T.png', description: '같은 타입의 포켓몬 3마리 출전<br>HP +15%, 공격 +10%, 특수공격 +10%' },
         { id: 'same2x3', name: '같은 타입 2마리씩 3개 조합', imageURL: 'https://i.imgur.com/L1dFuts.png', description: '같은 타입 2마리씩 총 3개 조합의 포켓몬 출전<br>HP +15%, 공격 +15%, 특수공격 +15%' },
         { id: 'same3x2', name: '같은 타입 3마리씩 2개 조합', imageURL: 'https://i.imgur.com/eBwD1vT.png', description: '같은 타입 3마리씩 총 2개 조합의 포켓몬 출전<br>HP +20%, 공격 +15%, 특수공격 +15%' },
-        // { id: 'same2x4', name: '같은 타입 2마리씩 4개 조합', imageURL: 'https://i.imgur.com/S9gT9oG.png', description: '같은 타입 2마리씩 총 4개 조합의 포켓몬 출전<br>HP +20%, 공격 +15%, 특수공격 +15%' },
         { id: 'same6', name: '같은 타입 6마리', imageURL: 'https://i.imgur.com/152g6Ay.png', description: '같은 타입의 포켓몬 6마리 출전<br>HP +25%, 공격 +20%, 특수공격 +20%' },
     ],
-    // ▲▲▲▲▲ 신규 추가 ▲▲▲▲▲
     sidebarMenu: [
         { id: 'pokemonType', name: '포켓몬 타입', levels: 4 },
         { id: 'pokemonGrade', name: '포켓몬 등급', levels: 4 },
@@ -37,20 +34,24 @@ const DB = {
     ],
     pokemonType: {
         lev2: [ 
-            { id: 'psychic', name: '에스퍼', color: '#F85888' },
-            { id: 'fighting', name: '격투', color: '#C03028' },
-            { id: 'electric', name: '전기', color: '#F8D030' },
+            { id: 'normal', name: '노말', color: '#A8A878' },
             { id: 'fire', name: '불', color: '#F08030' },
-            { id: 'rock', name: '바위', color: '#B8A038' },
             { id: 'water', name: '물', color: '#6890F0' },
-            { id: 'dragon', name: '드래곤', color: '#7038F8' },
-            { id: 'flying', name: '비행', color: '#A890F0' },
-            { id: 'steel', name: '강철', color: '#B8B8D0' },
             { id: 'grass', name: '풀', color: '#78C850' },
-            { id: 'dark', name: '악', color: '#705848' },
-            { id: 'bug', name: '벌레', color: '#A8B820' },
-            // 이 줄을 추가하세요.
+            { id: 'electric', name: '전기', color: '#F8D030' },
             { id: 'ice', name: '얼음', color: '#98D8D8' },
+            { id: 'fighting', name: '격투', color: '#C03028' },
+            { id: 'poison', name: '독', color: '#A040A0' },
+            { id: 'ground', name: '땅', color: '#E0C068' },
+            { id: 'flying', name: '비행', color: '#A890F0' },
+            { id: 'psychic', name: '에스퍼', color: '#F85888' },
+            { id: 'bug', name: '벌레', color: '#A8B820' },
+            { id: 'rock', name: '바위', color: '#B8A038' },
+            { id: 'ghost', name: '유령', color: '#705898' },
+            { id: 'dragon', name: '드래곤', color: '#7038F8' },
+            { id: 'dark', name: '악', color: '#705848' },
+            { id: 'steel', name: '강철', color: '#B8B8D0' },
+            { id: 'fairy', name: '페어리', color: '#EE99AC' },
         ],
         lev3: { 
             psychic: [ { id: 'megamewtwox', name: '메가뮤츠X' }, { id: 'alakazam', name: '후딘' }, { id: 'mew', name: '뮤' }, { id: 'jirachi', name: '지라치' } ],

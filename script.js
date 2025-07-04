@@ -175,12 +175,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // ==================================================================
-        // V3. DECK BUILDER - START
+        // V4. DECK BUILDER - START
         // ==================================================================
         function renderDeckBuilder(contentDiv) {
             let html = `
             <div class="deck-builder-view">
-                <div class="placement-area">
+                <div class="placement-container">
                     <div class="placement-grid">
                         <div class="placement-slot-header" id="weather-icon-container">☀️</div>
                         <div class="placement-slot-header" id="synergy-icon-container">
@@ -198,14 +198,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="placement-slot main vanguard" data-role="main" data-position="3">전방_#3</div>
                     </div>
                 </div>
-                <div class="source-area">
+                <div class="source-container">
                     <h4>포켓몬 목록</h4>
                     <div class="source-filter-bar">
-                        <div class="filter-tabs">
-                            <button class="filter-tab active" data-filter="name">이름순</button>
-                            <button class="filter-tab" data-filter="grade">등급순</button>
-                            <button class="filter-tab" data-filter="type">타입별</button>
-                        </div>
+                        <select id="grade-filter" class="filter-dropdown">
+                            <option value="all">모든 등급</option>
+                            <option value="SS">SS</option>
+                            <option value="S+">S+</option>
+                            <option value="S">S</option>
+                        </select>
+                        <select id="type-filter" class="filter-dropdown">
+                            <option value="all">모든 타입</option>
+                        </select>
                     </div>
                     <div class="source-list"></div>
                 </div>
@@ -216,54 +220,41 @@ document.addEventListener('DOMContentLoaded', () => {
             const placementGrid = contentDiv.querySelector('.placement-grid');
             const weatherIconContainer = contentDiv.querySelector('#weather-icon-container');
             const synergyIconContainer = contentDiv.querySelector('#synergy-icon-container');
+            const gradeFilter = contentDiv.querySelector('#grade-filter');
+            const typeFilter = contentDiv.querySelector('#type-filter');
             
             let placedPokemon = new Map(); // Key: slot element, Value: pokemonId
 
-            function renderSourceList(filterType = 'name') {
-                sourceList.innerHTML = '';
-                const allPokemon = Object.entries(DB.pokemonType.lev4);
+            // Populate type filter dropdown
+            DB.pokemonType.lev2.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type.id;
+                option.textContent = type.name;
+                typeFilter.appendChild(option);
+            });
 
-                if (filterType === 'name') {
-                    allPokemon.sort(([, a], [, b]) => a.name.ko.localeCompare(b.name.ko));
-                    const grid = document.createElement('div');
-                    grid.className = 'source-list-grid';
-                    grid.innerHTML = allPokemon.map(([id, pkm]) => createPokemonIconHTML(id, pkm)).join('');
-                    sourceList.appendChild(grid);
-                } else if (filterType === 'grade') {
-                    const gradeOrder = ['SS', 'S+', 'S'];
-                    allPokemon.sort(([, a], [, b]) => {
-                        const gradeA = gradeOrder.indexOf(a.grade);
-                        const gradeB = gradeOrder.indexOf(b.grade);
-                        if (gradeA !== gradeB) return gradeA - gradeB;
-                        return a.name.ko.localeCompare(b.name.ko);
-                    });
-                    const grid = document.createElement('div');
-                    grid.className = 'source-list-grid';
-                    grid.innerHTML = allPokemon.map(([id, pkm]) => createPokemonIconHTML(id, pkm)).join('');
-                    sourceList.appendChild(grid);
-                } else if (filterType === 'type') {
-                    const pokemonByType = {};
-                    DB.pokemonType.lev2.forEach(type => { pokemonByType[type.id] = []; });
-                    allPokemon.forEach(([id, pkm]) => {
-                        pkm.types?.forEach(typeId => {
-                            if(pokemonByType[typeId]) {
-                                pokemonByType[typeId].push([id, pkm]);
-                            }
-                        });
-                    });
-                    DB.pokemonType.lev2.forEach(type => {
-                        if (pokemonByType[type.id].length > 0) {
-                            const typeGroup = document.createElement('div');
-                            typeGroup.className = 'type-filter-group';
-                            typeGroup.innerHTML = `<h5><span class="type-badge" style="background-color:${type.color};">${type.name}</span></h5>`;
-                            const horizontalList = document.createElement('div');
-                            horizontalList.className = 'horizontal-scroll-row';
-                            horizontalList.innerHTML = pokemonByType[type.id].map(([id, pkm]) => createPokemonIconHTML(id, pkm)).join('');
-                            typeGroup.appendChild(horizontalList);
-                            sourceList.appendChild(typeGroup);
-                        }
-                    });
-                }
+            function applyFilters() {
+                const selectedGrade = gradeFilter.value;
+                const selectedType = typeFilter.value;
+                
+                let filteredPokemon = Object.entries(DB.pokemonType.lev4).filter(([id, pkm]) => {
+                    const gradeMatch = selectedGrade === 'all' || pkm.grade === selectedGrade;
+                    const typeMatch = selectedType === 'all' || (pkm.types && pkm.types.includes(selectedType));
+                    return gradeMatch && typeMatch;
+                });
+
+                // Default sort by name (Korean)
+                filteredPokemon.sort(([, a], [, b]) => a.name.ko.localeCompare(b.name.ko));
+                
+                renderSourceList(filteredPokemon);
+            }
+
+            function renderSourceList(pokemonList) {
+                sourceList.innerHTML = '';
+                const grid = document.createElement('div');
+                grid.className = 'source-list-grid';
+                grid.innerHTML = pokemonList.map(([id, pkm]) => createPokemonIconHTML(id, pkm)).join('');
+                sourceList.appendChild(grid);
             }
             
             function createPokemonIconHTML(id, pkm) {
@@ -273,17 +264,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>`;
             }
 
-            contentDiv.querySelector('.filter-tabs').addEventListener('click', e => {
-                const target = e.target.closest('.filter-tab');
-                if (target) {
-                    contentDiv.querySelectorAll('.filter-tab').forEach(btn => btn.classList.remove('active'));
-                    target.classList.add('active');
-                    renderSourceList(target.dataset.filter);
-                }
-            });
-
+            gradeFilter.addEventListener('change', applyFilters);
+            typeFilter.addEventListener('change', applyFilters);
+        
             // --- Drag & Drop Logic ---
-            let draggedItem = null; // Can be a source icon or a slot
+            let draggedItem = null; 
             
             sourceList.addEventListener('dragstart', e => {
                 const target = e.target.closest('.pokemon-source-icon');
@@ -295,7 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             placementGrid.addEventListener('dragstart', e => {
                 const target = e.target.closest('.placement-slot');
-                // Only allow dragging if the slot has a pokemon
                 if (target && target.querySelector('.deck-pokemon-cell')) {
                     draggedItem = target;
                 }
@@ -312,29 +296,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pokemonData = DB.pokemonType.lev4[pokemonId];
                 if (!pokemonData) return;
 
-                // Case 1: Dragging from another slot (Swap)
                 if (draggedItem.classList.contains('placement-slot')) {
                     const sourceSlot = draggedItem;
-                    if (targetSlot === sourceSlot) return; // Dropped on itself
+                    if (targetSlot === sourceSlot) return; 
 
                     const targetPokemonId = placedPokemon.get(targetSlot);
                     
-                    if (targetPokemonId) { // If target slot is occupied, swap them
+                    if (targetPokemonId) { 
                         const sourcePokemonId = placedPokemon.get(sourceSlot);
                         const sourcePokemonData = DB.pokemonType.lev4[sourcePokemonId];
                         const targetPokemonData = DB.pokemonType.lev4[targetPokemonId];
 
                         placePokemonInSlot(sourceSlot, targetPokemonId, targetPokemonData);
                         placePokemonInSlot(targetSlot, sourcePokemonId, sourcePokemonData);
-                    } else { // If target slot is empty, move
+                    } else { 
                         const sourcePokemonId = placedPokemon.get(sourceSlot);
                         placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
                         clearSlot(sourceSlot);
                     }
                 }
-                // Case 2: Dragging from source list
                 else if (draggedItem.classList.contains('pokemon-source-icon')) {
-                     // If slot is already occupied, do nothing (or swap later if needed)
                     if (placedPokemon.has(targetSlot)) {
                         alert('슬롯이 비어있지 않습니다. 포켓몬을 제거하거나 다른 빈 슬롯으로 옮겨주세요.');
                         return;
@@ -350,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <img src="${pokemonData.faceImageURL}" alt="${pokemonData.name.ko}"/>
                                     <button class="remove-pkm-btn">×</button>
                                   </div>`;
-                slot.dataset.pokemonId = pokemonId; // Store id on slot for easy access
+                slot.dataset.pokemonId = pokemonId; 
                 placedPokemon.set(slot, pokemonId);
             }
 
@@ -369,7 +350,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             placementGrid.addEventListener('click', e => {
-                // Handle pokemon removal
                 const removeButton = e.target.closest('.remove-pkm-btn');
                 if(removeButton) {
                     const parentSlot = removeButton.closest('.placement-slot');
@@ -377,10 +357,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         clearSlot(parentSlot);
                         updateTeamEffects();
                     }
-                    return; // Prevent event bubbling to the slot itself
+                    return; 
                 }
 
-                // Handle clicking on a placed pokemon
                 const pkmCell = e.target.closest('.deck-pokemon-cell');
                 if(pkmCell) {
                     const parentSlot = pkmCell.closest('.placement-slot');
@@ -397,6 +376,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateSynergyIcon();
             }
             
+            const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
+
             function updateWeatherIcon() {
                 const pokemonWithWeather = Array.from(placedPokemon.values()).some(id => DB.pokemonType.lev4[id]?.weatherEffects);
                 weatherIconContainer.style.visibility = pokemonWithWeather ? 'visible' : 'hidden';
@@ -424,41 +405,45 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             function calculateSynergy(pokemonIds) {
-                if (pokemonIds.length !== 6) return null;
+                if (pokemonIds.length < 6) return null;
 
-                const types = pokemonIds.flatMap(id => DB.pokemonType.lev4[id].types);
-                const typeCounts = types.reduce((acc, type) => {
-                    acc[type] = (acc[type] || 0) + 1;
-                    return acc;
-                }, {});
-
-                const uniqueTypeCount = Object.keys(typeCounts).length;
-
-                // 6마리 같은타입 (예: 불 6)
-                if (uniqueTypeCount === 1 && Object.values(typeCounts)[0] === 6) return DB.synergyEffects.find(s => s.id === 'same6');
-                // 3마리씩 2개 조합 (예: 불 3, 물 3)
-                if (uniqueTypeCount === 2 && Object.values(typeCounts).every(c => c === 3)) return DB.synergyEffects.find(s => s.id === 'same3x2');
-                // 2마리씩 3개 조합 (예: 불 2, 물 2, 풀 2)
-                if (uniqueTypeCount === 3 && Object.values(typeCounts).every(c => c === 2)) return DB.synergyEffects.find(s => s.id === 'same2x3');
-                 // 2마리씩 4개 조합 (데이터에 없음, 로직만 추가) -> 해당 없음
-                // 6마리 다른타입 (예: 불,물,풀,전기,바위,에스퍼)
-                if (uniqueTypeCount === 6) return DB.synergyEffects.find(s => s.id === 'diff6');
-                // 3마리 같은타입 (예: 불 3, 나머지 각 1)
-                if (Object.values(typeCounts).includes(3)) return DB.synergyEffects.find(s => s.id === 'same3');
+                const typePokemonCount = {};
+                pokemonIds.forEach(id => {
+                    const pkm = DB.pokemonType.lev4[id];
+                    if (pkm && pkm.types) {
+                        // 각 포켓몬의 유니크한 타입들만 센다 (중복 방지)
+                        const uniqueTypes = [...new Set(pkm.types)];
+                        uniqueTypes.forEach(type => {
+                            if (!typePokemonCount[type]) typePokemonCount[type] = new Set();
+                            typePokemonCount[type].add(id);
+                        });
+                    }
+                });
+                
+                const counts = Object.values(typePokemonCount).map(set => set.size);
+                
+                // 우선순위: 복잡한 조합부터 확인
+                if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
+                if (counts.filter(c => c >= 2).length >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
+                if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
+                if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
+                
+                const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
+                const totalUniqueTypes = new Set(mainPokemon.flatMap(p => p.types)).size;
+                if (totalUniqueTypes >= 6 && mainPokemon.length === 6) return DB.synergyEffects.find(s => s.id === 'diff6');
 
                 return null;
             }
 
             synergyIconContainer.addEventListener('click', () => {
                 const synergyId = synergyIconContainer.dataset.synergyId;
-                if (!synergyId) return;
-
+                
                 let contentHTML = `
                     <table class="synergy-table">
                         <thead><tr><th>타입 시너지 효과</th><th>설명</th></tr></thead>
                         <tbody>`;
                 DB.synergyEffects.forEach(effect => {
-                    const isCurrent = effect.id === synergyId ? 'current-synergy' : '';
+                    const isCurrent = (synergyId && effect.id === synergyId) ? 'current-synergy' : '';
                     contentHTML += `
                         <tr class="${isCurrent}">
                             <td><img src="${effect.imageURL}" alt="${effect.name}"></td>
@@ -488,17 +473,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         weatherOptionsHTML += `<div class="weather-option" data-weather-name="${name}"><strong>${name}</strong><div class="weather-desc">${desc}</div></div>`;
                     });
                     showModal('날씨 효과 선택', weatherOptionsHTML, true, (selectedWeather) => {
-                         weatherIconContainer.textContent = selectedWeather.substring(0, 2); // 예: '맑음', '눈폭'
+                         weatherIconContainer.textContent = weatherToEmoji[selectedWeather] || '☀️';
                     });
                 }
             });
 
             // Initial render
-            renderSourceList();
+            applyFilters();
             updateTeamEffects();
         }
         // ==================================================================
-        // V3. DECK BUILDER - END
+        // V4. DECK BUILDER - END
         // ==================================================================
 
 
