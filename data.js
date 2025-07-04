@@ -21,6 +21,7 @@ const DB = {
         { id: 'same3', name: '같은 타입 3마리', imageURL: 'https://i.imgur.com/zJFdJ8T.png', description: '같은 타입의 포켓몬 3마리 출전<br>HP +15%, 공격 +10%, 특수공격 +10%' },
         { id: 'same2x3', name: '같은 타입 2마리씩 3개 조합', imageURL: 'https://i.imgur.com/L1dFuts.png', description: '같은 타입 2마리씩 총 3개 조합의 포켓몬 출전<br>HP +15%, 공격 +15%, 특수공격 +15%' },
         { id: 'same3x2', name: '같은 타입 3마리씩 2개 조합', imageURL: 'https://i.imgur.com/eBwD1vT.png', description: '같은 타입 3마리씩 총 2개 조합의 포켓몬 출전<br>HP +20%, 공격 +15%, 특수공격 +15%' },
+        { id: 'same2x4', name: '같은 타입 2마리씩 4개 조합', imageURL: 'https://i.imgur.com/S9gT9oG.png', description: '같은 타입 2마리씩 총 4개 조합의 포켓몬 출전<br>HP +20%, 공격 +15%, 특수공격 +15%' }, // <-- 신규 추가
         { id: 'same6', name: '같은 타입 6마리', imageURL: 'https://i.imgur.com/152g6Ay.png', description: '같은 타입의 포켓몬 6마리 출전<br>HP +25%, 공격 +20%, 특수공격 +20%' },
     ],
     sidebarMenu: [

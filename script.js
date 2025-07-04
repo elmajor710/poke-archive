@@ -404,36 +404,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            function calculateSynergy(pokemonIds) {
-                if (pokemonIds.length < 6) return null;
+                    function calculateSynergy(pokemonIds) {
+            if (pokemonIds.length < 6) return null;
 
-                const typePokemonCount = {};
-                pokemonIds.forEach(id => {
-                    const pkm = DB.pokemonType.lev4[id];
-                    if (pkm && pkm.types) {
-                        // 각 포켓몬의 유니크한 타입들만 센다 (중복 방지)
-                        const uniqueTypes = [...new Set(pkm.types)];
-                        uniqueTypes.forEach(type => {
-                            if (!typePokemonCount[type]) typePokemonCount[type] = new Set();
-                            typePokemonCount[type].add(id);
-                        });
-                    }
-                });
-                
-                const counts = Object.values(typePokemonCount).map(set => set.size);
-                
-                // 우선순위: 복잡한 조합부터 확인
-                if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
-                if (counts.filter(c => c >= 2).length >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
-                if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
-                if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
-                
-                const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
-                const totalUniqueTypes = new Set(mainPokemon.flatMap(p => p.types)).size;
-                if (totalUniqueTypes >= 6 && mainPokemon.length === 6) return DB.synergyEffects.find(s => s.id === 'diff6');
+            const typePokemonCount = {};
+            pokemonIds.forEach(id => {
+                const pkm = DB.pokemonType.lev4[id];
+                if (pkm && pkm.types) {
+                    const uniqueTypes = [...new Set(pkm.types)];
+                    uniqueTypes.forEach(type => {
+                        if (!typePokemonCount[type]) typePokemonCount[type] = new Set();
+                        typePokemonCount[type].add(id);
+                    });
+                }
+            });
+            
+            const counts = Object.values(typePokemonCount).map(set => set.size);
+            
+            // 우선순위: 복잡하거나 희귀한 조합부터 확인
+            if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
+            if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
+            if (counts.filter(c => c >= 2).length >= 4) return DB.synergyEffects.find(s => s.id === 'same2x4'); // <-- 신규 추가된 로직
+            if (counts.filter(c => c >= 2).length >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
+            if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
+            
+            const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
+            const totalUniqueTypes = new Set(mainPokemon.flatMap(p => p.types)).size;
+            if (totalUniqueTypes >= 6 && mainPokemon.length === 6) return DB.synergyEffects.find(s => s.id === 'diff6');
 
-                return null;
-            }
+            return null;
+        }
 
             synergyIconContainer.addEventListener('click', () => {
                 const synergyId = synergyIconContainer.dataset.synergyId;
