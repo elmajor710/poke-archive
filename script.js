@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 html += `<div class="badge-container"><span class="grade-badge ${gradeClass}">${data.grade}</span></div>`;
             }
             if (data.imageURL) { html += `<img src="${data.imageURL}" alt="${data.name}" class="main-image">`; }
-            if (data.description) { html += `<h4>설명</h4><div class="item-description">${data.description.replace(/\\n/g, '\n')}</div>`; }
+            if (data.description) { html += `<div class="item-description">${data.description.replace(/\\n/g, '<br>')}</div>`; }
             if (data.content) { html += `<p>${data.content}</p>`; }
             html += `</div>`;
             contentDiv.innerHTML = html;
@@ -174,126 +174,307 @@ document.addEventListener('DOMContentLoaded', () => {
             calendarView.addEventListener('click', (e) => { const target = e.target; if(target.id === 'cal-prev-btn') { currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); updateCalendar(); } else if (target.id === 'cal-next-btn') { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); updateCalendar(); } else if (target.id === 'cal-today-btn') { currentCalendarDate = new Date(); updateCalendar(); } else { const cell = target.closest('.has-events'); if (cell) { const day = parseInt(cell.dataset.date.split('-')[2]); const events = monthEvents[day]; if (events && events.length > 0) { const eventContent = events.map(e => `<strong>${e.title || e.name}</strong><p>${e.description || ''}</p>`).join('<hr>'); showModal(`${cell.dataset.date} 이벤트`, eventContent); } } } });
         }
         
+        // ==================================================================
+        // V3. DECK BUILDER - START
+        // ==================================================================
         function renderDeckBuilder(contentDiv) {
-            let html = `<div class="deck-builder-view">
+            let html = `
+            <div class="deck-builder-view">
                 <div class="placement-area">
-                    <div class="weather-icon-container">☀️</div>
-                    <h4>덱 배치</h4>
-                    <div class="placement-grid-container">
-                        <div class="placement-grid-header">
-                            <div>어시스트</div>
-                            <div>후방</div>
-                            <div>전방</div>
+                    <div class="placement-grid">
+                        <div class="placement-slot-header" id="weather-icon-container">☀️</div>
+                        <div class="placement-slot-header" id="synergy-icon-container">
+                            <img src="https://i.imgur.com/g0t51J7.png" alt="타입 시너지">
                         </div>
-                        <div class="placement-grid">
-                            <div class="placement-slot assist" data-role="assist" data-position="1"></div>
-                            <div class="placement-slot main" data-role="main" data-position="4"></div>
-                            <div class="placement-slot main" data-role="main" data-position="1"></div>
-                            <div class="placement-slot assist" data-role="assist" data-position="2"></div>
-                            <div class="placement-slot main" data-role="main" data-position="5"></div>
-                            <div class="placement-slot main" data-role="main" data-position="2"></div>
-                            <div class="placement-slot assist" data-role="assist" data-position="3"></div>
-                            <div class="placement-slot main" data-role="main" data-position="6"></div>
-                            <div class="placement-slot main" data-role="main" data-position="3"></div>
-                        </div>
+                        <div class="placement-slot-header"></div>
+                        <div class="placement-slot assist" data-role="assist" data-position="1">어시스트_#1</div>
+                        <div class="placement-slot main rearguard" data-role="main" data-position="4">후방_#4</div>
+                        <div class="placement-slot main vanguard" data-role="main" data-position="1">전방_#1</div>
+                        <div class="placement-slot assist" data-role="assist" data-position="2">어시스트_#2</div>
+                        <div class="placement-slot main rearguard" data-role="main" data-position="5">후방_#5</div>
+                        <div class="placement-slot main vanguard" data-role="main" data-position="2">전방_#2</div>
+                        <div class="placement-slot assist" data-role="assist" data-position="3">어시스트_#3</div>
+                        <div class="placement-slot main rearguard" data-role="main" data-position="6">후방_#6</div>
+                        <div class="placement-slot main vanguard" data-role="main" data-position="3">전방_#3</div>
                     </div>
                 </div>
                 <div class="source-area">
-                     <h4>포켓몬 목록</h4>
+                    <h4>포켓몬 목록</h4>
                     <div class="source-filter-bar">
                         <div class="filter-tabs">
                             <button class="filter-tab active" data-filter="name">이름순</button>
+                            <button class="filter-tab" data-filter="grade">등급순</button>
+                            <button class="filter-tab" data-filter="type">타입별</button>
                         </div>
-                        <select id="grade-filter" class="filter-dropdown">
-                            <option value="all">모든 등급</option><option value="SS">SS</option><option value="S+">S+</option><option value="S">S</option>
-                        </select>
-                        <select id="type-filter" class="filter-dropdown">
-                            <option value="all">모든 타입</option>
-                        </select>
                     </div>
                     <div class="source-list"></div>
                 </div>
             </div>`;
             contentDiv.innerHTML = html;
 
-            const gradeFilter = contentDiv.querySelector('#grade-filter');
-            const typeFilter = contentDiv.querySelector('#type-filter');
             const sourceList = contentDiv.querySelector('.source-list');
             const placementGrid = contentDiv.querySelector('.placement-grid');
-            const weatherIconContainer = contentDiv.querySelector('.weather-icon-container');
-            let placedPokemon = new Map();
+            const weatherIconContainer = contentDiv.querySelector('#weather-icon-container');
+            const synergyIconContainer = contentDiv.querySelector('#synergy-icon-container');
+            
+            let placedPokemon = new Map(); // Key: slot element, Value: pokemonId
 
-            DB.pokemonType.lev2.forEach(type => {
-                const option = document.createElement('option');
-                option.value = type.id;
-                option.textContent = type.name;
-                typeFilter.appendChild(option);
-            });
-        
-            function applyFilters() {
-                const selectedGrade = gradeFilter.value;
-                const selectedType = typeFilter.value;
+            function renderSourceList(filterType = 'name') {
+                sourceList.innerHTML = '';
                 const allPokemon = Object.entries(DB.pokemonType.lev4);
-                let filteredPokemon = allPokemon.filter(([id, pkm]) => (selectedGrade === 'all' || pkm.grade === selectedGrade) && (selectedType === 'all' || (pkm.types && pkm.types.includes(selectedType))));
-                filteredPokemon.sort(([, a], [, b]) => a.name.ko.localeCompare(b.name.ko));
-                sourceList.innerHTML = filteredPokemon.map(([id, pkm]) => `
-                    <div class="pokemon-source-icon" draggable="true" data-pokemon-id="${id}">
-                        <img src="${pkm.faceImageURL}" alt="${pkm.name.ko}">
-                        <span>${pkm.name.ko}</span>
-                    </div>`).join('');
+
+                if (filterType === 'name') {
+                    allPokemon.sort(([, a], [, b]) => a.name.ko.localeCompare(b.name.ko));
+                    const grid = document.createElement('div');
+                    grid.className = 'source-list-grid';
+                    grid.innerHTML = allPokemon.map(([id, pkm]) => createPokemonIconHTML(id, pkm)).join('');
+                    sourceList.appendChild(grid);
+                } else if (filterType === 'grade') {
+                    const gradeOrder = ['SS', 'S+', 'S'];
+                    allPokemon.sort(([, a], [, b]) => {
+                        const gradeA = gradeOrder.indexOf(a.grade);
+                        const gradeB = gradeOrder.indexOf(b.grade);
+                        if (gradeA !== gradeB) return gradeA - gradeB;
+                        return a.name.ko.localeCompare(b.name.ko);
+                    });
+                    const grid = document.createElement('div');
+                    grid.className = 'source-list-grid';
+                    grid.innerHTML = allPokemon.map(([id, pkm]) => createPokemonIconHTML(id, pkm)).join('');
+                    sourceList.appendChild(grid);
+                } else if (filterType === 'type') {
+                    const pokemonByType = {};
+                    DB.pokemonType.lev2.forEach(type => { pokemonByType[type.id] = []; });
+                    allPokemon.forEach(([id, pkm]) => {
+                        pkm.types?.forEach(typeId => {
+                            if(pokemonByType[typeId]) {
+                                pokemonByType[typeId].push([id, pkm]);
+                            }
+                        });
+                    });
+                    DB.pokemonType.lev2.forEach(type => {
+                        if (pokemonByType[type.id].length > 0) {
+                            const typeGroup = document.createElement('div');
+                            typeGroup.className = 'type-filter-group';
+                            typeGroup.innerHTML = `<h5><span class="type-badge" style="background-color:${type.color};">${type.name}</span></h5>`;
+                            const horizontalList = document.createElement('div');
+                            horizontalList.className = 'horizontal-scroll-row';
+                            horizontalList.innerHTML = pokemonByType[type.id].map(([id, pkm]) => createPokemonIconHTML(id, pkm)).join('');
+                            typeGroup.appendChild(horizontalList);
+                            sourceList.appendChild(typeGroup);
+                        }
+                    });
+                }
             }
             
-            gradeFilter.addEventListener('change', applyFilters);
-            typeFilter.addEventListener('change', applyFilters);
-            contentDiv.querySelector('[data-filter="name"]').addEventListener('click', applyFilters);
-        
+            function createPokemonIconHTML(id, pkm) {
+                return `<div class="pokemon-source-icon" draggable="true" data-pokemon-id="${id}">
+                            <img src="${pkm.faceImageURL}" alt="${pkm.name.ko}">
+                            <span>${pkm.name.ko}</span>
+                        </div>`;
+            }
+
+            contentDiv.querySelector('.filter-tabs').addEventListener('click', e => {
+                const target = e.target.closest('.filter-tab');
+                if (target) {
+                    contentDiv.querySelectorAll('.filter-tab').forEach(btn => btn.classList.remove('active'));
+                    target.classList.add('active');
+                    renderSourceList(target.dataset.filter);
+                }
+            });
+
+            // --- Drag & Drop Logic ---
+            let draggedItem = null; // Can be a source icon or a slot
+            
             sourceList.addEventListener('dragstart', e => {
                 const target = e.target.closest('.pokemon-source-icon');
-                if (target) e.dataTransfer.setData('text/plain', target.dataset.pokemonId);
+                if (target) {
+                    draggedItem = target;
+                    e.dataTransfer.setData('text/plain', target.dataset.pokemonId);
+                }
+            });
+
+            placementGrid.addEventListener('dragstart', e => {
+                const target = e.target.closest('.placement-slot');
+                // Only allow dragging if the slot has a pokemon
+                if (target && target.querySelector('.deck-pokemon-cell')) {
+                    draggedItem = target;
+                }
             });
 
             placementGrid.addEventListener('dragover', e => e.preventDefault());
+
             placementGrid.addEventListener('drop', e => {
                 e.preventDefault();
-                const pokemonId = e.dataTransfer.getData('text/plain');
                 const targetSlot = e.target.closest('.placement-slot');
-                if (pokemonId && targetSlot) {
-                    const pokemonData = DB.pokemonType.lev4[pokemonId];
-                    if (pokemonData) {
-                        targetSlot.innerHTML = `<div class="deck-pokemon-cell"><img src="${pokemonData.faceImageURL}" alt="${pokemonData.name.ko}"/><button class="remove-pkm-btn">×</button></div>`;
-                        placedPokemon.set(targetSlot, pokemonId);
-                        updateWeatherIcon();
+                if (!targetSlot || !draggedItem) return;
+
+                const pokemonId = draggedItem.dataset.pokemonId || placedPokemon.get(draggedItem);
+                const pokemonData = DB.pokemonType.lev4[pokemonId];
+                if (!pokemonData) return;
+
+                // Case 1: Dragging from another slot (Swap)
+                if (draggedItem.classList.contains('placement-slot')) {
+                    const sourceSlot = draggedItem;
+                    if (targetSlot === sourceSlot) return; // Dropped on itself
+
+                    const targetPokemonId = placedPokemon.get(targetSlot);
+                    
+                    if (targetPokemonId) { // If target slot is occupied, swap them
+                        const sourcePokemonId = placedPokemon.get(sourceSlot);
+                        const sourcePokemonData = DB.pokemonType.lev4[sourcePokemonId];
+                        const targetPokemonData = DB.pokemonType.lev4[targetPokemonId];
+
+                        placePokemonInSlot(sourceSlot, targetPokemonId, targetPokemonData);
+                        placePokemonInSlot(targetSlot, sourcePokemonId, sourcePokemonData);
+                    } else { // If target slot is empty, move
+                        const sourcePokemonId = placedPokemon.get(sourceSlot);
+                        placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
+                        clearSlot(sourceSlot);
                     }
                 }
+                // Case 2: Dragging from source list
+                else if (draggedItem.classList.contains('pokemon-source-icon')) {
+                     // If slot is already occupied, do nothing (or swap later if needed)
+                    if (placedPokemon.has(targetSlot)) {
+                        alert('슬롯이 비어있지 않습니다. 포켓몬을 제거하거나 다른 빈 슬롯으로 옮겨주세요.');
+                        return;
+                    }
+                    placePokemonInSlot(targetSlot, pokemonId, pokemonData);
+                }
+                draggedItem = null;
+                updateTeamEffects();
             });
+
+            function placePokemonInSlot(slot, pokemonId, pokemonData) {
+                slot.innerHTML = `<div class="deck-pokemon-cell" draggable="true">
+                                    <img src="${pokemonData.faceImageURL}" alt="${pokemonData.name.ko}"/>
+                                    <button class="remove-pkm-btn">×</button>
+                                  </div>`;
+                slot.dataset.pokemonId = pokemonId; // Store id on slot for easy access
+                placedPokemon.set(slot, pokemonId);
+            }
+
+            function clearSlot(slot) {
+                const role = slot.dataset.role;
+                const position = slot.dataset.position;
+                let placeholderText = '';
+                if(role === 'assist') placeholderText = `어시스트_#${position}`;
+                else if (role === 'main') {
+                    const area = slot.classList.contains('vanguard') ? '전방' : '후방';
+                    placeholderText = `${area}_#${position}`;
+                }
+                slot.innerHTML = placeholderText;
+                slot.removeAttribute('data-pokemon-id');
+                placedPokemon.delete(slot);
+            }
+            
             placementGrid.addEventListener('click', e => {
+                // Handle pokemon removal
                 const removeButton = e.target.closest('.remove-pkm-btn');
                 if(removeButton) {
                     const parentSlot = removeButton.closest('.placement-slot');
                     if (parentSlot) {
-                        placedPokemon.delete(parentSlot);
-                        const role = parentSlot.dataset.role;
-                        const position = parentSlot.dataset.position;
-                        let placeholderText = '';
-                        if(role === 'assist') placeholderText = `어시스트 #${position}`;
-                        else placeholderText = (position < 4) ? `전방 #${position}` : `후방 #${position}`;
-                        parentSlot.innerHTML = placeholderText;
-                        updateWeatherIcon();
+                        clearSlot(parentSlot);
+                        updateTeamEffects();
+                    }
+                    return; // Prevent event bubbling to the slot itself
+                }
+
+                // Handle clicking on a placed pokemon
+                const pkmCell = e.target.closest('.deck-pokemon-cell');
+                if(pkmCell) {
+                    const parentSlot = pkmCell.closest('.placement-slot');
+                    const pokemonId = placedPokemon.get(parentSlot);
+                    const pokemonData = DB.pokemonType.lev4[pokemonId];
+                    if(pokemonData) {
+                        showModal('포켓몬 정보', `<h3>${pokemonData.name.ko}</h3>`);
                     }
                 }
             });
+
+            function updateTeamEffects() {
+                updateWeatherIcon();
+                updateSynergyIcon();
+            }
             
             function updateWeatherIcon() {
-                const hasWeatherPokemon = Array.from(placedPokemon.values()).some(id => DB.pokemonType.lev4[id]?.weatherEffects);
-                weatherIconContainer.style.display = hasWeatherPokemon ? 'block' : 'none';
+                const pokemonWithWeather = Array.from(placedPokemon.values()).some(id => DB.pokemonType.lev4[id]?.weatherEffects);
+                weatherIconContainer.style.visibility = pokemonWithWeather ? 'visible' : 'hidden';
             }
+
+            function updateSynergyIcon() {
+                const mainPokemonIds = [];
+                placedPokemon.forEach((pokemonId, slot) => {
+                    if(slot.dataset.role === 'main') {
+                        mainPokemonIds.push(pokemonId);
+                    }
+                });
+
+                const synergy = calculateSynergy(mainPokemonIds);
+                const icon = synergyIconContainer.querySelector('img');
+                if (synergy) {
+                    icon.src = synergy.imageURL;
+                    icon.alt = synergy.name;
+                    synergyIconContainer.dataset.synergyId = synergy.id;
+                    synergyIconContainer.style.visibility = 'visible';
+                } else {
+                    synergyIconContainer.style.visibility = 'hidden';
+                    synergyIconContainer.removeAttribute('data-synergy-id');
+                }
+            }
+
+            function calculateSynergy(pokemonIds) {
+                if (pokemonIds.length !== 6) return null;
+
+                const types = pokemonIds.flatMap(id => DB.pokemonType.lev4[id].types);
+                const typeCounts = types.reduce((acc, type) => {
+                    acc[type] = (acc[type] || 0) + 1;
+                    return acc;
+                }, {});
+
+                const uniqueTypeCount = Object.keys(typeCounts).length;
+
+                // 6마리 같은타입 (예: 불 6)
+                if (uniqueTypeCount === 1 && Object.values(typeCounts)[0] === 6) return DB.synergyEffects.find(s => s.id === 'same6');
+                // 3마리씩 2개 조합 (예: 불 3, 물 3)
+                if (uniqueTypeCount === 2 && Object.values(typeCounts).every(c => c === 3)) return DB.synergyEffects.find(s => s.id === 'same3x2');
+                // 2마리씩 3개 조합 (예: 불 2, 물 2, 풀 2)
+                if (uniqueTypeCount === 3 && Object.values(typeCounts).every(c => c === 2)) return DB.synergyEffects.find(s => s.id === 'same2x3');
+                 // 2마리씩 4개 조합 (데이터에 없음, 로직만 추가) -> 해당 없음
+                // 6마리 다른타입 (예: 불,물,풀,전기,바위,에스퍼)
+                if (uniqueTypeCount === 6) return DB.synergyEffects.find(s => s.id === 'diff6');
+                // 3마리 같은타입 (예: 불 3, 나머지 각 1)
+                if (Object.values(typeCounts).includes(3)) return DB.synergyEffects.find(s => s.id === 'same3');
+
+                return null;
+            }
+
+            synergyIconContainer.addEventListener('click', () => {
+                const synergyId = synergyIconContainer.dataset.synergyId;
+                if (!synergyId) return;
+
+                let contentHTML = `
+                    <table class="synergy-table">
+                        <thead><tr><th>타입 시너지 효과</th><th>설명</th></tr></thead>
+                        <tbody>`;
+                DB.synergyEffects.forEach(effect => {
+                    const isCurrent = effect.id === synergyId ? 'current-synergy' : '';
+                    contentHTML += `
+                        <tr class="${isCurrent}">
+                            <td><img src="${effect.imageURL}" alt="${effect.name}"></td>
+                            <td>${effect.description}</td>
+                        </tr>`;
+                });
+                contentHTML += `</tbody></table>`;
+                showModal('타입 시너지 효과', contentHTML);
+            });
 
             weatherIconContainer.addEventListener('click', () => {
                 let weatherOptionsHTML = '';
                 const uniqueWeatherEffects = new Map();
                 Array.from(placedPokemon.values()).forEach(id => {
                     const pkm = DB.pokemonType.lev4[id];
-                    if (pkm && pkm.weatherEffects) {
+                    if (pkm?.weatherEffects) {
                         pkm.weatherEffects.forEach(effect => {
                             if (!uniqueWeatherEffects.has(effect.name)) {
                                 uniqueWeatherEffects.set(effect.name, effect.description);
@@ -307,24 +488,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         weatherOptionsHTML += `<div class="weather-option" data-weather-name="${name}"><strong>${name}</strong><div class="weather-desc">${desc}</div></div>`;
                     });
                     showModal('날씨 효과 선택', weatherOptionsHTML, true, (selectedWeather) => {
-                         weatherIconContainer.textContent = selectedWeather;
+                         weatherIconContainer.textContent = selectedWeather.substring(0, 2); // 예: '맑음', '눈폭'
                     });
                 }
             });
 
-            sourceList.addEventListener('click', e => {
-                const target = e.target.closest('.pokemon-source-icon');
-                if(target) {
-                    const pokemonId = target.dataset.pokemonId;
-                    const pokemonData = DB.pokemonType.lev4[pokemonId];
-                    if (pokemonData) {
-                        showModal('포켓몬 정보', `<h3>${pokemonData.name.ko}</h3>`);
-                    }
-                }
-            });
-
-            applyFilters();
+            // Initial render
+            renderSourceList();
+            updateTeamEffects();
         }
+        // ==================================================================
+        // V3. DECK BUILDER - END
+        // ==================================================================
+
 
         function renderPanelContent(level, data, menuId, clickedId) {
             const targetPanel = panels[`lev${level}`];
