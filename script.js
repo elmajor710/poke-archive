@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // ==================================================================
-        // V4. DECK BUILDER - START
+        // V5. DECK BUILDER - START
         // ==================================================================
         function renderDeckBuilder(contentDiv) {
             let html = `
@@ -225,7 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             let placedPokemon = new Map(); // Key: slot element, Value: pokemonId
 
-            // Populate type filter dropdown
             DB.pokemonType.lev2.forEach(type => {
                 const option = document.createElement('option');
                 option.value = type.id;
@@ -243,7 +242,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     return gradeMatch && typeMatch;
                 });
 
-                // Default sort by name (Korean)
                 filteredPokemon.sort(([, a], [, b]) => a.name.ko.localeCompare(b.name.ko));
                 
                 renderSourceList(filteredPokemon);
@@ -267,7 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
             gradeFilter.addEventListener('change', applyFilters);
             typeFilter.addEventListener('change', applyFilters);
         
-            // --- Drag & Drop Logic ---
             let draggedItem = null; 
             
             sourceList.addEventListener('dragstart', e => {
@@ -403,37 +400,43 @@ document.addEventListener('DOMContentLoaded', () => {
                     synergyIconContainer.removeAttribute('data-synergy-id');
                 }
             }
+            
+            // ================== 최종 시너지 계산 로직 ==================
+            function calculateSynergy(pokemonIds) {
+                if (pokemonIds.length < 6) return null;
 
-                    function calculateSynergy(pokemonIds) {
-            if (pokemonIds.length < 6) return null;
+                const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
 
-            const typePokemonCount = {};
-            pokemonIds.forEach(id => {
-                const pkm = DB.pokemonType.lev4[id];
-                if (pkm && pkm.types) {
-                    const uniqueTypes = [...new Set(pkm.types)];
-                    uniqueTypes.forEach(type => {
-                        if (!typePokemonCount[type]) typePokemonCount[type] = new Set();
-                        typePokemonCount[type].add(id);
-                    });
+                // 1. 그룹핑: 각 타입을 공유하는 포켓몬 수 계산
+                const typePokemonCount = {};
+                mainPokemon.forEach(pkm => {
+                    if (pkm && pkm.types) {
+                        pkm.types.forEach(type => {
+                            typePokemonCount[type] = (typePokemonCount[type] || 0) + 1;
+                        });
+                    }
+                });
+                const counts = Object.values(typePokemonCount);
+
+                // 2. 짝(Pair) 계산: 각 타입별로 만들 수 있는 짝의 총합 계산
+                const totalPairs = counts.map(c => Math.floor(c / 2)).reduce((a, b) => a + b, 0);
+
+                // 3. 우선순위에 따라 시너지 판별
+                // 가장 강력하거나 조건이 까다로운 순서대로 확인
+                if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
+                if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
+                if (totalPairs >= 4) return DB.synergyEffects.find(s => s.id === 'same2x4');
+                if (totalPairs >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
+                if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
+                
+                // '다른 타입 6마리'는 위의 어떤 조건에도 해당하지 않을 때 마지막으로 확인
+                const totalUniqueTypes = new Set(mainPokemon.flatMap(p => p.types)).size;
+                if (pokemonIds.length === 6) { // 기본적으로 6마리가 채워져있을때 발동
+                     return DB.synergyEffects.find(s => s.id === 'diff6');
                 }
-            });
-            
-            const counts = Object.values(typePokemonCount).map(set => set.size);
-            
-            // 우선순위: 복잡하거나 희귀한 조합부터 확인
-            if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
-            if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
-            if (counts.filter(c => c >= 2).length >= 4) return DB.synergyEffects.find(s => s.id === 'same2x4'); // <-- 신규 추가된 로직
-            if (counts.filter(c => c >= 2).length >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
-            if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
-            
-            const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
-            const totalUniqueTypes = new Set(mainPokemon.flatMap(p => p.types)).size;
-            if (totalUniqueTypes >= 6 && mainPokemon.length === 6) return DB.synergyEffects.find(s => s.id === 'diff6');
 
-            return null;
-        }
+                return null;
+            }
 
             synergyIconContainer.addEventListener('click', () => {
                 const synergyId = synergyIconContainer.dataset.synergyId;
@@ -478,12 +481,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Initial render
             applyFilters();
             updateTeamEffects();
         }
         // ==================================================================
-        // V4. DECK BUILDER - END
+        // V5. DECK BUILDER - END
         // ==================================================================
 
 
