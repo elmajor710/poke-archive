@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex v31.2 - 배치툴 UI 복구');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex v33.0 - 배치툴 동적 효과 구현');
 
     function initializeAppUserMode() {
         const appContainer = document.getElementById('app-container');
@@ -14,20 +14,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const isMobile = () => window.innerWidth <= 768;
         let currentCalendarDate = new Date();
 
-        function showModal(title, contentHTML) {
+        function showModal(title, contentHTML, isWeatherPopup = false, callback) {
             const existingModal = document.querySelector('.modal-overlay');
             if (existingModal) existingModal.remove();
+            
             const modalOverlay = document.createElement('div');
             modalOverlay.className = 'modal-overlay';
-            modalOverlay.innerHTML = `<div class="modal-content"><div class="modal-header"><h2>${title}</h2><button class="modal-close-btn">&times;</button></div><div class="modal-body">${contentHTML}</div></div>`;
+            
+            let modalClass = 'modal-content';
+            if (isWeatherPopup) modalClass += ' weather-popup';
+            
+            modalOverlay.innerHTML = `<div class="${modalClass}"><div class="modal-header"><h2>${title}</h2><button class="modal-close-btn">&times;</button></div><div class="modal-body">${contentHTML}</div></div>`;
             document.body.appendChild(modalOverlay);
+            
             modalOverlay.addEventListener('click', (e) => {
-                if (e.target === modalOverlay || e.target.closest('.modal-close-btn')) {
+                const target = e.target;
+                const weatherOption = target.closest('.weather-option');
+
+                if (target.matches('.modal-overlay, .modal-close-btn')) {
+                    modalOverlay.remove();
+                } else if (isWeatherPopup && weatherOption) {
+                    if (callback) callback(weatherOption.dataset.weatherName);
                     modalOverlay.remove();
                 }
             });
         }
-
+        
         function renderPokemonView(contentDiv, data) {
             const detailView = document.createElement('div');
             detailView.className = 'pokemon-detail-view';
@@ -165,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         function renderDeckBuilder(contentDiv) {
             let html = `<div class="deck-builder-view">
                 <div class="placement-area">
+                    <div class="weather-icon-container">☀️</div>
                     <h4>덱 배치</h4>
                     <div class="placement-grid-container">
                         <div class="placement-grid-header">
@@ -173,9 +186,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div>전방</div>
                         </div>
                         <div class="placement-grid">
-                            <div class="placement-slot assist"></div><div class="placement-slot main"></div><div class="placement-slot main"></div>
-                            <div class="placement-slot assist"></div><div class="placement-slot main"></div><div class="placement-slot main"></div>
-                            <div class="placement-slot assist"></div><div class="placement-slot main"></div><div class="placement-slot main"></div>
+                            <div class="placement-slot assist" data-role="assist" data-position="1"></div>
+                            <div class="placement-slot main" data-role="main" data-position="4"></div>
+                            <div class="placement-slot main" data-role="main" data-position="1"></div>
+                            <div class="placement-slot assist" data-role="assist" data-position="2"></div>
+                            <div class="placement-slot main" data-role="main" data-position="5"></div>
+                            <div class="placement-slot main" data-role="main" data-position="2"></div>
+                            <div class="placement-slot assist" data-role="assist" data-position="3"></div>
+                            <div class="placement-slot main" data-role="main" data-position="6"></div>
+                            <div class="placement-slot main" data-role="main" data-position="3"></div>
                         </div>
                     </div>
                 </div>
@@ -186,10 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <button class="filter-tab active" data-filter="name">이름순</button>
                         </div>
                         <select id="grade-filter" class="filter-dropdown">
-                            <option value="all">모든 등급</option>
-                            <option value="SS">SS</option>
-                            <option value="S+">S+</option>
-                            <option value="S">S</option>
+                            <option value="all">모든 등급</option><option value="SS">SS</option><option value="S+">S+</option><option value="S">S</option>
                         </select>
                         <select id="type-filter" class="filter-dropdown">
                             <option value="all">모든 타입</option>
@@ -199,6 +215,115 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>`;
             contentDiv.innerHTML = html;
+
+            const gradeFilter = contentDiv.querySelector('#grade-filter');
+            const typeFilter = contentDiv.querySelector('#type-filter');
+            const sourceList = contentDiv.querySelector('.source-list');
+            const placementGrid = contentDiv.querySelector('.placement-grid');
+            const weatherIconContainer = contentDiv.querySelector('.weather-icon-container');
+            let placedPokemon = new Map();
+
+            DB.pokemonType.lev2.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type.id;
+                option.textContent = type.name;
+                typeFilter.appendChild(option);
+            });
+        
+            function applyFilters() {
+                const selectedGrade = gradeFilter.value;
+                const selectedType = typeFilter.value;
+                const allPokemon = Object.entries(DB.pokemonType.lev4);
+                let filteredPokemon = allPokemon.filter(([id, pkm]) => (selectedGrade === 'all' || pkm.grade === selectedGrade) && (selectedType === 'all' || (pkm.types && pkm.types.includes(selectedType))));
+                filteredPokemon.sort(([, a], [, b]) => a.name.ko.localeCompare(b.name.ko));
+                sourceList.innerHTML = filteredPokemon.map(([id, pkm]) => `
+                    <div class="pokemon-source-icon" draggable="true" data-pokemon-id="${id}">
+                        <img src="${pkm.faceImageURL}" alt="${pkm.name.ko}">
+                        <span>${pkm.name.ko}</span>
+                    </div>`).join('');
+            }
+            
+            gradeFilter.addEventListener('change', applyFilters);
+            typeFilter.addEventListener('change', applyFilters);
+            contentDiv.querySelector('[data-filter="name"]').addEventListener('click', applyFilters);
+        
+            sourceList.addEventListener('dragstart', e => {
+                const target = e.target.closest('.pokemon-source-icon');
+                if (target) e.dataTransfer.setData('text/plain', target.dataset.pokemonId);
+            });
+
+            placementGrid.addEventListener('dragover', e => e.preventDefault());
+            placementGrid.addEventListener('drop', e => {
+                e.preventDefault();
+                const pokemonId = e.dataTransfer.getData('text/plain');
+                const targetSlot = e.target.closest('.placement-slot');
+                if (pokemonId && targetSlot) {
+                    const pokemonData = DB.pokemonType.lev4[pokemonId];
+                    if (pokemonData) {
+                        targetSlot.innerHTML = `<div class="deck-pokemon-cell"><img src="${pokemonData.faceImageURL}" alt="${pokemonData.name.ko}"/><button class="remove-pkm-btn">×</button></div>`;
+                        placedPokemon.set(targetSlot, pokemonId);
+                        updateWeatherIcon();
+                    }
+                }
+            });
+            placementGrid.addEventListener('click', e => {
+                const removeButton = e.target.closest('.remove-pkm-btn');
+                if(removeButton) {
+                    const parentSlot = removeButton.closest('.placement-slot');
+                    if (parentSlot) {
+                        placedPokemon.delete(parentSlot);
+                        const role = parentSlot.dataset.role;
+                        const position = parentSlot.dataset.position;
+                        let placeholderText = '';
+                        if(role === 'assist') placeholderText = `어시스트 #${position}`;
+                        else placeholderText = (position < 4) ? `전방 #${position}` : `후방 #${position}`;
+                        parentSlot.innerHTML = placeholderText;
+                        updateWeatherIcon();
+                    }
+                }
+            });
+            
+            function updateWeatherIcon() {
+                const hasWeatherPokemon = Array.from(placedPokemon.values()).some(id => DB.pokemonType.lev4[id]?.weatherEffects);
+                weatherIconContainer.style.display = hasWeatherPokemon ? 'block' : 'none';
+            }
+
+            weatherIconContainer.addEventListener('click', () => {
+                let weatherOptionsHTML = '';
+                const uniqueWeatherEffects = new Map();
+                Array.from(placedPokemon.values()).forEach(id => {
+                    const pkm = DB.pokemonType.lev4[id];
+                    if (pkm && pkm.weatherEffects) {
+                        pkm.weatherEffects.forEach(effect => {
+                            if (!uniqueWeatherEffects.has(effect.name)) {
+                                uniqueWeatherEffects.set(effect.name, effect.description);
+                            }
+                        });
+                    }
+                });
+
+                if (uniqueWeatherEffects.size > 0) {
+                    uniqueWeatherEffects.forEach((desc, name) => {
+                        weatherOptionsHTML += `<div class="weather-option" data-weather-name="${name}"><strong>${name}</strong><div class="weather-desc">${desc}</div></div>`;
+                    });
+                    showModal('날씨 효과 선택', weatherOptionsHTML, true, (selectedWeather) => {
+                         weatherIconContainer.textContent = selectedWeather;
+                    });
+                }
+            });
+
+            sourceList.addEventListener('click', e => {
+                const target = e.target.closest('.pokemon-source-icon');
+                if(target) {
+                    const pokemonId = target.dataset.pokemonId;
+                    const pokemonData = DB.pokemonType.lev4[pokemonId];
+                    if (pokemonData) {
+                        showModal('포켓몬 정보', `<h3>${pokemonData.name.ko}</h3>`);
+                    }
+                }
+            });
+
+            applyFilters();
         }
 
         function renderPanelContent(level, data, menuId, clickedId) {
