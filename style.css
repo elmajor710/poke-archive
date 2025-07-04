@@ -1,0 +1,202 @@
+:root {
+    --sidebar-width: 240px;
+    --primary-color: #007bff;
+    --active-color: #e6f7ff;
+    --border-color: #dee2e6;
+    --slide-duration: 0.35s;
+    --grade-ss-color: #ff8a80;
+    --grade-s-plus-color: #ffb74d;
+    --grade-s-color: #fff176;
+    --item-god-color: #ff8a80;
+    --item-legendary-color: #ffb74d;
+    --item-epic-color: #ce93d8;
+    --grade-s-text-color: #5d4037;
+    --event-ranking-color: #ff9800;
+    --event-limited-color: #2196f3;
+    --event-luckycat-color: #4caf50;
+    --main-pastel: #ffe0b2;
+    --assist-pastel: #c8e6c9;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #f8f9fa;
+}
+
+header {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    flex-shrink: 0;
+    z-index: 20;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+#app-container {
+    display: flex;
+    width: 100%;
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+#sidebar {
+    width: var(--sidebar-width);
+    border-right: 1px solid var(--border-color);
+    padding: 10px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    background-color: #fff;
+    transition: transform var(--slide-duration) ease-in-out;
+    z-index: 10;
+}
+
+#content-area {
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform var(--slide-duration) ease-in-out;
+    visibility: hidden;
+    z-index: 1;
+}
+
+.panel.visible {
+    transform: translateX(0);
+    visibility: visible;
+    z-index: 5;
+}
+
+#lev3-panel.visible { z-index: 6; }
+#lev4-panel.visible { z-index: 7; }
+
+.panel-header {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.panel-content {
+    padding: 10px;
+    overflow-y: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-item,
+.list-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px;
+    margin-bottom: 5px;
+    border: 1px solid #eee;
+    background: #f9f9f9;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.menu-item.active,
+.list-item.active {
+    background-color: var(--active-color);
+    border-left: 4px solid var(--primary-color);
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    #sidebar, .panel { position: absolute; width: 100%; }
+    #sidebar.is-hidden, .panel.is-hidden { transform: translateX(-100%); z-index: 1; }
+    .tab-nav { display: flex; border-bottom: 1px solid var(--border-color); margin: 0 -10px 15px -10px; padding: 0 10px; }
+    .tab-button { flex: 1; padding: 12px 5px; text-align: center; background: none; border: none; font-size: 1em; font-weight: 600; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: color 0.2s, border-color 0.2s; }
+    .tab-button.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+}
+
+.pokemon-detail-view, .simple-detail-view, .deck-detail-view { padding: 10px; }
+.pokemon-detail-view h2, .simple-detail-view h2, .deck-detail-view h2 { font-size: 2em; margin-bottom: 10px; }
+.pokemon-detail-view h4, .simple-detail-view h4, .deck-detail-view h4, .deck-builder-view h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
+
+/* --- 배치툴 스타일 수정 --- */
+.deck-builder-view { display: flex; flex-direction: column; height: 100%; }
+.placement-area { padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+.placement-grid-container {
+    max-width: 450px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-areas:
+        "top top top"
+        "assist rearguard vanguard"
+        "assist rearguard vanguard"
+        "assist rearguard vanguard";
+    grid-template-rows: auto repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.placement-top-row {
+    grid-area: top;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.placement-grid {
+    grid-column: span 3;
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
+    gap: 8px;
+}
+.placement-slot {
+    aspect-ratio: 1 / 1;
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.9em;
+    color: #6c757d;
+    font-weight: bold;
+    padding: 5px;
+    text-align: center;
+}
+.placement-slot.main { background-color: var(--main-pastel); }
+.placement-slot.assist { background-color: var(--assist-pastel); }
+.weather-cell, .synergy-cell { border: 2px solid var(--border-color); border-radius: 8px; background-color: #f8f9fa; cursor: pointer; }
+.weather-cell span, .synergy-cell span { font-size: 2.5em; }
+.source-area { flex-grow: 1; min-height: 0; display: flex; flex-direction: column; }
+.source-filter-bar { padding: 10px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.source-filter-bar .filter-tabs { display: flex; gap: 5px; }
+.source-filter-bar .filter-tab, .source-filter-bar select { padding: 8px 12px; font-size: 0.9em; border: 1px solid var(--border-color); border-radius: 6px; background-color: #fff; }
+.source-filter-bar .filter-tab.active { background-color: var(--primary-color); color: white; font-weight: bold; border-color: var(--primary-color); }
+.source-list { flex-grow: 1; overflow-y: auto; padding: 10px; background-color: #f0f2f5; border-radius: 6px; }
+.pc-only-message { padding: 40px 20px; text-align: center; color: #555; background-color: #f8f9fa; border-radius: 8px; margin: auto; }
+.pc-only-message h3 { font-size: 1.5em; margin-top: 0; margin-bottom: 10px; color: #333; }
