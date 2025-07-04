@@ -159,6 +159,26 @@ const DB = {
                 imageURL: 'https://images.gameinfo.io/pokemon-trimmed/151.png',
                 faceImageURL: 'https://images.gameinfo.io/pokemon-icons/151.png',
             },
+            volcanion: {
+                name: { ko: '볼케이노', en: 'Volcanion' },
+                grade: 'S+',
+                types: ['water', 'fire'],
+                faceImageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FvXW3Z%2FbtsO447hHgg%2FAAAAAAAAAAAAAAAAAAAAAJ8SOTYNT_EBCzlsdoYKIbI7AFb0v2twHFnm86U9-Lac%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3D1golZOI7rWOqrda2fB6A4D%252BgM1s%253D',
+                contractInfo: {
+                    stats: {
+                        '생명력': '3600',
+                        '물공': '1026',
+                        '특공': '1026',
+                        '흡혈률': '1.2%',
+                        '필살기 피해 증가율': '1.2%'
+                    },
+                    skill: {
+                        name: '영역폭파 (Zone Detonation)',
+                        type: 'Passive',
+                        description: '포켓몬이 궁극기를 사용할 때, 이전에 자신이 Active skill로 공격했던 모든 적 유닛에게 자신의 현재 체력의 5%에 해당하는 특공 피해를 입힌다.\n(단, 피해량은 자신의 특공력의 120% 초과할 수 없다.)\n-> 이후, 해당 유닛들의 보호 상태 (피해 흡수, 실드 등)를 제거하며,\n-> 전장 전체에 동일한 공격력을 최대 2회까지 발동시킨다.'
+                    }
+                }
+            },
             shaymin: { name: { ko: '쉐이미', en: 'Shaymin' }, grade: 'S+', types: ['grass', 'flying'], imageURL: 'https://images.gameinfo.io/pokemon-trimmed/492-sky.png', faceImageURL: 'https://images.gameinfo.io/pokemon-icons/492-sky.png', weatherEffects: [{ name: '매우맑음', description: '아군 풀 타입 포켓몬의 치유 속도가 30% 증가, 행동 턴 전에 최대 체력의 10% 회복, 적 타겟이 얼었을 때 날씨 해방기는 물리/특수 공격 HP를 100% 흡수' }, { name: '맑음', description: '아군 풀 타입 포켓몬의 치료율이 20% 증가, 행동 턴 전에 최대 체력의 5%를 회복' }] },
             megaabomasnow: { name: { ko: '메가눈설왕', en: 'Mega Abomasnow' }, grade: 'S+', types: ['grass', 'ice'], imageURL: 'https://images.gameinfo.io/pokemon-trimmed/460-mega.png', faceImageURL: 'https://images.gameinfo.io/pokemon-icons/460-mega.png', weatherEffects: [{ name: '눈폭풍', description: '아군의 얼음 타입 포켓몬의 반사율, 얼음 타입 피해, 패시브 피해 감소가 각각 10% 증가, [얼음] 확률이 20% 증가' }] },
             primalkyogre: { name: { ko: '원시가이오가', en: 'Primal Kyogre' }, grade: 'SS', types: ['water'], imageURL: 'https://images.gameinfo.io/pokemon-trimmed/382-primal.png', faceImageURL: 'https://images.gameinfo.io/pokemon-icons/382-primal.png', weatherEffects: [{ name: '비', description: '날씨를 비 상태로 변경합니다.' }] },

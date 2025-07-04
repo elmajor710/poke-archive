@@ -275,11 +275,59 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            placementGrid.addEventListener('dragstart', e => {
-                const target = e.target.closest('.placement-slot');
-                if (target && target.querySelector('.deck-pokemon-cell')) {
-                    draggedItem = target;
+            placementGrid.addEventListener('click', e => {
+                // 포켓몬 제거 버튼 로직 (변경 없음)
+                const removeButton = e.target.closest('.remove-pkm-btn');
+                if(removeButton) {
+                    const parentSlot = removeButton.closest('.placement-slot');
+                    if (parentSlot) {
+                        clearSlot(parentSlot);
+                        updateTeamEffects();
+                    }
+                    return; 
                 }
+
+                // ▼▼▼▼▼ 포켓몬 클릭 시 팝업 로직 수정 ▼▼▼▼▼
+                const pkmCell = e.target.closest('.deck-pokemon-cell');
+                if(pkmCell) {
+                    const parentSlot = pkmCell.closest('.placement-slot');
+                    const pokemonId = placedPokemon.get(parentSlot);
+                    const pokemonData = DB.pokemonType.lev4[pokemonId];
+                    if(pokemonData) {
+                        let modalTitle = pokemonData.name.ko;
+                        let modalContentHTML = '';
+
+                        // 포켓몬 타입 배지 HTML 생성
+                        const typesHTML = pokemonData.types.map(typeId => {
+                            const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+                            return typeInfo ? `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>` : '';
+                        }).join(' ');
+
+                        // 어시스트 슬롯이고 계약장 정보가 있을 경우
+                        if (parentSlot.dataset.role === 'assist' && pokemonData.contractInfo) {
+                            modalTitle = `${pokemonData.name.ko} - 계약장 정보`;
+                            const contract = pokemonData.contractInfo;
+                            
+                            modalContentHTML = `
+                                <div class="badge-container">${typesHTML}</div>
+                                <h4>기본 능력치</h4>
+                                <table class="stats-table">
+                                    ${Object.entries(contract.stats).map(([stat, value]) => `<tr><td>${stat}</td><td>${value}</td></tr>`).join('')}
+                                </table>
+                                <h4>효과: ${contract.skill.name} <span class="skill-type">${contract.skill.type}</span></h4>
+                                <div class="item-description">${contract.skill.description.replace(/\n/g, '<br>')}</div>
+                            `;
+                        } 
+                        // 메인 슬롯이거나 계약장 정보가 없을 경우
+                        else {
+                            modalTitle = pokemonData.name.ko;
+                            modalContentHTML = `<div class="badge-container">${typesHTML}</div>`;
+                        }
+                        
+                        showModal(modalTitle, modalContentHTML);
+                    }
+                }
+                // ▲▲▲▲▲ 포켓몬 클릭 시 팝업 로직 수정 ▲▲▲▲▲
             });
 
             placementGrid.addEventListener('dragover', e => e.preventDefault());
