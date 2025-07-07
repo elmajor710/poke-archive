@@ -559,6 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const totalPairs = counts.map(c => Math.floor(c / 2)).reduce((a, b) => a + b, 0);
                 const totalUniqueTypes = Object.keys(typePokemonCount).length;
 
+                // [수정] 시너지 우선순위 변경
                 if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
                 if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
                 if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
