@@ -239,3 +239,10 @@ header h1 {
 .synergy-table { width: 100%; border-collapse: collapse; }
 .synergy-table td { padding: 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
 .synergy-table tr.current-synergy { background-color: var(--active-color); font-weight: bold; }
+
+/* 시너지 효과 팝업 이미지 크기 통일 */
+.synergy-table img {
+    width: 50px;       /* 너비 고정 */
+    height: 50px;      /* 높이 고정 */
+    object-fit: contain; /* 이미지 비율을 유지하면서 공간에 맞춤 */
+}
