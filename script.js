@@ -1,7 +1,5 @@
-// 배치툴까지 모든 기능이 정상적으로 동작하던 시점의 코드입니다.
-// 이 코드로 먼저 교체하여 앱이 다시 실행되는지 확인해주세요.
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 안정 버전');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 최종 완성본');
 
     function initializeAppUserMode() {
         const appContainer = document.getElementById('app-container');
@@ -124,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         function renderDeckView(contentDiv, data) {
-             let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
+            let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
             if (data.description) { html += `<p>${data.description}</p>`; }
             const grid = Array(3).fill(null).map(() => Array(3).fill(null));
             const positionMap = { 'vanguard_1': [0, 2], 'vanguard_2': [1, 2], 'vanguard_3': [2, 2], 'rearguard_4': [0, 1], 'rearguard_5': [1, 1], 'rearguard_6': [2, 1], 'assist_1': [0, 0], 'assist_2': [1, 0], 'assist_3': [2, 0] };
@@ -150,45 +148,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function renderCalendarView(contentDiv, data) {
             let currentCalendarDate = new Date();
-            
+
             function buildCalendar(year, month) {
                 const calendarView = document.createElement('div');
                 calendarView.className = 'calendar-view';
+
+                const firstDayOfMonth = new Date(year, month, 1);
+                const lastDayOfMonth = new Date(year, month + 1, 0);
                 
-                let monthEvents = {};
-                const firstDay = new Date(year, month, 1);
-                const lastDay = new Date(year, month + 1, 0);
-                const daysInMonth = lastDay.getDate();
-                const startDay = firstDay.getDay();
-
-                const addEvent = (event, eventDate) => {
-                    const day = eventDate.getDate();
-                    if (!monthEvents[day]) monthEvents[day] = [];
-                    monthEvents[day].push(event);
-                };
-
+                const monthEvents = [];
                 (data.events || []).forEach(event => {
-                    for (let i = 0; i < (event.duration || 1); i++) {
-                        const eventDate = new Date(event.date + 'T00:00:00');
-                        eventDate.setDate(eventDate.getDate() + i);
-                        if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
-                            addEvent(event, eventDate);
-                        }
+                    const startDate = new Date(event.date + 'T00:00:00');
+                    const endDate = new Date(startDate);
+                    endDate.setDate(startDate.getDate() + (event.duration > 1 ? event.duration - 1 : 0));
+                    if (startDate <= lastDayOfMonth && endDate >= firstDayOfMonth) {
+                        monthEvents.push({ ...event, startDate, endDate });
                     }
                 });
-
                 (data.recurringEvents || []).forEach(re => {
-                     let currentDate = new Date(re.startDate + 'T00:00:00');
-                     while (currentDate.getFullYear() < year + 2) {
+                    let currentDate = new Date(re.startDate + 'T00:00:00');
+                    while (currentDate.getFullYear() < year + 2) {
                         if (currentDate.getFullYear() === year && currentDate.getMonth() > month + 1) break;
                         if (currentDate.getFullYear() > year + 1) break;
 
-                        for (let i = 0; i < (re.duration || 1); i++) {
-                            const eventDate = new Date(currentDate);
-                            eventDate.setDate(eventDate.getDate() + i);
-                             if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
-                                addEvent({ ...re, date: eventDate.toISOString().split('T')[0] }, eventDate);
-                            }
+                        const startDate = new Date(currentDate);
+                        const endDate = new Date(startDate);
+                        endDate.setDate(startDate.getDate() + (re.duration > 1 ? re.duration - 1 : 0));
+
+                        if (startDate <= lastDayOfMonth && endDate >= firstDayOfMonth) {
+                            monthEvents.push({ ...re, date: startDate.toISOString().split('T')[0], startDate, endDate });
                         }
                         if (re.interval === '4_weeks') {
                             currentDate.setDate(currentDate.getDate() + 28);
@@ -197,8 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 });
-                
-                let html = `
+
+                let headerHTML = `
                     <div class="calendar-header">
                         <span class="calendar-title">${year}년 ${month + 1}월</span>
                         <div class="calendar-nav">
@@ -208,47 +196,66 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div class="calendar-legend">
-                         <div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div>
+                        <div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div>
                         <div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div>
                         <div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div>
-                    </div>
-                    <table class="calendar-grid">
-                        <thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead>
-                        <tbody>`;
-
-                let dateCounter = 1;
-                for (let i = 0; i < 6; i++) {
-                    html += '<tr>';
-                    for (let j = 0; j < 7; j++) {
-                        if (i === 0 && j < startDay || dateCounter > daysInMonth) {
-                            html += '<td class="day-other-month"></td>';
-                        } else {
-                            const today = new Date();
-                            const isToday = (dateCounter === today.getDate() && month === today.getMonth() && year === today.getFullYear());
-                            const eventsOnDay = monthEvents[dateCounter];
-                            let cellClass = 'day-current-month';
-                            if (isToday) cellClass += ' day-today';
-                            if (eventsOnDay) cellClass += ' has-events';
-                            
-                            html += `<td class="${cellClass}" data-day="${dateCounter}">
-                                        <div class="date-number">${dateCounter}</div>`;
-                            if (eventsOnDay) {
-                                html += `<div class="event-markers">`;
-                                eventsOnDay.forEach(event => {
-                                    html += `<div class="event-marker event-type-${event.type}">${event.title || event.name}</div>`;
-                                });
-                                html += `</div>`;
-                            }
-                            html += '</td>';
-                            dateCounter++;
-                        }
-                    }
-                    html += '</tr>';
-                    if (dateCounter > daysInMonth) break;
-                }
-                html += `</tbody></table>`;
-                calendarView.innerHTML = html;
+                    </div>`;
+                calendarView.innerHTML = headerHTML;
                 
+                const gridTable = document.createElement('table');
+                gridTable.className = 'calendar-grid';
+                gridTable.innerHTML = `<thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead>`;
+                const gridBody = document.createElement('tbody');
+
+                let calendarDay = new Date(firstDayOfMonth);
+                calendarDay.setDate(calendarDay.getDate() - firstDayOfMonth.getDay());
+
+                for (let i = 0; i < 6; i++) {
+                    let weekRowHTML = '<tr>';
+                    for (let j = 0; j < 7; j++) {
+                        const dayClass = calendarDay.getMonth() !== month ? 'day-other-month' : 'day-current-month';
+                        const todayClass = calendarDay.toDateString() === new Date().toDateString() ? ' day-today' : '';
+                        weekRowHTML += `<td class="${dayClass}${todayClass}" data-date="${calendarDay.toISOString().split('T')[0]}">
+                                          <div class="date-number">${calendarDay.getDate()}</div>
+                                          <div class="events-in-day"></div>
+                                        </td>`;
+                        calendarDay.setDate(calendarDay.getDate() + 1);
+                    }
+                    weekRowHTML += '</tr>';
+                    gridBody.innerHTML += weekRowHTML;
+                }
+                gridTable.appendChild(gridBody);
+                calendarView.appendChild(gridTable);
+
+                monthEvents.forEach(event => {
+                    const eventStartStr = event.startDate.toISOString().split('T')[0];
+                    const startCell = calendarView.querySelector(`td[data-date='${eventStartStr}']`);
+
+                    if (startCell) {
+                        const eventsInDayContainer = startCell.querySelector('.events-in-day');
+                        let track = 1;
+                        while (true) {
+                            const isTrackTaken = Array.from(eventsInDayContainer.children).some(child => parseInt(child.style.gridRowStart) === track);
+                            if (!isTrackTaken) break;
+                            track++;
+                        }
+                        
+                        const eventBar = document.createElement('div');
+                        eventBar.className = `event-bar event-type-${event.type}`;
+                        eventBar.textContent = event.title || event.name;
+                        
+                        eventBar.style.gridColumn = `auto / span ${event.duration}`;
+                        eventBar.style.gridRow = track;
+
+                        eventBar.dataset.title = event.title || event.name;
+                        eventBar.dataset.description = event.description || '';
+                        eventBar.dataset.startDate = event.startDate.toISOString().split('T')[0];
+                        eventBar.dataset.endDate = event.endDate.toISOString().split('T')[0];
+                        
+                        eventsInDayContainer.appendChild(eventBar);
+                    }
+                });
+
                 calendarView.addEventListener('click', (e) => {
                     const target = e.target;
                     if(target.id === 'cal-prev-btn') {
@@ -261,17 +268,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         currentCalendarDate = new Date();
                         updateCalendar();
                     } else {
-                        const cell = target.closest('.has-events');
-                        if (cell) {
-                            const day = parseInt(cell.dataset.day);
-                            const events = monthEvents[day];
-                            if(events) {
-                                const eventContent = events.map(evt => `<h4>${evt.title || evt.name}</h4><p>${evt.description}</p>`).join('<hr>');
-                                showModal(`${year}-${month + 1}-${day} 이벤트`, eventContent);
-                            }
+                        const eventBar = target.closest('.event-bar');
+                        if (eventBar) {
+                            const { title, description, startDate, endDate } = eventBar.dataset;
+                            const duration = Math.round((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
+                            const period = startDate === endDate ? startDate : `${startDate} ~ ${endDate} (${duration}일간)`;
+                            showModal(`${title}`, `<p><strong>기간:</strong> ${period}</p><p>${description}</p>`);
                         }
                     }
                 });
+
                 return calendarView;
             }
 
@@ -279,6 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 contentDiv.innerHTML = '';
                 contentDiv.appendChild(buildCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth()));
             }
+            
             updateCalendar();
         }
 
