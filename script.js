@@ -560,11 +560,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const totalPairs = counts.map(c => Math.floor(c / 2)).reduce((a, b) => a + b, 0);
                 const totalUniqueTypes = Object.keys(typePokemonCount).length;
 
+                // 우선순위: 더 희귀하거나 강력한 조합부터 확인
                 if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
                 if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
+                if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
                 if (totalPairs >= 4) return DB.synergyEffects.find(s => s.id === 'same2x4');
                 if (totalPairs >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
-                if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
                 if (totalUniqueTypes >= 6) return DB.synergyEffects.find(s => s.id === 'diff6');
 
                 return null;

@@ -271,7 +271,7 @@ const DB = {
                 { date: '2026-05-08', type: 'limited', duration: 3, title: '이로치 메가 핫삼 & 이로치 메가 쁘사이저', description: '한정뽑기: 이로치 메가 핫삼, 이로치 메가 쁘사이저' },
             ],
             recurringEvents: [
-                { id: 'luckycat', name: '복냥이', title: '다이아 뽑기', type: 'luckycat', duration: 4, startDate: '2025-06-27', interval: '4_weeks', description: 'VIP 등급에 따라 다이아를 획득할 수 있는 복냥이 이벤트 기간입니다.' }
+                { id: 'luckycat', name: '복냥이', title: '다이아 뽑기', type: 'luckycat', duration: 3, startDate: '2025-06-27', interval: '4_weeks', description: 'VIP 등급에 따라 다이아를 획득할 수 있는 복냥이 이벤트 기간입니다.' }
             ]
         }
     },
