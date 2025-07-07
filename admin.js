@@ -6,33 +6,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const runesSelect = document.getElementById('pkm-runes');
     const chipsSelect = document.getElementById('pkm-chips');
 
-    // 타입 체크박스 생성
     DB.pokemonType.lev2.forEach(type => {
         typesContainer.innerHTML += `<label><input type="checkbox" value="${type.id}"> ${type.name}</label>`;
     });
-
-    // 성격 체크박스 생성
     DB.definitions.natures.forEach(nature => {
         naturesContainer.innerHTML += `<label><input type="checkbox" value="${nature.id}"> ${nature.name}</label>`;
     });
-
-    // 아이템 드롭다운 생성
     Object.values(DB.item.lev3).flat().forEach(itemRef => {
         const itemData = DB.item.lev4[itemRef.id];
         if (itemData) {
             itemsSelect.innerHTML += `<option value="${itemRef.id}">${itemData.name} (${itemData.grade})</option>`;
         }
     });
-
-    // 룬 드롭다운 생성
     DB.runeAndChip.lev3.rune.forEach(runeRef => {
         const runeData = DB.runeAndChip.lev4[runeRef.id];
         if (runeData) {
             runesSelect.innerHTML += `<option value="${runeRef.id}">${runeData.name}</option>`;
         }
     });
-
-    // 칩 드롭다운 생성
     DB.runeAndChip.lev3.chip.forEach(chipRef => {
         const chipData = DB.runeAndChip.lev4[chipRef.id];
         if (chipData) {
@@ -40,35 +31,59 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
-    // 스킬 추가/삭제 기능
+    // --- 스킬 추가/삭제 기능 (업그레이드) ---
     const skillsContainer = document.getElementById('skills-container');
     const addSkillBtn = document.getElementById('add-skill-btn');
-
     let skillCount = 0;
 
     function addSkillRow() {
         skillCount++;
+        const skillId = skillCount;
         const skillEntry = document.createElement('div');
         skillEntry.className = 'skill-entry';
+        skillEntry.dataset.skillId = skillId;
         skillEntry.innerHTML = `
-            <input type="text" placeholder="스킬 이름" name="skill_name_${skillCount}">
-            <select name="skill_type_${skillCount}">
-                <option value="Active">Active</option>
-                <option value="Ultimate">Ultimate</option>
-                <option value="Passive">Passive</option>
-            </select>
-            <textarea placeholder="스킬 설명 (HTML 가능)" name="skill_desc_${skillCount}"></textarea>
-            <button type="button" class="btn btn-danger btn-small remove-skill-btn">-</button>
+            <div class="skill-main-inputs">
+                <input type="text" placeholder="스킬 이름" name="skill_name_${skillId}">
+                <select name="skill_type_${skillId}">
+                    <option value="Active">Active</option>
+                    <option value="Ultimate">Ultimate</option>
+                    <option value="Passive">Passive</option>
+                </select>
+                <button type="button" class="btn btn-danger btn-small remove-skill-btn">-</button>
+            </div>
+            <textarea class="skill-desc" placeholder="기본 스킬 설명 (HTML 가능)" name="skill_desc_${skillId}"></textarea>
+            <div class="skill-keywords-header">
+                키워드 설명 <button type="button" class="btn btn-small add-keyword">+</button>
+            </div>
+            <div class="keywords-container"></div>
         `;
         skillsContainer.appendChild(skillEntry);
     }
 
+    function addKeywordRow(keywordsContainer) {
+        const keywordEntry = document.createElement('div');
+        keywordEntry.className = 'keyword-entry';
+        keywordEntry.innerHTML = `
+            <input type="text" placeholder="키워드 용어 (예: 진기권)" name="keyword_term">
+            <textarea placeholder="키워드 상세 설명" name="keyword_desc"></textarea>
+            <button type="button" class="btn btn-danger btn-small remove-keyword-btn">-</button>
+        `;
+        keywordsContainer.appendChild(keywordEntry);
+    }
+    
     addSkillBtn.addEventListener('click', addSkillRow);
 
     skillsContainer.addEventListener('click', (e) => {
         if (e.target.classList.contains('remove-skill-btn')) {
-            e.target.parentElement.remove();
+            e.target.closest('.skill-entry').remove();
+        }
+        if (e.target.classList.contains('add-keyword')) {
+            const keywordsContainer = e.target.closest('.skill-entry').querySelector('.keywords-container');
+            addKeywordRow(keywordsContainer);
+        }
+        if (e.target.classList.contains('remove-keyword-btn')) {
+            e.target.closest('.keyword-entry').remove();
         }
     });
 
