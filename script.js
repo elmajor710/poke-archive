@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         let activeButtons = {};
         const isMobile = () => window.innerWidth <= 768;
-        
+
         function showModal(title, contentHTML, isWeatherPopup = false, callback) {
             const existingModal = document.querySelector('.modal-overlay');
             if (existingModal) existingModal.remove();
@@ -146,7 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
             contentDiv.innerHTML = html;
         }
 
-        // ================== [수정] 캘린더 렌더링 함수 ==================
         function renderCalendarView(contentDiv, data) {
             let currentCalendarDate = new Date();
 
@@ -157,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const firstDayOfMonth = new Date(year, month, 1);
                 const lastDayOfMonth = new Date(year, month + 1, 0);
                 
-                // 해당 월의 모든 이벤트를 미리 계산
                 const monthEvents = [];
                 (data.events || []).forEach(event => {
                     const startDate = new Date(event.date + 'T00:00:00');
@@ -182,7 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                // 캘린더 헤더 생성
                 let headerHTML = `
                     <div class="calendar-header">
                         <span class="calendar-title">${year}년 ${month + 1}월</span>
@@ -204,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 let currentDay = new Date(firstDayOfMonth);
                 currentDay.setDate(currentDay.getDate() - firstDayOfMonth.getDay());
 
-                // 6주치 캘린더 생성
                 for (let i = 0; i < 6; i++) {
                     let weekRowHTML = '<tr class="calendar-week">';
                     let weekEventsContainerHTML = '<div class="week-events-container">';
@@ -250,7 +246,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 headerHTML += '</tbody></table>';
                 calendarView.innerHTML = headerHTML;
                 
-                // 이벤트 리스너 추가
                 calendarView.addEventListener('click', (e) => {
                     const target = e.target;
                     if(target.id === 'cal-prev-btn') {
@@ -283,8 +278,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             updateCalendar();
         }
-        // ================== [수정 끝] ==================
-
 
         function renderDeckBuilder(contentDiv) {
             let html = `
@@ -762,7 +755,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        initializeAppUserMode();
+        initialize();
     }
     
     const urlParams = new URLSearchParams(window.location.search);
