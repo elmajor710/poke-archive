@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // ==================================================================
-        // V5. DECK BUILDER - START
+        // V6. DECK BUILDER - START
         // ==================================================================
         function renderDeckBuilder(contentDiv) {
             let html = `
@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const gradeFilter = contentDiv.querySelector('#grade-filter');
             const typeFilter = contentDiv.querySelector('#type-filter');
             
-            let placedPokemon = new Map(); // Key: slot element, Value: pokemonId
+            let placedPokemon = new Map();
 
             DB.pokemonType.lev2.forEach(type => {
                 const option = document.createElement('option');
@@ -275,8 +275,82 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
+            placementGrid.addEventListener('dragstart', e => {
+                const target = e.target.closest('.placement-slot');
+                if (target && target.querySelector('.deck-pokemon-cell')) {
+                    draggedItem = target;
+                }
+            });
+
+            placementGrid.addEventListener('dragover', e => e.preventDefault());
+
+            placementGrid.addEventListener('drop', e => {
+                e.preventDefault();
+                const targetSlot = e.target.closest('.placement-slot');
+                if (!targetSlot || !draggedItem) return;
+
+                // [수정] 드래그 시작 아이템의 포켓몬 ID를 명확히 가져옵니다.
+                // 슬롯에서 드래그한 경우, 슬롯에 저장된 pokemonId를 사용합니다.
+                const sourcePokemonId = draggedItem.classList.contains('placement-slot') 
+                    ? placedPokemon.get(draggedItem)
+                    : draggedItem.dataset.pokemonId;
+                
+                if (!sourcePokemonId) return;
+
+                // Case 1: Dragging from another slot (Swap or Move)
+                if (draggedItem.classList.contains('placement-slot')) {
+                    const sourceSlot = draggedItem;
+                    if (targetSlot === sourceSlot) return; // Dropped on itself
+
+                    const targetPokemonId = placedPokemon.get(targetSlot);
+                    
+                    if (targetPokemonId) { // If target slot is occupied, swap them
+                        const sourcePokemonData = DB.pokemonType.lev4[sourcePokemonId];
+                        const targetPokemonData = DB.pokemonType.lev4[targetPokemonId];
+
+                        placePokemonInSlot(sourceSlot, targetPokemonId, targetPokemonData);
+                        placePokemonInSlot(targetSlot, sourcePokemonId, sourcePokemonData);
+                    } else { // If target slot is empty, move
+                        const sourcePokemonData = DB.pokemonType.lev4[sourcePokemonId]; // [수정] 이동할 포켓몬의 데이터를 정확히 참조합니다.
+                        placePokemonInSlot(targetSlot, sourcePokemonId, sourcePokemonData);
+                        clearSlot(sourceSlot);
+                    }
+                }
+                // Case 2: Dragging from source list
+                else if (draggedItem.classList.contains('pokemon-source-icon')) {
+                    if (placedPokemon.has(targetSlot)) {
+                        alert('슬롯이 비어있지 않습니다. 포켓몬을 제거하거나 다른 빈 슬롯으로 옮겨주세요.');
+                        return;
+                    }
+                    const pokemonData = DB.pokemonType.lev4[sourcePokemonId];
+                    placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
+                }
+                draggedItem = null;
+                updateTeamEffects();
+            });
+
+            function placePokemonInSlot(slot, pokemonId, pokemonData) {
+                slot.innerHTML = `<div class="deck-pokemon-cell" draggable="true">
+                                    <img src="${pokemonData.faceImageURL}" alt="${pokemonData.name.ko}"/>
+                                    <button class="remove-pkm-btn">×</button>
+                                  </div>`;
+                placedPokemon.set(slot, pokemonId);
+            }
+
+            function clearSlot(slot) {
+                const role = slot.dataset.role;
+                const position = slot.dataset.position;
+                let placeholderText = '';
+                if(role === 'assist') placeholderText = `어시스트_#${position}`;
+                else if (role === 'main') {
+                    const area = slot.classList.contains('vanguard') ? '전방' : '후방';
+                    placeholderText = `${area}_#${position}`;
+                }
+                slot.innerHTML = placeholderText;
+                placedPokemon.delete(slot);
+            }
+            
             placementGrid.addEventListener('click', e => {
-                // 포켓몬 제거 버튼 로직 (변경 없음)
                 const removeButton = e.target.closest('.remove-pkm-btn');
                 if(removeButton) {
                     const parentSlot = removeButton.closest('.placement-slot');
@@ -287,17 +361,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     return; 
                 }
 
-                // ▼▼▼▼▼ 포켓몬 클릭 시 팝업 로직 수정 ▼▼▼▼▼
+                // [수정] 포켓몬 클릭 시 팝업 로직 전체 점검 및 보강
                 const pkmCell = e.target.closest('.deck-pokemon-cell');
                 if(pkmCell) {
                     const parentSlot = pkmCell.closest('.placement-slot');
+                    if (!parentSlot) return;
+
                     const pokemonId = placedPokemon.get(parentSlot);
+                    if (!pokemonId) return;
+
                     const pokemonData = DB.pokemonType.lev4[pokemonId];
                     if(pokemonData) {
                         let modalTitle = pokemonData.name.ko;
                         let modalContentHTML = '';
 
-                        // 포켓몬 타입 배지 HTML 생성
                         const typesHTML = pokemonData.types.map(typeId => {
                             const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
                             return typeInfo ? `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>` : '';
@@ -318,100 +395,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <div class="item-description">${contract.skill.description.replace(/\n/g, '<br>')}</div>
                             `;
                         } 
-                        // 메인 슬롯이거나 계약장 정보가 없을 경우
                         else {
                             modalTitle = pokemonData.name.ko;
                             modalContentHTML = `<div class="badge-container">${typesHTML}</div>`;
                         }
                         
                         showModal(modalTitle, modalContentHTML);
-                    }
-                }
-                // ▲▲▲▲▲ 포켓몬 클릭 시 팝업 로직 수정 ▲▲▲▲▲
-            });
-
-            placementGrid.addEventListener('dragover', e => e.preventDefault());
-
-            placementGrid.addEventListener('drop', e => {
-                e.preventDefault();
-                const targetSlot = e.target.closest('.placement-slot');
-                if (!targetSlot || !draggedItem) return;
-
-                const pokemonId = draggedItem.dataset.pokemonId || placedPokemon.get(draggedItem);
-                const pokemonData = DB.pokemonType.lev4[pokemonId];
-                if (!pokemonData) return;
-
-                if (draggedItem.classList.contains('placement-slot')) {
-                    const sourceSlot = draggedItem;
-                    if (targetSlot === sourceSlot) return; 
-
-                    const targetPokemonId = placedPokemon.get(targetSlot);
-                    
-                    if (targetPokemonId) { 
-                        const sourcePokemonId = placedPokemon.get(sourceSlot);
-                        const sourcePokemonData = DB.pokemonType.lev4[sourcePokemonId];
-                        const targetPokemonData = DB.pokemonType.lev4[targetPokemonId];
-
-                        placePokemonInSlot(sourceSlot, targetPokemonId, targetPokemonData);
-                        placePokemonInSlot(targetSlot, sourcePokemonId, sourcePokemonData);
-                    } else { 
-                        const sourcePokemonId = placedPokemon.get(sourceSlot);
-                        placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
-                        clearSlot(sourceSlot);
-                    }
-                }
-                else if (draggedItem.classList.contains('pokemon-source-icon')) {
-                    if (placedPokemon.has(targetSlot)) {
-                        alert('슬롯이 비어있지 않습니다. 포켓몬을 제거하거나 다른 빈 슬롯으로 옮겨주세요.');
-                        return;
-                    }
-                    placePokemonInSlot(targetSlot, pokemonId, pokemonData);
-                }
-                draggedItem = null;
-                updateTeamEffects();
-            });
-
-            function placePokemonInSlot(slot, pokemonId, pokemonData) {
-                slot.innerHTML = `<div class="deck-pokemon-cell" draggable="true">
-                                    <img src="${pokemonData.faceImageURL}" alt="${pokemonData.name.ko}"/>
-                                    <button class="remove-pkm-btn">×</button>
-                                  </div>`;
-                slot.dataset.pokemonId = pokemonId; 
-                placedPokemon.set(slot, pokemonId);
-            }
-
-            function clearSlot(slot) {
-                const role = slot.dataset.role;
-                const position = slot.dataset.position;
-                let placeholderText = '';
-                if(role === 'assist') placeholderText = `어시스트_#${position}`;
-                else if (role === 'main') {
-                    const area = slot.classList.contains('vanguard') ? '전방' : '후방';
-                    placeholderText = `${area}_#${position}`;
-                }
-                slot.innerHTML = placeholderText;
-                slot.removeAttribute('data-pokemon-id');
-                placedPokemon.delete(slot);
-            }
-            
-            placementGrid.addEventListener('click', e => {
-                const removeButton = e.target.closest('.remove-pkm-btn');
-                if(removeButton) {
-                    const parentSlot = removeButton.closest('.placement-slot');
-                    if (parentSlot) {
-                        clearSlot(parentSlot);
-                        updateTeamEffects();
-                    }
-                    return; 
-                }
-
-                const pkmCell = e.target.closest('.deck-pokemon-cell');
-                if(pkmCell) {
-                    const parentSlot = pkmCell.closest('.placement-slot');
-                    const pokemonId = placedPokemon.get(parentSlot);
-                    const pokemonData = DB.pokemonType.lev4[pokemonId];
-                    if(pokemonData) {
-                        showModal('포켓몬 정보', `<h3>${pokemonData.name.ko}</h3>`);
                     }
                 }
             });
@@ -449,13 +438,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // ================== 최종 시너지 계산 로직 ==================
             function calculateSynergy(pokemonIds) {
                 if (pokemonIds.length < 6) return null;
 
                 const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
 
-                // 1. 그룹핑: 각 타입을 공유하는 포켓몬 수 계산
                 const typePokemonCount = {};
                 mainPokemon.forEach(pkm => {
                     if (pkm && pkm.types) {
@@ -466,20 +453,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 const counts = Object.values(typePokemonCount);
 
-                // 2. 짝(Pair) 계산: 각 타입별로 만들 수 있는 짝의 총합 계산
                 const totalPairs = counts.map(c => Math.floor(c / 2)).reduce((a, b) => a + b, 0);
 
-                // 3. 우선순위에 따라 시너지 판별
-                // 가장 강력하거나 조건이 까다로운 순서대로 확인
                 if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
                 if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
                 if (totalPairs >= 4) return DB.synergyEffects.find(s => s.id === 'same2x4');
                 if (totalPairs >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
                 if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
                 
-                // '다른 타입 6마리'는 위의 어떤 조건에도 해당하지 않을 때 마지막으로 확인
-                const totalUniqueTypes = new Set(mainPokemon.flatMap(p => p.types)).size;
-                if (pokemonIds.length === 6) { // 기본적으로 6마리가 채워져있을때 발동
+                if (pokemonIds.length === 6) {
                      return DB.synergyEffects.find(s => s.id === 'diff6');
                 }
 
@@ -533,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateTeamEffects();
         }
         // ==================================================================
-        // V5. DECK BUILDER - END
+        // V6. DECK BUILDER - END
         // ==================================================================
 
 
