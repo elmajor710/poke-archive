@@ -204,14 +204,13 @@ header h1 {
 .event-type-ranking { background-color: var(--event-ranking-color); }
 .event-type-limited { background-color: var(--event-limited-color); }
 .event-type-luckycat { background-color: var(--event-luckycat-color); }
-.calendar-grid { width: 100%; border-collapse: collapse; table-layout: fixed; border-style: hidden; flex-grow: 1; }
-.calendar-grid td { border: 1px solid var(--border-color); vertical-align: top; padding: 4px; position: relative; }
-.calendar-grid .calendar-week { position: relative; }
+.calendar-grid { width: 100%; border-collapse: collapse; table-layout: fixed; border-style: hidden; flex-grow: 1; position: relative; }
+.calendar-grid td { border: 1px solid var(--border-color); vertical-align: top; padding: 4px; }
 .day-other-month { background-color: #f8f9fa; color: #ccc; }
 .day-current-month { background-color: #fff; }
 .date-number { font-weight: 500; font-size: 0.9em; position: relative; z-index: 2; }
 .day-today .date-number { background-color: var(--primary-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; }
-.week-events-container { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 1; }
+.grid-events-container { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
 .event-bar {
     position: absolute;
     height: 22px;
@@ -227,6 +226,7 @@ header h1 {
     cursor: pointer;
     pointer-events: all;
     box-sizing: border-box;
+    z-index: 1;
 }
 .event-bar.event-type-ranking { background-color: var(--event-ranking-color); border-left: 3px solid #c66900; }
 .event-bar.event-type-limited { background-color: var(--event-limited-color); border-left: 3px solid #0069c0; }

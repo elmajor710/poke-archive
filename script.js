@@ -199,63 +199,87 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div>
                         <div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div>
                         <div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div>
-                    </div>
-                    <table class="calendar-grid">
-                        <thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead>
-                        <tbody>`;
+                    </div>`;
+
+                calendarView.innerHTML = headerHTML;
+                
+                const gridTable = document.createElement('table');
+                gridTable.className = 'calendar-grid';
+                gridTable.innerHTML = `<thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead>`;
+                const gridBody = document.createElement('tbody');
 
                 let calendarDay = new Date(firstDayOfMonth);
                 calendarDay.setDate(calendarDay.getDate() - firstDayOfMonth.getDay());
 
                 for (let i = 0; i < 6; i++) {
                     let weekRowHTML = '<tr class="calendar-week">';
-                    let weekEventsContainerHTML = '<div class="week-events-container">';
-                    
-                    const startOfWeekForEventCalc = new Date(calendarDay);
-                    const endOfWeekForEventCalc = new Date(startOfWeekForEventCalc);
-                    endOfWeekForEventCalc.setDate(endOfWeekForEventCalc.getDate() + 6);
-                    
-                    let weekEvents = monthEvents.filter(e => e.startDate <= endOfWeekForEventCalc && e.endDate >= startOfWeekForEventCalc);
-                    let eventTracks = [];
-
                     for (let j = 0; j < 7; j++) {
                         const dayClass = calendarDay.getMonth() !== month ? 'day-other-month' : 'day-current-month';
                         const todayClass = calendarDay.toDateString() === new Date().toDateString() ? ' day-today' : '';
                         weekRowHTML += `<td class="${dayClass}${todayClass}" data-date="${calendarDay.toISOString().split('T')[0]}"><div class="date-number">${calendarDay.getDate()}</div></td>`;
                         calendarDay.setDate(calendarDay.getDate() + 1);
                     }
-                    
-                    weekEvents.sort((a,b) => (b.endDate - b.startDate) - (a.endDate - a.startDate)).forEach(event => {
-                        const eventStartDay = event.startDate < startOfWeekForEventCalc ? 0 : event.startDate.getDay();
-                        const eventEndDay = event.endDate > endOfWeekForEventCalc ? 6 : event.endDate.getDay();
-                        
-                        let track = 0;
-                        while(eventTracks[track] && eventTracks[track].some(placedEvent => eventStartDay <= placedEvent.end && eventEndDay >= placedEvent.start)) {
-                            track++;
-                        }
-                        if (!eventTracks[track]) eventTracks[track] = [];
-                        eventTracks[track].push({start: eventStartDay, end: eventEndDay});
-
-                        const durationInWeek = eventEndDay - eventStartDay + 1;
-
-                        weekEventsContainerHTML += `
-                            <div class="event-bar event-type-${event.type}" 
-                                 style="top: ${28 + track * 25}px; left: calc(${eventStartDay} / 7 * 100% + 2px); width: calc(${durationInWeek} / 7 * 100% - 4px);"
-                                 data-title="${event.title || event.name}"
-                                 data-description="${event.description || ''}"
-                                 data-start-date="${event.startDate.toISOString().split('T')[0]}"
-                                 data-end-date="${event.endDate.toISOString().split('T')[0]}">
-                                ${event.title || event.name}
-                            </div>`;
-                    });
-
-                    weekEventsContainerHTML += '</div>';
-                    weekRowHTML += weekEventsContainerHTML + '</tr>';
-                    headerHTML += weekRowHTML;
+                    weekRowHTML += '</tr>';
+                    gridBody.innerHTML += weekRowHTML;
                 }
-                
-                headerHTML += '</tbody></table>';
-                calendarView.innerHTML = headerHTML;
+                gridTable.appendChild(gridBody);
+                calendarView.appendChild(gridTable);
+
+                // 이벤트 바를 렌더링하고 배치합니다.
+                const eventContainer = document.createElement('div');
+                eventContainer.className = 'grid-events-container';
+                gridTable.appendChild(eventContainer);
+
+                const weekRows = gridBody.querySelectorAll('.calendar-week');
+                monthEvents.sort((a,b) => (b.endDate - b.startDate) - (a.endDate - a.startDate)).forEach(event => {
+                    for(let i = 0; i < weekRows.length; i++) {
+                        const row = weekRows[i];
+                        const firstDayOfWeek = new Date(row.querySelector('td').dataset.date + 'T00:00:00');
+                        const lastDayOfWeek = new Date(firstDayOfWeek);
+                        lastDayOfWeek.setDate(lastDayOfWeek.getDate() + 6);
+                        
+                        if (event.startDate <= lastDayOfWeek && event.endDate >= firstDayOfWeek) {
+                            const eventStartDay = event.startDate < firstDayOfWeek ? 0 : event.startDate.getDay();
+                            const eventEndDay = event.endDate > lastDayOfWeek ? 6 : event.endDate.getDay();
+                            const durationInWeek = eventEndDay - eventStartDay + 1;
+
+                            // 이 로직은 이벤트가 겹치지 않게 수직 위치를 잡습니다.
+                            let track = 0;
+                            const existingBarsInRow = eventContainer.querySelectorAll(`.event-bar[data-week-index='${i}']`);
+                            let isOverlapping = true;
+                            while(isOverlapping) {
+                                isOverlapping = false;
+                                for (const bar of existingBarsInRow) {
+                                    if (parseInt(bar.style.top) === 28 + track * 25) {
+                                        const placedStart = parseInt(bar.dataset.startDay);
+                                        const placedEnd = parseInt(bar.dataset.endDay);
+                                        if (eventStartDay <= placedEnd && eventEndDay >= placedStart) {
+                                            track++;
+                                            isOverlapping = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            const eventBar = document.createElement('div');
+                            eventBar.className = `event-bar event-type-${event.type}`;
+                            eventBar.style.top = `${row.offsetTop + 28 + track * 25}px`;
+                            eventBar.style.left = `calc(${eventStartDay} / 7 * 100% + 2px)`;
+                            eventBar.style.width = `calc(${durationInWeek} / 7 * 100% - 4px)`;
+                            eventBar.textContent = event.title || event.name;
+                            eventBar.dataset.title = event.title || event.name;
+                            eventBar.dataset.description = event.description || '';
+                            eventBar.dataset.startDate = event.startDate.toISOString().split('T')[0];
+                            eventBar.dataset.endDate = event.endDate.toISOString().split('T')[0];
+                            eventBar.dataset.weekIndex = i; // For track calculation
+                            eventBar.dataset.startDay = eventStartDay;
+                            eventBar.dataset.endDay = eventEndDay;
+
+                            eventContainer.appendChild(eventBar);
+                        }
+                    }
+                });
                 
                 calendarView.addEventListener('click', (e) => {
                     const target = e.target;
@@ -350,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const selectedType = typeFilter.value;
                 
                 let filteredPokemon = Object.entries(DB.pokemonType.lev4).filter(([id, pkm]) => {
-                    const gradeMatch = selectedGrade === 'all' || pkm.grade === selectedGrade;
+                    const gradeMatch = selectedGrade === 'all' || !pkm.grade || pkm.grade === selectedGrade;
                     const typeMatch = selectedType === 'all' || (pkm.types && pkm.types.includes(selectedType));
                     return gradeMatch && typeMatch;
                 });
@@ -560,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const totalPairs = counts.map(c => Math.floor(c / 2)).reduce((a, b) => a + b, 0);
                 const totalUniqueTypes = Object.keys(typePokemonCount).length;
 
-                // 우선순위: 더 희귀하거나 강력한 조합부터 확인
+                // [수정] 시너지 우선순위 변경
                 if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
                 if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
                 if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
