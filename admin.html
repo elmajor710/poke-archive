@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>운영자 모드 - Nirvana's Poke-Archive</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <h2>관리 메뉴</h2>
+            <nav>
+                <ul>
+                    <li class="active"><a href="#">포켓몬 관리</a></li>
+                    <li><a href="#">아이템 관리</a></li>
+                    <li><a href="#">룬 & 칩 관리</a></li>
+                    <li><a href="#">추천 덱 관리</a></li>
+                    <li><a href="#">캘린더 관리</a></li>
+                    <li><a href="#">팁 & 노하우 관리</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1>포켓몬 관리</h1>
+                <button class="btn btn-primary">새 포켓몬 추가</button>
+            </header>
+            <section class="content-section">
+                <h2>포켓몬 추가/수정</h2>
+                <form id="pokemon-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="pkm-id">고유 ID (영문)</label>
+                            <input type="text" id="pkm-id" value="megamewtwox" readonly>
+                            <small>이 값은 변경할 수 없습니다.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="pkm-name-ko">한글 이름</label>
+                            <input type="text" id="pkm-name-ko" value="메가뮤츠X">
+                        </div>
+                        <div class="form-group">
+                            <label for="pkm-name-en">영문 이름</label>
+                            <input type="text" id="pkm-name-en" value="Mega Mewtwo X">
+                        </div>
+                        <div class="form-group">
+                            <label for="pkm-grade">등급</label>
+                            <select id="pkm-grade">
+                                <option value="SS" selected>SS</option>
+                                <option value="S+">S+</option>
+                                <option value="S">S</option>
+                            </select>
+                        </div>
+                        <div class="form-group form-group-span-2">
+                            <label>타입</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" checked> 에스퍼</label>
+                                <label><input type="checkbox" checked> 격투</label>
+                                <label><input type="checkbox"> 불</label>
+                                <label><input type="checkbox"> 물</label>
+                                <label><input type="checkbox"> 풀</label>
+                                </div>
+                        </div>
+                        <div class="form-group form-group-span-2">
+                            <label for="pkm-image-url">전체 이미지 URL</label>
+                            <input type="text" id="pkm-image-url" value="https://images.gameinfo.io/pokemon-trimmed/150-mega-x.png">
+                        </div>
+                         <div class="form-group form-group-span-2">
+                            <label for="pkm-face-url">얼굴 이미지 URL</label>
+                            <input type="text" id="pkm-face-url" value="https://images.gameinfo.io/pokemon-icons/150-mega-x.png">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>추천 빌드</h3>
+                        <div class="form-group">
+                            <label>추천 성격</label>
+                            <div class="checkbox-group scrollable">
+                                <label><input type="checkbox"> 겁이많음/Timid</label>
+                                <label><input type="checkbox"> 조급함/Hasty</label>
+                                <label><input type="checkbox" checked> 유쾌함/Jolly</label>
+                                <label><input type="checkbox"> 천진난만함/Naive</label>
+                                <label><input type="checkbox"> 외로워함/Lonely</label>
+                                <label><input type="checkbox"> 용감함/Brave</label>
+                                <label><input type="checkbox" checked> 고집이강함/Adamant</label>
+                                </div>
+                        </div>
+                        <div class="form-group">
+                             <label for="pkm-items">추천 아이템</label>
+                             <select id="pkm-items" multiple>
+                                <option value="item1" selected>녹슨검(God)</option>
+                                <option value="item2">불꽃 발톱(Legendary)</option>
+                             </select>
+                        </div>
+                         <div class="form-group">
+                             <label for="pkm-runes">추천 룬</label>
+                             <select id="pkm-runes" multiple>
+                                 <option value="rune1" selected>치명 / Deadly</option>
+                             </select>
+                        </div>
+                         <div class="form-group">
+                             <label for="pkm-chips">추천 칩</label>
+                             <select id="pkm-chips" multiple>
+                                 <option value="chip1" selected>늑대행자 / Lone Wolf</option>
+                             </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">저장하기</button>
+                        <button type="button" class="btn btn-danger">삭제하기</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
