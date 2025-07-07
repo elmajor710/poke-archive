@@ -193,73 +193,58 @@ header h1 {
 .modal-header h2 { margin: 0; font-size: 1.3em; }
 .modal-close-btn { font-size: 24px; font-weight: bold; cursor: pointer; border: none; background: none; }
 
-/* 캘린더 스타일 */
 .calendar-view { padding: 10px; display: flex; flex-direction: column; height: 100%; }
-.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
 .calendar-title { font-size: 1.5em; font-weight: bold; }
-.calendar-nav button { padding: 8px 12px; border: 1px solid var(--border-color); background-color: #fff; border-radius: 5px; cursor: pointer; margin-left: 5px; }
-.calendar-legend { display: flex; gap: 15px; margin-bottom: 15px; }
+.calendar-nav button { padding: 8px 12px; border: 1px solid var(--border-color); background-color: #fff; border-radius: 5px; cursor: pointer; }
+.calendar-nav { display: flex; gap: 5px; }
+.calendar-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; padding-left: 5px; }
 .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.9em; }
 .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
-.calendar-grid { width: 100%; border-collapse: collapse; table-layout: fixed; flex-grow: 1; position: relative; }
-.calendar-grid th { text-align: center; padding-bottom: 10px; font-weight: 600; color: #666; }
-.calendar-grid td { border: 1px solid var(--border-color); vertical-align: top; padding: 4px; }
-.day-other-month { background-color: #f8f9fa; }
-.day-other-month .date-number { color: #ccc; }
-.date-number { font-weight: 500; font-size: 0.9em; }
-.day-today .date-number { background-color: var(--primary-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; }
-.grid-events-container { position: absolute; top: 35px; /* th 높이만큼 대략적으로 띄움 */ left: 0; right: 0; bottom: 0; pointer-events: none; }
-.event-bar {
-    position: absolute;
-    height: 22px;
-    line-height: 22px;
-    padding: 0 8px;
-    border-radius: 4px;
-    color: white;
-    font-size: 0.85em;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    cursor: pointer;
-    pointer-events: all;
-    box-sizing: border-box;
-    z-index: 1;
-}
 .event-type-ranking { background-color: var(--event-ranking-color); }
 .event-type-limited { background-color: var(--event-limited-color); }
 .event-type-luckycat { background-color: var(--event-luckycat-color); }
+.calendar-grid { width: 100%; border-collapse: collapse; table-layout: fixed; flex-grow: 1; }
+.calendar-grid th { text-align: center; padding-bottom: 10px; font-weight: 600; color: #666; font-size: 0.9em; }
+.calendar-grid td { border: 1px solid var(--border-color); vertical-align: top; padding: 4px; height: 100px; }
+.calendar-grid td.has-events { cursor: pointer; background-color: #f8f9fa; }
+.calendar-grid td.has-events:hover { background-color: #e9ecef; }
+.day-other-month { background-color: #f8f9fa; }
+.day-other-month .date-number { color: #ccc; }
+.date-number { font-weight: 500; font-size: 0.9em; }
+.day-today .date-number { background-color: var(--primary-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; }
+.event-markers { margin-top: 5px; display: flex; flex-direction: column; gap: 3px; }
+.event-marker { font-size: 0.8em; padding: 2px 4px; border-radius: 4px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* 배치툴 스타일 */
 .deck-builder-view { display: flex; flex-direction: row; gap: 20px; height: 100%; }
-.placement-container { flex: 0 0 320px; }
+.placement-container { flex: 0 0 320px; display: flex; flex-direction: column; }
 .placement-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .placement-slot, .placement-slot-header { aspect-ratio: 1 / 1; border: 2px dashed var(--border-color); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 0.9em; color: #6c757d; font-weight: bold; user-select: none; }
+.placement-slot-header { border-style: solid; border-color: #f0f0f0; cursor: pointer; }
 .placement-slot.main.vanguard { background-color: #ffcdd2; }
 .placement-slot.main.rearguard { background-color: var(--main-pastel); }
 .placement-slot.assist { background-color: var(--assist-pastel); }
-.placement-slot .deck-pokemon-cell { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; cursor: grab; }
-.placement-slot .remove-pkm-btn { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border-radius: 50%; border: 1px solid #c0392b; background-color: #e74c3c; color: white; font-weight: bold; line-height: 18px; text-align: center; cursor: pointer; opacity: 0; transition: opacity 0.2s; z-index: 10; }
-.placement-slot:hover .remove-pkm-btn { opacity: 1; }
 .source-container { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.source-filter-bar { padding-bottom: 10px; display: flex; gap: 10px; }
-.filter-dropdown { padding: 8px 12px; font-size: 0.9em; border: 1px solid var(--border-color); border-radius: 6px; }
+.source-filter-bar { padding: 10px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.filter-dropdown { padding: 8px 12px; font-size: 0.9em; border: 1px solid var(--border-color); border-radius: 6px; background-color: #fff; }
 .source-list { flex-grow: 1; overflow-y: auto; padding: 10px 5px; background-color: #f0f2f5; border-radius: 6px; }
-.source-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; }
-.pokemon-source-icon { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: grab; text-align: center; }
+.source-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; align-content: start; }
+.pokemon-source-icon { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: grab; text-align: center; flex-shrink: 0; }
 .pokemon-source-icon img { width: 64px; height: 64px; background-color: white; border: 1px solid #ddd; border-radius: 8px; padding: 2px; }
-.pokemon-source-icon span { font-size: 12px; color: #333; }
+.pokemon-source-icon span { font-size: 12px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+.placement-slot .deck-pokemon-cell { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; cursor: grab; }
+.placement-slot .remove-pkm-btn { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border-radius: 50%; border: 1px solid #c0392b; background-color: #e74c3c; color: white; font-weight: bold; font-size: 14px; line-height: 18px; text-align: center; cursor: pointer; opacity: 0; transition: opacity 0.2s; z-index: 10; }
+.placement-slot:hover .remove-pkm-btn { opacity: 1; }
 #weather-icon-container, #synergy-icon-container { font-size: 1.8em; visibility: hidden; cursor: pointer; }
 #synergy-icon-container img { width: 50%; height: 50%; object-fit: contain; }
-.weather-popup .weather-option { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #eee; }
+.weather-popup .weather-option { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #eee; transition: background-color 0.2s; }
 .weather-popup .weather-option:hover { background-color: #f8f9fa; }
+.weather-popup .weather-option:last-child { border-bottom: none; }
+.weather-popup .weather-desc { font-size: 0.9em; color: #666; margin-top: 5px; line-height: 1.4; }
 .synergy-table { width: 100%; border-collapse: collapse; }
 .synergy-table td { padding: 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
+.synergy-table td:first-child { width: 60px; text-align: center; }
+.synergy-table img { width: 50px; height: 50px; object-fit: contain; }
 .synergy-table tr.current-synergy { background-color: var(--active-color); font-weight: bold; }
-
-/* 시너지 효과 팝업 이미지 크기 통일 */
-.synergy-table img {
-    width: 50px;       /* 너비 고정 */
-    height: 50px;      /* 높이 고정 */
-    object-fit: contain; /* 이미지 비율을 유지하면서 공간에 맞춤 */
-}
+.pc-only-message { padding: 40px 20px; text-align: center; color: #555; background-color: #f8f9fa; border-radius: 8px; margin: auto; }
+.pc-only-message h3 { font-size: 1.5em; margin-top: 0; margin-bottom: 10px; color: #333; }

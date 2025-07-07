@@ -148,35 +148,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function renderCalendarView(contentDiv, data) {
             let currentCalendarDate = new Date();
-
+            
             function buildCalendar(year, month) {
                 const calendarView = document.createElement('div');
                 calendarView.className = 'calendar-view';
-
-                const firstDayOfMonth = new Date(year, month, 1);
-                const lastDayOfMonth = new Date(year, month + 1, 0);
                 
-                const monthEvents = [];
+                const monthEvents = {};
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const daysInMonth = lastDay.getDate();
+                const startDay = firstDay.getDay();
+
+                const addEvent = (event, eventDate) => {
+                    const day = eventDate.getDate();
+                    if (!monthEvents[day]) monthEvents[day] = [];
+                    
+                    const fullEventInfo = {
+                        ...event,
+                        startDate: new Date(event.date + 'T00:00:00'),
+                        endDate: new Date(new Date(event.date + 'T00:00:00').setDate(new Date(event.date + 'T00:00:00').getDate() + (event.duration - 1)))
+                    };
+                    monthEvents[day].push(fullEventInfo);
+                };
+
                 (data.events || []).forEach(event => {
-                    const startDate = new Date(event.date + 'T00:00:00');
-                    const endDate = new Date(startDate);
-                    endDate.setDate(startDate.getDate() + (event.duration > 1 ? event.duration - 1 : 0));
-                    if (startDate <= lastDayOfMonth && endDate >= firstDayOfMonth) {
-                        monthEvents.push({ ...event, startDate, endDate });
+                    for (let i = 0; i < (event.duration || 1); i++) {
+                        const eventDate = new Date(event.date + 'T00:00:00');
+                        eventDate.setDate(eventDate.getDate() + i);
+                        if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                            addEvent(event, eventDate);
+                        }
                     }
                 });
+
                 (data.recurringEvents || []).forEach(re => {
-                    let currentDate = new Date(re.startDate + 'T00:00:00');
-                    while (currentDate.getFullYear() < year + 2) {
+                     let currentDate = new Date(re.startDate + 'T00:00:00');
+                     while (currentDate.getFullYear() < year + 2) {
                         if (currentDate.getFullYear() === year && currentDate.getMonth() > month) break;
                         if (currentDate.getFullYear() > year) break;
 
-                        const startDate = new Date(currentDate);
-                        const endDate = new Date(startDate);
-                        endDate.setDate(startDate.getDate() + (re.duration > 1 ? re.duration - 1 : 0));
-
-                        if (startDate <= lastDayOfMonth && endDate >= firstDayOfMonth) {
-                            monthEvents.push({ ...re, date: startDate.toISOString().split('T')[0], startDate, endDate });
+                        for (let i = 0; i < (re.duration || 1); i++) {
+                            const eventDate = new Date(currentDate);
+                            eventDate.setDate(eventDate.getDate() + i);
+                             if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                                addEvent({ ...re, date: currentDate.toISOString().split('T')[0] }, eventDate);
+                            }
                         }
                         if (re.interval === '4_weeks') {
                             currentDate.setDate(currentDate.getDate() + 28);
@@ -185,8 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 });
-
-                let headerHTML = `
+                
+                let html = `
                     <div class="calendar-header">
                         <span class="calendar-title">${year}년 ${month + 1}월</span>
                         <div class="calendar-nav">
@@ -196,98 +212,47 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div class="calendar-legend">
-                        <div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div>
+                         <div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div>
                         <div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div>
                         <div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div>
-                    </div>`;
-                calendarView.innerHTML = headerHTML;
-                
-                const gridTable = document.createElement('table');
-                gridTable.className = 'calendar-grid';
-                gridTable.innerHTML = `<thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead>`;
-                const gridBody = document.createElement('tbody');
-                gridTable.appendChild(gridBody);
-                calendarView.appendChild(gridTable);
+                    </div>
+                    <table class="calendar-grid">
+                        <thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead>
+                        <tbody>`;
 
-                let calendarDay = new Date(firstDayOfMonth);
-                calendarDay.setDate(calendarDay.getDate() - firstDayOfMonth.getDay());
-
+                let dateCounter = 1;
                 for (let i = 0; i < 6; i++) {
-                    const weekRow = document.createElement('tr');
+                    html += '<tr>';
                     for (let j = 0; j < 7; j++) {
-                        const dayCell = document.createElement('td');
-                        const dayClass = calendarDay.getMonth() !== month ? 'day-other-month' : '';
-                        const todayClass = calendarDay.toDateString() === new Date().toDateString() ? ' day-today' : '';
-                        dayCell.className = `${dayClass}${todayClass}`;
-                        dayCell.dataset.date = calendarDay.toISOString().split('T')[0];
-                        
-                        if (calendarDay.getMonth() === month) {
-                           dayCell.innerHTML = `<div class="date-number">${calendarDay.getDate()}</div>`;
+                        if (i === 0 && j < startDay || dateCounter > daysInMonth) {
+                            html += '<td class="day-other-month"></td>';
+                        } else {
+                            const today = new Date();
+                            const isToday = (dateCounter === today.getDate() && month === today.getMonth() && year === today.getFullYear());
+                            const eventsOnDay = monthEvents[dateCounter];
+                            let cellClass = 'day-current-month';
+                            if (isToday) cellClass += ' day-today';
+                            if (eventsOnDay) cellClass += ' has-events';
+                            
+                            html += `<td class="${cellClass}" data-day="${dateCounter}">
+                                        <div class="date-number">${dateCounter}</div>`;
+                            if (eventsOnDay) {
+                                html += `<div class="event-markers">`;
+                                eventsOnDay.forEach(event => {
+                                    html += `<div class="event-marker event-type-${event.type}">${event.title || event.name}</div>`;
+                                });
+                                html += `</div>`;
+                            }
+                            html += '</td>';
+                            dateCounter++;
                         }
-                        weekRow.appendChild(dayCell);
-                        calendarDay.setDate(calendarDay.getDate() + 1);
                     }
-                    gridBody.appendChild(weekRow);
+                    html += '</tr>';
+                    if (dateCounter > daysInMonth) break;
                 }
+                html += `</tbody></table>`;
+                calendarView.innerHTML = html;
                 
-                const eventsContainer = document.createElement('div');
-                eventsContainer.className = 'grid-events-container';
-                gridTable.appendChild(eventsContainer);
-                
-                setTimeout(() => {
-                    const allTds = Array.from(gridBody.querySelectorAll('td'));
-                    const weekEventTracks = Array(6).fill(0).map(() => []);
-
-                    monthEvents.sort((a,b) => (a.startDate - b.startDate)).forEach(event => {
-                        let eventDate = new Date(event.startDate);
-                        let duration = Math.round((event.endDate - event.startDate) / (1000 * 60 * 60 * 24)) + 1;
-                        
-                        const startCell = allTds.find(td => td.dataset.date === event.startDate.toISOString().split('T')[0]);
-                        if(startCell){
-                             // Find which week this event belongs to
-                            const weekIndex = Math.floor(allTds.indexOf(startCell) / 7);
-                            
-                            // Find an empty track in that week
-                            let track = 0;
-                            while(true){
-                                let isTaken = false;
-                                for(let k=0; k < duration; k++){
-                                    const checkDayIndex = event.startDate.getDay() + k;
-                                    if(weekEventTracks[weekIndex] && weekEventTracks[weekIndex][track] && weekEventTracks[weekIndex][track].includes(checkDayIndex % 7)){
-                                        isTaken = true;
-                                        break;
-                                    }
-                                }
-                                if(!isTaken) break;
-                                track++;
-                            }
-                            if(!weekEventTracks[weekIndex][track]) weekEventTracks[weekIndex][track] = [];
-                            for(let k=0; k < duration; k++){
-                                weekEventTracks[weekIndex][track].push((event.startDate.getDay() + k) % 7);
-                            }
-
-                            const startRect = startCell.getBoundingClientRect();
-                            const gridRect = gridTable.getBoundingClientRect();
-                            const cellWidth = startCell.offsetWidth;
-
-                            const eventBar = document.createElement('div');
-                            eventBar.className = `event-bar event-type-${event.type}`;
-                            eventBar.textContent = event.title || event.name;
-                            
-                            eventBar.style.top = `${startRect.top - gridRect.top + 28 + track * 25}px`;
-                            eventBar.style.left = `${startRect.left - gridRect.left + 2}px`;
-                            eventBar.style.width = `${cellWidth * duration - 4}px`;
-
-                            eventBar.dataset.title = event.title || event.name;
-                            eventBar.dataset.description = event.description || '';
-                            eventBar.dataset.startDate = event.startDate.toISOString().split('T')[0];
-                            eventBar.dataset.endDate = event.endDate.toISOString().split('T')[0];
-                            
-                            eventsContainer.appendChild(eventBar);
-                        }
-                    });
-                }, 0);
-
                 calendarView.addEventListener('click', (e) => {
                     const target = e.target;
                     if(target.id === 'cal-prev-btn') {
@@ -300,16 +265,23 @@ document.addEventListener('DOMContentLoaded', () => {
                         currentCalendarDate = new Date();
                         updateCalendar();
                     } else {
-                        const eventBar = target.closest('.event-bar');
-                        if (eventBar) {
-                            const { title, description, startDate, endDate } = eventBar.dataset;
-                             const duration = Math.round((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
-                            const period = startDate === endDate ? startDate : `${startDate} ~ ${endDate} (${duration}일간)`;
-                            showModal(`${title}`, `<p><strong>기간:</strong> ${period}</p><p>${description}</p>`);
+                        const cell = target.closest('.has-events');
+                        if (cell) {
+                            const day = parseInt(cell.dataset.day);
+                            const events = monthEvents[day];
+                            if(events && events.length > 0) {
+                                const eventContent = events.map(evt => {
+                                    const duration = evt.duration || 1;
+                                    const startStr = evt.startDate.toISOString().split('T')[0];
+                                    const endStr = evt.endDate.toISOString().split('T')[0];
+                                    const period = duration > 1 ? `${startStr} ~ ${endStr} (${duration}일간)` : startStr;
+                                    return `<h4>${evt.title || evt.name}</h4><p><strong>기간:</strong> ${period}</p><p>${evt.description}</p>`;
+                                }).join('<hr>');
+                                showModal(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')} 이벤트`, eventContent);
+                            }
                         }
                     }
                 });
-
                 return calendarView;
             }
 
@@ -317,7 +289,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 contentDiv.innerHTML = '';
                 contentDiv.appendChild(buildCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth()));
             }
-            
             updateCalendar();
         }
 
@@ -591,7 +562,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const totalPairs = counts.map(c => Math.floor(c / 2)).reduce((a, b) => a + b, 0);
                 const totalUniqueTypes = Object.keys(typePokemonCount).length;
 
-                // [수정] 시너지 우선순위 변경
                 if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
                 if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
                 if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
