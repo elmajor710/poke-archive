@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 최종본');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 최종 완성본');
 
     function initializeAppUserMode() {
         const appContainer = document.getElementById('app-container');
@@ -168,15 +168,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 (data.recurringEvents || []).forEach(re => {
                     let currentDate = new Date(re.startDate + 'T00:00:00');
                     while (currentDate.getFullYear() < year + 2) {
-                         if (currentDate.getMonth() > month + 1 && currentDate.getFullYear() === year) break;
+                        if (currentDate.getFullYear() === year && currentDate.getMonth() > month + 1) break;
+                        if (currentDate.getFullYear() > year + 1) break;
+
                         const startDate = new Date(currentDate);
                         const endDate = new Date(startDate);
                         endDate.setDate(startDate.getDate() + (re.duration > 1 ? re.duration - 1 : 0));
+
                         if (startDate <= lastDayOfMonth && endDate >= firstDayOfMonth) {
                             monthEvents.push({ ...re, date: startDate.toISOString().split('T')[0], startDate, endDate });
                         }
-                        if (re.interval === '4_weeks') currentDate.setDate(currentDate.getDate() + 28);
-                        else break;
+                        if (re.interval === '4_weeks') {
+                            currentDate.setDate(currentDate.getDate() + 28);
+                        } else {
+                            break;
+                        }
                     }
                 });
 
@@ -541,9 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             function calculateSynergy(pokemonIds) {
                 if (pokemonIds.length < 6) return null;
-
                 const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
-
                 const typePokemonCount = {};
                 mainPokemon.forEach(pkm => {
                     if (pkm && pkm.types) {
@@ -553,25 +557,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
                 const counts = Object.values(typePokemonCount);
-
                 const totalPairs = counts.map(c => Math.floor(c / 2)).reduce((a, b) => a + b, 0);
+                const totalUniqueTypes = Object.keys(typePokemonCount).length;
 
                 if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
                 if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
                 if (totalPairs >= 4) return DB.synergyEffects.find(s => s.id === 'same2x4');
                 if (totalPairs >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
                 if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
-                
-                if (pokemonIds.length === 6) {
-                     return DB.synergyEffects.find(s => s.id === 'diff6');
-                }
+                if (totalUniqueTypes >= 6) return DB.synergyEffects.find(s => s.id === 'diff6');
 
                 return null;
             }
 
             synergyIconContainer.addEventListener('click', () => {
                 const synergyId = synergyIconContainer.dataset.synergyId;
-                
                 let contentHTML = `
                     <table class="synergy-table">
                         <thead><tr><th>타입 시너지 효과</th><th>설명</th></tr></thead>
@@ -585,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </tr>`;
                 });
                 contentHTML += `</tbody></table>`;
-                showModal(synergyId ? DB.synergyEffects.find(s=>s.id === synergyId).name : '타입 시너지 효과', contentHTML);
+                showModal('타입 시너지 효과', contentHTML);
             });
 
             weatherIconContainer.addEventListener('click', () => {
