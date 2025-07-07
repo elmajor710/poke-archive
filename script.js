@@ -200,7 +200,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div>
                         <div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div>
                     </div>`;
-
                 calendarView.innerHTML = headerHTML;
                 
                 const gridTable = document.createElement('table');
@@ -212,11 +211,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 calendarDay.setDate(calendarDay.getDate() - firstDayOfMonth.getDay());
 
                 for (let i = 0; i < 6; i++) {
-                    let weekRowHTML = '<tr class="calendar-week">';
+                    let weekRowHTML = '<tr>';
                     for (let j = 0; j < 7; j++) {
                         const dayClass = calendarDay.getMonth() !== month ? 'day-other-month' : 'day-current-month';
                         const todayClass = calendarDay.toDateString() === new Date().toDateString() ? ' day-today' : '';
-                        weekRowHTML += `<td class="${dayClass}${todayClass}" data-date="${calendarDay.toISOString().split('T')[0]}"><div class="date-number">${calendarDay.getDate()}</div></td>`;
+                        weekRowHTML += `<td class="${dayClass}${todayClass}" data-date="${calendarDay.toISOString().split('T')[0]}">
+                                          <div class="date-number">${calendarDay.getDate()}</div>
+                                          <div class="events-in-day"></div>
+                                        </td>`;
                         calendarDay.setDate(calendarDay.getDate() + 1);
                     }
                     weekRowHTML += '</tr>';
@@ -225,62 +227,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 gridTable.appendChild(gridBody);
                 calendarView.appendChild(gridTable);
 
-                // 이벤트 바를 렌더링하고 배치합니다.
-                const eventContainer = document.createElement('div');
-                eventContainer.className = 'grid-events-container';
-                gridTable.appendChild(eventContainer);
+                monthEvents.forEach(event => {
+                    const eventStartStr = event.startDate.toISOString().split('T')[0];
+                    const startCell = calendarView.querySelector(`td[data-date='${eventStartStr}']`);
 
-                const weekRows = gridBody.querySelectorAll('.calendar-week');
-                monthEvents.sort((a,b) => (b.endDate - b.startDate) - (a.endDate - a.startDate)).forEach(event => {
-                    for(let i = 0; i < weekRows.length; i++) {
-                        const row = weekRows[i];
-                        const firstDayOfWeek = new Date(row.querySelector('td').dataset.date + 'T00:00:00');
-                        const lastDayOfWeek = new Date(firstDayOfWeek);
-                        lastDayOfWeek.setDate(lastDayOfWeek.getDate() + 6);
-                        
-                        if (event.startDate <= lastDayOfWeek && event.endDate >= firstDayOfWeek) {
-                            const eventStartDay = event.startDate < firstDayOfWeek ? 0 : event.startDate.getDay();
-                            const eventEndDay = event.endDate > lastDayOfWeek ? 6 : event.endDate.getDay();
-                            const durationInWeek = eventEndDay - eventStartDay + 1;
-
-                            // 이 로직은 이벤트가 겹치지 않게 수직 위치를 잡습니다.
-                            let track = 0;
-                            const existingBarsInRow = eventContainer.querySelectorAll(`.event-bar[data-week-index='${i}']`);
-                            let isOverlapping = true;
-                            while(isOverlapping) {
-                                isOverlapping = false;
-                                for (const bar of existingBarsInRow) {
-                                    if (parseInt(bar.style.top) === 28 + track * 25) {
-                                        const placedStart = parseInt(bar.dataset.startDay);
-                                        const placedEnd = parseInt(bar.dataset.endDay);
-                                        if (eventStartDay <= placedEnd && eventEndDay >= placedStart) {
-                                            track++;
-                                            isOverlapping = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            const eventBar = document.createElement('div');
-                            eventBar.className = `event-bar event-type-${event.type}`;
-                            eventBar.style.top = `${row.offsetTop + 28 + track * 25}px`;
-                            eventBar.style.left = `calc(${eventStartDay} / 7 * 100% + 2px)`;
-                            eventBar.style.width = `calc(${durationInWeek} / 7 * 100% - 4px)`;
-                            eventBar.textContent = event.title || event.name;
-                            eventBar.dataset.title = event.title || event.name;
-                            eventBar.dataset.description = event.description || '';
-                            eventBar.dataset.startDate = event.startDate.toISOString().split('T')[0];
-                            eventBar.dataset.endDate = event.endDate.toISOString().split('T')[0];
-                            eventBar.dataset.weekIndex = i; // For track calculation
-                            eventBar.dataset.startDay = eventStartDay;
-                            eventBar.dataset.endDay = eventEndDay;
-
-                            eventContainer.appendChild(eventBar);
+                    if (startCell) {
+                        const eventsInDayContainer = startCell.querySelector('.events-in-day');
+                        let track = 1;
+                        while (true) {
+                            const isTrackTaken = Array.from(eventsInDayContainer.children).some(child => parseInt(child.style.gridRowStart) === track);
+                            if (!isTrackTaken) break;
+                            track++;
                         }
+                        
+                        const eventBar = document.createElement('div');
+                        eventBar.className = `event-bar event-type-${event.type}`;
+                        eventBar.textContent = event.title || event.name;
+                        
+                        eventBar.style.gridColumn = `auto / span ${event.duration}`;
+                        eventBar.style.gridRow = track;
+
+                        eventBar.dataset.title = event.title || event.name;
+                        eventBar.dataset.description = event.description || '';
+                        eventBar.dataset.startDate = event.startDate.toISOString().split('T')[0];
+                        eventBar.dataset.endDate = event.endDate.toISOString().split('T')[0];
+                        
+                        eventsInDayContainer.appendChild(eventBar);
                     }
                 });
-                
+
                 calendarView.addEventListener('click', (e) => {
                     const target = e.target;
                     if(target.id === 'cal-prev-btn') {
@@ -296,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const eventBar = target.closest('.event-bar');
                         if (eventBar) {
                             const { title, description, startDate, endDate } = eventBar.dataset;
-                             const duration = (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24) + 1;
+                            const duration = Math.round((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
                             const period = startDate === endDate ? startDate : `${startDate} ~ ${endDate} (${duration}일간)`;
                             showModal(`${title}`, `<p><strong>기간:</strong> ${period}</p><p>${description}</p>`);
                         }
@@ -584,7 +559,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const totalPairs = counts.map(c => Math.floor(c / 2)).reduce((a, b) => a + b, 0);
                 const totalUniqueTypes = Object.keys(typePokemonCount).length;
 
-                // [수정] 시너지 우선순위 변경
                 if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
                 if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
                 if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
@@ -788,13 +762,5 @@ document.addEventListener('DOMContentLoaded', () => {
         initialize();
     }
     
-    const urlParams = new URLSearchParams(window.location.search);
-    const isAdminMode = urlParams.get('admin') === 'true';
-
-    if (isAdminMode) {
-        document.getElementById('app-container').style.display = 'none';
-        document.getElementById('admin-panel').style.display = 'block';
-    } else {
-        initializeAppUserMode();
-    }
+    initializeAppUserMode();
 });
