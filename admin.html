@@ -52,13 +52,8 @@
                             </select>
                         </div>
                         <div class="form-group form-group-span-2">
-                            <label>타입</label>
-                            <div class="checkbox-group">
-                                <label><input type="checkbox" checked> 에스퍼</label>
-                                <label><input type="checkbox" checked> 격투</label>
-                                <label><input type="checkbox"> 불</label>
-                                <label><input type="checkbox"> 물</label>
-                                <label><input type="checkbox"> 풀</label>
+                            <label>타입 (다중선택 가능)</label>
+                            <div id="pkm-types-container" class="checkbox-group">
                                 </div>
                         </div>
                         <div class="form-group form-group-span-2">
@@ -72,37 +67,32 @@
                     </div>
 
                     <div class="form-section">
+                        <h3>스킬 정보 <button type="button" id="add-skill-btn" class="btn btn-small">+</button></h3>
+                        <div id="skills-container">
+                            </div>
+                    </div>
+
+                    <div class="form-section">
                         <h3>추천 빌드</h3>
                         <div class="form-group">
-                            <label>추천 성격</label>
-                            <div class="checkbox-group scrollable">
-                                <label><input type="checkbox"> 겁이많음/Timid</label>
-                                <label><input type="checkbox"> 조급함/Hasty</label>
-                                <label><input type="checkbox" checked> 유쾌함/Jolly</label>
-                                <label><input type="checkbox"> 천진난만함/Naive</label>
-                                <label><input type="checkbox"> 외로워함/Lonely</label>
-                                <label><input type="checkbox"> 용감함/Brave</label>
-                                <label><input type="checkbox" checked> 고집이강함/Adamant</label>
+                            <label>추천 성격 (다중선택 가능)</label>
+                            <div id="pkm-natures-container" class="checkbox-group scrollable">
                                 </div>
                         </div>
                         <div class="form-group">
-                             <label for="pkm-items">추천 아이템</label>
+                             <label for="pkm-items">추천 아이템 (다중선택: Ctrl 또는 Shift + 클릭)</label>
                              <select id="pkm-items" multiple>
-                                <option value="item1" selected>녹슨검(God)</option>
-                                <option value="item2">불꽃 발톱(Legendary)</option>
-                             </select>
+                                </select>
                         </div>
                          <div class="form-group">
                              <label for="pkm-runes">추천 룬</label>
                              <select id="pkm-runes" multiple>
-                                 <option value="rune1" selected>치명 / Deadly</option>
-                             </select>
+                                 </select>
                         </div>
                          <div class="form-group">
                              <label for="pkm-chips">추천 칩</label>
                              <select id="pkm-chips" multiple>
-                                 <option value="chip1" selected>늑대행자 / Lone Wolf</option>
-                             </select>
+                                 </select>
                         </div>
                     </div>
                     
@@ -114,5 +104,7 @@
             </section>
         </main>
     </div>
+    <script src="data.js"></script> 
+    <script src="admin.js"></script>
 </body>
 </html>
