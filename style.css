@@ -201,14 +201,31 @@ header h1 {
 .calendar-legend { display: flex; gap: 15px; margin-bottom: 15px; }
 .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.9em; }
 .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
-.calendar-grid { width: 100%; border-collapse: collapse; table-layout: fixed; flex-grow: 1; }
+.calendar-grid { width: 100%; border-collapse: collapse; table-layout: fixed; flex-grow: 1; position: relative; }
 .calendar-grid th { text-align: center; padding-bottom: 10px; font-weight: 600; color: #666; }
 .calendar-grid td { border: 1px solid var(--border-color); vertical-align: top; padding: 4px; }
-.day-other-month { background-color: #f8f9fa; color: #ccc; }
+.day-other-month { background-color: #f8f9fa; }
+.day-other-month .date-number { color: #ccc; }
 .date-number { font-weight: 500; font-size: 0.9em; }
 .day-today .date-number { background-color: var(--primary-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; }
-.events-in-day { display: grid; grid-template-columns: 1fr; grid-auto-rows: 25px; gap: 2px; margin-top: 4px; }
-.event-bar { height: 22px; line-height: 22px; padding: 0 8px; border-radius: 4px; color: white; font-size: 0.85em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.grid-events-container { position: absolute; top: 35px; /* th 높이만큼 대략적으로 띄움 */ left: 0; right: 0; bottom: 0; pointer-events: none; }
+.event-bar {
+    position: absolute;
+    height: 22px;
+    line-height: 22px;
+    padding: 0 8px;
+    border-radius: 4px;
+    color: white;
+    font-size: 0.85em;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    pointer-events: all;
+    box-sizing: border-box;
+    z-index: 1;
+}
 .event-type-ranking { background-color: var(--event-ranking-color); }
 .event-type-limited { background-color: var(--event-limited-color); }
 .event-type-luckycat { background-color: var(--event-luckycat-color); }
