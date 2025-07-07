@@ -12,8 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         let activeButtons = {};
         const isMobile = () => window.innerWidth <= 768;
-        let currentCalendarDate = new Date();
-
+        
         function showModal(title, contentHTML, isWeatherPopup = false, callback) {
             const existingModal = document.querySelector('.modal-overlay');
             if (existingModal) existingModal.remove();
@@ -147,36 +146,146 @@ document.addEventListener('DOMContentLoaded', () => {
             contentDiv.innerHTML = html;
         }
 
+        // ================== [수정] 캘린더 렌더링 함수 ==================
         function renderCalendarView(contentDiv, data) {
-            const calendarView = document.createElement('div');
-            calendarView.className = 'calendar-view';
-            let monthEvents = {};
             let currentCalendarDate = new Date();
+
             function buildCalendar(year, month) {
-                const date = new Date(year, month);
-                const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-                const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-                const daysInMonth = lastDay.getDate();
-                const startDay = firstDay.getDay();
-                const today = new Date();
-                monthEvents = {};
-                const addEvent = (event, eventDate) => { const day = eventDate.getDate(); if (!monthEvents[day]) monthEvents[day] = []; const eventIdentifier = event.title || event.name; if (!monthEvents[day].some(e => (e.title || e.name) === eventIdentifier && e.date.startsWith(event.date.substring(0, 10)) )) { monthEvents[day].push({ ...event, displayDate: eventDate.toISOString().split('T')[0]}); } };
-                (data.events || []).forEach(event => { for (let i = 0; i < (event.duration || 1); i++) { const eventDate = new Date(event.date + 'T00:00:00'); eventDate.setDate(eventDate.getDate() + i); if (eventDate.getFullYear() === year && eventDate.getMonth() === month) { addEvent(event, eventDate); } } });
-                (data.recurringEvents || []).forEach(re => { if (re.id === 'luckycat') { let currentDate = new Date(re.startDate + 'T00:00:00'); while (currentDate.getFullYear() <= year) { if(currentDate.getFullYear() > year || (currentDate.getFullYear() === year && currentDate.getMonth() > month)) break; for (let i = 0; i < (re.duration || 1); i++) { const eventDate = new Date(currentDate.getTime()); eventDate.setDate(eventDate.getDate() + i); if (eventDate.getFullYear() === year && eventDate.getMonth() === month) { addEvent({ ...re, date: eventDate.toISOString().split('T')[0] }, eventDate); } } if (re.interval === '4_weeks') { currentDate.setDate(currentDate.getDate() + 28); } } } });
-                let html = `<div class="calendar-header"><span class="calendar-title">${year}년 ${month + 1}월</span><div class="calendar-nav"><button id="cal-prev-btn">&lt; 이전</button><button id="cal-today-btn">Today</button><button id="cal-next-btn">다음 &gt;</button></div></div><div class="calendar-legend"><div class="legend-item"><span class="legend-dot legend-ranking"></span> 랭킹뽑기</div><div class="legend-item"><span class="legend-dot legend-limited"></span> 한정뽑기</div><div class="legend-item"><span class="legend-dot legend-luckycat"></span> 복냥이</div></div><table class="calendar-grid"><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody>`;
-                let dateCounter = 1;
-                for (let i = 0; i < 6; i++) { html += '<tr>'; for (let j = 0; j < 7; j++) { if (i === 0 && j < startDay) { html += '<td class="day-other-month"></td>'; } else if (dateCounter > daysInMonth) { html += '<td class="day-other-month"></td>'; } else { const fullDateStr = `${year}-${String(month + 1).padStart(2,'0')}-${String(dateCounter).padStart(2,'0')}`; const isToday = (fullDateStr === today.toISOString().split('T')[0]); const eventsOnDay = monthEvents[dateCounter]; let cellClass = 'day-current-month'; if (isToday) cellClass += ' day-today'; if (eventsOnDay) cellClass += ' has-events'; html += `<td class="${cellClass}" data-date="${fullDateStr}"><div class="date-number">${dateCounter}</div>`; if (eventsOnDay) { html += `<div class="event-markers">`; eventsOnDay.forEach(event => { html += `<div class="event-marker" style="background-color: var(--event-${event.type}-color);">${event.title || event.name}</div>`; }); html += `</div>`; } html += '</td>'; dateCounter++; } } html += '</tr>'; if (dateCounter > daysInMonth) break; }
-                html += `</tbody></table>`;
-                return html;
+                const calendarView = document.createElement('div');
+                calendarView.className = 'calendar-view';
+
+                const firstDayOfMonth = new Date(year, month, 1);
+                const lastDayOfMonth = new Date(year, month + 1, 0);
+                
+                // 해당 월의 모든 이벤트를 미리 계산
+                const monthEvents = [];
+                (data.events || []).forEach(event => {
+                    const startDate = new Date(event.date + 'T00:00:00');
+                    const endDate = new Date(startDate);
+                    endDate.setDate(startDate.getDate() + (event.duration > 1 ? event.duration - 1 : 0));
+                    if (startDate <= lastDayOfMonth && endDate >= firstDayOfMonth) {
+                        monthEvents.push({ ...event, startDate, endDate });
+                    }
+                });
+                (data.recurringEvents || []).forEach(re => {
+                    let currentDate = new Date(re.startDate + 'T00:00:00');
+                    while (currentDate.getFullYear() < year + 1) {
+                         if (currentDate.getMonth() > month && currentDate.getFullYear() === year) break;
+                        const startDate = new Date(currentDate);
+                        const endDate = new Date(startDate);
+                        endDate.setDate(startDate.getDate() + (re.duration > 1 ? re.duration - 1 : 0));
+                        if (startDate <= lastDayOfMonth && endDate >= firstDayOfMonth) {
+                            monthEvents.push({ ...re, date: startDate.toISOString().split('T')[0], startDate, endDate });
+                        }
+                        if (re.interval === '4_weeks') currentDate.setDate(currentDate.getDate() + 28);
+                        else break;
+                    }
+                });
+
+                // 캘린더 헤더 생성
+                let headerHTML = `
+                    <div class="calendar-header">
+                        <span class="calendar-title">${year}년 ${month + 1}월</span>
+                        <div class="calendar-nav">
+                            <button id="cal-prev-btn">&lt; 이전</button>
+                            <button id="cal-today-btn">Today</button>
+                            <button id="cal-next-btn">다음 &gt;</button>
+                        </div>
+                    </div>
+                    <div class="calendar-legend">
+                        <div class="legend-item"><span class="legend-dot legend-ranking"></span> 랭킹뽑기</div>
+                        <div class="legend-item"><span class="legend-dot legend-limited"></span> 한정뽑기</div>
+                        <div class="legend-item"><span class="legend-dot legend-luckycat"></span> 복냥이</div>
+                    </div>
+                    <table class="calendar-grid">
+                        <thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead>
+                        <tbody>`;
+
+                let currentDay = new Date(firstDayOfMonth);
+                currentDay.setDate(currentDay.getDate() - firstDayOfMonth.getDay());
+
+                // 6주치 캘린더 생성
+                for (let i = 0; i < 6; i++) {
+                    let weekRowHTML = '<tr class="calendar-week">';
+                    let weekEventsContainerHTML = '<div class="week-events-container">';
+                    let weekEvents = monthEvents.filter(e => e.startDate <= new Date(currentDay.getTime() + 6*24*60*60*1000) && e.endDate >= currentDay);
+                    let eventTracks = [];
+
+                    for (let j = 0; j < 7; j++) {
+                        const dayClass = currentDay.getMonth() !== month ? 'day-other-month' : 'day-current-month';
+                        const todayClass = currentDay.toDateString() === new Date().toDateString() ? ' day-today' : '';
+                        weekRowHTML += `<td class="${dayClass}${todayClass}" data-date="${currentDay.toISOString().split('T')[0]}"><div class="date-number">${currentDay.getDate()}</div></td>`;
+                        currentDay.setDate(currentDay.getDate() + 1);
+                    }
+                    
+                    weekEvents.forEach(event => {
+                        const startOfWeek = new Date(currentDay.getTime() - 7*24*60*60*1000);
+                        const eventStartDay = event.startDate < startOfWeek ? 0 : event.startDate.getDay();
+                        const eventEndDay = event.endDate >= new Date(startOfWeek.getTime() + 6*24*60*60*1000) ? 6 : event.endDate.getDay();
+                        const durationInWeek = eventEndDay - eventStartDay + 1;
+                        
+                        let track = 0;
+                        while(eventTracks[track] && eventTracks[track].some(placedEvent => eventStartDay <= placedEvent.end && eventEndDay >= placedEvent.start)) {
+                            track++;
+                        }
+                        if (!eventTracks[track]) eventTracks[track] = [];
+                        eventTracks[track].push({start: eventStartDay, end: eventEndDay});
+
+                        weekEventsContainerHTML += `
+                            <div class="event-bar event-type-${event.type}" 
+                                 style="top: ${25 + track * 25}px; left: calc(${eventStartDay} / 7 * 100%); width: calc(${durationInWeek} / 7 * 100%);"
+                                 data-title="${event.title || event.name}"
+                                 data-description="${event.description}"
+                                 data-start-date="${event.startDate.toISOString().split('T')[0]}"
+                                 data-end-date="${event.endDate.toISOString().split('T')[0]}">
+                                ${event.title || event.name}
+                            </div>`;
+                    });
+
+                    weekEventsContainerHTML += '</div>';
+                    weekRowHTML += weekEventsContainerHTML + '</tr>';
+                    headerHTML += weekRowHTML;
+                }
+                
+                headerHTML += '</tbody></table>';
+                calendarView.innerHTML = headerHTML;
+                
+                // 이벤트 리스너 추가
+                calendarView.addEventListener('click', (e) => {
+                    const target = e.target;
+                    if(target.id === 'cal-prev-btn') {
+                        currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+                        updateCalendar();
+                    } else if (target.id === 'cal-next-btn') {
+                        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+                        updateCalendar();
+                    } else if (target.id === 'cal-today-btn') {
+                        currentCalendarDate = new Date();
+                        updateCalendar();
+                    } else {
+                        const eventBar = target.closest('.event-bar');
+                        if (eventBar) {
+                            const { title, description, startDate, endDate } = eventBar.dataset;
+                             const duration = (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24) + 1;
+                            const period = startDate === endDate ? startDate : `${startDate} ~ ${endDate} (${duration}일간)`;
+                            showModal(`${title}`, `<p><strong>기간:</strong> ${period}</p><p>${description}</p>`);
+                        }
+                    }
+                });
+
+                return calendarView;
             }
-            function updateCalendar() { calendarView.innerHTML = buildCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth()); }
-            contentDiv.innerHTML = ''; contentDiv.appendChild(calendarView); updateCalendar();
-            calendarView.addEventListener('click', (e) => { const target = e.target; if(target.id === 'cal-prev-btn') { currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); updateCalendar(); } else if (target.id === 'cal-next-btn') { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); updateCalendar(); } else if (target.id === 'cal-today-btn') { currentCalendarDate = new Date(); updateCalendar(); } else { const cell = target.closest('.has-events'); if (cell) { const day = parseInt(cell.dataset.date.split('-')[2]); const events = monthEvents[day]; if (events && events.length > 0) { const eventContent = events.map(e => `<strong>${e.title || e.name}</strong><p>${e.description || ''}</p>`).join('<hr>'); showModal(`${cell.dataset.date} 이벤트`, eventContent); } } } });
+
+            function updateCalendar() {
+                contentDiv.innerHTML = '';
+                contentDiv.appendChild(buildCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth()));
+            }
+            
+            updateCalendar();
         }
-        
-        // ==================================================================
-        // V6. DECK BUILDER - START
-        // ==================================================================
+        // ================== [수정 끝] ==================
+
+
         function renderDeckBuilder(contentDiv) {
             let html = `
             <div class="deck-builder-view">
@@ -289,34 +398,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 const targetSlot = e.target.closest('.placement-slot');
                 if (!targetSlot || !draggedItem) return;
 
-                // [수정] 드래그 시작 아이템의 포켓몬 ID를 명확히 가져옵니다.
-                // 슬롯에서 드래그한 경우, 슬롯에 저장된 pokemonId를 사용합니다.
                 const sourcePokemonId = draggedItem.classList.contains('placement-slot') 
                     ? placedPokemon.get(draggedItem)
                     : draggedItem.dataset.pokemonId;
                 
                 if (!sourcePokemonId) return;
 
-                // Case 1: Dragging from another slot (Swap or Move)
                 if (draggedItem.classList.contains('placement-slot')) {
                     const sourceSlot = draggedItem;
-                    if (targetSlot === sourceSlot) return; // Dropped on itself
+                    if (targetSlot === sourceSlot) return; 
 
                     const targetPokemonId = placedPokemon.get(targetSlot);
                     
-                    if (targetPokemonId) { // If target slot is occupied, swap them
+                    if (targetPokemonId) { 
                         const sourcePokemonData = DB.pokemonType.lev4[sourcePokemonId];
                         const targetPokemonData = DB.pokemonType.lev4[targetPokemonId];
 
                         placePokemonInSlot(sourceSlot, targetPokemonId, targetPokemonData);
                         placePokemonInSlot(targetSlot, sourcePokemonId, sourcePokemonData);
-                    } else { // If target slot is empty, move
-                        const sourcePokemonData = DB.pokemonType.lev4[sourcePokemonId]; // [수정] 이동할 포켓몬의 데이터를 정확히 참조합니다.
+                    } else { 
+                        const sourcePokemonData = DB.pokemonType.lev4[sourcePokemonId];
                         placePokemonInSlot(targetSlot, sourcePokemonId, sourcePokemonData);
                         clearSlot(sourceSlot);
                     }
                 }
-                // Case 2: Dragging from source list
                 else if (draggedItem.classList.contains('pokemon-source-icon')) {
                     if (placedPokemon.has(targetSlot)) {
                         alert('슬롯이 비어있지 않습니다. 포켓몬을 제거하거나 다른 빈 슬롯으로 옮겨주세요.');
@@ -361,7 +466,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     return; 
                 }
 
-                // [수정] 포켓몬 클릭 시 팝업 로직 전체 점검 및 보강
                 const pkmCell = e.target.closest('.deck-pokemon-cell');
                 if(pkmCell) {
                     const parentSlot = pkmCell.closest('.placement-slot');
@@ -380,7 +484,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             return typeInfo ? `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>` : '';
                         }).join(' ');
 
-                        // 어시스트 슬롯이고 계약장 정보가 있을 경우
                         if (parentSlot.dataset.role === 'assist' && pokemonData.contractInfo) {
                             modalTitle = `${pokemonData.name.ko} - 계약장 정보`;
                             const contract = pokemonData.contractInfo;
@@ -514,11 +617,7 @@ document.addEventListener('DOMContentLoaded', () => {
             applyFilters();
             updateTeamEffects();
         }
-        // ==================================================================
-        // V6. DECK BUILDER - END
-        // ==================================================================
-
-
+        
         function renderPanelContent(level, data, menuId, clickedId) {
             const targetPanel = panels[`lev${level}`];
             if (!targetPanel) return;
@@ -663,7 +762,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        initialize();
+        initializeAppUserMode();
     }
     
     const urlParams = new URLSearchParams(window.location.search);
