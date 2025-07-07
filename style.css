@@ -153,7 +153,7 @@ header h1 {
 .pokemon-detail-view, .simple-detail-view, .deck-detail-view { padding: 10px; }
 .pokemon-detail-view h2, .simple-detail-view h2, .deck-detail-view h2 { font-size: 2em; margin-bottom: 10px; }
 .pokemon-detail-view .main-image, .simple-detail-view .main-image { max-width: 200px; display: block; margin: 20px auto; }
-.pokemon-detail-view h4, .simple-detail-view h4, .deck-detail-view h4, .deck-builder-view h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
+.pokemon-detail-view h4, .simple-detail-view h4, .deck-detail-view h4, .deck-builder-view h4, h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
 .deck-detail-view h5 { margin-top: 15px; margin-bottom: 10px; font-size: 1.1em; }
 
 .badge-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; align-items: center; }
@@ -193,7 +193,7 @@ header h1 {
 .modal-header h2 { margin: 0; font-size: 1.3em; }
 .modal-close-btn { font-size: 24px; font-weight: bold; cursor: pointer; border: none; background: none; }
 
-.calendar-view { padding: 10px; }
+.calendar-view { padding: 10px; display: flex; flex-direction: column; height: 100%; }
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
 .calendar-title { font-size: 1.5em; font-weight: bold; }
 .calendar-nav button { padding: 8px 12px; border: 1px solid var(--border-color); background-color: #fff; border-radius: 5px; cursor: pointer; }
@@ -201,136 +201,74 @@ header h1 {
 .calendar-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; padding-left: 5px; }
 .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.9em; }
 .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
-.legend-ranking { background-color: var(--event-ranking-color); }
-.legend-limited { background-color: var(--event-limited-color); }
-.legend-luckycat { background-color: var(--event-luckycat-color); }
-.calendar-grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
-.calendar-grid th { text-align: center; padding-bottom: 10px; font-weight: 600; color: #666; font-size: 0.9em; }
-.calendar-grid td { border: 1px solid var(--border-color); vertical-align: top; height: 100px; padding: 4px; background-color: #fff; }
-.day-other-month { background-color: #f8f9fa; }
-.calendar-grid td.has-events { cursor: pointer; }
-.calendar-grid td.has-events:hover { background-color: #e9ecef; }
-.date-number { font-weight: 500; font-size: 0.9em; padding-left: 2px; }
+.event-type-ranking { background-color: var(--event-ranking-color); }
+.event-type-limited { background-color: var(--event-limited-color); }
+.event-type-luckycat { background-color: var(--event-luckycat-color); }
+.calendar-grid { width: 100%; border-collapse: collapse; table-layout: fixed; border-style: hidden; flex-grow: 1; }
+.calendar-grid td { border: 1px solid var(--border-color); vertical-align: top; padding: 4px; position: relative; }
+.calendar-grid .calendar-week { position: relative; }
+.day-other-month { background-color: #f8f9fa; color: #ccc; }
+.day-current-month { background-color: #fff; }
+.date-number { font-weight: 500; font-size: 0.9em; position: relative; z-index: 2; }
 .day-today .date-number { background-color: var(--primary-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; }
-.event-markers { margin-top: 5px; display: flex; flex-direction: column; gap: 3px; }
-.event-marker { font-size: 0.8em; padding: 2px 4px; border-radius: 4px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* --- 배치툴 스타일 추가 --- */
-.deck-builder-view { display: flex; flex-direction: column; height: 100%; }
-.placement-area { padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
-.placement-grid-container { max-width: 450px; margin: 0 auto; }
-.placement-grid-header { display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; font-weight: bold; margin-bottom: 5px; color: #333; }
-.placement-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.placement-slot { aspect-ratio: 1 / 1; border: 2px dashed var(--border-color); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 0.9em; color: #6c757d; font-weight: bold; }
-.placement-slot.main { background-color: var(--main-pastel); }
-.placement-slot.assist { background-color: var(--assist-pastel); }
-.source-area { flex-grow: 1; min-height: 0; display: flex; flex-direction: column; }
-.source-filter-bar { padding: 10px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.source-filter-bar .filter-tabs { display: flex; gap: 5px; }
-.source-filter-bar .filter-tab, .source-filter-bar select { padding: 8px 12px; font-size: 0.9em; border: 1px solid var(--border-color); border-radius: 6px; background-color: #fff; }
-.source-filter-bar .filter-tab.active { background-color: var(--primary-color); color: white; font-weight: bold; border-color: var(--primary-color); }
-.source-list { flex-grow: 1; overflow-y: auto; padding: 10px; background-color: #f0f2f5; border-radius: 6px; }
-.pc-only-message { padding: 40px 20px; text-align: center; color: #555; background-color: #f8f9fa; border-radius: 8px; margin: auto; }
-.pc-only-message h3 { font-size: 1.5em; margin-top: 0; margin-bottom: 10px; color: #333; }
-
-/* --- 배치툴 목록 아이콘 스타일 추가 --- */
-.source-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-    gap: 10px;
-    align-content: start;
-}
-.pokemon-source-icon {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    cursor: grab;
-    text-align: center;
-}
-.pokemon-source-icon img {
-    width: 64px;
-    height: 64px;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 2px;
-}
-.pokemon-source-icon span {
-    font-size: 12px;
-    color: #333;
+.week-events-container { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 1; }
+.event-bar {
+    position: absolute;
+    height: 22px;
+    line-height: 22px;
+    padding: 0 8px;
+    border-radius: 4px;
+    color: white;
+    font-size: 0.85em;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 100%;
-}
-
-/* --- 배치툴 포켓몬 제거 버튼 스타일 추가 --- */
-.placement-slot .deck-pokemon-cell {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.placement-slot .remove-pkm-btn {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 1px solid #c0392b;
-    background-color: #e74c3c;
-    color: white;
-    font-weight: bold;
-    font-size: 14px;
-    line-height: 18px;
-    text-align: center;
     cursor: pointer;
-    opacity: 0; /* 평소에는 숨김 */
-    transition: opacity 0.2s;
+    pointer-events: all;
+    box-sizing: border-box;
 }
+.event-bar.event-type-ranking { background-color: var(--event-ranking-color); border-left: 3px solid #c66900; }
+.event-bar.event-type-limited { background-color: var(--event-limited-color); border-left: 3px solid #0069c0; }
+.event-bar.event-type-luckycat { background-color: var(--event-luckycat-color); border-left: 3px solid #388e3c; }
 
-.placement-slot:hover .remove-pkm-btn {
-    opacity: 1; /* 마우스 올리면 보이게 함 */
-}
+.deck-builder-view { display: flex; flex-direction: row; gap: 20px; height: 100%; }
+.placement-container { flex: 0 0 320px; display: flex; flex-direction: column; }
+.placement-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.placement-slot, .placement-slot-header { aspect-ratio: 1 / 1; border: 2px dashed var(--border-color); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 0.9em; color: #6c757d; font-weight: bold; user-select: none; }
+.placement-slot-header { border-style: solid; border-color: #f0f0f0; cursor: pointer; }
+.placement-slot.main.vanguard { background-color: #ffcdd2; }
+.placement-slot.main.rearguard { background-color: var(--main-pastel); }
+.placement-slot.assist { background-color: var(--assist-pastel); }
 
-/* --- 배치툴 날씨 및 팝업 스타일 추가 --- */
-.placement-area {
-    position: relative; /* 날씨 아이콘의 위치 기준 */
-}
+.source-container { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.source-filter-bar { padding: 10px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.filter-dropdown { padding: 8px 12px; font-size: 0.9em; border: 1px solid var(--border-color); border-radius: 6px; background-color: #fff; }
 
-.weather-icon-container {
-    position: absolute;
-    top: 5px;
-    left: 10px;
-    cursor: pointer;
-    font-size: 1.8em;
-    z-index: 10;
-    display: none; /* 평소에는 숨겨둠 */
-}
+.source-list { flex-grow: 1; overflow-y: auto; padding: 10px 5px; background-color: #f0f2f5; border-radius: 6px; }
 
-.weather-popup .weather-option {
-    padding: 12px 15px;
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
-    transition: background-color 0.2s;
-}
+.source-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; align-content: start; }
+.pokemon-source-icon { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: grab; text-align: center; flex-shrink: 0; }
+.pokemon-source-icon img { width: 64px; height: 64px; background-color: white; border: 1px solid #ddd; border-radius: 8px; padding: 2px; }
+.pokemon-source-icon span { font-size: 12px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
 
-.weather-popup .weather-option:hover {
-    background-color: #f8f9fa;
-}
+.placement-slot .deck-pokemon-cell { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; cursor: grab; }
+.placement-slot .remove-pkm-btn { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border-radius: 50%; border: 1px solid #c0392b; background-color: #e74c3c; color: white; font-weight: bold; font-size: 14px; line-height: 18px; text-align: center; cursor: pointer; opacity: 0; transition: opacity 0.2s; z-index: 10; }
+.placement-slot:hover .remove-pkm-btn { opacity: 1; }
 
-.weather-popup .weather-option:last-child {
-    border-bottom: none;
-}
+#weather-icon-container, #synergy-icon-container { font-size: 1.8em; visibility: hidden;  }
+#synergy-icon-container img { width: 50%; height: 50%; object-fit: contain; }
 
-.weather-popup .weather-desc {
-    font-size: 0.9em;
-    color: #666;
-    margin-top: 5px;
-    line-height: 1.4;
-}
+.weather-popup .weather-option { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #eee; transition: background-color 0.2s; }
+.weather-popup .weather-option:hover { background-color: #f8f9fa; }
+.weather-popup .weather-option:last-child { border-bottom: none; }
+.weather-popup .weather-desc { font-size: 0.9em; color: #666; margin-top: 5px; line-height: 1.4; }
+
+.synergy-table { width: 100%; border-collapse: collapse; }
+.synergy-table td { padding: 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
+.synergy-table td:first-child { width: 60px; text-align: center; }
+.synergy-table img { width: 40px; height: 40px; }
+.synergy-table tr.current-synergy { background-color: var(--active-color); font-weight: bold; }
+
+.pc-only-message { padding: 40px 20px; text-align: center; color: #555; background-color: #f8f9fa; border-radius: 8px; margin: auto; }
+.pc-only-message h3 { font-size: 1.5em; margin-top: 0; margin-bottom: 10px; color: #333; }

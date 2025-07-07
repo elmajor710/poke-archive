@@ -16,6 +16,14 @@ const DB = {
             { id: 'careful', name: '신중함/Careful' }
         ]
     },
+    synergyEffects: [
+        { id: 'diff6', name: '다른 타입 6마리', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FcZDkRR%2FbtsO5xHLHZT%2FAAAAAAAAAAAAAAAAAAAAANyGEPoWV-3wwHQZorO2tONYBdAcb5wNrwd16dgDbsgv%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3D3isdf6p8HzFDc50owt3ac3Zyv2E%253D', description: '다른 타입의 포켓몬 6마리 출전<br>HP +10%, 공격 +10%, 특수공격 +10%' },
+        { id: 'same3', name: '같은 타입 3마리', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fc2Nihz%2FbtsO45kHgZN%2FAAAAAAAAAAAAAAAAAAAAAGpdO3x4bP_uaw_gF2xkHAkXcj0I_i6Tw3KGCuZ3SPl3%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3Ddd2ysCbnDY0rKeYTEMwKOOKhG1U%253D', description: '같은 타입의 포켓몬 3마리 출전<br>HP +15%, 공격 +10%, 특수공격 +10%' },
+        { id: 'same2x3', name: '같은 타입 2마리씩 3개 조합', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FR7jAG%2FbtsO5lgwX07%2FAAAAAAAAAAAAAAAAAAAAAMWYiKMYwQbKFuUKde99WBzectB_TN6CC8xCi1gbyXRl%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DM%252Br5NulxqO7pRLLtsX0gA%252BN6iUU%253D', description: '같은 타입 2마리씩 총 3개 조합의 포켓몬 출전<br>HP +15%, 공격 +15%, 특수공격 +15%' },
+        { id: 'same3x2', name: '같은 타입 3마리씩 2개 조합', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbGFi7r%2FbtsO6dhIcxX%2FAAAAAAAAAAAAAAAAAAAAAAGdpk3aerqwUW4_PNGOyGi7YALOJYP6tE-aG8vZaCfY%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3Dwpa0JA33zF0koFqJn2%252BnQxhySNY%253D', description: '같은 타입 3마리씩 총 2개 조합의 포켓몬 출전<br>HP +20%, 공격 +15%, 특수공격 +15%' },
+        { id: 'same2x4', name: '같은 타입 2마리씩 4개 조합', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fexp5n0%2FbtsO6x7ZCG9%2FAAAAAAAAAAAAAAAAAAAAAHuiTdkWsXHMDV_SsU6-t7lkX0n8k4HM7NV2blesvIj6%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3D6w%252B9Jhe0lDMUY%252BHoYez3a5YE1MI%253D', description: '같은 타입 2마리씩 총 4개 조합의 포켓몬 출전<br>HP +20%, 공격 +15%, 특수공격 +15%' },
+        { id: 'same6', name: '같은 타입 6마리', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbVYYMX%2FbtsO6rtgElR%2FAAAAAAAAAAAAAAAAAAAAAIF-pqVgUZhB8j4FmnTOTYCtJe8akJAVI7eSgEiUJXvn%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DNp1rf%252FAhnAV%252BOxdMgIe04PogCrI%253D', description: '같은 타입의 포켓몬 6마리 출전<br>HP +25%, 공격 +20%, 특수공격 +20%' },
+    ],
     sidebarMenu: [
         { id: 'pokemonType', name: '포켓몬 타입', levels: 4 },
         { id: 'pokemonGrade', name: '포켓몬 등급', levels: 4 },
@@ -27,20 +35,24 @@ const DB = {
     ],
     pokemonType: {
         lev2: [ 
-            { id: 'psychic', name: '에스퍼', color: '#F85888' },
-            { id: 'fighting', name: '격투', color: '#C03028' },
-            { id: 'electric', name: '전기', color: '#F8D030' },
+            { id: 'normal', name: '노말', color: '#A8A878' },
             { id: 'fire', name: '불', color: '#F08030' },
-            { id: 'rock', name: '바위', color: '#B8A038' },
             { id: 'water', name: '물', color: '#6890F0' },
-            { id: 'dragon', name: '드래곤', color: '#7038F8' },
-            { id: 'flying', name: '비행', color: '#A890F0' },
-            { id: 'steel', name: '강철', color: '#B8B8D0' },
             { id: 'grass', name: '풀', color: '#78C850' },
-            { id: 'dark', name: '악', color: '#705848' },
-            { id: 'bug', name: '벌레', color: '#A8B820' },
-            // 이 줄을 추가하세요.
+            { id: 'electric', name: '전기', color: '#F8D030' },
             { id: 'ice', name: '얼음', color: '#98D8D8' },
+            { id: 'fighting', name: '격투', color: '#C03028' },
+            { id: 'poison', name: '독', color: '#A040A0' },
+            { id: 'ground', name: '땅', color: '#E0C068' },
+            { id: 'flying', name: '비행', color: '#A890F0' },
+            { id: 'psychic', name: '에스퍼', color: '#F85888' },
+            { id: 'bug', name: '벌레', color: '#A8B820' },
+            { id: 'rock', name: '바위', color: '#B8A038' },
+            { id: 'ghost', name: '유령', color: '#705898' },
+            { id: 'dragon', name: '드래곤', color: '#7038F8' },
+            { id: 'dark', name: '악', color: '#705848' },
+            { id: 'steel', name: '강철', color: '#B8B8D0' },
+            { id: 'fairy', name: '페어리', color: '#EE99AC' },
         ],
         lev3: { 
             psychic: [ { id: 'megamewtwox', name: '메가뮤츠X' }, { id: 'alakazam', name: '후딘' }, { id: 'mew', name: '뮤' }, { id: 'jirachi', name: '지라치' } ],
@@ -147,6 +159,26 @@ const DB = {
                 imageURL: 'https://images.gameinfo.io/pokemon-trimmed/151.png',
                 faceImageURL: 'https://images.gameinfo.io/pokemon-icons/151.png',
             },
+            volcanion: {
+                name: { ko: '볼케이노', en: 'Volcanion' },
+                grade: 'S+',
+                types: ['water', 'fire'],
+                faceImageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FvXW3Z%2FbtsO447hHgg%2FAAAAAAAAAAAAAAAAAAAAAJ8SOTYNT_EBCzlsdoYKIbI7AFb0v2twHFnm86U9-Lac%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3D1golZOI7rWOqrda2fB6A4D%252BgM1s%253D',
+                contractInfo: {
+                    stats: {
+                        '생명력': '3600',
+                        '물공': '1026',
+                        '특공': '1026',
+                        '흡혈률': '1.2%',
+                        '필살기 피해 증가율': '1.2%'
+                    },
+                    skill: {
+                        name: '영역폭파 (Zone Detonation)',
+                        type: 'Passive',
+                        description: '포켓몬이 궁극기를 사용할 때, 이전에 자신이 Active skill로 공격했던 모든 적 유닛에게 자신의 현재 체력의 5%에 해당하는 특공 피해를 입힌다.\n(단, 피해량은 자신의 특공력의 120% 초과할 수 없다.)\n-> 이후, 해당 유닛들의 보호 상태 (피해 흡수, 실드 등)를 제거하며,\n-> 전장 전체에 동일한 공격력을 최대 2회까지 발동시킨다.'
+                    }
+                }
+            },
             shaymin: { name: { ko: '쉐이미', en: 'Shaymin' }, grade: 'S+', types: ['grass', 'flying'], imageURL: 'https://images.gameinfo.io/pokemon-trimmed/492-sky.png', faceImageURL: 'https://images.gameinfo.io/pokemon-icons/492-sky.png', weatherEffects: [{ name: '매우맑음', description: '아군 풀 타입 포켓몬의 치유 속도가 30% 증가, 행동 턴 전에 최대 체력의 10% 회복, 적 타겟이 얼었을 때 날씨 해방기는 물리/특수 공격 HP를 100% 흡수' }, { name: '맑음', description: '아군 풀 타입 포켓몬의 치료율이 20% 증가, 행동 턴 전에 최대 체력의 5%를 회복' }] },
             megaabomasnow: { name: { ko: '메가눈설왕', en: 'Mega Abomasnow' }, grade: 'S+', types: ['grass', 'ice'], imageURL: 'https://images.gameinfo.io/pokemon-trimmed/460-mega.png', faceImageURL: 'https://images.gameinfo.io/pokemon-icons/460-mega.png', weatherEffects: [{ name: '눈폭풍', description: '아군의 얼음 타입 포켓몬의 반사율, 얼음 타입 피해, 패시브 피해 감소가 각각 10% 증가, [얼음] 확률이 20% 증가' }] },
             primalkyogre: { name: { ko: '원시가이오가', en: 'Primal Kyogre' }, grade: 'SS', types: ['water'], imageURL: 'https://images.gameinfo.io/pokemon-trimmed/382-primal.png', faceImageURL: 'https://images.gameinfo.io/pokemon-icons/382-primal.png', weatherEffects: [{ name: '비', description: '날씨를 비 상태로 변경합니다.' }] },
@@ -221,9 +253,25 @@ const DB = {
             name: '이벤트 캘린더',
             events: [
                 { date: '2025-07-18', type: 'ranking', duration: 3, title: '웅의 메가 강철톤', description: '랭킹뽑기: 웅의 메가 강철톤(강철/땅) [어시스트: 무쇠 바퀴]' },
+                { date: '2025-08-22', type: 'ranking', duration: 3, title: '코라이돈', description: '랭킹뽑기: 코라이돈(격투/드래곤) [어시스트: 애프룡]' },
+                { date: '2025-09-26', type: 'ranking', duration: 3, title: '메가 보만다', description: '랭킹뽑기: 메가 보만다(드래곤/비행) [어시스트: 고동치는달]' },
+                { date: '2025-10-31', type: 'ranking', duration: 3, title: '이로치 메가 핫삼', description: '랭킹뽑기: 이로치 메가 핫삼(벌레/강철) [어시스트: 사마자르]' },
+                { date: '2025-12-05', type: 'ranking', duration: 3, title: '디아루가 오리진폼', description: '랭킹뽑기: 디아루가 오리진폼(강철/드래곤) [어시스트: 브리두라스]' },
+                { date: '2026-01-09', type: 'ranking', duration: 3, title: '이로치 메가 헤라크로스', description: '랭킹뽑기: 이로치 메가 헤라크로스(벌레/격투) [어시스트: 땅을 기는 날개]' },
+                { date: '2026-02-13', type: 'ranking', duration: 3, title: '이로치 메가 쁘사이저', description: '랭킹뽑기: 이로치 메가 쁘사이저(벌레/비행) [어시스트: 꼬시레]' },
+                { date: '2025-06-27', type: 'limited', duration: 3, title: '이로치 메가 눈설왕 & 이로치 메가 이상해꽃', description: '한정뽑기: 이로치 메가 눈설왕, 이로치 메가 이상해꽃' },
+                { date: '2025-08-01', type: 'limited', duration: 3, title: '무한다이노 & 미라이돈', description: '한정뽑기: 무한다이노, 미라이돈' },
+                { date: '2025-09-05', type: 'limited', duration: 3, title: '이로치 메가 나무킹 & 챔피언 피카츄', description: '한정뽑기: 이로치 메가 나무킹, 챔피언 피카츄' },
+                { date: '2025-10-10', type: 'limited', duration: 3, title: '이로치 메가 이상해꽃 & 웅의 메가 강철톤', description: '한정뽑기: 이로치 메가 이상해꽃, 웅의 메가 강철톤' },
+                { date: '2025-11-14', type: 'limited', duration: 3, title: '미라이돈 & 코라이돈', description: '한정뽑기: 미라이돈, 코라이돈' },
+                { date: '2025-12-19', type: 'limited', duration: 3, title: '챔피언 피카츄 & 메가보만다', description: '한정뽑기: 챔피언 피카츄, 메가보만다' },
+                { date: '2026-01-23', type: 'limited', duration: 3, title: '웅의 메가 강철톤 & 이로치 메가 핫삼', description: '한정뽑기: 웅의 메가 강철톤, 이로치 메가 핫삼' },
+                { date: '2026-02-27', type: 'limited', duration: 3, title: '코라이돈 & 디아루가 오리진폼', description: '한정뽑기: 코라이돈, 디아루가 오리진폼' },
+                { date: '2026-04-03', type: 'limited', duration: 3, title: '메가보만다 & 이로치 메가 헤라크로스', description: '한정뽑기: 메가보만다, 이로치 메가 헤라크로스' },
+                { date: '2026-05-08', type: 'limited', duration: 3, title: '이로치 메가 핫삼 & 이로치 메가 쁘사이저', description: '한정뽑기: 이로치 메가 핫삼, 이로치 메가 쁘사이저' },
             ],
             recurringEvents: [
-                { id: 'luckycat', name: '복냥이', title: '다이아 뽑기', type: 'luckycat', duration: 3, startDate: '2025-06-27', interval: '4_weeks', description: 'VIP 등급에 따라 다이아를 획득할 수 있는 복냥이 이벤트 기간입니다.' }
+                { id: 'luckycat', name: '복냥이', title: '다이아 뽑기', type: 'luckycat', duration: 4, startDate: '2025-06-27', interval: '4_weeks', description: 'VIP 등급에 따라 다이아를 획득할 수 있는 복냥이 이벤트 기간입니다.' }
             ]
         }
     },
