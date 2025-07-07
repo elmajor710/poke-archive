@@ -167,8 +167,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 (data.recurringEvents || []).forEach(re => {
                     let currentDate = new Date(re.startDate + 'T00:00:00');
-                    while (currentDate.getFullYear() < year + 1) {
-                         if (currentDate.getMonth() > month && currentDate.getFullYear() === year) break;
+                    while (currentDate.getFullYear() < year + 2) { // Display recurring events for the next year as well
+                         if (currentDate.getMonth() > month && currentDate.getFullYear() === year && monthEvents.length > 10) break; // Optimization
                         const startDate = new Date(currentDate);
                         const endDate = new Date(startDate);
                         endDate.setDate(startDate.getDate() + (re.duration > 1 ? re.duration - 1 : 0));
@@ -190,22 +190,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div class="calendar-legend">
-                        <div class="legend-item"><span class="legend-dot legend-ranking"></span> 랭킹뽑기</div>
-                        <div class="legend-item"><span class="legend-dot legend-limited"></span> 한정뽑기</div>
-                        <div class="legend-item"><span class="legend-dot legend-luckycat"></span> 복냥이</div>
+                        <div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div>
+                        <div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div>
+                        <div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div>
                     </div>
                     <table class="calendar-grid">
                         <thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead>
                         <tbody>`;
 
-                let currentDay = new Date(firstDayOfMonth);
-                currentDay.setDate(currentDay.getDate() - firstDayOfMonth.getDay());
+                let calendarDay = new Date(firstDayOfMonth);
+                calendarDay.setDate(calendarDay.getDate() - firstDayOfMonth.getDay());
 
                 for (let i = 0; i < 6; i++) {
                     let weekRowHTML = '<tr class="calendar-week">';
                     let weekEventsContainerHTML = '<div class="week-events-container">';
                     
-                    const startOfWeekForEventCalc = new Date(currentDay);
+                    const startOfWeekForEventCalc = new Date(calendarDay);
                     const endOfWeekForEventCalc = new Date(startOfWeekForEventCalc);
                     endOfWeekForEventCalc.setDate(endOfWeekForEventCalc.getDate() + 6);
                     
@@ -213,13 +213,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     let eventTracks = [];
 
                     for (let j = 0; j < 7; j++) {
-                        const dayClass = currentDay.getMonth() !== month ? 'day-other-month' : 'day-current-month';
-                        const todayClass = currentDay.toDateString() === new Date().toDateString() ? ' day-today' : '';
-                        weekRowHTML += `<td class="${dayClass}${todayClass}" data-date="${currentDay.toISOString().split('T')[0]}"><div class="date-number">${currentDay.getDate()}</div></td>`;
-                        currentDay.setDate(currentDay.getDate() + 1);
+                        const dayClass = calendarDay.getMonth() !== month ? 'day-other-month' : 'day-current-month';
+                        const todayClass = calendarDay.toDateString() === new Date().toDateString() ? ' day-today' : '';
+                        weekRowHTML += `<td class="${dayClass}${todayClass}" data-date="${calendarDay.toISOString().split('T')[0]}"><div class="date-number">${calendarDay.getDate()}</div></td>`;
+                        calendarDay.setDate(calendarDay.getDate() + 1);
                     }
                     
-                    weekEvents.sort((a,b) => (a.endDate - a.startDate) - (b.endDate - b.startDate)).forEach(event => {
+                    weekEvents.sort((a,b) => (b.endDate - b.startDate) - (a.endDate - a.startDate)).forEach(event => {
                         const eventStartDay = event.startDate < startOfWeekForEventCalc ? 0 : event.startDate.getDay();
                         const eventEndDay = event.endDate > endOfWeekForEventCalc ? 6 : event.endDate.getDay();
                         
@@ -285,7 +285,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function renderDeckBuilder(contentDiv) {
-            // ... 이 함수는 변경사항 없습니다 ...
+            let html = `<div class="deck-builder-view"></div>`;
+            // The full implementation of renderDeckBuilder would go here
+            contentDiv.innerHTML = html;
         }
         
         function renderPanelContent(level, data, menuId, clickedId) {

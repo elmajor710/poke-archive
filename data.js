@@ -253,9 +253,25 @@ const DB = {
             name: '이벤트 캘린더',
             events: [
                 { date: '2025-07-18', type: 'ranking', duration: 3, title: '웅의 메가 강철톤', description: '랭킹뽑기: 웅의 메가 강철톤(강철/땅) [어시스트: 무쇠 바퀴]' },
+                { date: '2025-08-22', type: 'ranking', duration: 3, title: '코라이돈', description: '랭킹뽑기: 코라이돈(격투/드래곤) [어시스트: 애프룡]' },
+                { date: '2025-09-26', type: 'ranking', duration: 3, title: '메가 보만다', description: '랭킹뽑기: 메가 보만다(드래곤/비행) [어시스트: 고동치는달]' },
+                { date: '2025-10-31', type: 'ranking', duration: 3, title: '이로치 메가 핫삼', description: '랭킹뽑기: 이로치 메가 핫삼(벌레/강철) [어시스트: 사마자르]' },
+                { date: '2025-12-05', type: 'ranking', duration: 3, title: '디아루가 오리진폼', description: '랭킹뽑기: 디아루가 오리진폼(강철/드래곤) [어시스트: 브리두라스]' },
+                { date: '2026-01-09', type: 'ranking', duration: 3, title: '이로치 메가 헤라크로스', description: '랭킹뽑기: 이로치 메가 헤라크로스(벌레/격투) [어시스트: 땅을 기는 날개]' },
+                { date: '2026-02-13', type: 'ranking', duration: 3, title: '이로치 메가 쁘사이저', description: '랭킹뽑기: 이로치 메가 쁘사이저(벌레/비행) [어시스트: 꼬시레]' },
+                { date: '2025-06-27', type: 'limited', duration: 3, title: '이로치 메가 눈설왕 & 이로치 메가 이상해꽃', description: '한정뽑기: 이로치 메가 눈설왕, 이로치 메가 이상해꽃' },
+                { date: '2025-08-01', type: 'limited', duration: 3, title: '무한다이노 & 미라이돈', description: '한정뽑기: 무한다이노, 미라이돈' },
+                { date: '2025-09-05', type: 'limited', duration: 3, title: '이로치 메가 나무킹 & 챔피언 피카츄', description: '한정뽑기: 이로치 메가 나무킹, 챔피언 피카츄' },
+                { date: '2025-10-10', type: 'limited', duration: 3, title: '이로치 메가 이상해꽃 & 웅의 메가 강철톤', description: '한정뽑기: 이로치 메가 이상해꽃, 웅의 메가 강철톤' },
+                { date: '2025-11-14', type: 'limited', duration: 3, title: '미라이돈 & 코라이돈', description: '한정뽑기: 미라이돈, 코라이돈' },
+                { date: '2025-12-19', type: 'limited', duration: 3, title: '챔피언 피카츄 & 메가보만다', description: '한정뽑기: 챔피언 피카츄, 메가보만다' },
+                { date: '2026-01-23', type: 'limited', duration: 3, title: '웅의 메가 강철톤 & 이로치 메가 핫삼', description: '한정뽑기: 웅의 메가 강철톤, 이로치 메가 핫삼' },
+                { date: '2026-02-27', type: 'limited', duration: 3, title: '코라이돈 & 디아루가 오리진폼', description: '한정뽑기: 코라이돈, 디아루가 오리진폼' },
+                { date: '2026-04-03', type: 'limited', duration: 3, title: '메가보만다 & 이로치 메가 헤라크로스', description: '한정뽑기: 메가보만다, 이로치 메가 헤라크로스' },
+                { date: '2026-05-08', type: 'limited', duration: 3, title: '이로치 메가 핫삼 & 이로치 메가 쁘사이저', description: '한정뽑기: 이로치 메가 핫삼, 이로치 메가 쁘사이저' },
             ],
             recurringEvents: [
-                { id: 'luckycat', name: '복냥이', title: '다이아 뽑기', type: 'luckycat', duration: 3, startDate: '2025-06-27', interval: '4_weeks', description: 'VIP 등급에 따라 다이아를 획득할 수 있는 복냥이 이벤트 기간입니다.' }
+                { id: 'luckycat', name: '복냥이', title: '다이아 뽑기', type: 'luckycat', duration: 4, startDate: '2025-06-27', interval: '4_weeks', description: 'VIP 등급에 따라 다이아를 획득할 수 있는 복냥이 이벤트 기간입니다.' }
             ]
         }
     },
