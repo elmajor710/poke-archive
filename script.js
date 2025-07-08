@@ -700,8 +700,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const level = parseInt(button.dataset.level);
             const id = button.dataset.id;
             const menuId = button.dataset.menuId || id;
+            
+            // ▼▼▼▼▼ 데이터 로딩을 먼저 하도록 순서 변경 ▼▼▼▼▼
+            const nextLevel = level + 1;
+            const nextData = await getNextData(level, id, menuId); 
+            
             const currentPanel = panels[`lev${level}`];
-            const nextPanel = panels[`lev${level + 1}`];
+            const nextPanel = panels[`lev${nextLevel}`];
 
             if (isMobile()) { currentPanel.classList.add('is-hidden'); }
 
@@ -714,14 +719,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             setActive(level, button);
-            const nextLevel = level + 1;
-            
-            // ▼▼▼ await 추가 ▼▼▼
-            const nextData = await getNextData(level, id, menuId); 
-            
             renderPanelContent(nextLevel, nextData, menuId, id);
         }
-
         async function getNextData(currentLevel, id, menuId) { // 1. async 추가
             const nextLevel = currentLevel + 1;
             
