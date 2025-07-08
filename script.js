@@ -659,13 +659,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        function handleMenuClick(button) {
+        async function handleMenuClick(button) { // async 추가
             const level = parseInt(button.dataset.level);
             const id = button.dataset.id;
             const menuId = button.dataset.menuId || id;
             const currentPanel = panels[`lev${level}`];
             const nextPanel = panels[`lev${level + 1}`];
+
             if (isMobile()) { currentPanel.classList.add('is-hidden'); }
+
             if(nextPanel) {
                 Object.values(panels).forEach((panel, index) => {
                     if(index > 0 && panel !== nextPanel) { panel.classList.remove('visible'); }
@@ -673,20 +675,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 nextPanel.classList.remove('is-hidden');
                 nextPanel.classList.add('visible');
             }
+
             setActive(level, button);
             const nextLevel = level + 1;
-            const nextData = getNextData(level, id, menuId);
+            
+            // ▼▼▼ await 추가 ▼▼▼
+            const nextData = await getNextData(level, id, menuId); 
+            
             renderPanelContent(nextLevel, nextData, menuId, id);
         }
 
-        function getNextData(currentLevel, id, menuId) {
+        async function getNextData(currentLevel, id, menuId) { // 1. async 추가
             const nextLevel = currentLevel + 1;
-            if (nextLevel === 2) return DB[menuId]?.lev2;
-            if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
+            
             if (nextLevel === 4) {
-                if (menuId === 'pokemonGrade') { return DB.pokemonType.lev4[id]; }
-                return DB[menuId]?.lev4?.[id];
+                try {
+                    const docRef = db.collection("pokemon").doc(id);
+                    // 2. await 추가
+                    const doc = await docRef.get(); 
+                    if (doc.exists) {
+                        console.log("Document data:", doc.data());
+                        return doc.data();
+                    } else {
+                        console.log("No such document!");
+                        return null;
+                    }
+                } catch (error) {
+                    console.log("Error getting document:", error);
+                    return null;
+                }
             }
+            
+            // 다른 레벨들은 기존 방식을 유지합니다.
+             if (nextLevel === 2) return DB[menuId]?.lev2;
+             if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
+
             return null;
         }
 
