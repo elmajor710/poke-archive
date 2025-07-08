@@ -42,6 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
         function renderPokemonView(contentDiv, data) {
             const detailView = document.createElement('div');
             detailView.className = 'pokemon-detail-view';
+
+            // Firebase 데이터(data.name_ko)와 기존 data.js(data.name.ko)를 모두 처리
+            const nameKo = data.name_ko || data.name.ko;
+            const nameEn = data.name_en || data.name.en;
+
             let badgesHTML = '<div class="badge-container">';
             if(data.grade) {
                 const gradeClass = `grade-${data.grade.toLowerCase().replace('+', '-plus')}`;
@@ -56,9 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
             badgesHTML += '</div>';
-            let commonHTML = `<h2>${data.name.ko} <span style="font-size:0.8em; color:#666;">${data.name.en}</span></h2>`;
+            
+            // alt와 h2 태그에 새로운 변수(nameKo, nameEn) 사용
+            let commonHTML = `<h2>${nameKo} <span style="font-size:0.8em; color:#666;">${nameEn}</span></h2>`;
             commonHTML += badgesHTML;
-            if (data.imageURL) { commonHTML += `<img src="${data.imageURL}" alt="${data.name.ko}" class="main-image">`; }
+            if (data.imageURL) { commonHTML += `<img src="${data.imageURL}" alt="${nameKo}" class="main-image">`; }
+            
             let statsHTML = '';
             if (data.stats) {
                 const totalStats = data.totalStats || Object.values(data.stats).reduce((a, b) => a + b, 0);
@@ -69,7 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
             let skillsHTML = '';
             if (data.skills && data.skills.length > 0) {
                 skillsHTML += '<h4>스킬</h4><ul class="skill-list">';
-                data.skills.forEach((skill, index) => { skillsHTML += `<li class="skill-item"><span class="skill-name" data-skill-index="${index}">${skill.name}</span><span class="skill-type">${skill.type}</span></li>`; });
+                data.skills.forEach((skill, index) => { 
+                    skillsHTML += `<li class="skill-item"><span class="skill-name" data-skill-index="${index}">${skill.name}</span><span class="skill-type">${skill.type}</span></li>`; 
+                });
                 skillsHTML += '</ul>';
             }
             let buildHTML = '';
@@ -81,26 +91,53 @@ document.addEventListener('DOMContentLoaded', () => {
             for (const type in recommendTypes) {
                 if (data[type] && data[type].length > 0) {
                     buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
-                    data[type].forEach(item => {
+                    data[type].forEach(id => {
                         const itemTypeForDB = type.replace('recommended', '').toLowerCase().replace('s', '');
-                        buildHTML += `<div class="recommend-item" data-item-id="${item.id}" data-item-type="${itemTypeForDB}">
-                                    ${item.imageURL ? `<img src="${item.imageURL}" alt="${item.name}">` : ''}<span>${item.name}</span>
-                                 </div>`;
+                        const dbKey = (itemTypeForDB === 'rune' || itemTypeForDB === 'chip') ? 'runeAndChip' : 'item';
+                        const itemData = DB[dbKey]?.lev4?.[id];
+                        if (itemData) {
+                             buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}">
+                                        ${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}<span>${itemData.name}</span>
+                                     </div>`;
+                        }
                     });
                     buildHTML += `</div>`;
                 }
             }
-            if (isMobile()) {
-                detailView.innerHTML = `<div class="tab-nav"><button class="tab-button active" data-tab="basic">기본 정보</button><button class="tab-button" data-tab="skills">스킬</button><button class="tab-button" data-tab="build">추천 빌드</button></div><div class="tab-content-container"><div id="tab-basic" class="tab-pane active">${commonHTML}${statsHTML}</div><div id="tab-skills" class="tab-pane">${skillsHTML}</div><div id="tab-build" class="tab-pane">${buildHTML}</div></div>`;
-            } else {
-                detailView.innerHTML = commonHTML + statsHTML + skillsHTML + buildHTML;
-            }
+            
+            detailView.innerHTML = commonHTML + statsHTML + skillsHTML + buildHTML;
             contentDiv.innerHTML = '';
             contentDiv.appendChild(detailView);
-            contentDiv.querySelectorAll('.skill-name').forEach(el => { el.addEventListener('click', () => { const skillIndex = parseInt(el.dataset.skillIndex); const skill = data.skills[skillIndex]; showModal(skill.name, `<p>${skill.description}</p>`); }); });
-            contentDiv.querySelectorAll('.recommend-item').forEach(el => { el.addEventListener('click', () => { const itemId = el.dataset.itemId; const itemType = el.dataset.itemType; const dbKey = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : itemType; const itemData = DB[dbKey]?.lev4?.[itemId]; if (itemData) { showModal(itemData.name, `<p>${itemData.description || '상세 정보가 없습니다.'}</p>`); } else { alert('상세 정보를 찾을 수 없습니다.'); } }); });
-            const tabNav = contentDiv.querySelector('.tab-nav');
-            if (tabNav) { tabNav.addEventListener('click', e => { if (e.target.matches('.tab-button')) { const tabId = e.target.dataset.tab; contentDiv.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active')); contentDiv.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active')); e.target.classList.add('active'); contentDiv.querySelector(`#tab-${tabId}`).classList.add('active'); } }); }
+
+            contentDiv.querySelectorAll('.skill-name').forEach(el => { 
+                el.addEventListener('click', () => { 
+                    const skillIndex = parseInt(el.dataset.skillIndex);
+                    const skill = data.skills[skillIndex];
+                    if (skill) {
+                        let skillDetailContent = `<p>${skill.description || ''}</p>`;
+                        if (skill.keywords && skill.keywords.length > 0) {
+                            skillDetailContent += '<hr><h4>키워드 설명</h4><ul>';
+                            skill.keywords.forEach(kw => {
+                                skillDetailContent += `<li><strong>${kw.term}:</strong> ${kw.desc}</li>`;
+                            });
+                            skillDetailContent += '</ul>';
+                        }
+                        showModal(skill.name, skillDetailContent); 
+                    }
+                }); 
+            });
+
+            contentDiv.querySelectorAll('.recommend-item').forEach(el => { 
+                el.addEventListener('click', () => { 
+                    const itemId = el.dataset.itemId;
+                    const itemType = el.dataset.itemType;
+                    const dbKey = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
+                    const itemData = DB[dbKey]?.lev4?.[itemId];
+                    if (itemData) { 
+                        showModal(itemData.name, `<p>${itemData.description || '상세 정보가 없습니다.'}</p>`); 
+                    }
+                }); 
+            });
         }
 
         function renderSimpleView(contentDiv, data) {
