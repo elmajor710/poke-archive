@@ -655,14 +655,16 @@ document.addEventListener('DOMContentLoaded', () => {
             updateTeamEffects();
         }
         
-        function renderPanelContent(level, data, menuId, clickedId) {
-            const targetPanel = panels[`lev${level}`];
-            if (!targetPanel) return;
-            const contentDiv = targetPanel.querySelector('.panel-content');
+        function renderPanelContent(contentDiv, level, data, menuId, clickedId) {
+            // [핵심 수정] 더 이상 직접 패널을 찾지 않고, 전달받은 contentDiv를 바로 사용
             if (!contentDiv) return;
+
             contentDiv.innerHTML = '';
             setTimeout(() => { contentDiv.scrollTop = 0; }, 0);
-            if (!data) { contentDiv.innerHTML = "데이터가 없습니다."; return; }
+            if (!data) {
+                contentDiv.innerHTML = "데이터를 불러오지 못했습니다.";
+                return;
+            }
             
             const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
             const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
@@ -678,7 +680,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderDeckView(contentDiv, data);
                 } else if(menuId === 'calendar') {
                     renderCalendarView(contentDiv, data);
-                } else if (data.name?.ko) { 
+                } else if (data.name_ko || data.name?.ko) { // Firebase와 로컬 데이터 모두 호환
                     renderPokemonView(contentDiv, data); 
                 } else { 
                     renderSimpleView(contentDiv, data); 
@@ -696,31 +698,40 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        async function handleMenuClick(button) { // async 추가
+        async function handleMenuClick(button) {
             const level = parseInt(button.dataset.level);
             const id = button.dataset.id;
             const menuId = button.dataset.menuId || id;
-            
-            // ▼▼▼▼▼ 데이터 로딩을 먼저 하도록 순서 변경 ▼▼▼▼▼
             const nextLevel = level + 1;
-            const nextData = await getNextData(level, id, menuId); 
-            
+
             const currentPanel = panels[`lev${level}`];
             const nextPanel = panels[`lev${nextLevel}`];
 
-            if (isMobile()) { currentPanel.classList.add('is-hidden'); }
+            if (!nextPanel) return; // 다음 패널이 없으면 중단
 
-            if(nextPanel) {
-                Object.values(panels).forEach((panel, index) => {
-                    if(index > 0 && panel !== nextPanel) { panel.classList.remove('visible'); }
-                });
-                nextPanel.classList.remove('is-hidden');
-                nextPanel.classList.add('visible');
+            const nextData = await getNextData(level, id, menuId);
+
+            if (isMobile()) {
+                currentPanel.classList.add('is-hidden');
             }
 
+            Object.values(panels).forEach((panel, index) => {
+                if (index > 0 && panel !== nextPanel) {
+                    panel.classList.remove('visible');
+                }
+            });
+            nextPanel.classList.remove('is-hidden');
+            nextPanel.classList.add('visible');
+            
             setActive(level, button);
-            renderPanelContent(nextLevel, nextData, menuId, id);
+
+            // [핵심 수정] 다음 패널의 콘텐츠 영역을 직접 찾아서 전달
+            const contentDiv = nextPanel.querySelector('.panel-content');
+            if (contentDiv) {
+                renderPanelContent(contentDiv, nextLevel, nextData, menuId, id);
+            }
         }
+
         async function getNextData(currentLevel, id, menuId) { // 1. async 추가
             const nextLevel = currentLevel + 1;
             
