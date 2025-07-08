@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Firebase 앱과 Firestore DB를 초기화하는 코드가 admin.html에 이미 있다고 가정합니다.
+    // 만약 admin.html에 없다면, 이 아래에 firebase.initializeApp(firebaseConfig) 코드가 있어야 합니다.
+    // const db = firebase.firestore(); // admin.html에서 이미 선언되었다고 가정합니다.
+
     // --- 데이터 동적 로드 ---
     const typesContainer = document.getElementById('pkm-types-container');
     const naturesContainer = document.getElementById('pkm-natures-container');
@@ -103,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.target.closest('.keyword-entry').remove();
             }
         });
-        // 기본으로 스킬 입력칸 1개 추가
         addSkillRow();
     }
     
@@ -113,28 +116,65 @@ document.addEventListener('DOMContentLoaded', () => {
         pokemonForm.addEventListener('submit', (e) => {
             e.preventDefault(); 
             
-            // 이 부분은 다음 단계에서 Firebase와 연동할 때 실제로 데이터를 수집하게 됩니다.
-            // 지금은 팝업창만 띄우는 역할만 합니다.
-            console.log("저장 버튼 클릭됨");
-            alert("저장이 완료되었습니다! (현재는 프론트엔드 테스트)");
+            const pkmId = document.getElementById('pkm-id').value;
+            if (!pkmId) {
+                alert('고유 ID를 입력해주세요.');
+                return;
+            }
 
-            // 아래는 실제 데이터 저장 로직 예시 (다음 단계에서 구현)
-            /*
+            // 1. 모든 스킬 정보 수집
+            const skillsData = [];
+            document.querySelectorAll('#skills-container .skill-entry').forEach(skillEntry => {
+                const keywordsData = [];
+                skillEntry.querySelectorAll('.keyword-entry').forEach(keywordEntry => {
+                    keywordsData.push({
+                        term: keywordEntry.querySelector('[name="keyword_term"]').value,
+                        desc: keywordEntry.querySelector('[name="keyword_desc"]').value
+                    });
+                });
+
+                skillsData.push({
+                    name: skillEntry.querySelector('[name^="skill_name"]').value,
+                    type: skillEntry.querySelector('[name^="skill_type"]').value,
+                    description: skillEntry.querySelector('[name^="skill_desc"]').value,
+                    keywords: keywordsData
+                });
+            });
+            
+            // 2. 체크박스와 드롭다운에서 선택된 값들을 배열로 수집
+            const selectedTypes = Array.from(typesContainer.querySelectorAll('input:checked')).map(cb => cb.value);
+            const selectedNatures = Array.from(naturesContainer.querySelectorAll('input:checked')).map(cb => cb.value);
+            const selectedItems = Array.from(itemsSelect.selectedOptions).map(opt => opt.value);
+            const selectedRunes = Array.from(runesSelect.selectedOptions).map(opt => opt.value);
+            const selectedChips = Array.from(chipsSelect.selectedOptions).map(opt => opt.value);
+
+            // 3. 최종 pokemonData 객체 생성
             const pokemonData = {
-                id: document.getElementById('pkm-id').value,
+                id: pkmId,
                 name_ko: document.getElementById('pkm-name-ko').value,
-                // ... 다른 모든 데이터 수집 ...
+                name_en: document.getElementById('pkm-name-en').value,
+                grade: document.getElementById('pkm-grade').value,
+                types: selectedTypes,
+                imageURL: document.getElementById('pkm-image-url').value,
+                faceImageURL: document.getElementById('pkm-face-url').value,
+                skills: skillsData,
+                recommendedNatures: selectedNatures,
+                recommendedItems: selectedItems,
+                recommendedRunes: selectedRunes,
+                recommendedChips: selectedChips
             };
 
+            console.log("저장될 데이터:", pokemonData);
+
+            // 4. Firestore에 데이터 저장
             db.collection("pokemon").doc(pokemonData.id).set(pokemonData)
                 .then(() => {
-                    alert("데이터베이스에 저장이 완료되었습니다!");
+                    alert("'" + pokemonData.name_ko + "' 정보가 데이터베이스에 성공적으로 저장되었습니다!");
                 })
                 .catch((error) => {
-                    alert("저장 중 오류가 발생했습니다.");
+                    alert("저장 중 오류가 발생했습니다. 콘솔을 확인해주세요.");
                     console.error("Error writing document: ", error);
                 });
-            */
         });
     }
 });
