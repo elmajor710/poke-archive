@@ -192,26 +192,53 @@ const DB = {
         lev3: {}
     },
     item: {
-        lev2: [ {id:'god', name:'빨강(God)'} ],
+        lev2: [ 
+            {id:'god', name:'빨강(God)'},
+            {id:'legendary', name:'주황(Legendary)'},
+            {id:'epic', name:'보라(Epic)'}
+        ],
         lev3: { 
-            god: [ {id:'immortalsword_god', name:'녹슨검/Immortal Sword'} ], 
+            god: [ 
+                {id:'immortalsword_god', name:'녹슨검/Immortal Sword'}
+            ],
+            legendary: [
+                {id:'immortalsword_leg', name:'녹슨검/Immortal Sword'}, {id:'fieryclaws', name:'불꽃 발톱/Fiery Claws'}, {id:'immortalshield', name:'녹슨 방패/Immortal Shield'}, {id:'hugepowerbracer', name:'고에너지 밴드/Huge Power Bracer'}, {id:'powerring', name:'파워링/Power Ring'}, {id:'pokeflute', name:'포켓몬 피리/Poke Flute'}, {id:'resonanceelement', name:'공명 원소/Resonance Element'}, {id:'dynamaxband', name:'다이맥스 밴드/Dynamax Band'}, {id:'shliphscope', name:'실프 스코프/Shliph Scope'}, {id:'professorsmask', name:'박사 가면/Professor\'s Mask'}, {id:'gembracelet', name:'보석 팔찌/Gem Bracelet'}, {id:'megaglasses', name:'슈퍼 안경/Mega Glasses'}, {id:'megastickpin', name:'슈퍼 브로치/Mega Stickpin'}, {id:'safetygoggles', name:'방진 보안경/Safety Goggles'}, {id:'megawatch', name:'초능 시계/Mega Watch'}, {id:'dowsingmachine', name:'탐보기/Dowsing Machine'}, {id:'reveralglass', name:'현형경/Reveral Glass'}, {id:'mysteriousnecklace', name:'신비한 목걸이/Mysterious Necklace'}, {id:'megarollerskates', name:'초능 인라인스케이트/Mega Roller Skates'}, {id:'samuraihelmet', name:'무사 헬멧/Samurai Helmet'}, {id:'maskofpain', name:'고통의 가면/Mask of Pain'}, {id:'nsolarizer', name:'네크로플러스솔/N-Solarizer'}, {id:'dnasplicers', name:'유전자쐐기/DNA Splicers'}, {id:'spiritedawaycrown', name:'신은왕관/Spirited Away Crown'}, {id:'knightspear', name:'기사창/Knight Spear'}, {id:'flameorb', name:'화염보주/Flame Orb'}, {id:'swiftlybell', name:'맹렬한 방울/Swiftly Bell'}, {id:'sturdybell', name:'튼튼한 방울/Sturdy Bell'}, {id:'bondbell', name:'굴레 방울/Bond Bell'}, {id:'zygardecube', name:'유전자 다면체/Zygarde Cube'}, {id:'ghosthandgloves', name:'귀수권투/Ghost Hand Gloves'}, {id:'lazydragonthorn', name:'어룡 가시/Lazy Dragon Thorn'}, {id:'sunflute', name:'태양의 피리/Sun Flute'}, {id:'soulheart', name:'기교 혼심/Soul-Heart'}, {id:'steamcannon', name:'증기 대포/Steam Cannon'}, {id:'lunarflute', name:'달의 피리/Lunar Flute'}, {id:'choascubeball', name:'혼돈 큐브/Choas cube Ball'}, {id:'rockyshield', name:'암석 방패/Rocky Shield'}, {id:'ultimateprism', name:'울트라 프리즘/Ultimate Prism'}, {id:'genecluster', name:'유전자 덩어리/Gene Cluster'}, {id:'crownofthorns', name:'가시덤불/Crown of Thorns'}, {id:'invincibleshield', name:'백전금방패/Invincible Golden Shield'}, {id:'scarletthornblade', name:'선홍색 가시날/Scarlet Thorn Blade'}, {id:'tricolorplumesword', name:'삼색 깃털 칼날/Tricolor Plume Sword'}, {id:'interpidsword', name:'불굴의 검/Interpid Sword'}, {id:'capeoftime', name:'시간의 망토/Cape of Time'}, {id:'heavygravityclaw', name:'초중력 강철 발톱/Heavy Gravity Steel Claw'}, {id:'blackreins', name:'검은 고삐/Black Reins'}, {id:'fiercebloodscythe', name:'폭렬 혈낫/Fierce Blood Scythe'}, {id:'surgespiritbone', name:'파동 혼골/Surge Spirit Bone'}, {id:'palereins', name:'창백한 굴레/Pale Reins'}, {id:'blazingchains', name:'염룡 화염사슬/Blazing Dragon Chains'}, {id:'flamewhiteturbine', name:'염백 터빈/Flame White Turbine'}, {id:'frostrotaryblade', name:'서리 회전날/Frost Rotary Blade'}, {id:'infinitestarshatter', name:'무극 파편성/Infinite Star Shatter'}, {id:'stellarthorntail', name:'별빛 꼬리 가시/Stellar Thorn Tail'}, {id:'basicattributes1', name:'유명 독핵/Basic Attributes'}, {id:'basicattributes2', name:'강자 엔진/Basic Attributes'}, {id:'championtrophy', name:'챔피언 트로피'}
+            ],
+            epic: [
+                {id:'leftoverapple', name:'먹다남은 음식/Leftover Apple'}, {id:'kingsrock', name:'왕의 징표석/King\'s Rock'}, {id:'metalcoat', name:'금속 코트/Metal Coat'}, {id:'springglove', name:'스프링 글러브/Spring Glove'}, {id:'fairystorage', name:'페어리 메모리/Fairy Storage Device'}, {id:'oddincense', name:'괴상한 향로/Odd Incense'}
+            ]
         },
         lev4: { 
+            // 아이템 상세 설명 (예시)
             'immortalsword_god': { 
-                name: '녹슨검 (God) / Immortal Sword',
+                name: '녹슨검 (God)',
                 grade: 'God',
                 imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbxtDeD%2FbtsOKJ36Be7%2FUrXuXYDmF5ADlMKoNkTlpK%2Fimg.png',
                 description: 'God 등급 녹슨검의 상세 설명입니다.' 
             },
+            'leftoverapple': {
+                name: '먹다남은 음식/Leftover Apple',
+                grade: 'Epic',
+                description: '매 턴 종료 시, HP가 5% 회복됩니다.'
+            }
+            // ... 나머지 아이템 상세 정보 추가 ...
         }
     },
     runeAndChip: {
-        lev2: [ {id: 'rune', name: '룬'}, {id: 'chip', name: '칩'} ],
+        lev2: [ 
+            {id: 'rune', name: '룬'}, 
+            {id: 'chip', name: '칩'} 
+        ],
         lev3: { 
-            rune: [ { id: 'deadly', name: '치명 / Deadly' } ], 
-            chip: [ { id: 'lonewolf', name: '늑대행자 / Lone Wolf' } ] 
+            rune: [ 
+                { id: 'deadly', name: '치명 / Deadly' }, { id: 'warlike', name: '전투광 / Warlike' }, { id: 'shield', name: '실드 / Shield' }, { id: 'kingkong', name: '금강 / King Kong' }, { id: 'shelter', name: '비호 / Shelter' }, { id: 'defend', name: '방어 / Defend' }, { id: 'shine', name: '반짝임 / Shine' }, { id: 'counter', name: '반격 / Counter' }, { id: 'punch', name: '강격 / Punch' }
+            ], 
+            chip: [ 
+                { id: 'firedance', name: '화무 / Fire Dance' }, { id: 'sacrifice', name: '헌제 / Sacrifice' }, { id: 'psychic', name: '초능 / Psychic' }, { id: 'snakesoul', name: '뱀유령 / Snake Soul' }, { id: 'fistshield', name: '방패 / Fist Shield' }, { id: 'lonewolf', name: '늑대행자 / Lone Wolf' }, { id: 'tortoiseshell', name: '귀갑 / Tortoise Shell' }, { id: 'fear', name: '공포 / Fear' }, { id: 'frogthorn', name: '개구리가시 / Frog Thorn' }
+            ] 
         },
         lev4: { 
+            // 룬 & 칩 상세 설명 (예시)
             'deadly': { 
                 name: '치명 / Deadly',
                 imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcE5kYa%2FbtsOM4aGGe9%2F2O5kzKchvUjzk6y1T8UEk0%2Fimg.png',
@@ -221,7 +248,8 @@ const DB = {
                 name: '늑대행자 / Lone Wolf', 
                 imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fb14n9D%2FbtsOLaXQc82%2F8OMfS4o2aWfBkhsKEb2kKk%2Fimg.png',
                 description: '늑대행자 칩에 대한 상세 설명입니다.'
-            },
+            }
+            // ... 나머지 룬/칩 상세 정보 추가 ...
         }
     },
     deck: {
