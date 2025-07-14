@@ -74,7 +74,10 @@ const DB = {
         }
     },
     runeAndChip: {
-        lev2: [ {id: 'rune', name: '룬'}, {id: 'chip', name: '칩'} ],
+        lev2: [ 
+            {id: 'rune', name: '룬'}, 
+            {id: 'chip', name: '칩'} 
+        ],
         lev3: { 
             rune: [ 
                 { id: 'deadly', name: '치명 / Deadly' }, { id: 'warlike', name: '전투광 / Warlike' }, { id: 'shield', name: '실드 / Shield' }, { id: 'kingkong', name: '금강 / King Kong' }, { id: 'shelter', name: '비호 / Shelter' }, { id: 'defend', name: '방어 / Defend' }, { id: 'shine', name: '반짝임 / Shine' }, { id: 'counter', name: '반격 / Counter' }, { id: 'punch', name: '강격 / Punch' }
@@ -84,9 +87,15 @@ const DB = {
             ] 
         },
         lev4: { 
-            'deadly': { name: '치명 / Deadly', imageURL: 'URL_HERE', description: '룬 상세 설명...' },
-            'firedance': { name: '화무 / Fire Dance', imageURL: 'URL_HERE', description: '칩 상세 설명...' },
-            // ... 나머지 룬/칩 상세 정보 추가 ...
+            // 룬 상세 설명
+            'deadly': { name: '치명 / Deadly', imageURL: 'URL_HERE', description: '치명타 확률과 치명타 피해량을 증가시킵니다.' },
+            'warlike': { name: '전투광 / Warlike', imageURL: 'URL_HERE', description: '공격 시 추가 피해를 입힙니다.'},
+            // ... 나머지 룬 상세 정보
+            
+            // 칩 상세 설명
+            'firedance': { name: '화무 / Fire Dance', imageURL: 'URL_HERE', description: '불꽃 타입 스킬의 위력을 증폭시킵니다.' },
+            'lonewolf': { name: '늑대행자 / Lone Wolf', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fb14n9D%2FbtsOLaXQc82%2F8OMfS4o2aWfBkhsKEb2kKk%2Fimg.png', description: '주변에 아군이 없을 때 공격력이 대폭 상승합니다.'},
+             // ... 나머지 칩 상세 정보
         }
     },
     deck: {
