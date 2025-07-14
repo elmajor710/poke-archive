@@ -43,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const detailView = document.createElement('div');
             detailView.className = 'pokemon-detail-view';
 
-            // Firebase 데이터(data.name_ko)와 기존 data.js(data.name.ko)를 모두 처리
             const nameKo = data.name_ko || data.name.ko;
             const nameEn = data.name_en || data.name.en;
 
@@ -62,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             badgesHTML += '</div>';
             
-            // alt와 h2 태그에 새로운 변수(nameKo, nameEn) 사용
             let commonHTML = `<h2>${nameKo} <span style="font-size:0.8em; color:#666;">${nameEn}</span></h2>`;
             commonHTML += badgesHTML;
             if (data.imageURL) { commonHTML += `<img src="${data.imageURL}" alt="${nameKo}" class="main-image">`; }
@@ -87,11 +85,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const natureNames = data.recommendedNatures.map(natureId => DB.definitions.natures.find(n => n.id === natureId)?.name || '').filter(Boolean);
                 buildHTML += `<h4>추천 성격</h4><p>${natureNames.join(', ')}</p>`;
             }
+            
             const recommendTypes = { recommendedItems: '추천 아이템', recommendedRunes: '추천 룬', recommendedChips: '추천 칩' };
             for (const type in recommendTypes) {
                 if (data[type] && data[type].length > 0) {
                     buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
-                    data[type].forEach(id => {
+                    data[type].forEach(itemOrId => {
+                        const id = typeof itemOrId === 'string' ? itemOrId : itemOrId.id; // 데이터 형식 차이 해결
                         const itemTypeForDB = type.replace('recommended', '').toLowerCase().replace('s', '');
                         const dbKey = (itemTypeForDB === 'rune' || itemTypeForDB === 'chip') ? 'runeAndChip' : 'item';
                         const itemData = DB[dbKey]?.lev4?.[id];
