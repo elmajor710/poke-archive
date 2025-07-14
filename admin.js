@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Firebase 앱과 Firestore DB를 초기화하는 코드가 admin.html에 이미 있다고 가정합니다.
-    // 만약 admin.html에 없다면, 이 아래에 firebase.initializeApp(firebaseConfig) 코드가 있어야 합니다.
-    // const db = firebase.firestore(); // admin.html에서 이미 선언되었다고 가정합니다.
-
+    
     // --- 데이터 동적 로드 ---
     const typesContainer = document.getElementById('pkm-types-container');
     const naturesContainer = document.getElementById('pkm-natures-container');
@@ -23,29 +21,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (itemsSelect) {
-        Object.values(DB.item.lev3).flat().forEach(itemRef => {
-            const itemData = DB.item.lev4[itemRef.id];
-            if (itemData) {
-                itemsSelect.innerHTML += `<option value="${itemRef.id}">${itemData.name} (${itemData.grade})</option>`;
-            }
+        // 모든 등급의 아이템 목록을 하나의 배열로 합칩니다.
+        const allItems = Object.values(DB.item.lev3).flat();
+        allItems.forEach(itemRef => {
+            const itemData = DB.item.lev4[itemRef.id] || { name: itemRef.name, grade: 'N/A' };
+            itemsSelect.innerHTML += `<option value="${itemRef.id}">${itemRef.name} (${itemData.grade})</option>`;
         });
     }
 
     if (runesSelect) {
         DB.runeAndChip.lev3.rune.forEach(runeRef => {
-            const runeData = DB.runeAndChip.lev4[runeRef.id];
-            if (runeData) {
-                runesSelect.innerHTML += `<option value="${runeRef.id}">${runeData.name}</option>`;
-            }
+            runesSelect.innerHTML += `<option value="${runeRef.id}">${runeRef.name}</option>`;
         });
     }
 
     if (chipsSelect) {
         DB.runeAndChip.lev3.chip.forEach(chipRef => {
-            const chipData = DB.runeAndChip.lev4[chipRef.id];
-            if (chipData) {
-                chipsSelect.innerHTML += `<option value="${chipRef.id}">${chipData.name}</option>`;
-            }
+            chipsSelect.innerHTML += `<option value="${chipRef.id}">${chipRef.name}</option>`;
         });
     }
 
