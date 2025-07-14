@@ -96,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const itemTypeForDB = type.replace('recommended', '').toLowerCase().replace('s', '');
                         const dbKey = (itemTypeForDB === 'rune' || itemTypeForDB === 'chip') ? 'runeAndChip' : 'item';
                         
+                        // data.js에서 id를 키로 사용하여 상세 정보를 찾습니다.
                         const itemData = DB[dbKey]?.lev4?.[id];
                         
                         if (itemData) {
