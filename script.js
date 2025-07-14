@@ -793,13 +793,45 @@ document.addEventListener('DOMContentLoaded', () => {
     
         function initialize() {
             try {
-                const sidebarContent = sidebar.querySelector('.panel-content') || document.createElement('div');
-                if (!sidebarContent.parentElement) {
-                    sidebarContent.className = 'panel-content';
-                    sidebar.appendChild(sidebarContent);
+                // 타입별 lev3 목록 자동 생성
+                const types = {};
+                DB.pokemonType.lev2.forEach(type => {
+                    types[type.id] = [];
+                });
+                Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
+                    const pkmName = pokemon.name_ko || (pokemon.name && pokemon.name.ko);
+                    if (pokemon.types && pkmName) {
+                        pokemon.types.forEach(typeId => {
+                            if (types[typeId]) {
+                                types[typeId].push({ id: pokemonId, name: pkmName });
+                            }
+                        });
+                    }
+                });
+                DB.pokemonType.lev3 = types;
+
+                // 등급별 lev3 목록 자동 생성
+                const gradeCategory = 'pokemonGrade';
+                if (DB.hasOwnProperty(gradeCategory) && DB.pokemonType?.lev4) {
+                    const grades = {};
+                    DB.pokemonGrade.lev2.forEach(grade => {
+                        grades[grade.id] = [];
+                    });
+                    Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
+                        const pkmName = pokemon.name_ko || (pokemon.name && pokemon.name.ko);
+                        if (pokemon && pokemon.grade && pkmName) {
+                             const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id;
+                            if (gradeId && grades[gradeId]) {
+                                grades[gradeId].push({ id: pokemonId, name: pkmName });
+                            }
+                        }
+                    });
+                     DB.pokemonGrade.lev3 = grades;
                 }
-                sidebarContent.innerHTML = ''; // Clear existing content
-                
+
+                // 사이드바 메뉴 생성
+                const sidebarContent = document.createElement('div');
+                sidebarContent.className = 'panel-content';
                 DB.sidebarMenu.forEach(item => {
                     const button = document.createElement('button');
                     button.className = 'menu-item';
@@ -808,20 +840,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     button.dataset.id = item.id;
                     sidebarContent.appendChild(button);
                 });
-                
-                // lev3 데이터 자동 생성
-                Object.keys(DB).forEach(key => {
-                    if(DB[key] && DB[key].lev2 && DB[key].lev4 && !DB[key].lev3) {
-                        const lev3Data = {};
-                        DB[key].lev2.forEach(cat => {
-                            lev3Data[cat.id] = Object.entries(DB[key].lev4)
-                                .filter(([, data]) => data.category === cat.id) // Assuming lev4 data has category
-                                .map(([id, data]) => ({ id, name: data.name }));
-                        });
-                        DB[key].lev3 = lev3Data;
-                    }
-                });
-
+                const existingContent = sidebar.querySelector('.panel-content');
+                if(existingContent) existingContent.remove();
+                sidebar.appendChild(sidebarContent);
                 addEventListeners();
             } catch (error) {
                 console.error("초기화 중 오류 발생:", error);
