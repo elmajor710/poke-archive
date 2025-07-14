@@ -92,10 +92,16 @@ document.addEventListener('DOMContentLoaded', () => {
             for (const type in recommendTypes) {
                 if (data[type] && data[type].length > 0) {
                     buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
-                    data[type].forEach(id => {
+                    data[type].forEach(item => {
+                        // item이 객체이므로, item.id로 id 값을 참조합니다.
+                        const id = item.id; 
                         const itemTypeForDB = type.replace('recommended', '').toLowerCase().replace('s', '');
                         const dbKey = (itemTypeForDB === 'rune' || itemTypeForDB === 'chip') ? 'runeAndChip' : 'item';
+                        
+                        // data.js의 데이터 구조에 맞게 itemData를 찾습니다.
+                        // item, rune, chip 모두 lev4에 상세 정보가 있다고 가정합니다.
                         const itemData = DB[dbKey]?.lev4?.[id];
+                        
                         if (itemData) {
                              buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}">
                                         ${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}<span>${itemData.name}</span>
