@@ -789,20 +789,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function initialize() {
             try {
+                // 타입별 lev3 목록 자동 생성
+                const types = {};
+                DB.pokemonType.lev2.forEach(type => {
+                    types[type.id] = [];
+                });
+                Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
+                    if (pokemon.types) {
+                        pokemon.types.forEach(typeId => {
+                            if (types[typeId]) {
+                                types[typeId].push({ id: pokemonId, name: pokemon.name_ko });
+                            }
+                        });
+                    }
+                });
+                DB.pokemonType.lev3 = types;
+
+                // 등급별 lev3 목록 자동 생성
                 const gradeCategory = 'pokemonGrade';
                 if (DB.hasOwnProperty(gradeCategory) && DB.pokemonType?.lev4) {
                     const grades = {};
                     Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
-                        if (pokemon && pokemon.grade && pokemon.name?.ko) {
+                        if (pokemon && pokemon.grade && pokemon.name_ko) {
                              const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id;
                             if (gradeId) {
                                 if (!grades.hasOwnProperty(gradeId)) grades[gradeId] = [];
-                                grades[gradeId].push({ id: pokemonId, name: pokemon.name.ko });
+                                grades[gradeId].push({ id: pokemonId, name: pokemon.name_ko });
                             }
                         }
                     });
                      DB.pokemonGrade.lev3 = grades;
                 }
+
+                // 사이드바 메뉴 생성
                 const sidebarContent = document.createElement('div');
                 sidebarContent.className = 'panel-content';
                 DB.sidebarMenu.forEach(item => {
