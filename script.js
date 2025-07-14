@@ -62,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             badgesHTML += '</div>';
             
-            // alt와 h2 태그에 새로운 변수(nameKo, nameEn) 사용
             let commonHTML = `<h2>${nameKo} <span style="font-size:0.8em; color:#666;">${nameEn}</span></h2>`;
             commonHTML += badgesHTML;
             if (data.imageURL) { commonHTML += `<img src="${data.imageURL}" alt="${nameKo}" class="main-image">`; }
@@ -93,14 +92,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data[type] && data[type].length > 0) {
                     buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
                     
-                    // ▼▼▼▼▼ 바로 이 부분입니다! ▼▼▼▼▼
-                    // data[type] 배열의 각 항목은 'id' 문자열 그 자체이므로,
-                    // 변수 이름을 'item' 객체가 아닌 'id'로 직접 받습니다.
                     data[type].forEach(id => {
                         const itemTypeForDB = type.replace('recommended', '').toLowerCase().replace('s', '');
                         const dbKey = (itemTypeForDB === 'rune' || itemTypeForDB === 'chip') ? 'runeAndChip' : 'item';
                         
-                        // data.js에서 id를 키로 사용하여 상세 정보를 찾습니다.
                         const itemData = DB[dbKey]?.lev4?.[id];
                         
                         if (itemData) {
@@ -109,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                      </div>`;
                         }
                     });
-                    // ▲▲▲▲▲ 여기까지 교체 ▲▲▲▲▲
                     
                     buildHTML += `</div>`;
                 }
