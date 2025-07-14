@@ -57,7 +57,9 @@ const DB = {
     },
     item: {
         lev2: [ 
-            {id:'god', name:'빨강(God)'}, {id:'legendary', name:'주황(Legendary)'}, {id:'epic', name:'보라(Epic)'}
+            {id:'god', name:'빨강(God)'},
+            {id:'legendary', name:'주황(Legendary)'},
+            {id:'epic', name:'보라(Epic)'}
         ],
         lev3: { 
             god: [ {id:'immortalsword_god', name:'녹슨검/Immortal Sword'} ],
@@ -69,8 +71,12 @@ const DB = {
             ]
         },
         lev4: { 
-            'immortalsword_god': { name: '녹슨검 (God)', grade: 'God', imageURL: 'URL_HERE', description: '자시안에게 지니게 하면 전투 중에 검왕의 모습으로 변신한다.' },
-            // ... 나머지 아이템 상세 정보 추가 ...
+            'immortalsword_god': { name: '녹슨검 (God)', grade: 'God', imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/immortalsword_god.png?raw=true', description: '자시안에게 지니게 하면 전투 중에 검왕의 모습으로 변신한다.' },
+            'immortalsword_leg': { name: '녹슨검 (Legendary)', grade: 'Legendary', imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/immortalsword_leg.png?raw=true', description: '자시안에게 지니게 하면 전투 중에 검왕의 모습으로 변신한다.' },
+            'leftoverapple': { name: '먹다남은 음식/Leftover Apple', grade: 'Epic', imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/leftoverapple.png?raw=true', description: '매 턴 종료 시, HP가 5% 회복됩니다.' },
+            'kingsrock': { name: '왕의 징표석/King\'s Rock', grade: 'Epic', imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/kingsrock.png?raw=true', description: '공격 시 10% 확률로 상대를 풀죽게 한다.' },
+            'metalcoat': { name: '금속 코트/Metal Coat', grade: 'Epic', imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/metalcoat.png?raw=true', description: '강철 타입 기술의 위력이 1.2배 상승한다.' }
+            // ... 나머지 아이템 상세 정보는 Firebase에 저장될 예정입니다.
         }
     },
     runeAndChip: {
