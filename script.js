@@ -704,12 +704,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const menuId = button.dataset.menuId || id;
             const nextLevel = level + 1;
 
+            // 데이터를 먼저 불러옵니다.
+            const nextData = await getNextData(level, id, menuId);
+            
             const currentPanel = panels[`lev${level}`];
             const nextPanel = panels[`lev${nextLevel}`];
 
-            if (!nextPanel) return; // 다음 패널이 없으면 중단
-
-            const nextData = await getNextData(level, id, menuId);
+            if (!nextPanel) return;
 
             if (isMobile()) {
                 currentPanel.classList.add('is-hidden');
@@ -725,37 +726,36 @@ document.addEventListener('DOMContentLoaded', () => {
             
             setActive(level, button);
 
-            // [핵심 수정] 다음 패널의 콘텐츠 영역을 직접 찾아서 전달
             const contentDiv = nextPanel.querySelector('.panel-content');
             if (contentDiv) {
                 renderPanelContent(contentDiv, nextLevel, nextData, menuId, id);
             }
         }
 
-        async function getNextData(currentLevel, id, menuId) { // 1. async 추가
+        async function getNextData(currentLevel, id, menuId) {
             const nextLevel = currentLevel + 1;
             
-            if (nextLevel === 4) {
+            if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) {
                 try {
                     const docRef = db.collection("pokemon").doc(id);
-                    // 2. await 추가
-                    const doc = await docRef.get(); 
+                    const doc = await docRef.get();
                     if (doc.exists) {
-                        console.log("Document data:", doc.data());
+                        console.log("Firebase에서 데이터를 성공적으로 가져왔습니다:", doc.data());
                         return doc.data();
                     } else {
-                        console.log("No such document!");
+                        console.log("해당 문서를 찾을 수 없습니다.");
                         return null;
                     }
                 } catch (error) {
-                    console.log("Error getting document:", error);
+                    console.log("데이터를 가져오는 중 오류 발생:", error);
                     return null;
                 }
             }
             
-            // 다른 레벨들은 기존 방식을 유지합니다.
-             if (nextLevel === 2) return DB[menuId]?.lev2;
-             if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
+            // 다른 메뉴들은 기존 방식을 유지합니다.
+            if (nextLevel === 2) return DB[menuId]?.lev2;
+            if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
+            if (nextLevel === 4) return DB[menuId]?.lev4?.[id];
 
             return null;
         }
