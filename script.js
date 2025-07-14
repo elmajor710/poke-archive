@@ -659,47 +659,54 @@ document.addEventListener('DOMContentLoaded', () => {
             updateTeamEffects();
         }
         
-        function renderPanelContent(contentDiv, level, data, menuId, clickedId) {
-            // [핵심 수정] 더 이상 직접 패널을 찾지 않고, 전달받은 contentDiv를 바로 사용
-            if (!contentDiv) return;
-
-            contentDiv.innerHTML = '';
-            setTimeout(() => { contentDiv.scrollTop = 0; }, 0);
-            if (!data) {
-                contentDiv.innerHTML = "데이터를 불러오지 못했습니다.";
-                return;
-            }
+        function renderPanelContent(level, data, menuId, clickedId) {
+            const targetPanel = panels[`lev${level}`];
+            if (!targetPanel) return;
             
-            const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
-            const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
+            // 패널이 화면에 표시된 후에 contentDiv를 찾도록 순서 보장
+            setTimeout(() => {
+                const contentDiv = targetPanel.querySelector('.panel-content');
+                if (!contentDiv) return;
 
-            if (isFinalView) {
-                if (clickedId === 'deckBuilder') {
-                    if (isMobile()) {
-                        contentDiv.innerHTML = `<div class="pc-only-message"><h3>기능 안내</h3><p>배치툴 기능은 화면이 넓은 PC 환경에 최적화되어 있습니다.<br>PC에서 접속하여 이용해주세요.</p></div>`;
-                    } else {
-                        renderDeckBuilder(contentDiv);
-                    }
-                } else if (menuId === 'deck' && data.composition) {
-                    renderDeckView(contentDiv, data);
-                } else if(menuId === 'calendar') {
-                    renderCalendarView(contentDiv, data);
-                } else if (data.name_ko || data.name?.ko) { // Firebase와 로컬 데이터 모두 호환
-                    renderPokemonView(contentDiv, data); 
-                } else { 
-                    renderSimpleView(contentDiv, data); 
+                contentDiv.innerHTML = '';
+                contentDiv.scrollTop = 0;
+                
+                if (!data) {
+                    contentDiv.innerHTML = "데이터를 불러오지 못했습니다.";
+                    return;
                 }
-            } else {
-                data.forEach(item => {
-                    const button = document.createElement('button');
-                    button.className = 'list-item';
-                    button.textContent = item.name;
-                    button.dataset.id = item.id;
-                    button.dataset.level = level;
-                    button.dataset.menuId = menuId;
-                    contentDiv.appendChild(button);
-                });
-            }
+                
+                const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
+                const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
+
+                if (isFinalView) {
+                    if (clickedId === 'deckBuilder') {
+                        if (isMobile()) {
+                            contentDiv.innerHTML = `<div class="pc-only-message"><h3>기능 안내</h3><p>배치툴 기능은 화면이 넓은 PC 환경에 최적화되어 있습니다.<br>PC에서 접속하여 이용해주세요.</p></div>`;
+                        } else {
+                            renderDeckBuilder(contentDiv);
+                        }
+                    } else if (menuId === 'deck' && data.composition) {
+                        renderDeckView(contentDiv, data);
+                    } else if(menuId === 'calendar') {
+                        renderCalendarView(contentDiv, data);
+                    } else if (data.name_ko || data.name?.ko) {
+                        renderPokemonView(contentDiv, data); 
+                    } else { 
+                        renderSimpleView(contentDiv, data); 
+                    }
+                } else {
+                    data.forEach(item => {
+                        const button = document.createElement('button');
+                        button.className = 'list-item';
+                        button.textContent = item.name;
+                        button.dataset.id = item.id;
+                        button.dataset.level = level;
+                        button.dataset.menuId = menuId;
+                        contentDiv.appendChild(button);
+                    });
+                }
+            }, 0);
         }
 
         async function handleMenuClick(button) { // async 추가
