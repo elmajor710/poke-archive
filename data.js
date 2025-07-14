@@ -37,13 +37,11 @@ const DB = {
         lev2: [ 
             { id: 'normal', name: '노말', color: '#A8A878' }, { id: 'fire', name: '불', color: '#F08030' }, { id: 'water', name: '물', color: '#6890F0' }, { id: 'grass', name: '풀', color: '#78C850' }, { id: 'electric', name: '전기', color: '#F8D030' }, { id: 'ice', name: '얼음', color: '#98D8D8' }, { id: 'fighting', name: '격투', color: '#C03028' }, { id: 'poison', name: '독', color: '#A040A0' }, { id: 'ground', name: '땅', color: '#E0C068' }, { id: 'flying', name: '비행', color: '#A890F0' }, { id: 'psychic', name: '에스퍼', color: '#F85888' }, { id: 'bug', name: '벌레', color: '#A8B820' }, { id: 'rock', name: '바위', color: '#B8A038' }, { id: 'ghost', name: '유령', color: '#705898' }, { id: 'dragon', name: '드래곤', color: '#7038F8' }, { id: 'dark', name: '악', color: '#705848' }, { id: 'steel', name: '강철', color: '#B8B8D0' }, { id: 'fairy', name: '페어리', color: '#EE99AC' },
         ],
-        lev3: { 
-            // 이 부분은 등급별, 타입별 메뉴에서 사용되므로, 모든 포켓몬 데이터가 추가되면 자동으로 채워집니다.
-        },
+        lev3: {},
         lev4: {
             "megamewtwox": {
                 "name_ko": "메가뮤츠X", "name_en": "Mega Mewtwo X", "grade": "SS", "types": ["psychic", "fighting"], "imageURL": "https://images.gameinfo.io/pokemon-trimmed/150-mega-x.png", "faceImageURL": "https://images.gameinfo.io/pokemon-icons/150-mega-x.png", "stats": { "HP": 106, "Speed": 130, "P.ATK": 190, "P.DEF": 100, "SP.ATK": 154, "SP.DEF": 100 },
-                "skills": [], "recommendedNatures": [], "recommendedItems": [], "recommendedRunes": [], "recommendedChips": []
+                "skills": [], "recommendedNatures": ["jolly", "adamant"], "recommendedItems": ["immortalsword_god", "immortalsword_leg", "mysteriousnecklace", "scarletthornblade", "metalcoat", "springglove"], "recommendedRunes": ["deadly", "warlike", "punch"], "recommendedChips": ["lonewolf", "frogthorn"]
             },
             "megamewtwoy": {
                 "name_ko": "메가뮤츠Y", "name_en": "Mega Mewtwo Y", "grade": "SS", "types": ["psychic"], "imageURL": "https://images.gameinfo.io/pokemon-trimmed/150-mega-y.png", "faceImageURL": "https://images.gameinfo.io/pokemon-icons/150-mega-y.png", "stats": { "HP": 106, "Speed": 140, "P.ATK": 150, "P.DEF": 70, "SP.ATK": 194, "SP.DEF": 120 },
@@ -70,405 +68,74 @@ const DB = {
                 {id:'leftoverapple', name:'먹다남은 음식/Leftover Apple'}, {id:'kingsrock', name:'왕의 징표석/King\'s Rock'}, {id:'metalcoat', name:'금속 코트/Metal Coat'}, {id:'springglove', name:'스프링 글러브/Spring Glove'}, {id:'fairystorage', name:'페어리 메모리/Fairy Storage Device'}, {id:'oddincense', name:'괴상한 향로/Odd Incense'}
             ]
         },
-        // 이 코드를 복사해서 기존 lev4 부분을 대체하세요.
-lev4: {
-    'immortalsword_god': {
-        name: '녹슨검 (God)',
-        grade: 'God',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/immortalsword_god.png?raw=true',
-        description: '자시안에게 지니게 하면 전투 중에 검왕의 모습으로 변신한다.'
-    },
-    'immortalsword_leg': {
-        name: '녹슨검 (Legendary)',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/immortalsword_leg.png?raw=true',
-        description: '자시안에게 지니게 하면 전투 중에 검왕의 모습으로 변신한다.'
-    },
-    'leftoverapple': {
-        name: '먹다남은 음식/Leftover Apple',
-        grade: 'Epic',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/leftoverapple.png?raw=true',
-        description: '매 턴 종료 시, HP가 5% 회복됩니다.'
-    },
-    'kingsrock': {
-        name: '왕의 징표석/King\'s Rock',
-        grade: 'Epic',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/kingsrock.png?raw=true',
-        description: '공격 시 10% 확률로 상대를 풀죽게 한다.'
-    },
-    'metalcoat': {
-        name: '금속 코트/Metal Coat',
-        grade: 'Epic',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/metalcoat.png?raw=true',
-        description: '강철 타입 기술의 위력이 1.2배 상승한다.'
-    },
-    'fieryclaws': {
-        name: '불꽃 발톱/Fiery Claws',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/fieryclaws.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'immortalshield': {
-        name: '녹슨 방패/Immortal Shield',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/immortalshield.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'hugepowerbracer': {
-        name: '고에너지 밴드/Huge Power Bracer',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/hugepowerbracer.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'powerring': {
-        name: '파워링/Power Ring',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/powerring.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'pokeflute': {
-        name: '포켓몬 피리/Poke Flute',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/pokeflute.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'resonanceelement': {
-        name: '공명 원소/Resonance Element',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/resonanceelement.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'dynamaxband': {
-        name: '다이맥스 밴드/Dynamax Band',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/dynamaxband.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'shliphscope': {
-        name: '실프 스코프/Shliph Scope',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/shliphscope.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'professorsmask': {
-        name: '박사 가면/Professor\'s Mask',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/professorsmask.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'gembracelet': {
-        name: '보석 팔찌/Gem Bracelet',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/gembracelet.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'megaglasses': {
-        name: '슈퍼 안경/Mega Glasses',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/megaglasses.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'megastickpin': {
-        name: '슈퍼 브로치/Mega Stickpin',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/megastickpin.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'safetygoggles': {
-        name: '방진 보안경/Safety Goggles',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/safetygoggles.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'megawatch': {
-        name: '초능 시계/Mega Watch',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/megawatch.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'dowsingmachine': {
-        name: '탐보기/Dowsing Machine',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/dowsingmachine.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'reveralglass': {
-        name: '현형경/Reveral Glass',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/reveralglass.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'mysteriousnecklace': {
-        name: '신비한 목걸이/Mysterious Necklace',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/mysteriousnecklace.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'megarollerskates': {
-        name: '초능 인라인스케이트/Mega Roller Skates',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/megarollerskates.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'samuraihelmet': {
-        name: '무사 헬멧/Samurai Helmet',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/samuraihelmet.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'maskofpain': {
-        name: '고통의 가면/Mask of Pain',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/maskofpain.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'nsolarizer': {
-        name: '네크로플러스솔/N-Solarizer',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/nsolarizer.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'dnasplicers': {
-        name: '유전자쐐기/DNA Splicers',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/dnasplicers.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'spiritedawaycrown': {
-        name: '신은왕관/Spirited Away Crown',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/spiritedawaycrown.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'knightspear': {
-        name: '기사창/Knight Spear',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/knightspear.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'flameorb': {
-        name: '화염보주/Flame Orb',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/flameorb.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'swiftlybell': {
-        name: '맹렬한 방울/Swiftly Bell',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/swiftlybell.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'sturdybell': {
-        name: '튼튼한 방울/Sturdy Bell',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/sturdybell.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'bondbell': {
-        name: '굴레 방울/Bond Bell',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/bondbell.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'zygardecube': {
-        name: '유전자 다면체/Zygarde Cube',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/zygardecube.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'ghosthandgloves': {
-        name: '귀수권투/Ghost Hand Gloves',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/ghosthandgloves.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'lazydragonthorn': {
-        name: '어룡 가시/Lazy Dragon Thorn',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/lazydragonthorn.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'sunflute': {
-        name: '태양의 피리/Sun Flute',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/sunflute.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'soulheart': {
-        name: '기교 혼심/Soul-Heart',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/soulheart.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'steamcannon': {
-        name: '증기 대포/Steam Cannon',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/steamcannon.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'lunarflute': {
-        name: '달의 피리/Lunar Flute',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/lunarflute.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'choascubeball': {
-        name: '혼돈 큐브/Choas cube Ball',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/choascubeball.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'rockyshield': {
-        name: '암석 방패/Rocky Shield',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/rockyshield.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'ultimateprism': {
-        name: '울트라 프리즘/Ultimate Prism',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/ultimateprism.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'genecluster': {
-        name: '유전자 덩어리/Gene Cluster',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/genecluster.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'crownofthorns': {
-        name: '가시덤불/Crown of Thorns',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/crownofthorns.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'invincibleshield': {
-        name: '백전금방패/Invincible Golden Shield',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/invincibleshield.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'scarletthornblade': {
-        name: '선홍색 가시날/Scarlet Thorn Blade',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/scarletthornblade.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'tricolorplumesword': {
-        name: '삼색 깃털 칼날/Tricolor Plume Sword',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/tricolorplumesword.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'interpidsword': {
-        name: '불굴의 검/Interpid Sword',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/interpidsword.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'capeoftime': {
-        name: '시간의 망토/Cape of Time',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/capeoftime.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'heavygravityclaw': {
-        name: '초중력 강철 발톱/Heavy Gravity Steel Claw',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/heavygravityclaw.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'blackreins': {
-        name: '검은 고삐/Black Reins',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/blackreins.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'fiercebloodscythe': {
-        name: '폭렬 혈낫/Fierce Blood Scythe',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/fiercebloodscythe.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'surgespiritbone': {
-        name: '파동 혼골/Surge Spirit Bone',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/surgespiritbone.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'palereins': {
-        name: '창백한 굴레/Pale Reins',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/palereins.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'blazingchains': {
-        name: '염룡 화염사슬/Blazing Dragon Chains',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/blazingchains.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'flamewhiteturbine': {
-        name: '염백 터빈/Flame White Turbine',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/flamewhiteturbine.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'frostrotaryblade': {
-        name: '서리 회전날/Frost Rotary Blade',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/frostrotaryblade.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'infinitestarshatter': {
-        name: '무극 파편성/Infinite Star Shatter',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/infinitestarshatter.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'stellarthorntail': {
-        name: '별빛 꼬리 가시/Stellar Thorn Tail',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/stellarthorntail.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'basicattributes1': {
-        name: '유명 독핵/Basic Attributes',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/basicattributes1.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'basicattributes2': {
-        name: '강자 엔진/Basic Attributes',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/basicattributes2.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'championtrophy': {
-        name: '챔피언 트로피',
-        grade: 'Legendary',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/championtrophy.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'springglove': {
-        name: '스프링 글러브/Spring Glove',
-        grade: 'Epic',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/springglove.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'fairystorage': {
-        name: '페어리 메모리/Fairy Storage Device',
-        grade: 'Epic',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/fairystorage.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    },
-    'oddincense': {
-        name: '괴상한 향로/Odd Incense',
-        grade: 'Epic',
-        imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/oddincense.png?raw=true',
-        description: '상세 설명이 필요합니다.'
-    }
-}
+        lev4: {
+            'immortalsword_god': { name: '녹슨검 (God)', grade: 'God', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/immortalsword_god.png', description: '자시안에게 지니게 하면 전투 중에 검왕의 모습으로 변신한다.'},
+            'immortalsword_leg': { name: '녹슨검 (Legendary)', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/immortalsword_leg.png', description: '자시안에게 지니게 하면 전투 중에 검왕의 모습으로 변신한다.'},
+            'leftoverapple': { name: '먹다남은 음식/Leftover Apple', grade: 'Epic', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/leftoverapple.png', description: '매 턴 종료 시, HP가 5% 회복됩니다.'},
+            'kingsrock': { name: '왕의 징표석/King\'s Rock', grade: 'Epic', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/kingsrock.png', description: '공격 시 10% 확률로 상대를 풀죽게 한다.'},
+            'metalcoat': { name: '금속 코트/Metal Coat', grade: 'Epic', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/metalcoat.png', description: '강철 타입 기술의 위력이 1.2배 상승한다.'},
+            'fieryclaws': { name: '불꽃 발톱/Fiery Claws', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/fieryclaws.png', description: '상세 설명이 필요합니다.'},
+            'immortalshield': { name: '녹슨 방패/Immortal Shield', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/immortalshield.png', description: '상세 설명이 필요합니다.'},
+            'hugepowerbracer': { name: '고에너지 밴드/Huge Power Bracer', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/hugepowerbracer.png', description: '상세 설명이 필요합니다.'},
+            'powerring': { name: '파워링/Power Ring', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/powerring.png', description: '상세 설명이 필요합니다.'},
+            'pokeflute': { name: '포켓몬 피리/Poke Flute', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/pokeflute.png', description: '상세 설명이 필요합니다.'},
+            'resonanceelement': { name: '공명 원소/Resonance Element', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/resonanceelement.png', description: '상세 설명이 필요합니다.'},
+            'dynamaxband': { name: '다이맥스 밴드/Dynamax Band', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/dynamaxband.png', description: '상세 설명이 필요합니다.'},
+            'shliphscope': { name: '실프 스코프/Shliph Scope', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/shliphscope.png', description: '상세 설명이 필요합니다.'},
+            'professorsmask': { name: '박사 가면/Professor\'s Mask', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/professorsmask.png', description: '상세 설명이 필요합니다.'},
+            'gembracelet': { name: '보석 팔찌/Gem Bracelet', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/gembracelet.png', description: '상세 설명이 필요합니다.'},
+            'megaglasses': { name: '슈퍼 안경/Mega Glasses', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/megaglasses.png', description: '상세 설명이 필요합니다.'},
+            'megastickpin': { name: '슈퍼 브로치/Mega Stickpin', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/megastickpin.png', description: '상세 설명이 필요합니다.'},
+            'safetygoggles': { name: '방진 보안경/Safety Goggles', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/safetygoggles.png', description: '상세 설명이 필요합니다.'},
+            'megawatch': { name: '초능 시계/Mega Watch', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/megawatch.png', description: '상세 설명이 필요합니다.'},
+            'dowsingmachine': { name: '탐보기/Dowsing Machine', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/dowsingmachine.png', description: '상세 설명이 필요합니다.'},
+            'reveralglass': { name: '현형경/Reveral Glass', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/reveralglass.png', description: '상세 설명이 필요합니다.'},
+            'mysteriousnecklace': { name: '신비한 목걸이/Mysterious Necklace', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/mysteriousnecklace.png', description: '상세 설명이 필요합니다.'},
+            'megarollerskates': { name: '초능 인라인스케이트/Mega Roller Skates', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/megarollerskates.png', description: '상세 설명이 필요합니다.'},
+            'samuraihelmet': { name: '무사 헬멧/Samurai Helmet', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/samuraihelmet.png', description: '상세 설명이 필요합니다.'},
+            'maskofpain': { name: '고통의 가면/Mask of Pain', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/maskofpain.png', description: '상세 설명이 필요합니다.'},
+            'nsolarizer': { name: '네크로플러스솔/N-Solarizer', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/nsolarizer.png', description: '상세 설명이 필요합니다.'},
+            'dnasplicers': { name: '유전자쐐기/DNA Splicers', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/dnasplicers.png', description: '상세 설명이 필요합니다.'},
+            'spiritedawaycrown': { name: '신은왕관/Spirited Away Crown', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/spiritedawaycrown.png', description: '상세 설명이 필요합니다.'},
+            'knightspear': { name: '기사창/Knight Spear', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/knightspear.png', description: '상세 설명이 필요합니다.'},
+            'flameorb': { name: '화염보주/Flame Orb', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/flameorb.png', description: '상세 설명이 필요합니다.'},
+            'swiftlybell': { name: '맹렬한 방울/Swiftly Bell', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/swiftlybell.png', description: '상세 설명이 필요합니다.'},
+            'sturdybell': { name: '튼튼한 방울/Sturdy Bell', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/sturdybell.png', description: '상세 설명이 필요합니다.'},
+            'bondbell': { name: '굴레 방울/Bond Bell', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/bondbell.png', description: '상세 설명이 필요합니다.'},
+            'zygardecube': { name: '유전자 다면체/Zygarde Cube', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/zygardecube.png', description: '상세 설명이 필요합니다.'},
+            'ghosthandgloves': { name: '귀수권투/Ghost Hand Gloves', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/ghosthandgloves.png', description: '상세 설명이 필요합니다.'},
+            'lazydragonthorn': { name: '어룡 가시/Lazy Dragon Thorn', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/lazydragonthorn.png', description: '상세 설명이 필요합니다.'},
+            'sunflute': { name: '태양의 피리/Sun Flute', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/sunflute.png', description: '상세 설명이 필요합니다.'},
+            'soulheart': { name: '기교 혼심/Soul-Heart', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/soulheart.png', description: '상세 설명이 필요합니다.'},
+            'steamcannon': { name: '증기 대포/Steam Cannon', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/steamcannon.png', description: '상세 설명이 필요합니다.'},
+            'lunarflute': { name: '달의 피리/Lunar Flute', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/lunarflute.png', description: '상세 설명이 필요합니다.'},
+            'choascubeball': { name: '혼돈 큐브/Choas cube Ball', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/choascubeball.png', description: '상세 설명이 필요합니다.'},
+            'rockyshield': { name: '암석 방패/Rocky Shield', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/rockyshield.png', description: '상세 설명이 필요합니다.'},
+            'ultimateprism': { name: '울트라 프리즘/Ultimate Prism', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/ultimateprism.png', description: '상세 설명이 필요합니다.'},
+            'genecluster': { name: '유전자 덩어리/Gene Cluster', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/genecluster.png', description: '상세 설명이 필요합니다.'},
+            'crownofthorns': { name: '가시덤불/Crown of Thorns', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/crownofthorns.png', description: '상세 설명이 필요합니다.'},
+            'invincibleshield': { name: '백전금방패/Invincible Golden Shield', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/invincibleshield.png', description: '상세 설명이 필요합니다.'},
+            'scarletthornblade': { name: '선홍색 가시날/Scarlet Thorn Blade', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/scarletthornblade.png', description: '상세 설명이 필요합니다.'},
+            'tricolorplumesword': { name: '삼색 깃털 칼날/Tricolor Plume Sword', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/tricolorplumesword.png', description: '상세 설명이 필요합니다.'},
+            'interpidsword': { name: '불굴의 검/Interpid Sword', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/interpidsword.png', description: '상세 설명이 필요합니다.'},
+            'capeoftime': { name: '시간의 망토/Cape of Time', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/capeoftime.png', description: '상세 설명이 필요합니다.'},
+            'heavygravityclaw': { name: '초중력 강철 발톱/Heavy Gravity Steel Claw', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/heavygravityclaw.png', description: '상세 설명이 필요합니다.'},
+            'blackreins': { name: '검은 고삐/Black Reins', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/blackreins.png', description: '상세 설명이 필요합니다.'},
+            'fiercebloodscythe': { name: '폭렬 혈낫/Fierce Blood Scythe', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/fiercebloodscythe.png', description: '상세 설명이 필요합니다.'},
+            'surgespiritbone': { name: '파동 혼골/Surge Spirit Bone', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/surgespiritbone.png', description: '상세 설명이 필요합니다.'},
+            'palereins': { name: '창백한 굴레/Pale Reins', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/palereins.png', description: '상세 설명이 필요합니다.'},
+            'blazingchains': { name: '염룡 화염사슬/Blazing Dragon Chains', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/blazingchains.png', description: '상세 설명이 필요합니다.'},
+            'flamewhiteturbine': { name: '염백 터빈/Flame White Turbine', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/flamewhiteturbine.png', description: '상세 설명이 필요합니다.'},
+            'frostrotaryblade': { name: '서리 회전날/Frost Rotary Blade', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/frostrotaryblade.png', description: '상세 설명이 필요합니다.'},
+            'infinitestarshatter': { name: '무극 파편성/Infinite Star Shatter', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/infinitestarshatter.png', description: '상세 설명이 필요합니다.'},
+            'stellarthorntail': { name: '별빛 꼬리 가시/Stellar Thorn Tail', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/stellarthorntail.png', description: '상세 설명이 필요합니다.'},
+            'basicattributes1': { name: '유명 독핵/Basic Attributes', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/basicattributes1.png', description: '상세 설명이 필요합니다.'},
+            'basicattributes2': { name: '강자 엔진/Basic Attributes', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/basicattributes2.png', description: '상세 설명이 필요합니다.'},
+            'championtrophy': { name: '챔피언 트로피', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/championtrophy.png', description: '상세 설명이 필요합니다.'},
+            'springglove': { name: '스프링 글러브/Spring Glove', grade: 'Epic', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/springglove.png', description: '상세 설명이 필요합니다.'},
+            'fairystorage': { name: '페어리 메모리/Fairy Storage Device', grade: 'Epic', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/fairystorage.png', description: '상세 설명이 필요합니다.'},
+            'oddincense': { name: '괴상한 향로/Odd Incense', grade: 'Epic', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/oddincense.png', description: '상세 설명이 필요합니다.'}
+        }
     },
     runeAndChip: {
         lev2: [ 
@@ -484,15 +151,24 @@ lev4: {
             ] 
         },
         lev4: { 
-            // 룬 상세 설명
-            'deadly': { name: '치명 / Deadly', imageURL: 'URL_HERE', description: '치명타 확률과 치명타 피해량을 증가시킵니다.' },
-            'warlike': { name: '전투광 / Warlike', imageURL: 'URL_HERE', description: '공격 시 추가 피해를 입힙니다.'},
-            // ... 나머지 룬 상세 정보
-            
-            // 칩 상세 설명
-            'firedance': { name: '화무 / Fire Dance', imageURL: 'URL_HERE', description: '불꽃 타입 스킬의 위력을 증폭시킵니다.' },
-            'lonewolf': { name: '늑대행자 / Lone Wolf', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fb14n9D%2FbtsOLaXQc82%2F8OMfS4o2aWfBkhsKEb2kKk%2Fimg.png', description: '주변에 아군이 없을 때 공격력이 대폭 상승합니다.'},
-             // ... 나머지 칩 상세 정보
+            'deadly': { name: '치명 / Deadly', imageURL: '', description: '치명타 확률과 치명타 피해량을 증가시킵니다.' },
+            'warlike': { name: '전투광 / Warlike', imageURL: '', description: '공격 시 추가 피해를 입힙니다.'},
+            'shield': { name: '실드 / Shield', imageURL: '', description: '상세 설명이 필요합니다.'},
+            'kingkong': { name: '금강 / King Kong', imageURL: '', description: '상세 설명이 필요합니다.'},
+            'shelter': { name: '비호 / Shelter', imageURL: '', description: '상세 설명이 필요합니다.'},
+            'defend': { name: '방어 / Defend', imageURL: '', description: '상세 설명이 필요합니다.'},
+            'shine': { name: '반짝임 / Shine', imageURL: '', description: '상세 설명이 필요합니다.'},
+            'counter': { name: '반격 / Counter', imageURL: '', description: '상세 설명이 필요합니다.'},
+            'punch': { name: '강격 / Punch', imageURL: '', description: '상세 설명이 필요합니다.'},
+            'firedance': { name: '화무 / Fire Dance', imageURL: '', description: '불꽃 타입 스킬의 위력을 증폭시킵니다.' },
+            'lonewolf': { name: '늑대행자 / Lone Wolf', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/lonewolf.png', description: '주변에 아군이 없을 때 공격력이 대폭 상승합니다.'},
+            'sacrifice': { name: '헌제 / Sacrifice', imageURL: '', description: '상세 설명이 필요합니다.'},
+            'psychic': { name: '초능 / Psychic', imageURL: '', description: '상세 설명이 필요합니다.'},
+            'snakesoul': { name: '뱀유령 / Snake Soul', imageURL: '', description: '상세 설명이 필요합니다.'},
+            'fistshield': { name: '방패 / Fist Shield', imageURL: '', description: '상세 설명이 필요합니다.'},
+            'tortoiseshell': { name: '귀갑 / Tortoise Shell', imageURL: '', description: '상세 설명이 필요합니다.'},
+            'fear': { name: '공포 / Fear', imageURL: '', description: '상세 설명이 필요합니다.'},
+            'frogthorn': { name: '개구리가시 / Frog Thorn', imageURL: '', description: '상세 설명이 필요합니다.'}
         }
     },
     deck: {
