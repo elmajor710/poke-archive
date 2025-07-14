@@ -35,156 +35,20 @@ const DB = {
     ],
     pokemonType: {
         lev2: [ 
-            { id: 'normal', name: '노말', color: '#A8A878' },
-            { id: 'fire', name: '불', color: '#F08030' },
-            { id: 'water', name: '물', color: '#6890F0' },
-            { id: 'grass', name: '풀', color: '#78C850' },
-            { id: 'electric', name: '전기', color: '#F8D030' },
-            { id: 'ice', name: '얼음', color: '#98D8D8' },
-            { id: 'fighting', name: '격투', color: '#C03028' },
-            { id: 'poison', name: '독', color: '#A040A0' },
-            { id: 'ground', name: '땅', color: '#E0C068' },
-            { id: 'flying', name: '비행', color: '#A890F0' },
-            { id: 'psychic', name: '에스퍼', color: '#F85888' },
-            { id: 'bug', name: '벌레', color: '#A8B820' },
-            { id: 'rock', name: '바위', color: '#B8A038' },
-            { id: 'ghost', name: '유령', color: '#705898' },
-            { id: 'dragon', name: '드래곤', color: '#7038F8' },
-            { id: 'dark', name: '악', color: '#705848' },
-            { id: 'steel', name: '강철', color: '#B8B8D0' },
-            { id: 'fairy', name: '페어리', color: '#EE99AC' },
+            { id: 'normal', name: '노말', color: '#A8A878' }, { id: 'fire', name: '불', color: '#F08030' }, { id: 'water', name: '물', color: '#6890F0' }, { id: 'grass', name: '풀', color: '#78C850' }, { id: 'electric', name: '전기', color: '#F8D030' }, { id: 'ice', name: '얼음', color: '#98D8D8' }, { id: 'fighting', name: '격투', color: '#C03028' }, { id: 'poison', name: '독', color: '#A040A0' }, { id: 'ground', name: '땅', color: '#E0C068' }, { id: 'flying', name: '비행', color: '#A890F0' }, { id: 'psychic', name: '에스퍼', color: '#F85888' }, { id: 'bug', name: '벌레', color: '#A8B820' }, { id: 'rock', name: '바위', color: '#B8A038' }, { id: 'ghost', name: '유령', color: '#705898' }, { id: 'dragon', name: '드래곤', color: '#7038F8' }, { id: 'dark', name: '악', color: '#705848' }, { id: 'steel', name: '강철', color: '#B8B8D0' }, { id: 'fairy', name: '페어리', color: '#EE99AC' },
         ],
         lev3: { 
-            psychic: [ { id: 'megamewtwox', name: '메가뮤츠X' }, { id: 'alakazam', name: '후딘' }, { id: 'mew', name: '뮤' }, { id: 'jirachi', name: '지라치' } ],
-            fighting: [ { id: 'megamewtwox', name: '메가뮤츠X' } ],
-            electric: [ { id: 'pikachu', name: '피카츄' }],
-            fire: [ { id: 'charmander', name: '파이리' }, { id: 'primalgroudon', name: '원시그란돈' } ],
-            rock: [ { id: 'primalgroudon', name: '원시그란돈' } ],
-            water: [ { id: 'primalkyogre', name: '원시가이오가' } ],
-            dragon: [ { id: 'megarayquaza', name: '메가레쿠쟈' }, { id: 'dialga', name: '디아루가' } ],
-            flying: [ { id: 'megarayquaza', name: '메가레쿠쟈' } ],
-            steel: [ { id: 'jirachi', name: '지라치' }, { id: 'dialga', name: '디아루가' }, { id: 'scizor', name: '핫삼' } ],
-            grass: [ { id: 'zarude', name: '자루도' } ],
-            dark: [ { id: 'zarude', name: '자루도' } ],
-            bug: [ { id: 'scizor', name: '핫삼' } ],
+            // 이 부분은 등급별, 타입별 메뉴에서 사용되므로, 모든 포켓몬 데이터가 추가되면 자동으로 채워집니다.
         },
         lev4: {
-            megamewtwox: {
-                name: { ko: '메가뮤츠X', en: 'Mega Mewtwo X' },
-                grade: 'SS',
-                types: ['psychic', 'fighting'],
-                imageURL: 'https://images.gameinfo.io/pokemon-trimmed/150-mega-x.png',
-                faceImageURL: 'https://images.gameinfo.io/pokemon-icons/150-mega-x.png',
-                stats: { 'HP': 106, 'Speed': 130, 'P.ATK': 190, 'P.DEF': 100, 'SP.ATK': 154, 'SP.DEF': 100 },
-                totalStats: 780,
-                recommendedNatures: ['jolly', 'adamant'],
-                skills: [
-                    { name: '진기권(Focus Punch)', type: 'Active', description: '...' },
-                    { name: '수라화경(Shura Tansformation)', type: 'Ultimate', description: '...' },
-                    { name: '수라권의(Shura Fist Intent)', type: 'Passive', description: '...' }
-                ],
-                recommendedItems: [
-                    { id: 'immortalsword_god', name: '녹슨검(God)', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbxtDeD%2FbtsOKJ36Be7%2FUrXuXYDmF5ADlMKoNkTlpK%2Fimg.png' },
-                ],
-                recommendedRunes: [ { id: 'deadly', name: '치명 / Deadly' } ],
-                recommendedChips: [ { id: 'lonewolf', name: '늑대행자 / Lone Wolf' } ]
+            "megamewtwox": {
+                "name_ko": "메가뮤츠X", "name_en": "Mega Mewtwo X", "grade": "SS", "types": ["psychic", "fighting"], "imageURL": "https://images.gameinfo.io/pokemon-trimmed/150-mega-x.png", "faceImageURL": "https://images.gameinfo.io/pokemon-icons/150-mega-x.png", "stats": { "HP": 106, "Speed": 130, "P.ATK": 190, "P.DEF": 100, "SP.ATK": 154, "SP.DEF": 100 },
+                "skills": [], "recommendedNatures": [], "recommendedItems": [], "recommendedRunes": [], "recommendedChips": []
             },
-            pikachu: {
-                name: { ko: '피카츄', en: 'Pikachu' },
-                grade: 'S+',
-                types: ['electric'],
-                imageURL: 'https://images.gameinfo.io/pokemon-trimmed/025.png',
-                faceImageURL: 'https://images.gameinfo.io/pokemon-icons/025.png',
-            },
-            charmander: {
-                name: { ko: '파이리', en: 'Charmander' },
-                grade: 'S',
-                types: ['fire'],
-                imageURL: 'https://images.gameinfo.io/pokemon-trimmed/004.png',
-                faceImageURL: 'https://images.gameinfo.io/pokemon-icons/004.png',
-            },
-            primalgroudon: {
-                name: { ko: '원시그란돈', en: 'Primal Groudon' },
-                grade: 'SS',
-                types: ['rock', 'fire'],
-                imageURL: 'https://images.gameinfo.io/pokemon-trimmed/383-primal.png',
-                faceImageURL: 'https://images.gameinfo.io/pokemon-icons/383-primal.png',
-            },
-            megarayquaza: {
-                name: { ko: '메가레쿠쟈', en: 'Mega Rayquaza' },
-                grade: 'SS',
-                types: ['dragon', 'flying'],
-                imageURL: 'https://images.gameinfo.io/pokemon-trimmed/384-mega.png',
-                faceImageURL: 'https://images.gameinfo.io/pokemon-icons/384-mega.png',
-            },
-            jirachi: {
-                name: { ko: '지라치', en: 'Jirachi' },
-                grade: 'S+',
-                types: ['steel', 'psychic'],
-                imageURL: 'https://images.gameinfo.io/pokemon-trimmed/385.png',
-                faceImageURL: 'https://images.gameinfo.io/pokemon-icons/385.png',
-            },
-            zarude: {
-                name: { ko: '자루도', en: 'Zarude' },
-                grade: 'S+',
-                types: ['grass', 'dark'],
-                imageURL: 'https://images.gameinfo.io/pokemon-trimmed/893.png',
-                faceImageURL: 'https://images.gameinfo.io/pokemon-icons/893.png',
-            },
-            dialga: {
-                name: { ko: '디아루가', en: 'Dialga' },
-                grade: 'S+',
-                types: ['dragon', 'steel'],
-                imageURL: 'https://images.gameinfo.io/pokemon-trimmed/483.png',
-                faceImageURL: 'https://images.gameinfo.io/pokemon-icons/483.png',
-            },
-            scizor: {
-                name: { ko: '핫삼', en: 'Scizor' },
-                grade: 'S',
-                types: ['steel', 'bug'],
-                imageURL: 'https://images.gameinfo.io/pokemon-trimmed/212.png',
-                faceImageURL: 'https://images.gameinfo.io/pokemon-icons/212.png',
-            },
-            alakazam: {
-                name: { ko: '후딘', en: 'Alakazam' },
-                grade: 'S',
-                types: ['psychic'],
-                imageURL: 'https://images.gameinfo.io/pokemon-trimmed/065.png',
-                faceImageURL: 'https://images.gameinfo.io/pokemon-icons/065.png',
-            },
-            mew: {
-                name: { ko: '뮤', en: 'Mew' },
-                grade: 'S',
-                types: ['psychic'],
-                imageURL: 'https://images.gameinfo.io/pokemon-trimmed/151.png',
-                faceImageURL: 'https://images.gameinfo.io/pokemon-icons/151.png',
-            },
-            volcanion: {
-                name: { ko: '볼케이노', en: 'Volcanion' },
-                grade: 'S+',
-                types: ['water', 'fire'],
-                faceImageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FvXW3Z%2FbtsO447hHgg%2FAAAAAAAAAAAAAAAAAAAAAJ8SOTYNT_EBCzlsdoYKIbI7AFb0v2twHFnm86U9-Lac%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3D1golZOI7rWOqrda2fB6A4D%252BgM1s%253D',
-                contractInfo: {
-                    stats: {
-                        '생명력': '3600',
-                        '물공': '1026',
-                        '특공': '1026',
-                        '흡혈률': '1.2%',
-                        '필살기 피해 증가율': '1.2%'
-                    },
-                    skill: {
-                        name: '영역폭파 (Zone Detonation)',
-                        type: 'Passive',
-                        description: '포켓몬이 궁극기를 사용할 때, 이전에 자신이 Active skill로 공격했던 모든 적 유닛에게 자신의 현재 체력의 5%에 해당하는 특공 피해를 입힌다.\n(단, 피해량은 자신의 특공력의 120% 초과할 수 없다.)\n-> 이후, 해당 유닛들의 보호 상태 (피해 흡수, 실드 등)를 제거하며,\n-> 전장 전체에 동일한 공격력을 최대 2회까지 발동시킨다.'
-                    }
-                }
-            },
-            shaymin: { name: { ko: '쉐이미', en: 'Shaymin' }, grade: 'S+', types: ['grass', 'flying'], imageURL: 'https://images.gameinfo.io/pokemon-trimmed/492-sky.png', faceImageURL: 'https://images.gameinfo.io/pokemon-icons/492-sky.png', weatherEffects: [{ name: '매우맑음', description: '아군 풀 타입 포켓몬의 치유 속도가 30% 증가, 행동 턴 전에 최대 체력의 10% 회복, 적 타겟이 얼었을 때 날씨 해방기는 물리/특수 공격 HP를 100% 흡수' }, { name: '맑음', description: '아군 풀 타입 포켓몬의 치료율이 20% 증가, 행동 턴 전에 최대 체력의 5%를 회복' }] },
-            megaabomasnow: { name: { ko: '메가눈설왕', en: 'Mega Abomasnow' }, grade: 'S+', types: ['grass', 'ice'], imageURL: 'https://images.gameinfo.io/pokemon-trimmed/460-mega.png', faceImageURL: 'https://images.gameinfo.io/pokemon-icons/460-mega.png', weatherEffects: [{ name: '눈폭풍', description: '아군의 얼음 타입 포켓몬의 반사율, 얼음 타입 피해, 패시브 피해 감소가 각각 10% 증가, [얼음] 확률이 20% 증가' }] },
-            primalkyogre: { name: { ko: '원시가이오가', en: 'Primal Kyogre' }, grade: 'SS', types: ['water'], imageURL: 'https://images.gameinfo.io/pokemon-trimmed/382-primal.png', faceImageURL: 'https://images.gameinfo.io/pokemon-icons/382-primal.png', weatherEffects: [{ name: '비', description: '날씨를 비 상태로 변경합니다.' }] },
-            celebi: { name: { ko: '세레비', en: 'Celebi' }, grade: 'S+', types: ['psychic', 'grass'], imageURL: 'https://images.gameinfo.io/pokemon-trimmed/251.png', faceImageURL: 'https://images.gameinfo.io/pokemon-icons/251.png' },
-            megasceptile_shiny: { name: { ko: '이로치 메가나무킹', en: 'Shiny Mega Sceptile' }, grade: 'S+', types: ['grass', 'dragon'], imageURL: 'https://images.gameinfo.io/pokemon-trimmed/254-mega-shiny.png', faceImageURL: 'https://images.gameinfo.io/pokemon-icons/254-mega-shiny.png' },
-            burdrex_white: { name: { ko: '버드렉스(백마)', en: 'Calyrex Ice Rider' }, grade: 'SS', types: ['psychic', 'ice'], imageURL: 'https://images.gameinfo.io/pokemon-trimmed/898-ice-rider.png', faceImageURL: 'https://images.gameinfo.io/pokemon-icons/898-ice-rider.png' },
+            "megamewtwoy": {
+                "name_ko": "메가뮤츠Y", "name_en": "Mega Mewtwo Y", "grade": "SS", "types": ["psychic"], "imageURL": "https://images.gameinfo.io/pokemon-trimmed/150-mega-y.png", "faceImageURL": "https://images.gameinfo.io/pokemon-icons/150-mega-y.png", "stats": { "HP": 106, "Speed": 140, "P.ATK": 150, "P.DEF": 70, "SP.ATK": 194, "SP.DEF": 120 },
+                "skills": [], "recommendedNatures": [], "recommendedItems": [], "recommendedRunes": [], "recommendedChips": []
+            }
         }
     },
     pokemonGrade: {
@@ -193,14 +57,10 @@ const DB = {
     },
     item: {
         lev2: [ 
-            {id:'god', name:'빨강(God)'},
-            {id:'legendary', name:'주황(Legendary)'},
-            {id:'epic', name:'보라(Epic)'}
+            {id:'god', name:'빨강(God)'}, {id:'legendary', name:'주황(Legendary)'}, {id:'epic', name:'보라(Epic)'}
         ],
         lev3: { 
-            god: [ 
-                {id:'immortalsword_god', name:'녹슨검/Immortal Sword'}
-            ],
+            god: [ {id:'immortalsword_god', name:'녹슨검/Immortal Sword'} ],
             legendary: [
                 {id:'immortalsword_leg', name:'녹슨검/Immortal Sword'}, {id:'fieryclaws', name:'불꽃 발톱/Fiery Claws'}, {id:'immortalshield', name:'녹슨 방패/Immortal Shield'}, {id:'hugepowerbracer', name:'고에너지 밴드/Huge Power Bracer'}, {id:'powerring', name:'파워링/Power Ring'}, {id:'pokeflute', name:'포켓몬 피리/Poke Flute'}, {id:'resonanceelement', name:'공명 원소/Resonance Element'}, {id:'dynamaxband', name:'다이맥스 밴드/Dynamax Band'}, {id:'shliphscope', name:'실프 스코프/Shliph Scope'}, {id:'professorsmask', name:'박사 가면/Professor\'s Mask'}, {id:'gembracelet', name:'보석 팔찌/Gem Bracelet'}, {id:'megaglasses', name:'슈퍼 안경/Mega Glasses'}, {id:'megastickpin', name:'슈퍼 브로치/Mega Stickpin'}, {id:'safetygoggles', name:'방진 보안경/Safety Goggles'}, {id:'megawatch', name:'초능 시계/Mega Watch'}, {id:'dowsingmachine', name:'탐보기/Dowsing Machine'}, {id:'reveralglass', name:'현형경/Reveral Glass'}, {id:'mysteriousnecklace', name:'신비한 목걸이/Mysterious Necklace'}, {id:'megarollerskates', name:'초능 인라인스케이트/Mega Roller Skates'}, {id:'samuraihelmet', name:'무사 헬멧/Samurai Helmet'}, {id:'maskofpain', name:'고통의 가면/Mask of Pain'}, {id:'nsolarizer', name:'네크로플러스솔/N-Solarizer'}, {id:'dnasplicers', name:'유전자쐐기/DNA Splicers'}, {id:'spiritedawaycrown', name:'신은왕관/Spirited Away Crown'}, {id:'knightspear', name:'기사창/Knight Spear'}, {id:'flameorb', name:'화염보주/Flame Orb'}, {id:'swiftlybell', name:'맹렬한 방울/Swiftly Bell'}, {id:'sturdybell', name:'튼튼한 방울/Sturdy Bell'}, {id:'bondbell', name:'굴레 방울/Bond Bell'}, {id:'zygardecube', name:'유전자 다면체/Zygarde Cube'}, {id:'ghosthandgloves', name:'귀수권투/Ghost Hand Gloves'}, {id:'lazydragonthorn', name:'어룡 가시/Lazy Dragon Thorn'}, {id:'sunflute', name:'태양의 피리/Sun Flute'}, {id:'soulheart', name:'기교 혼심/Soul-Heart'}, {id:'steamcannon', name:'증기 대포/Steam Cannon'}, {id:'lunarflute', name:'달의 피리/Lunar Flute'}, {id:'choascubeball', name:'혼돈 큐브/Choas cube Ball'}, {id:'rockyshield', name:'암석 방패/Rocky Shield'}, {id:'ultimateprism', name:'울트라 프리즘/Ultimate Prism'}, {id:'genecluster', name:'유전자 덩어리/Gene Cluster'}, {id:'crownofthorns', name:'가시덤불/Crown of Thorns'}, {id:'invincibleshield', name:'백전금방패/Invincible Golden Shield'}, {id:'scarletthornblade', name:'선홍색 가시날/Scarlet Thorn Blade'}, {id:'tricolorplumesword', name:'삼색 깃털 칼날/Tricolor Plume Sword'}, {id:'interpidsword', name:'불굴의 검/Interpid Sword'}, {id:'capeoftime', name:'시간의 망토/Cape of Time'}, {id:'heavygravityclaw', name:'초중력 강철 발톱/Heavy Gravity Steel Claw'}, {id:'blackreins', name:'검은 고삐/Black Reins'}, {id:'fiercebloodscythe', name:'폭렬 혈낫/Fierce Blood Scythe'}, {id:'surgespiritbone', name:'파동 혼골/Surge Spirit Bone'}, {id:'palereins', name:'창백한 굴레/Pale Reins'}, {id:'blazingchains', name:'염룡 화염사슬/Blazing Dragon Chains'}, {id:'flamewhiteturbine', name:'염백 터빈/Flame White Turbine'}, {id:'frostrotaryblade', name:'서리 회전날/Frost Rotary Blade'}, {id:'infinitestarshatter', name:'무극 파편성/Infinite Star Shatter'}, {id:'stellarthorntail', name:'별빛 꼬리 가시/Stellar Thorn Tail'}, {id:'basicattributes1', name:'유명 독핵/Basic Attributes'}, {id:'basicattributes2', name:'강자 엔진/Basic Attributes'}, {id:'championtrophy', name:'챔피언 트로피'}
             ],
@@ -209,26 +69,12 @@ const DB = {
             ]
         },
         lev4: { 
-            // 아이템 상세 설명 (예시)
-            'immortalsword_god': { 
-                name: '녹슨검 (God)',
-                grade: 'God',
-                imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbxtDeD%2FbtsOKJ36Be7%2FUrXuXYDmF5ADlMKoNkTlpK%2Fimg.png',
-                description: 'God 등급 녹슨검의 상세 설명입니다.' 
-            },
-            'leftoverapple': {
-                name: '먹다남은 음식/Leftover Apple',
-                grade: 'Epic',
-                description: '매 턴 종료 시, HP가 5% 회복됩니다.'
-            }
+            'immortalsword_god': { name: '녹슨검 (God)', grade: 'God', imageURL: 'URL_HERE', description: '자시안에게 지니게 하면 전투 중에 검왕의 모습으로 변신한다.' },
             // ... 나머지 아이템 상세 정보 추가 ...
         }
     },
     runeAndChip: {
-        lev2: [ 
-            {id: 'rune', name: '룬'}, 
-            {id: 'chip', name: '칩'} 
-        ],
+        lev2: [ {id: 'rune', name: '룬'}, {id: 'chip', name: '칩'} ],
         lev3: { 
             rune: [ 
                 { id: 'deadly', name: '치명 / Deadly' }, { id: 'warlike', name: '전투광 / Warlike' }, { id: 'shield', name: '실드 / Shield' }, { id: 'kingkong', name: '금강 / King Kong' }, { id: 'shelter', name: '비호 / Shelter' }, { id: 'defend', name: '방어 / Defend' }, { id: 'shine', name: '반짝임 / Shine' }, { id: 'counter', name: '반격 / Counter' }, { id: 'punch', name: '강격 / Punch' }
@@ -238,65 +84,27 @@ const DB = {
             ] 
         },
         lev4: { 
-            // 룬 & 칩 상세 설명 (예시)
-            'deadly': { 
-                name: '치명 / Deadly',
-                imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcE5kYa%2FbtsOM4aGGe9%2F2O5kzKchvUjzk6y1T8UEk0%2Fimg.png',
-                description: '치명 룬에 대한 상세 설명입니다.' 
-            },
-            'lonewolf': { 
-                name: '늑대행자 / Lone Wolf', 
-                imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fb14n9D%2FbtsOLaXQc82%2F8OMfS4o2aWfBkhsKEb2kKk%2Fimg.png',
-                description: '늑대행자 칩에 대한 상세 설명입니다.'
-            }
+            'deadly': { name: '치명 / Deadly', imageURL: 'URL_HERE', description: '룬 상세 설명...' },
+            'firedance': { name: '화무 / Fire Dance', imageURL: 'URL_HERE', description: '칩 상세 설명...' },
             // ... 나머지 룬/칩 상세 정보 추가 ...
         }
     },
     deck: {
-        lev2: [ 
-            { id: 'recommended', name: '추천덱' },
-            { id: 'builder', name: '배치툴' }
-        ],
+        lev2: [ { id: 'recommended', name: '추천덱' }, { id: 'builder', name: '배치툴' } ],
         lev3: { 
-            recommended: [ { id: 'fireDragonDeck', name: '불&드래곤' } ],
+            recommended: [ { id: 'water_fairy_deck', name: '물&페어리' }, {id: 'fire_dragon_deck', name: '불&드래곤'} ],
             builder: [{ id: 'deckBuilder', name: '배치툴'}]
         },
         lev4: {
-            fireDragonDeck: {
-                name: '불&드래곤 추천덱',
-                description: '이 덱은 불과 드래곤 타입 포켓몬의 시너지를 극대화하여 강력한 공격력을 자랑합니다.',
-                composition: [
-                    { role: 'main', position: 1, pokemonId: 'megamewtwox' }, { role: 'main', position: 2, pokemonId: 'megamewtwox' },
-                    { role: 'main', position: 3, pokemonId: 'megamewtwox' }, { role: 'main', position: 4, pokemonId: 'megamewtwox' },
-                    { role: 'main', position: 5, pokemonId: 'megamewtwox' }, { role: 'main', position: 6, pokemonId: 'megamewtwox' },
-                    { role: 'assist', position: 1, pokemonId: 'megamewtwox' }, { role: 'assist', position: 2, pokemonId: 'megamewtwox' },
-                    { role: 'assist', position: 3, pokemonId: 'megamewtwox' }
-                ]
-            },
-            deckBuilder: { id: 'deckBuilder', name: '나만의 덱 만들기', content: '배치툴 기능은 PC에서 이용해주세요.'}
+            water_fairy_deck: { name: '물&페어리 추천덱', description: '이 덱은 물과 페어리 타입의 시너지를 극대화하여 안정적인 운영을 자랑합니다.', composition: [ { role: 'main', position: 1, pokemonId: 'megamewtwoy' }, { role: 'assist', position: 1, pokemonId: 'megamewtwox' } ] },
+            fire_dragon_deck: { name: '불&드래곤 추천덱', description: '이 덱은 불과 드래곤 타입 포켓몬의 시너지를 극대화하여 강력한 공격력을 자랑합니다.', composition: [ { role: 'main', position: 1, pokemonId: 'megamewtwox' } ] }
         }
     },
     calendar: {
         lev2: {
             name: '이벤트 캘린더',
             events: [
-                { date: '2025-07-18', type: 'ranking', duration: 3, title: '웅의 메가 강철톤', description: '랭킹뽑기: 웅의 메가 강철톤(강철/땅) [어시스트: 무쇠 바퀴]' },
-                { date: '2025-08-22', type: 'ranking', duration: 3, title: '코라이돈', description: '랭킹뽑기: 코라이돈(격투/드래곤) [어시스트: 애프룡]' },
-                { date: '2025-09-26', type: 'ranking', duration: 3, title: '메가 보만다', description: '랭킹뽑기: 메가 보만다(드래곤/비행) [어시스트: 고동치는달]' },
-                { date: '2025-10-31', type: 'ranking', duration: 3, title: '이로치 메가 핫삼', description: '랭킹뽑기: 이로치 메가 핫삼(벌레/강철) [어시스트: 사마자르]' },
-                { date: '2025-12-05', type: 'ranking', duration: 3, title: '디아루가 오리진폼', description: '랭킹뽑기: 디아루가 오리진폼(강철/드래곤) [어시스트: 브리두라스]' },
-                { date: '2026-01-09', type: 'ranking', duration: 3, title: '이로치 메가 헤라크로스', description: '랭킹뽑기: 이로치 메가 헤라크로스(벌레/격투) [어시스트: 땅을 기는 날개]' },
-                { date: '2026-02-13', type: 'ranking', duration: 3, title: '이로치 메가 쁘사이저', description: '랭킹뽑기: 이로치 메가 쁘사이저(벌레/비행) [어시스트: 꼬시레]' },
-                { date: '2025-06-27', type: 'limited', duration: 3, title: '이로치 메가 눈설왕 & 이로치 메가 이상해꽃', description: '한정뽑기: 이로치 메가 눈설왕, 이로치 메가 이상해꽃' },
-                { date: '2025-08-01', type: 'limited', duration: 3, title: '무한다이노 & 미라이돈', description: '한정뽑기: 무한다이노, 미라이돈' },
-                { date: '2025-09-05', type: 'limited', duration: 3, title: '이로치 메가 나무킹 & 챔피언 피카츄', description: '한정뽑기: 이로치 메가 나무킹, 챔피언 피카츄' },
-                { date: '2025-10-10', type: 'limited', duration: 3, title: '이로치 메가 이상해꽃 & 웅의 메가 강철톤', description: '한정뽑기: 이로치 메가 이상해꽃, 웅의 메가 강철톤' },
-                { date: '2025-11-14', type: 'limited', duration: 3, title: '미라이돈 & 코라이돈', description: '한정뽑기: 미라이돈, 코라이돈' },
-                { date: '2025-12-19', type: 'limited', duration: 3, title: '챔피언 피카츄 & 메가보만다', description: '한정뽑기: 챔피언 피카츄, 메가보만다' },
-                { date: '2026-01-23', type: 'limited', duration: 3, title: '웅의 메가 강철톤 & 이로치 메가 핫삼', description: '한정뽑기: 웅의 메가 강철톤, 이로치 메가 핫삼' },
-                { date: '2026-02-27', type: 'limited', duration: 3, title: '코라이돈 & 디아루가 오리진폼', description: '한정뽑기: 코라이돈, 디아루가 오리진폼' },
-                { date: '2026-04-03', type: 'limited', duration: 3, title: '메가보만다 & 이로치 메가 헤라크로스', description: '한정뽑기: 메가보만다, 이로치 메가 헤라크로스' },
-                { date: '2026-05-08', type: 'limited', duration: 3, title: '이로치 메가 핫삼 & 이로치 메가 쁘사이저', description: '한정뽑기: 이로치 메가 핫삼, 이로치 메가 쁘사이저' },
+                { id: 'ranking_20250718', date: '2025-07-18', type: 'ranking', duration: 3, title: '웅의 메가 강철톤', description: '랭킹뽑기: 웅의 메가 강철톤(강철/땅) [어시스트: 무쇠 바퀴]' },
             ],
             recurringEvents: [
                 { id: 'luckycat', name: '복냥이', title: '다이아 뽑기', type: 'luckycat', duration: 3, startDate: '2025-06-27', interval: '4_weeks', description: 'VIP 등급에 따라 다이아를 획득할 수 있는 복냥이 이벤트 기간입니다.' }
@@ -305,18 +113,12 @@ const DB = {
     },
     tips: {
         lev2: [
-            { id: 'tip1', name: '초보자를 위한 팁' },
-            { id: 'tip2', name: '재화 수급처 총정리 (표 포함)' }
+            { id: 'how_to_get_gold', name: '골드 수급처 총정리' },
+            { id: 'pvp_guide_beginner', name: '초보자를 위한 PVP 가이드' }
         ],
         lev3: {
-            'tip1': {
-                name: '초보자를 위한 팁',
-                htmlContent: `<h3>환영합니다!</h3><p>이 웹사이트는 포켓몬 도감 정보를 제공하기 위해 만들어졌습니다. 궁금한 점이 있다면 언제든지 문의해주세요.</p><p>앞으로 더 많은 정보가 추가될 예정입니다.</p>`
-            },
-            'tip2': {
-                name: '재화 수급처 총정리 (표 포함)',
-                htmlContent: `<h3>주요 재화 수급처 목록</h3><p>게임 내에서 얻을 수 있는 주요 재화와 그 수급처 목록입니다.</p><table class="content-table"><thead><tr><th>재화 종류</th><th>주요 수급처</th><th>비고</th></tr></thead><tbody><tr><td>골드</td><td>일일 퀘스트, 이벤트</td><td>가장 기본적인 재화입니다.</td></tr><tr><td>다이아</td><td>과금, 아레나 보상</td><td>모든 것을 할 수 있는 만능 재화입니다.</td></tr></tbody></table><p>위 표를 참고하여 효율적으로 재화를 모아보세요.</p>`
-            }
+            'how_to_get_gold': { name: '골드 수급처 총정리', htmlContent: `<h3>주요 재화 수급처 목록</h3><p>게임 내에서 얻을 수 있는 주요 재화와 그 수급처 목록입니다.</p><table class="content-table"><thead><tr><th>재화 종류</th><th>주요 수급처</th><th>비고</th></tr></thead><tbody><tr><td>골드</td><td>일일 퀘스트, 이벤트</td><td>가장 기본적인 재화입니다.</td></tr><tr><td>다이아</td><td>과금, 아레나 보상</td><td>모든 것을 할 수 있는 만능 재화입니다.</td></tr></tbody></table><p>위 표를 참고하여 효율적으로 재화를 모아보세요.</p>` },
+            'pvp_guide_beginner': { name: '초보자를 위한 PVP 가이드', htmlContent: `<h3>PVP 기본 가이드</h3><p>PVP(유저 간 대결)는 이 게임의 핵심 콘텐츠 중 하나입니다. 다음 팁을 참고하여 승률을 높여보세요.</p><ol><li>상대의 덱 구성을 파악하세요.</li><li>타입 상성을 적극적으로 활용하세요.</li><li>선봉 포켓몬의 역할이 매우 중요합니다.</li></ol>` }
         }
     }
 };
