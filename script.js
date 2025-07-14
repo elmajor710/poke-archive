@@ -60,11 +60,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
             badgesHTML += '</div>';
-            
+
             let commonHTML = `<h2>${nameKo} <span style="font-size:0.8em; color:#666;">${nameEn}</span></h2>`;
             commonHTML += badgesHTML;
             if (data.imageURL) { commonHTML += `<img src="${data.imageURL}" alt="${nameKo}" class="main-image">`; }
-            
+
             let statsHTML = '';
             if (data.stats) {
                 const totalStats = data.totalStats || Object.values(data.stats).reduce((a, b) => a + b, 0);
@@ -75,8 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
             let skillsHTML = '';
             if (data.skills && data.skills.length > 0) {
                 skillsHTML += '<h4>스킬</h4><ul class="skill-list">';
-                data.skills.forEach((skill, index) => { 
-                    skillsHTML += `<li class="skill-item"><span class="skill-name" data-skill-index="${index}">${skill.name}</span><span class="skill-type">${skill.type}</span></li>`; 
+                data.skills.forEach((skill, index) => {
+                    skillsHTML += `<li class="skill-item"><span class="skill-name" data-skill-index="${index}">${skill.name}</span><span class="skill-type">${skill.type}</span></li>`;
                 });
                 skillsHTML += '</ul>';
             }
@@ -85,34 +85,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 const natureNames = data.recommendedNatures.map(natureId => DB.definitions.natures.find(n => n.id === natureId)?.name || '').filter(Boolean);
                 buildHTML += `<h4>추천 성격</h4><p>${natureNames.join(', ')}</p>`;
             }
-            
+
             const recommendTypes = { recommendedItems: '추천 아이템', recommendedRunes: '추천 룬', recommendedChips: '추천 칩' };
             for (const type in recommendTypes) {
-                if (data[type] && data[type].length > 0) {
-                    buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
-                    data[type].forEach(itemOrId => {
-                        const id = typeof itemOrId === 'string' ? itemOrId : itemOrId.id; // 데이터 형식 차이 해결
+                if (data.hasOwnProperty(type) && data [type] && data [type].length > 0) {
+                    buildHTML += `<h4>${recommendTypes [type]}</h4><div class="recommend-list">`;
+                    data [type].forEach(itemOrId => {
+                        const id = typeof itemOrId === 'string' ? itemOrId : itemOrId.id;
                         const itemTypeForDB = type.replace('recommended', '').toLowerCase().replace('s', '');
                         const dbKey = (itemTypeForDB === 'rune' || itemTypeForDB === 'chip') ? 'runeAndChip' : 'item';
-                        const itemData = DB[dbKey]?.lev4?.[id];
-                        if (itemData) {
-                             buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}">
-                                        ${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}<span>${itemData.name}</span>
+                        const itemData = DB [dbKey]?.lev4?.[id];
+                        if (itemData && itemData.imageURL) { // imageURL이 있는지 확인
+                            buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}">
+                                        <img src="${itemData.imageURL}" alt="${itemData.name}"><span>${itemData.name}</span>
+                                     </div>`;
+                        } else if (itemData) {
+                            buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}">
+                                        <span>${itemData.name} (No Image)</span>
                                      </div>`;
                         }
                     });
                     buildHTML += `</div>`;
                 }
             }
-            
+
             detailView.innerHTML = commonHTML + statsHTML + skillsHTML + buildHTML;
             contentDiv.innerHTML = '';
             contentDiv.appendChild(detailView);
 
-            contentDiv.querySelectorAll('.skill-name').forEach(el => { 
-                el.addEventListener('click', () => { 
+            contentDiv.querySelectorAll('.skill-name').forEach(el => {
+                el.addEventListener('click', () => {
                     const skillIndex = parseInt(el.dataset.skillIndex);
-                    const skill = data.skills[skillIndex];
+                    const skill = data.skills [skillIndex];
                     if (skill) {
                         let skillDetailContent = `<p>${skill.description || ''}</p>`;
                         if (skill.keywords && skill.keywords.length > 0) {
@@ -122,21 +126,23 @@ document.addEventListener('DOMContentLoaded', () => {
                             });
                             skillDetailContent += '</ul>';
                         }
-                        showModal(skill.name, skillDetailContent); 
+                        showModal(skill.name, skillDetailContent);
                     }
-                }); 
+                });
             });
 
-            contentDiv.querySelectorAll('.recommend-item').forEach(el => { 
-                el.addEventListener('click', () => { 
+            contentDiv.querySelectorAll('.recommend-item').forEach(el => {
+                el.addEventListener('click', () => {
                     const itemId = el.dataset.itemId;
                     const itemType = el.dataset.itemType;
                     const dbKey = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
-                    const itemData = DB[dbKey]?.lev4?.[itemId];
-                    if (itemData) { 
-                        showModal(itemData.name, `<p>${itemData.description || '상세 정보가 없습니다.'}</p>`); 
+                    const itemData = DB [dbKey]?.lev4?.[itemId];
+                    if (itemData && itemData.description) {
+                        showModal(itemData.name, `<p>${itemData.description}</p>`);
+                    } else if (itemData) {
+                        showModal(itemData.name, `<p>상세 정보가 없습니다.</p>`);
                     }
-                }); 
+                });
             });
         }
 
