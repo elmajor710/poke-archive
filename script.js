@@ -698,14 +698,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        async function handleMenuClick(button) {
+        async function handleMenuClick(button) { // async 추가
             const level = parseInt(button.dataset.level);
             const id = button.dataset.id;
             const menuId = button.dataset.menuId || id;
+            
             const nextLevel = level + 1;
-
-            // 데이터를 먼저 불러옵니다.
-            const nextData = await getNextData(level, id, menuId);
+            // 'await'를 사용해 getNextData가 끝날 때까지 기다립니다.
+            const nextData = await getNextData(level, id, menuId); 
             
             const currentPanel = panels[`lev${level}`];
             const nextPanel = panels[`lev${nextLevel}`];
@@ -717,9 +717,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             Object.values(panels).forEach((panel, index) => {
-                if (index > 0 && panel !== nextPanel) {
-                    panel.classList.remove('visible');
-                }
+                if(index > 0 && panel !== nextPanel) { panel.classList.remove('visible'); }
             });
             nextPanel.classList.remove('is-hidden');
             nextPanel.classList.add('visible');
@@ -732,13 +730,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        async function getNextData(currentLevel, id, menuId) {
+        async function getNextData(currentLevel, id, menuId) { // async 추가
             const nextLevel = currentLevel + 1;
             
+            // 포켓몬 타입 또는 등급 메뉴의 최종 단계일 때 Firebase에서 데이터를 가져옵니다.
             if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) {
                 try {
                     const docRef = db.collection("pokemon").doc(id);
-                    const doc = await docRef.get();
+                    const doc = await docRef.get(); // 데이터가 올 때까지 기다립니다.
                     if (doc.exists) {
                         console.log("Firebase에서 데이터를 성공적으로 가져왔습니다:", doc.data());
                         return doc.data();
@@ -752,7 +751,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // 다른 메뉴들은 기존 방식을 유지합니다.
+            // 나머지 메뉴들은 일단 기존 방식을 유지합니다.
             if (nextLevel === 2) return DB[menuId]?.lev2;
             if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
             if (nextLevel === 4) return DB[menuId]?.lev4?.[id];
