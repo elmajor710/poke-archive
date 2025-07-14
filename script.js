@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.description) { html += `<p>${data.description}</p>`; }
             const grid = Array(3).fill(null).map(() => Array(3).fill(null));
             const positionMap = { 'vanguard_1': [0, 2], 'vanguard_2': [1, 2], 'vanguard_3': [2, 2], 'rearguard_4': [0, 1], 'rearguard_5': [1, 1], 'rearguard_6': [2, 1], 'assist_1': [0, 0], 'assist_2': [1, 0], 'assist_3': [2, 0] };
-            data.composition.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if (!pkmData) return; const roleKey = member.role === 'assist' ? 'assist' : (member.position < 4 ? 'vanguard' : 'rearguard'); const key = `${roleKey}_${member.position}`; const [row, col] = positionMap[key]; grid[row][col] = { name: pkmData.name.ko, faceImageURL: pkmData.faceImageURL, role: member.role, position: member.position }; });
+            data.composition.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if (!pkmData) return; const roleKey = member.role === 'assist' ? 'assist' : (member.position < 4 ? 'vanguard' : 'rearguard'); const key = `${roleKey}_${member.position}`; const [row, col] = positionMap[key]; grid[row][col] = { name: pkmData.name_ko, faceImageURL: pkmData.faceImageURL, role: member.role, position: member.position }; });
             html += `<h4>덱 배치</h4><table class="deck-grid-table"><thead><tr><th>어시스트</th><th>후방</th><th>전방</th></tr></thead><tbody>`;
             for (let i = 0; i < 3; i++) { html += '<tr>'; for (let j = 0; j < 3; j++) { const cell = grid[i][j]; if (cell) { const roleText = cell.role === 'assist' ? '어시스트' : '메인'; html += `<td><div class="deck-pokemon-cell"><img src="${cell.faceImageURL}" alt="${cell.name}"><span class="position-number">${roleText} #${cell.position}</span></div></td>`; } else { html += '<td></td>'; } } html += '</tr>'; }
             html += `</tbody></table><h4>덱 구성원</h4>`;
@@ -178,12 +178,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const assistMembers = data.composition.filter(m => m.role === 'assist').sort((a,b) => a.position - b.position);
             if (mainMembers.length > 0) {
                 html += `<h5>메인</h5><ul class="deck-composition-list">`;
-                mainMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>메인 #${member.position}:</b> ${pkmData.name.ko}</li>`; });
+                mainMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>메인 #${member.position}:</b> ${pkmData.name_ko}</li>`; });
                 html += `</ul>`;
             }
             if (assistMembers.length > 0) {
                 html += `<h5>어시스트</h5><ul class="deck-composition-list">`;
-                assistMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>어시스트 #${member.position}:</b> ${pkmData.name.ko}</li>`; });
+                assistMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>어시스트 #${member.position}:</b> ${pkmData.name_ko}</li>`; });
                 html += `</ul>`;
             }
             html += `</div>`;
@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return gradeMatch && typeMatch;
                 });
 
-                filteredPokemon.sort(([, a], [, b]) => (a.name.ko || a.name).localeCompare(b.name.ko || b.name));
+                filteredPokemon.sort(([, a], [, b]) => (a.name_ko || a.name).localeCompare(b.name_ko || b.name));
                 
                 renderSourceList(filteredPokemon);
             }
@@ -416,8 +416,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             function createPokemonIconHTML(id, pkm) {
                 return `<div class="pokemon-source-icon" draggable="true" data-pokemon-id="${id}">
-                            <img src="${pkm.faceImageURL}" alt="${pkm.name.ko || pkm.name}">
-                            <span>${pkm.name.ko || pkm.name}</span>
+                            <img src="${pkm.faceImageURL}" alt="${pkm.name_ko || pkm.name}">
+                            <span>${pkm.name_ko || pkm.name}</span>
                         </div>`;
             }
 
@@ -486,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             function placePokemonInSlot(slot, pokemonId, pokemonData) {
                 slot.innerHTML = `<div class="deck-pokemon-cell" draggable="true">
-                                    <img src="${pokemonData.faceImageURL}" alt="${pokemonData.name.ko}"/>
+                                    <img src="${pokemonData.faceImageURL}" alt="${pokemonData.name_ko}"/>
                                     <button class="remove-pkm-btn">×</button>
                                   </div>`;
                 placedPokemon.set(slot, pokemonId);
@@ -526,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const pokemonData = DB.pokemonType.lev4[pokemonId];
                     if(pokemonData) {
-                        let modalTitle = pokemonData.name.ko;
+                        let modalTitle = pokemonData.name_ko;
                         let modalContentHTML = '';
 
                         const typesHTML = pokemonData.types.map(typeId => {
@@ -535,7 +535,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }).join(' ');
 
                         if (parentSlot.dataset.role === 'assist' && pokemonData.contractInfo) {
-                            modalTitle = `${pokemonData.name.ko} - 계약장 정보`;
+                            modalTitle = `${pokemonData.name_ko} - 계약장 정보`;
                             const contract = pokemonData.contractInfo;
                             
                             modalContentHTML = `
@@ -549,7 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             `;
                         } 
                         else {
-                            modalTitle = pokemonData.name.ko;
+                            modalTitle = pokemonData.name_ko;
                             modalContentHTML = `<div class="badge-container">${typesHTML}</div>`;
                         }
                         
@@ -705,7 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     button.dataset.level = level;
                     button.dataset.menuId = menuId;
                     contentDiv.appendChild(button);
-});
+                });
             }
         }
     
