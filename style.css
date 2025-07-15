@@ -183,48 +183,78 @@ header h1 {
     display: block !important;
 }
 
-/* --- 포켓몬 상세 정보 탭 UI (공통 스타일) --- */
+/* --- 화면 분기 최종 로직 --- */
+
+/* 탭 메뉴의 기본 스타일 */
 .tab-nav {
     display: flex;
     border-bottom: 1px solid var(--border-color);
-    margin-top: 25px; /* 위쪽 컨텐츠와의 간격 추가 */
-    margin-bottom: 20px; /* 아래쪽 컨텐츠와의 간격 추가 */
+    margin-top: 25px;
+    margin-bottom: 20px;
 }
 .tab-button {
     flex: 1;
     padding: 12px 5px;
     text-align: center;
-    background-color: #f8f9fa; /* 기본 배경색 추가 */
+    background-color: #f8f9fa;
     border: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color); /* 하단 경계선 통일 */
-    margin-bottom: -1px; /* 하단 경계선과 겹치게 처리 */
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: -1px;
     font-size: 1em; 
     font-weight: 600;
     color: #888;
     cursor: pointer;
-    transition: all 0.2s ease-in-out; /* 부드러운 전환 효과 */
-    border-radius: 6px 6px 0 0; /* 위쪽 모서리만 둥글게 */
+    transition: all 0.2s ease-in-out;
+    border-radius: 6px 6px 0 0;
 }
 .tab-button:not(:last-child) {
-    border-right: none; /* 탭 사이의 오른쪽 경계선 제거 */
+    border-right: none;
 }
 .tab-button.active {
     color: var(--primary-color);
-    background-color: #ffffff; /* 활성 탭 배경색 흰색으로 */
-    border-bottom: 1px solid #ffffff; /* 활성 탭 하단 경계선 숨김 */
+    background-color: #ffffff;
+    border-bottom: 1px solid #ffffff;
     font-weight: 700;
 }
 .tab-pane {
     display: none;
-    padding: 15px; /* 탭 내용에 약간의 안쪽 여백 추가 */
+    padding: 15px;
     border: 1px solid var(--border-color);
-    border-top: none; /* 탭 메뉴와의 경계선 제거 */
-    border-radius: 0 0 6px 6px; /* 아래쪽 모서리 둥글게 */
+    border-top: none;
+    border-radius: 0 0 6px 6px;
 }
 .tab-pane.active {
     display: block;
 }
 
+/* PC 화면 기본 상태: 탭 메뉴는 숨기고, 모든 내용을 한 번에 표시 */
+.pokemon-detail-view .tab-container .tab-nav {
+    display: none;
+}
+.pokemon-detail-view .tab-container .tab-pane {
+    display: block;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+}
+
+/* PC 화면에서 탭을 사용해야 할 때(.use-tabs 클래스가 있을 때)의 스타일 */
+.pokemon-detail-view.use-tabs .tab-container .tab-nav {
+    display: flex;
+}
+.pokemon-detail-view.use-tabs .tab-container .tab-pane {
+    display: none;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+}
+.pokemon-detail-view.use-tabs .tab-container .tab-pane.active {
+    display: block;
+}
+
+
+/* 모바일 화면 (가로 768px 이하) */
 @media (max-width: 768px) {
     #sidebar, .panel { 
         position: absolute; 
@@ -234,6 +264,18 @@ header h1 {
         transform: translateX(-100%); 
         z-index: 1; 
     }
+
+    /* 모바일에서는 항상 탭 메뉴를 보여줌 */
+    .pokemon-detail-view .tab-container .tab-nav {
+        display: flex;
+    }
+    .pokemon-detail-view .tab-container .tab-pane {
+        display: none !important;
+    }
+    .pokemon-detail-view .tab-container .tab-pane.active {
+        display: block !important;
+    }
+
     .deck-pokemon-cell { cursor: pointer; }
     .deck-composition-container { display: none; }
 }
