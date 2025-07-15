@@ -69,7 +69,7 @@ const DB = {
             ]
         },
         lev4: {
-            'immortalsword_god': { name: '녹슨검 (God)', grade: 'God', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/immortalsword_god.png', description: '자시안에게 지니게 하면 전투 중에 검왕의 모습으로 변신한다.'},
+            'immortalswordgod': { name: '녹슨검 (God)', grade: 'God', imageURL: 'https://github.com/elmajor710/poke-asserts/blob/main/immortalswordgod.png?raw=true', description: '자시안에게 지니게 하면 전투 중에 검왕의 모습으로 변신한다.'},
             'immortalsword_leg': { name: '녹슨검 (Legendary)', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/immortalsword_leg.png', description: '자시안에게 지니게 하면 전투 중에 검왕의 모습으로 변신한다.'},
             'leftoverapple': { name: '먹다남은 음식/Leftover Apple', grade: 'Epic', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/leftoverapple.png', description: '매 턴 종료 시, HP가 5% 회복됩니다.'},
             'kingsrock': { name: '왕의 징표석/King\'s Rock', grade: 'Epic', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/kingsrock.png', description: '공격 시 10% 확률로 상대를 풀죽게 한다.'},
