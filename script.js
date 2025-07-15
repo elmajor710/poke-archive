@@ -663,6 +663,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         function renderPanelContent(level, data, menuId, clickedId) {
+            // ▼▼▼ 배치툴을 위한 예외 처리 코드 추가 ▼▼▼
+    if (clickedId === 'deckBuilder') {
+        const targetPanel = panels[`lev${level}`];
+        if (!targetPanel) return;
+        const contentDiv = targetPanel.querySelector('.panel-content');
+        if (isMobile()) {
+            contentDiv.innerHTML = `<div class="pc-only-message"><h3>기능 안내</h3><p>배치툴 기능은 화면이 넓은 PC 환경에 최적화되어 있습니다.<br>PC에서 접속하여 이용해주세요.</p></div>`;
+        } else {
+            renderDeckBuilder(contentDiv);
+        }
+        return;
+    }
+    // ▲▲▲ 여기까지 추가 ▲▲▲
             const targetPanel = panels[`lev${level}`];
             if (!targetPanel) return;
             
