@@ -99,8 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         if (itemData) {
                              buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}">
-                                        ${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}<span>${itemData.name}</span>
-                                     </div>`;
+                ${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}
+             </div>`;
                         } else {
                             buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}">
                                             <span>${id} (정보 없음)</span>
