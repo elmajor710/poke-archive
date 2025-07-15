@@ -99,6 +99,16 @@ header h1 {
     padding: 10px 15px;
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
+    display: flex; /* 버튼 정렬을 위해 추가 */
+    justify-content: space-between; /* 버튼 정렬을 위해 추가 */
+}
+.main-btn { /* 메인 버튼 스타일 추가 */
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .panel-content {
