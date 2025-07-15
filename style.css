@@ -183,30 +183,43 @@ header h1 {
     display: block !important;
 }
 
+/* --- 포켓몬 상세 정보 탭 UI (공통 스타일) --- */
 .tab-nav {
     display: flex;
     border-bottom: 1px solid var(--border-color);
-    margin: 20px 0;
+    margin-top: 25px; /* 위쪽 컨텐츠와의 간격 추가 */
+    margin-bottom: 20px; /* 아래쪽 컨텐츠와의 간격 추가 */
 }
 .tab-button {
     flex: 1;
     padding: 12px 5px;
     text-align: center;
-    background: none;
-    border: none;
-    font-size: 1em;
+    background-color: #f8f9fa; /* 기본 배경색 추가 */
+    border: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color); /* 하단 경계선 통일 */
+    margin-bottom: -1px; /* 하단 경계선과 겹치게 처리 */
+    font-size: 1em; 
     font-weight: 600;
     color: #888;
     cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: color 0.2s, border-color 0.2s;
+    transition: all 0.2s ease-in-out; /* 부드러운 전환 효과 */
+    border-radius: 6px 6px 0 0; /* 위쪽 모서리만 둥글게 */
+}
+.tab-button:not(:last-child) {
+    border-right: none; /* 탭 사이의 오른쪽 경계선 제거 */
 }
 .tab-button.active {
     color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
+    background-color: #ffffff; /* 활성 탭 배경색 흰색으로 */
+    border-bottom: 1px solid #ffffff; /* 활성 탭 하단 경계선 숨김 */
+    font-weight: 700;
 }
 .tab-pane {
     display: none;
+    padding: 15px; /* 탭 내용에 약간의 안쪽 여백 추가 */
+    border: 1px solid var(--border-color);
+    border-top: none; /* 탭 메뉴와의 경계선 제거 */
+    border-radius: 0 0 6px 6px; /* 아래쪽 모서리 둥글게 */
 }
 .tab-pane.active {
     display: block;
