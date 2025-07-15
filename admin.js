@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chipsSelect = document.getElementById('pkm-chips');
     const skillsContainer = document.getElementById('skills-container');
     const addSkillBtn = document.getElementById('add-skill-btn');
-    const deleteBtn = document.querySelector('.btn-danger');
+    const deleteBtn = document.getElementById('delete-pokemon-btn');
 
     function populateDropdowns() {
         if (typesContainer) {
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadPokemonList() {
         try {
             const snapshot = await db.collection("pokemon").orderBy("name_ko").get();
-            pokemonSelectList.innerHTML = '<option value="">-- 포켓몬 선택 --</option>'; // Clear and add placeholder
+            pokemonSelectList.innerHTML = '<option value="">-- 포켓몬 선택 --</option>'; 
             snapshot.forEach(doc => {
                 const pokemon = doc.data();
                 const option = document.createElement('option');
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(data.skills && data.skills.length > 0) {
             data.skills.forEach(skill => addSkillRow(skill));
         } else {
-            addSkillRow(); // Add one empty skill row if none exist
+            addSkillRow(); 
         }
     }
 
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 pokemonForm.reset();
                 skillsContainer.innerHTML = '';
                 addSkillRow();
-                loadPokemonList(); // Refresh the dropdown list
+                loadPokemonList(); 
             } catch (error) {
                 alert('삭제 중 오류가 발생했습니다.');
                 console.error("삭제 오류: ", error);
@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(() => {
                 alert(`'${pokemonData.name_ko}' 정보가 성공적으로 저장되었습니다!`);
                 if (!Array.from(pokemonSelectList.options).some(opt => opt.value === pkmId)) {
-                    loadPokemonList(); // Refresh the list to include the new pokemon
+                    loadPokemonList(); 
                     pokemonSelectList.value = pkmId;
                 }
             })
@@ -227,5 +227,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     populateDropdowns();
     loadPokemonList();
-    addSkillRow(); // Start with one empty skill row
+    addSkillRow(); 
 });
