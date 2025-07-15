@@ -410,8 +410,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="deck-builder-view">
                 <div class="placement-container">
                     <div class="placement-grid">
-                        <div class="placement-slot-header" id="weather-icon-container">☀️</div>
-                        <div class="placement-slot-header" id="synergy-icon-container">
+                        <div class="placement-slot-header" id="weather-icon-container" style="visibility: hidden;">☀️</div>
+                        <div class="placement-slot-header" id="synergy-icon-container" style="visibility: hidden;">
                             <img src="https://i.imgur.com/g0t51J7.png" alt="타입 시너지">
                         </div>
                         <div class="placement-slot-header"></div>
