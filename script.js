@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. 모든 정보 섹션의 HTML을 미리 생성 ---
 
-    // 공통 정보
+    // 공통 정보 (이름, 등급, 타입, 이미지)
     let commonHTML = `<h2>${nameKo} <span style="font-size:0.8em; color:#666;">${nameEn}</span></h2>`;
     let badgesHTML = '<div class="badge-container">';
     if (data.grade) {
@@ -74,14 +74,18 @@ document.addEventListener('DOMContentLoaded', () => {
         statsHTML += `<h4>종족값 (총합: ${totalStats})</h4><table class="stats-table">`;
         Object.entries(data.stats).forEach(([stat, value]) => { statsHTML += `<tr><td>${stat}</td><td>${value}</td></tr>`; });
         statsHTML += '</table>';
+    } else {
+        statsHTML = '<h4>기본 정보</h4><p>등록된 종족값 정보가 없습니다.</p>';
     }
 
     // 스킬 정보
     let skillsHTML = '';
-    if (data.skills && data.skills.length > 0) {
+    if (data.skills && data.skills.length > 0 && data.skills.some(s => s.name)) {
         skillsHTML += '<h4>스킬</h4><ul class="skill-list">';
         data.skills.forEach((skill, index) => { 
-            skillsHTML += `<li class="skill-item"><span class="skill-name" data-skill-index="${index}">${skill.name}</span><span class="skill-type">${skill.type}</span></li>`; 
+            if(skill.name) { // 이름이 있는 스킬만 표시
+                skillsHTML += `<li class="skill-item"><span class="skill-name" data-skill-index="${index}">${skill.name}</span><span class="skill-type">${skill.type}</span></li>`; 
+            }
         });
         skillsHTML += '</ul>';
     } else {
@@ -120,12 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
         buildHTML = '<h4>추천 빌드</h4><p>등록된 추천 빌드 정보가 없습니다.</p>';
     }
 
-    // --- 2. 최종 HTML 조합 ---
+    // --- 2. 최종 HTML 조합 (탭 구조로 통일) ---
     detailView.innerHTML = `
         ${commonHTML}
-        <div class="info-sections">
-            ${statsHTML}
-        </div>
         <div class="tab-container">
             <nav class="tab-nav">
                 <button class="tab-button active" data-tab="tab-info">기본 정보</button>
@@ -142,7 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
     contentDiv.appendChild(detailView);
 
     // --- 3. 이벤트 리스너 (스킬 팝업, 탭 기능 등) ---
-    // (이 부분은 이전과 동일하여 생략)
     contentDiv.querySelectorAll('.skill-name').forEach(el => { 
         el.addEventListener('click', () => { 
             const skillIndex = parseInt(el.dataset.skillIndex);
