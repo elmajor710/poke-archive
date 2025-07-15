@@ -303,4 +303,8 @@ header h1 {
     .deck-composition-container {
         display: none; /* 모바일에서는 덱 구성원 목록 숨김 */
     }
+    /* ▼▼▼ 아래 내용 추가 ▼▼▼ */
+    .info-sections {
+        display: none; /* 모바일에서는 PC용 섹션 숨김 */
+    }
 }
