@@ -45,11 +45,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const nameKo = data.name_ko || (data.name && data.name.ko);
     const nameEn = data.name_en || (data.name && data.name.en);
-    
-    // --- 공통 정보 (PC/모바일 모두 표시) ---
+
+    // --- 1. 모든 정보 섹션의 HTML을 미리 생성 ---
+
+    // 공통 정보
     let commonHTML = `<h2>${nameKo} <span style="font-size:0.8em; color:#666;">${nameEn}</span></h2>`;
     let badgesHTML = '<div class="badge-container">';
-    if(data.grade) {
+    if (data.grade) {
         const gradeClass = `grade-${data.grade.toLowerCase().replace('+', '-plus')}`;
         badgesHTML += `<span class="grade-badge ${gradeClass}">${data.grade}</span>`;
     }
@@ -65,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     commonHTML += badgesHTML;
     if (data.imageURL) { commonHTML += `<img src="${data.imageURL}" alt="${nameKo}" class="main-image">`; }
 
-    // --- 기본 정보 섹션 ---
+    // 기본 정보 (스탯)
     let statsHTML = '';
     if (data.stats) {
         const totalStats = data.totalStats || Object.values(data.stats).reduce((a, b) => a + b, 0);
@@ -74,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         statsHTML += '</table>';
     }
 
-    // --- 스킬 섹션 ---
+    // 스킬 정보
     let skillsHTML = '';
     if (data.skills && data.skills.length > 0) {
         skillsHTML += '<h4>스킬</h4><ul class="skill-list">';
@@ -86,15 +88,18 @@ document.addEventListener('DOMContentLoaded', () => {
         skillsHTML = '<h4>스킬</h4><p>등록된 스킬 정보가 없습니다.</p>';
     }
 
-    // --- 추천 빌드 섹션 ---
+    // 추천 빌드 정보
     let buildHTML = '';
+    let hasBuildInfo = false;
     if (data.recommendedNatures && data.recommendedNatures.length > 0) {
         const natureNames = data.recommendedNatures.map(natureId => DB.definitions.natures.find(n => n.id === natureId)?.name || '').filter(Boolean);
         buildHTML += `<h4>추천 성격</h4><p>${natureNames.join(', ')}</p>`;
+        hasBuildInfo = true;
     }
     const recommendTypes = { recommendedItems: '추천 아이템', recommendedRunes: '추천 룬', recommendedChips: '추천 칩' };
     for (const type in recommendTypes) {
         if (data[type] && data[type].length > 0) {
+            hasBuildInfo = true;
             buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
             data[type].forEach(id => {
                 const itemTypeForDB = type.replace('recommended', '').toLowerCase().replace('s', '');
@@ -111,13 +116,16 @@ document.addEventListener('DOMContentLoaded', () => {
             buildHTML += `</div>`;
         }
     }
-    if(buildHTML === '') {
+    if (!hasBuildInfo) {
         buildHTML = '<h4>추천 빌드</h4><p>등록된 추천 빌드 정보가 없습니다.</p>';
     }
 
-    // --- 최종 HTML 조합 ---
+    // --- 2. 최종 HTML 조합 ---
     detailView.innerHTML = `
         ${commonHTML}
+        <div class="info-sections">
+            ${statsHTML}
+        </div>
         <div class="tab-container">
             <nav class="tab-nav">
                 <button class="tab-button active" data-tab="tab-info">기본 정보</button>
@@ -133,7 +141,8 @@ document.addEventListener('DOMContentLoaded', () => {
     contentDiv.innerHTML = '';
     contentDiv.appendChild(detailView);
 
-    // --- 이벤트 리스너 (스킬 팝업, 탭 기능 등) ---
+    // --- 3. 이벤트 리스너 (스킬 팝업, 탭 기능 등) ---
+    // (이 부분은 이전과 동일하여 생략)
     contentDiv.querySelectorAll('.skill-name').forEach(el => { 
         el.addEventListener('click', () => { 
             const skillIndex = parseInt(el.dataset.skillIndex);
