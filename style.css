@@ -130,16 +130,6 @@ header h1 {
     font-weight: 600;
 }
 
-@media (max-width: 768px) {
-    #sidebar, .panel { position: absolute; width: 100%; }
-    #sidebar.is-hidden, .panel.is-hidden { transform: translateX(-100%); z-index: 1; }
-    .tab-nav { display: flex; border-bottom: 1px solid var(--border-color); margin: 0 -10px 15px -10px; padding: 0 10px; }
-    .tab-button { flex: 1; padding: 12px 5px; text-align: center; background: none; border: none; font-size: 1em; font-weight: 600; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: color 0.2s, border-color 0.2s; }
-    .tab-button.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
-    .tab-pane { display: none; }
-    .tab-pane.active { display: block; }
-}
-
 .item-description { white-space: pre-wrap; line-height: 1.7; background-color: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 14px; color: #333; }
 .stats-table {
     border-collapse: collapse;
@@ -249,62 +239,48 @@ header h1 {
 .pc-only-message { padding: 40px 20px; text-align: center; color: #555; background-color: #f8f9fa; border-radius: 8px; margin: auto; }
 .pc-only-message h3 { font-size: 1.5em; margin-top: 0; margin-bottom: 10px; color: #333; }
 
-/* --- 모바일 탭 UI --- */
-.tab-container { display: contents; } /* PC에서는 탭 구조를 무시하고 내용을 그대로 표시 */
-.tab-nav { display: none; } /* PC에서는 탭 메뉴 숨김 */
-.tab-pane { display: block !important; } /* PC에서는 모든 탭 내용 표시 */
-
-
-/* --- 추천덱 페이지 --- */
-.deck-pokemon-cell {
-    cursor: default; /* PC에서는 클릭 커서 보이지 않음 */
-}
-.deck-composition-container {
-    display: block; /* PC에서는 덱 구성원 목록 항상 표시 */
-}
-
+/* --- PC/모바일 화면 분기 처리 --- */
+.tab-container { display: none; }
+.info-sections { display: block; }
+.deck-pokemon-cell { cursor: default; }
+.deck-composition-container { display: block; }
 
 @media (max-width: 768px) {
-    /* --- 모바일 탭 UI 활성화 --- */
+    #sidebar, .panel { position: absolute; width: 100%; }
+    #sidebar.is-hidden, .panel.is-hidden { transform: translateX(-100%); z-index: 1; }
+    
+    .info-sections { display: none; }
     .tab-container { display: block; }
-    .tab-nav {
-        display: flex;
-        border-bottom: 1px solid var(--border-color);
+    
+    .tab-nav { 
+        display: flex; 
+        border-bottom: 1px solid var(--border-color); 
         margin: 15px 0;
     }
-    .tab-button {
-        flex: 1;
-        padding: 12px 5px;
-        text-align: center;
-        background: none;
-        border: none;
-        font-size: 1em;
-        font-weight: 600;
-        color: #888;
-        cursor: pointer;
-        border-bottom: 3px solid transparent;
-        transition: color 0.2s, border-color 0.2s;
+    .tab-button { 
+        flex: 1; 
+        padding: 12px 5px; 
+        text-align: center; 
+        background: none; 
+        border: none; 
+        font-size: 1em; 
+        font-weight: 600; 
+        color: #888; 
+        cursor: pointer; 
+        border-bottom: 3px solid transparent; 
+        transition: color 0.2s, border-color 0.2s; 
     }
-    .tab-button.active {
-        color: var(--primary-color);
-        border-bottom-color: var(--primary-color);
+    .tab-button.active { 
+        color: var(--primary-color); 
+        border-bottom-color: var(--primary-color); 
     }
-    .tab-pane {
-        display: none !important; /* 모바일에서는 기본적으로 모든 탭 내용 숨김 */
+    .tab-pane { 
+        display: none !important; 
     }
-    .tab-pane.active {
-        display: block !important; /* 활성화된 탭 내용만 표시 */
+    .tab-pane.active { 
+        display: block !important; 
     }
 
-    /* --- 모바일 추천덱 UI --- */
-    .deck-pokemon-cell {
-        cursor: pointer; /* 모바일에서는 클릭 커서 표시 */
-    }
-    .deck-composition-container {
-        display: none; /* 모바일에서는 덱 구성원 목록 숨김 */
-    }
-    /* ▼▼▼ 아래 내용 추가 ▼▼▼ */
-    .info-sections {
-        display: none; /* 모바일에서는 PC용 섹션 숨김 */
-    }
+    .deck-pokemon-cell { cursor: pointer; }
+    .deck-composition-container { display: none; }
 }
