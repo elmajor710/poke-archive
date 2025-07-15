@@ -734,6 +734,16 @@ document.addEventListener('DOMContentLoaded', () => {
             updateTeamEffects();
         }
         
+        function handleMainButtonClick() {
+            Object.values(panels).forEach((panel, index) => {
+                if (index > 0) { 
+                    panel.classList.remove('visible', 'is-hidden');
+                }
+            });
+            setActive(0, null);
+            sidebar.classList.remove('is-hidden');
+        }
+
         function renderPanelContent(level, data, menuId, clickedId) {
             const targetPanel = panels[`lev${level}`];
             if (!targetPanel) return;
@@ -916,7 +926,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!button) return;
                 if (button.classList.contains('back-btn')) { 
                     handleBackClick(button); 
-                } else if (button.dataset.level) { 
+                } else if (button.classList.contains('main-btn')) {
+                    handleMainButtonClick();
+                }
+                else if (button.dataset.level) { 
                     handleMenuClick(button); 
                 }
             });
