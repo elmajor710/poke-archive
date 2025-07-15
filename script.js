@@ -45,7 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const nameKo = data.name_ko || (data.name && data.name.ko);
     const nameEn = data.name_en || (data.name && data.name.en);
-
+    
+    // --- 공통 정보 (PC/모바일 모두 표시) ---
+    let commonHTML = `<h2>${nameKo} <span style="font-size:0.8em; color:#666;">${nameEn}</span></h2>`;
     let badgesHTML = '<div class="badge-container">';
     if(data.grade) {
         const gradeClass = `grade-${data.grade.toLowerCase().replace('+', '-plus')}`;
@@ -60,11 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     badgesHTML += '</div>';
-    
-    let commonHTML = `<h2>${nameKo} <span style="font-size:0.8em; color:#666;">${nameEn}</span></h2>`;
     commonHTML += badgesHTML;
     if (data.imageURL) { commonHTML += `<img src="${data.imageURL}" alt="${nameKo}" class="main-image">`; }
-    
+
+    // --- 기본 정보 섹션 ---
     let statsHTML = '';
     if (data.stats) {
         const totalStats = data.totalStats || Object.values(data.stats).reduce((a, b) => a + b, 0);
@@ -72,6 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.entries(data.stats).forEach(([stat, value]) => { statsHTML += `<tr><td>${stat}</td><td>${value}</td></tr>`; });
         statsHTML += '</table>';
     }
+
+    // --- 스킬 섹션 ---
     let skillsHTML = '';
     if (data.skills && data.skills.length > 0) {
         skillsHTML += '<h4>스킬</h4><ul class="skill-list">';
@@ -79,44 +82,58 @@ document.addEventListener('DOMContentLoaded', () => {
             skillsHTML += `<li class="skill-item"><span class="skill-name" data-skill-index="${index}">${skill.name}</span><span class="skill-type">${skill.type}</span></li>`; 
         });
         skillsHTML += '</ul>';
+    } else {
+        skillsHTML = '<h4>스킬</h4><p>등록된 스킬 정보가 없습니다.</p>';
     }
+
+    // --- 추천 빌드 섹션 ---
     let buildHTML = '';
     if (data.recommendedNatures && data.recommendedNatures.length > 0) {
         const natureNames = data.recommendedNatures.map(natureId => DB.definitions.natures.find(n => n.id === natureId)?.name || '').filter(Boolean);
         buildHTML += `<h4>추천 성격</h4><p>${natureNames.join(', ')}</p>`;
     }
-    
     const recommendTypes = { recommendedItems: '추천 아이템', recommendedRunes: '추천 룬', recommendedChips: '추천 칩' };
     for (const type in recommendTypes) {
         if (data[type] && data[type].length > 0) {
             buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
-            
             data[type].forEach(id => {
                 const itemTypeForDB = type.replace('recommended', '').toLowerCase().replace('s', '');
                 const dbKey = (itemTypeForDB === 'rune' || itemTypeForDB === 'chip') ? 'runeAndChip' : 'item';
-                
                 const itemData = DB[dbKey]?.lev4?.[id];
-                
                 if (itemData) {
-                     // ▼▼▼ 텍스트(span)를 제거하고 이미지만 표시되도록 수정 ▼▼▼
                      buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}">
                                 ${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : `<span>${itemData.name}</span>`}
                              </div>`;
                 } else {
-                    buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}">
-                                    <span>${id} (정보 없음)</span>
-                                 </div>`;
+                    buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}"><span>${id}(정보 없음)</span></div>`;
                 }
             });
-            
             buildHTML += `</div>`;
         }
     }
+    if(buildHTML === '') {
+        buildHTML = '<h4>추천 빌드</h4><p>등록된 추천 빌드 정보가 없습니다.</p>';
+    }
+
+    // --- 최종 HTML 조합 ---
+    detailView.innerHTML = `
+        ${commonHTML}
+        <div class="tab-container">
+            <nav class="tab-nav">
+                <button class="tab-button active" data-tab="tab-info">기본 정보</button>
+                <button class="tab-button" data-tab="tab-skills">스킬</button>
+                <button class="tab-button" data-tab="tab-build">추천 빌드</button>
+            </nav>
+            <div id="tab-info" class="tab-pane active">${statsHTML}</div>
+            <div id="tab-skills" class="tab-pane">${skillsHTML}</div>
+            <div id="tab-build" class="tab-pane">${buildHTML}</div>
+        </div>
+    `;
     
-    detailView.innerHTML = commonHTML + statsHTML + skillsHTML + buildHTML;
     contentDiv.innerHTML = '';
     contentDiv.appendChild(detailView);
 
+    // --- 이벤트 리스너 (스킬 팝업, 탭 기능 등) ---
     contentDiv.querySelectorAll('.skill-name').forEach(el => { 
         el.addEventListener('click', () => { 
             const skillIndex = parseInt(el.dataset.skillIndex);
@@ -125,16 +142,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 let skillDetailContent = `<p>${skill.description || ''}</p>`;
                 if (skill.keywords && skill.keywords.length > 0) {
                     skillDetailContent += '<hr><h4>키워드 설명</h4><ul>';
-                    skill.keywords.forEach(kw => {
-                        skillDetailContent += `<li><strong>${kw.term}:</strong> ${kw.desc}</li>`;
-                    });
+                    skill.keywords.forEach(kw => { skillDetailContent += `<li><strong>${kw.term}:</strong> ${kw.desc}</li>`; });
                     skillDetailContent += '</ul>';
                 }
                 showModal(skill.name, skillDetailContent); 
             }
         }); 
     });
-
+    
     contentDiv.querySelectorAll('.recommend-item').forEach(el => { 
         el.addEventListener('click', () => { 
             const itemId = el.dataset.itemId;
@@ -145,6 +160,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 showModal(itemData.name, `<p>${itemData.description || '상세 정보가 없습니다.'}</p>`); 
             }
         }); 
+    });
+
+    contentDiv.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+            if (button.classList.contains('active')) return;
+            contentDiv.querySelector('.tab-button.active').classList.remove('active');
+            contentDiv.querySelector('.tab-pane.active').classList.remove('active');
+            button.classList.add('active');
+            contentDiv.querySelector(`#${button.dataset.tab}`).classList.add('active');
+        });
     });
 }
 
@@ -167,29 +192,77 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         function renderDeckView(contentDiv, data) {
-            let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
-            if (data.description) { html += `<p>${data.description}</p>`; }
-            const grid = Array(3).fill(null).map(() => Array(3).fill(null));
-            const positionMap = { 'vanguard_1': [0, 2], 'vanguard_2': [1, 2], 'vanguard_3': [2, 2], 'rearguard_4': [0, 1], 'rearguard_5': [1, 1], 'rearguard_6': [2, 1], 'assist_1': [0, 0], 'assist_2': [1, 0], 'assist_3': [2, 0] };
-            data.composition.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if (!pkmData) return; const roleKey = member.role === 'assist' ? 'assist' : (member.position < 4 ? 'vanguard' : 'rearguard'); const key = `${roleKey}_${member.position}`; const [row, col] = positionMap[key]; grid[row][col] = { name: pkmData.name_ko, faceImageURL: pkmData.faceImageURL, role: member.role, position: member.position }; });
-            html += `<h4>덱 배치</h4><table class="deck-grid-table"><thead><tr><th>어시스트</th><th>후방</th><th>전방</th></tr></thead><tbody>`;
-            for (let i = 0; i < 3; i++) { html += '<tr>'; for (let j = 0; j < 3; j++) { const cell = grid[i][j]; if (cell) { const roleText = cell.role === 'assist' ? '어시스트' : '메인'; html += `<td><div class="deck-pokemon-cell"><img src="${cell.faceImageURL}" alt="${cell.name}"><span class="position-number">${roleText} #${cell.position}</span></div></td>`; } else { html += '<td></td>'; } } html += '</tr>'; }
-            html += `</tbody></table><h4>덱 구성원</h4>`;
-            const mainMembers = data.composition.filter(m => m.role === 'main').sort((a,b) => a.position - b.position);
-            const assistMembers = data.composition.filter(m => m.role === 'assist').sort((a,b) => a.position - b.position);
-            if (mainMembers.length > 0) {
-                html += `<h5>메인</h5><ul class="deck-composition-list">`;
-                mainMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>메인 #${member.position}:</b> ${pkmData.name_ko}</li>`; });
-                html += `</ul>`;
+    let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
+    if (data.description) { html += `<p>${data.description}</p>`; }
+    
+    const grid = Array(3).fill(null).map(() => Array(3).fill(null));
+    const positionMap = { 'vanguard_1': [0, 2], 'vanguard_2': [1, 2], 'vanguard_3': [2, 2], 'rearguard_4': [0, 1], 'rearguard_5': [1, 1], 'rearguard_6': [2, 1], 'assist_1': [0, 0], 'assist_2': [1, 0], 'assist_3': [2, 0] };
+    
+    data.composition.forEach(member => { 
+        const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
+        if (!pkmData) return; 
+        const roleKey = member.role === 'assist' ? 'assist' : (member.position < 4 ? 'vanguard' : 'rearguard'); 
+        const key = `${roleKey}_${member.position}`; 
+        const [row, col] = positionMap[key]; 
+        grid[row][col] = { ...pkmData, id: member.pokemonId, role: member.role, position: member.position }; 
+    });
+
+    html += `<h4>덱 배치</h4><table class="deck-grid-table"><thead><tr><th>어시스트</th><th>후방</th><th>전방</th></tr></thead><tbody>`;
+    for (let i = 0; i < 3; i++) { 
+        html += '<tr>'; 
+        for (let j = 0; j < 3; j++) { 
+            const cell = grid[i][j]; 
+            if (cell) { 
+                const roleText = cell.role === 'assist' ? '어시스트' : '메인'; 
+                html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="position-number">${roleText} #${cell.position}</span></div></td>`; 
+            } else { 
+                html += '<td></td>'; 
+            } 
+        } 
+        html += '</tr>'; 
+    }
+    html += `</tbody></table>`;
+
+    // ▼▼▼ 모바일일 경우 덱 구성원 목록을 숨기도록 수정 ▼▼▼
+    html += `<div class="deck-composition-container"><h4>덱 구성원</h4>`;
+    const mainMembers = data.composition.filter(m => m.role === 'main').sort((a,b) => a.position - b.position);
+    const assistMembers = data.composition.filter(m => m.role === 'assist').sort((a,b) => a.position - b.position);
+    if (mainMembers.length > 0) {
+        html += `<h5>메인</h5><ul class="deck-composition-list">`;
+        mainMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>메인 #${member.position}:</b> ${pkmData.name_ko}</li>`; });
+        html += `</ul>`;
+    }
+    if (assistMembers.length > 0) {
+        html += `<h5>어시스트</h5><ul class="deck-composition-list">`;
+        assistMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>어시스트 #${member.position}:</b> ${pkmData.name_ko}</li>`; });
+        html += `</ul>`;
+    }
+    html += `</div></div>`; // deck-composition-container 및 deck-detail-view 닫기
+    contentDiv.innerHTML = html;
+
+    // ▼▼▼ 모바일 팝업을 위한 클릭 이벤트 추가 ▼▼▼
+    contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
+        cell.addEventListener('click', () => {
+            if (!isMobile()) return; // 모바일에서만 동작
+
+            const pokemonId = cell.dataset.pokemonId;
+            const pkmData = DB.pokemonType.lev4[pokemonId];
+            if (pkmData) {
+                let typesHTML = (pkmData.types || []).map(typeId => {
+                    const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+                    return typeInfo ? `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>` : '';
+                }).join(' ');
+
+                const modalContent = `
+                    <div class="badge-container">
+                        <span class="grade-badge grade-${pkmData.grade.toLowerCase().replace('+', '-plus')}">${pkmData.grade}</span>
+                        ${typesHTML}
+                    </div>`;
+                showModal(pkmData.name_ko, modalContent);
             }
-            if (assistMembers.length > 0) {
-                html += `<h5>어시스트</h5><ul class="deck-composition-list">`;
-                assistMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>어시스트 #${member.position}:</b> ${pkmData.name_ko}</li>`; });
-                html += `</ul>`;
-            }
-            html += `</div>`;
-            contentDiv.innerHTML = html;
-        }
+        });
+    });
+}
 
         function renderCalendarView(contentDiv, data) {
             let currentCalendarDate = new Date();
