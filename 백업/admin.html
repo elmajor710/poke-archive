@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>운영자 모드 - Nirvana's Poke-Archive</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <h2>관리 메뉴</h2>
+            <nav>
+                <ul>
+                    <li class="active"><a href="#">포켓몬 관리</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1>포켓몬 관리</h1>
+                <div>
+                    <select id="pokemon-select-list" style="padding: 10px;">
+                        <option value="">-- 포켓몬 선택 --</option>
+                    </select>
+                    <button id="load-pokemon-btn" type="button" class="btn btn-primary">불러오기</button>
+                </div>
+            </header>
+            <section class="content-section">
+                <h2>포켓몬 추가/수정</h2>
+                <form id="pokemon-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="pkm-id">고유 ID (영문)</label>
+                            <input type="text" id="pkm-id" placeholder="새로 추가할 경우 영문 ID 입력">
+                            <small>ID를 입력하고 저장하면 해당 ID로 데이터가 생성/덮어쓰기 됩니다.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="pkm-name-ko">한글 이름</label>
+                            <input type="text" id="pkm-name-ko">
+                        </div>
+                        <div class="form-group">
+                            <label for="pkm-name-en">영문 이름</label>
+                            <input type="text" id="pkm-name-en">
+                        </div>
+                        <div class="form-group">
+                            <label for="pkm-grade">등급</label>
+                            <select id="pkm-grade">
+                                <option value="SS">SS</option>
+                                <option value="S+">S+</option>
+                                <option value="S">S</option>
+                            </select>
+                        </div>
+                        <div class="form-group form-group-span-2">
+                            <label>타입 (다중선택 가능)</label>
+                            <div id="pkm-types-container" class="checkbox-group"></div>
+                        </div>
+                        <div class="form-group form-group-span-2">
+                            <label for="pkm-image-url">전체 이미지 URL</label>
+                            <input type="text" id="pkm-image-url">
+                        </div>
+                         <div class="form-group form-group-span-2">
+                            <label for="pkm-face-url">얼굴 이미지 URL</label>
+                            <input type="text" id="pkm-face-url">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>스킬 정보 <button type="button" id="add-skill-btn" class="btn btn-small">+</button></h3>
+                        <div id="skills-container"></div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>추천 빌드</h3>
+                        <div class="form-group">
+                            <label>추천 성격 (다중선택 가능)</label>
+                            <div id="pkm-natures-container" class="checkbox-group scrollable"></div>
+                        </div>
+                        <div class="form-group">
+                             <label for="pkm-items">추천 아이템 (다중선택: Ctrl 또는 Shift + 클릭)</label>
+                             <select id="pkm-items" multiple></select>
+                        </div>
+                         <div class="form-group">
+                             <label for="pkm-runes">추천 룬</label>
+                             <select id="pkm-runes" multiple></select>
+                        </div>
+                         <div class="form-group">
+                             <label for="pkm-chips">추천 칩</label>
+                             <select id="pkm-chips" multiple></select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">저장하기</button>
+                        <button id="delete-pokemon-btn" type="button" class="btn btn-danger">삭제하기</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEPDK4VMVjEshWthL9Kajan-2EKfuLvZ0",
+            authDomain: "poke-archive-d8e29.firebaseapp.com",
+            projectId: "poke-archive-d8e29",
+            storageBucket: "poke-archive-d8e29.firebasestorage.app",
+            messagingSenderId: "1012379289991",
+            appId: "1:1012379289991:web:5c33d4ac7536672d956b22"
+        };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+    </script>
+    
+    <script src="data.js"></script> 
+    <script src="admin.js"></script>
+
+</body>
+</html>
