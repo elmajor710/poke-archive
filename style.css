@@ -99,21 +99,6 @@ header h1 {
     padding: 10px 15px;
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.back-btn, .main-btn {
-    padding: 5px 12px;
-    border-radius: 5px;
-    border: 1px solid var(--border-color);
-    background-color: #f8f9fa;
-    cursor: pointer;
-}
-.main-btn {
-    background-color: #6c757d;
-    color: white;
-    border-color: #6c757d;
 }
 
 .panel-content {
