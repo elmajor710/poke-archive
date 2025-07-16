@@ -39,6 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const skillsContainer = pokemonForm.querySelector('#skills-container');
         const addSkillBtn = pokemonForm.querySelector('#add-skill-btn');
         const deletePokemonBtn = pokemonForm.querySelector('#delete-pokemon-btn');
+        const statInputs = pokemonForm.querySelectorAll('.stat-input');
+        const totalStatInput = pokemonForm.querySelector('#pkm-stat-total');
 
         function populatePokemonDropdowns() {
             if (typesContainer) typesContainer.innerHTML = DB.pokemonType.lev2.map(type => `<label><input type="checkbox" name="types" value="${type.id}"> ${type.name}</label>`).join('');
