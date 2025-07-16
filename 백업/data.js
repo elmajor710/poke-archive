@@ -74,7 +74,7 @@ const DB = {
         'blazing-dragon-chains': { name: '염룡 화염사슬/Blazing Dragon Chains', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/blazing-dragon-chains.png', description: '상세 설명이 필요합니다.' },
         'bond-bell': { name: '굴레 방울/Bond Bell', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/bond-bell.png', description: '상세 설명이 필요합니다.' },
         'cape-of-time': { name: '시간의 망토/Cape of Time', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/cape-of-time.png', description: '상세 설명이 필요합니다.' },
-        'champion-trophy': { name: '챔피언 트로피', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/champion-trophy.png', description: '상세 설명이 필요합니다.' },
+        'champion-trophy': { name: '챔피언 트로피/Champion Trophy', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/champion-trophy.png', description: '상세 설명이 필요합니다.' },
         'choas-cube-ball': { name: '혼돈 큐브/Choas cube Ball', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/choas-cube-ball.png', description: '상세 설명이 필요합니다.' },
         'crown-of-thorns': { name: '가시덤불/Crown of Thorns', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/crown-of-thorns.png', description: '상세 설명이 필요합니다.' },
         'dna-splicers': { name: '유전자쐐기/DNA Splicers', grade: 'Legendary', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/dna-splicers.png', description: '상세 설명이 필요합니다.' },
@@ -138,39 +138,56 @@ const DB = {
     }
 },
     runeAndChip: {
-        lev2: [ 
-            {id: 'rune', name: '룬'}, 
-            {id: 'chip', name: '칩'} 
-        ],
-        lev3: { 
-            rune: [ 
-                { id: 'deadly', name: '치명 / Deadly' }, { id: 'warlike', name: '전투광 / Warlike' }, { id: 'shield', name: '실드 / Shield' }, { id: 'kingkong', name: '금강 / King Kong' }, { id: 'shelter', name: '비호 / Shelter' }, { id: 'defend', name: '방어 / Defend' }, { id: 'shine', name: '반짝임 / Shine' }, { id: 'counter', name: '반격 / Counter' }, { id: 'punch', name: '강격 / Punch' }
-            ], 
-            chip: [ 
-                { id: 'firedance', name: '화무 / Fire Dance' }, { id: 'sacrifice', name: '헌제 / Sacrifice' }, { id: 'psychic', name: '초능 / Psychic' }, { id: 'snakesoul', name: '뱀유령 / Snake Soul' }, { id: 'fistshield', name: '방패 / Fist Shield' }, { id: 'lonewolf', name: '늑대행자 / Lone Wolf' }, { id: 'tortoiseshell', name: '귀갑 / Tortoise Shell' }, { id: 'fear', name: '공포 / Fear' }, { id: 'frogthorn', name: '개구리가시 / Frog Thorn' }
-            ] 
-        },
-        lev4: { 
-            'deadly': { name: '치명 / Deadly', imageURL: '', description: '치명타 확률과 치명타 피해량을 증가시킵니다.' },
-            'warlike': { name: '전투광 / Warlike', imageURL: '', description: '공격 시 추가 피해를 입힙니다.'},
-            'shield': { name: '실드 / Shield', imageURL: '', description: '상세 설명이 필요합니다.'},
-            'kingkong': { name: '금강 / King Kong', imageURL: '', description: '상세 설명이 필요합니다.'},
-            'shelter': { name: '비호 / Shelter', imageURL: '', description: '상세 설명이 필요합니다.'},
-            'defend': { name: '방어 / Defend', imageURL: '', description: '상세 설명이 필요합니다.'},
-            'shine': { name: '반짝임 / Shine', imageURL: '', description: '상세 설명이 필요합니다.'},
-            'counter': { name: '반격 / Counter', imageURL: '', description: '상세 설명이 필요합니다.'},
-            'punch': { name: '강격 / Punch', imageURL: '', description: '상세 설명이 필요합니다.'},
-            'firedance': { name: '화무 / Fire Dance', imageURL: '', description: '불꽃 타입 스킬의 위력을 증폭시킵니다.' },
-            'lonewolf': { name: '늑대행자 / Lone Wolf', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/lonewolf.png', description: '주변에 아군이 없을 때 공격력이 대폭 상승합니다.'},
-            'sacrifice': { name: '헌제 / Sacrifice', imageURL: '', description: '상세 설명이 필요합니다.'},
-            'psychic': { name: '초능 / Psychic', imageURL: '', description: '상세 설명이 필요합니다.'},
-            'snakesoul': { name: '뱀유령 / Snake Soul', imageURL: '', description: '상세 설명이 필요합니다.'},
-            'fistshield': { name: '방패 / Fist Shield', imageURL: '', description: '상세 설명이 필요합니다.'},
-            'tortoiseshell': { name: '귀갑 / Tortoise Shell', imageURL: '', description: '상세 설명이 필요합니다.'},
-            'fear': { name: '공포 / Fear', imageURL: '', description: '상세 설명이 필요합니다.'},
-            'frogthorn': { name: '개구리가시 / Frog Thorn', imageURL: '', description: '상세 설명이 필요합니다.'}
-        }
+    lev2: [ 
+        {id: 'rune', name: '룬'}, 
+        {id: 'chip', name: '칩'} 
+    ],
+    lev3: { 
+        rune: [ 
+            { id: 'deadly', name: '치명 / Deadly' }, 
+            { id: 'warlike', name: '전투광 / Warlike' }, 
+            { id: 'shield', name: '실드 / Shield' }, 
+            { id: 'king-kong', name: '금강 / King Kong' }, 
+            { id: 'shelter', name: '비호 / Shelter' }, 
+            { id: 'defend', name: '방어 / Defend' }, 
+            { id: 'shine', name: '반짝임 / Shine' }, 
+            { id: 'counter', name: '반격 / Counter' }, 
+            { id: 'punch', name: '강격 / Punch' }
+        ], 
+        chip: [ 
+            { id: 'firedance', name: '화무 / Fire Dance' }, 
+            { id: 'sacrifice', name: '헌제 / Sacrifice' }, 
+            { id: 'psychic', name: '초능 / Psychic' }, 
+            { id: 'snakesoul', name: '뱀유령 / Snake Soul' }, 
+            { id: 'fistshield', name: '방패 / Fist Shield' }, 
+            { id: 'lonewolf', name: '늑대행자 / Lone Wolf' }, 
+            { id: 'tortoiseshell', name: '귀갑 / Tortoise Shell' }, 
+            { id: 'fear', name: '공포 / Fear' }, 
+            { id: 'frogthorn', name: '개구리가시 / Frog Thorn' }
+        ] 
     },
+    lev4: { 
+        'deadly': { name: '치명 / Deadly', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/deadly.png', description: '치명타 확률과 치명타 피해량을 증가시킵니다.' },
+        'warlike': { name: '전투광 / Warlike', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/warlike.png', description: '공격 시 추가 피해를 입힙니다.'},
+        'shield': { name: '실드 / Shield', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/shield.png', description: '상세 설명이 필요합니다.'},
+        'king-kong': { name: '금강 / King Kong', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/king-kong.png', description: '상세 설명이 필요합니다.'},
+        'shelter': { name: '비호 / Shelter', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/shelter.png', description: '상세 설명이 필요합니다.'},
+        'defend': { name: '방어 / Defend', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/defend.png', description: '상세 설명이 필요합니다.'},
+        'shine': { name: '반짝임 / Shine', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/shine.png', description: '상세 설명이 필요합니다.'},
+        'counter': { name: '반격 / Counter', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/counter.png', description: '상세 설명이 필요합니다.'},
+        'punch': { name: '강격 / Punch', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/punch.png', description: '상세 설명이 필요합니다.'},
+        
+        'firedance': { name: '화무 / Fire Dance', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/firedance.jpg', description: '불꽃 타입 스킬의 위력을 증폭시킵니다.' },
+        'sacrifice': { name: '헌제 / Sacrifice', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/sacrifice.jpg', description: '상세 설명이 필요합니다.'},
+        'psychic': { name: '초능 / Psychic', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/psychic.jpg', description: '상세 설명이 필요합니다.'},
+        'snakesoul': { name: '뱀유령 / Snake Soul', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/snakesoul.jpg', description: '상세 설명이 필요합니다.'},
+        'fistshield': { name: '방패 / Fist Shield', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/fistshield.jpg', description: '상세 설명이 필요합니다.'},
+        'lonewolf': { name: '늑대행자 / Lone Wolf', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/lonewolf.jpg', description: '주변에 아군이 없을 때 공격력이 대폭 상승합니다.'},
+        'tortoiseshell': { name: '귀갑 / Tortoise Shell', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/tortoiseshell.jpg', description: '상세 설명이 필요합니다.'},
+        'fear': { name: '공포 / Fear', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/fear.jpg', description: '상세 설명이 필요합니다.'},
+        'frogthorn': { name: '개구리가시 / Frog Thorn', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/frogthorn.jpg', description: '상세 설명이 필요합니다.'}
+    }
+},
     deck: {
         lev2: [ { id: 'recommended', name: '추천덱' }, { id: 'builder', name: '배치툴' } ],
         lev3: { 
