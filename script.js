@@ -45,13 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const nameKo = data.name_ko || (data.name && data.name.ko);
             const nameEn = data.name_en || (data.name && data.name.en);
             
+            // --- 1. 공통 정보 (이름, 이미지 등) ---
             let commonHTML = `<h2>${nameKo} <span style="font-size:0.8em; color:#666;">${nameEn}</span></h2>`;
             let badgesHTML = '<div class="badge-container">';
             if (data.grade) {
                 const gradeClass = `grade-${data.grade.toLowerCase().replace('+', '-plus')}`;
                 badgesHTML += `<span class="grade-badge ${gradeClass}">${data.grade}</span>`;
             }
-            if (data.types && data.types.length > 0) {
+            if (data.types && Array.isArray(data.types) && data.types.length > 0) {
                 data.types.forEach(typeId => {
                     const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
                     if (typeInfo) {
@@ -63,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             commonHTML += badgesHTML;
             if (data.imageURL) { commonHTML += `<img src="${data.imageURL}" alt="${nameKo}" class="main-image">`; }
 
+            // --- 2. 탭에 들어갈 내용 미리 생성 ---
             let statsHTML = '';
             if (data.stats) {
                 const totalStats = data.totalStats || Object.values(data.stats).reduce((a, b) => a + b, 0);
@@ -90,8 +92,10 @@ document.addEventListener('DOMContentLoaded', () => {
             let hasBuildInfo = false;
             if (data.recommendedNatures && data.recommendedNatures.length > 0) {
                 const natureNames = data.recommendedNatures.map(natureId => DB.definitions.natures.find(n => n.id === natureId)?.name || '').filter(Boolean);
-                buildHTML += `<h4>추천 성격</h4><p>${natureNames.join(', ')}</p>`;
-                hasBuildInfo = true;
+                if(natureNames.length > 0) {
+                    buildHTML += `<h4>추천 성격</h4><p>${natureNames.join(', ')}</p>`;
+                    hasBuildInfo = true;
+                }
             }
             const recommendTypes = { recommendedItems: '추천 아이템', recommendedRunes: '추천 룬', recommendedChips: '추천 칩' };
             for (const type in recommendTypes) {
@@ -104,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const itemData = DB[dbKey]?.lev4?.[id];
                         if (itemData) {
                              buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}">
-                                        ${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : `<span>${itemData.name}</span>`}
+                                        ${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}
                                      </div>`;
                         } else {
                             buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}"><span>${id}(정보 없음)</span></div>`;
@@ -117,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 buildHTML = '<h4>추천 빌드</h4><p>등록된 추천 빌드 정보가 없습니다.</p>';
             }
             
+            // --- 3. 최종 HTML 조합 ---
             const useTabs = isMobile() || menuId === 'pokemonType' || menuId === 'pokemonGrade';
             detailView.className = `pokemon-detail-view ${useTabs ? 'use-tabs' : ''}`;
 
@@ -139,10 +144,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             detailView.innerHTML = finalHTML;
-            
             contentDiv.innerHTML = '';
             contentDiv.appendChild(detailView);
 
+            // --- 4. 이벤트 리스너 ---
             contentDiv.querySelectorAll('.skill-name').forEach(el => { 
                 el.addEventListener('click', () => { 
                     const skillIndex = parseInt(el.dataset.skillIndex);
