@@ -1,14 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Firestore 'db' 객체가 HTML에서 먼저 초기화되었다고 가정합니다.
     if (!window.db) {
-        console.error("Firestore 'db' 객체를 찾을 수 없습니다. HTML 파일의 순서를 확인하세요.");
+        console.error("Firestore 'db' 객체를 찾을 수 없습니다. HTML 파일의 스크립트 순서를 확인하세요.");
         return;
     }
 
     // --- 탭 전환 기능 ---
     const adminNav = document.getElementById('admin-nav');
-    const tabLinks = document.querySelectorAll('.admin-tab-link');
-    const tabContents = document.querySelectorAll('.admin-tab-content');
-
     if (adminNav) {
         adminNav.addEventListener('click', (e) => {
             e.preventDefault();
@@ -16,12 +14,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!clickedLink || clickedLink.classList.contains('active')) return;
 
             const tabId = clickedLink.dataset.tab;
-
-            tabLinks.forEach(link => link.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
+            
+            adminNav.querySelectorAll('.admin-tab-link').forEach(link => link.classList.remove('active'));
+            document.querySelectorAll('.admin-tab-content').forEach(content => content.classList.remove('active'));
 
             clickedLink.classList.add('active');
-            document.getElementById(tabId)?.classList.add('active');
+            const targetContent = document.getElementById(tabId);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
         });
     }
 
@@ -30,13 +31,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pokemonForm) {
         const pokemonSelectList = document.getElementById('pokemon-select-list');
         const loadPokemonBtn = document.getElementById('load-pokemon-btn');
-        const typesContainer = document.getElementById('pkm-types-container');
-        const naturesContainer = document.getElementById('pkm-natures-container');
-        const itemsSelect = document.getElementById('pkm-items');
-        const runesSelect = document.getElementById('pkm-runes');
-        const chipsSelect = document.getElementById('pkm-chips');
+        const typesContainer = pokemonForm.querySelector('#pkm-types-container');
+        const naturesContainer = pokemonForm.querySelector('#pkm-natures-container');
+        const itemsSelect = pokemonForm.querySelector('#pkm-items');
+        const runesSelect = pokemonForm.querySelector('#pkm-runes');
+        const chipsSelect = pokemonForm.querySelector('#pkm-chips');
         const skillsContainer = pokemonForm.querySelector('#skills-container');
         const addSkillBtn = pokemonForm.querySelector('#add-skill-btn');
+        const deletePokemonBtn = pokemonForm.querySelector('.btn-danger');
+
 
         function populateDropdowns() {
             if (typesContainer) typesContainer.innerHTML = DB.pokemonType.lev2.map(type => `<label><input type="checkbox" name="types" value="${type.id}"> ${type.name}</label>`).join('');
@@ -75,8 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
             pokemonForm.querySelector('#pkm-image-url').value = data.imageURL || '';
             pokemonForm.querySelector('#pkm-face-url').value = data.faceImageURL || '';
 
-            data.types?.forEach(id => { pokemonForm.querySelector(`input[name="types"][value="${id}"]`)?.setAttribute('checked', true); });
-            data.recommendedNatures?.forEach(id => { pokemonForm.querySelector(`input[name="natures"][value="${id}"]`)?.setAttribute('checked', true); });
+            data.types?.forEach(id => { pokemonForm.querySelector(`input[name="types"][value="${id}"]`)?.setAttribute('checked', 'true'); });
+            data.recommendedNatures?.forEach(id => { pokemonForm.querySelector(`input[name="natures"][value="${id}"]`)?.setAttribute('checked', 'true'); });
 
             Array.from(itemsSelect.options).forEach(opt => opt.selected = data.recommendedItems?.includes(opt.value));
             Array.from(runesSelect.options).forEach(opt => opt.selected = data.recommendedRunes?.includes(opt.value));
@@ -87,18 +90,142 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let skillCount = 0;
-        function addSkillRow(skillData = null) { /* ... 이전과 동일 ... */ }
-        function addKeywordRow(container, keywordData = null) { /* ... 이전과 동일 ... */ }
+        function addSkillRow(skillData = null) {
+            skillCount++;
+            const skillId = skillCount;
+            const skillEntry = document.createElement('div');
+            skillEntry.className = 'skill-entry';
+            skillEntry.dataset.skillId = skillId;
+            const skillName = skillData?.name || '';
+            const skillType = skillData?.type || 'Active';
+            const skillDesc = skillData?.description || '';
+            skillEntry.innerHTML = `
+                <div class="skill-main-inputs">
+                    <input type="text" placeholder="스킬 이름" name="skill_name_${skillId}" value="${skillName}">
+                    <select name="skill_type_${skillId}">
+                        <option value="Active" ${skillType === 'Active' ? 'selected' : ''}>Active</option>
+                        <option value="Ultimate" ${skillType === 'Ultimate' ? 'selected' : ''}>Ultimate</option>
+                        <option value="Passive" ${skillType === 'Passive' ? 'selected' : ''}>Passive</option>
+                    </select>
+                    <button type="button" class="btn btn-danger btn-small remove-skill-btn">-</button>
+                </div>
+                <textarea class="skill-desc" placeholder="기본 스킬 설명" name="skill_desc_${skillId}">${skillDesc}</textarea>
+                <div class="skill-keywords-header">
+                    키워드 설명 <button type="button" class="btn btn-small add-keyword">+</button>
+                </div>
+                <div class="keywords-container"></div>`;
+            skillsContainer.appendChild(skillEntry);
+            const keywordsContainer = skillEntry.querySelector('.keywords-container');
+            skillData?.keywords?.forEach(kw => addKeywordRow(keywordsContainer, kw));
+        }
+
+        function addKeywordRow(container, keywordData = null) {
+            const keywordEntry = document.createElement('div');
+            keywordEntry.className = 'keyword-entry';
+            const term = keywordData?.term || '';
+            const desc = keywordData?.desc || '';
+            keywordEntry.innerHTML = `
+                <input type="text" placeholder="키워드 용어" name="keyword_term" value="${term}">
+                <textarea placeholder="키워드 상세 설명" name="keyword_desc">${desc}</textarea>
+                <button type="button" class="btn btn-danger btn-small remove-keyword-btn">-</button>`;
+            container.appendChild(keywordEntry);
+        }
         
-        loadPokemonBtn.addEventListener('click', async () => { /* ... 이전과 동일 ... */ });
-        addSkillBtn.addEventListener('click', () => addSkillRow());
-        skillsContainer.addEventListener('click', e => { /* ... 이전과 동일 ... */ });
-        pokemonForm.addEventListener('submit', e => { /* ... 이전과 동일 ... */ });
+        loadPokemonBtn.addEventListener('click', async () => {
+            const selectedId = pokemonSelectList.value;
+            if (!selectedId) {
+                alert('불러올 포켓몬을 선택해주세요.');
+                return;
+            }
+            try {
+                const docRef = db.collection("pokemon").doc(selectedId);
+                const doc = await docRef.get();
+                if (doc.exists) {
+                    populateForm({ id: doc.id, ...doc.data() });
+                    alert(`'${doc.data().name_ko}' 데이터를 불러왔습니다.`);
+                } else {
+                    alert('해당 ID의 포켓몬 데이터를 찾을 수 없습니다.');
+                }
+            } catch (error) {
+                alert('데이터를 불러오는 중 오류가 발생했습니다.');
+                console.error("데이터 불러오기 오류: ", error);
+            }
+        });
+        
+        deletePokemonBtn.addEventListener('click', async () => {
+            const pkmId = pokemonForm.querySelector('#pkm-id').value.trim();
+            if (!pkmId) {
+                alert('삭제할 포켓몬 데이터가 없습니다. 먼저 불러와주세요.');
+                return;
+            }
+            if (confirm(`정말로 '${pkmId}' 포켓몬 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
+                try {
+                    await db.collection("pokemon").doc(pkmId).delete();
+                    alert(`'${pkmId}' 데이터가 성공적으로 삭제되었습니다.`);
+                    pokemonForm.reset();
+                    skillsContainer.innerHTML = '';
+                    addSkillRow();
+                    loadPokemonList();
+                } catch (error) {
+                    alert('삭제 중 오류가 발생했습니다.');
+                    console.error("삭제 오류: ", error);
+                }
+            }
+        });
+        
+        if (addSkillBtn) addSkillBtn.addEventListener('click', () => addSkillRow());
+        if (skillsContainer) {
+            skillsContainer.addEventListener('click', e => {
+                if (e.target.classList.contains('remove-skill-btn')) e.target.closest('.skill-entry').remove();
+                if (e.target.classList.contains('add-keyword')) addKeywordRow(e.target.closest('.skill-entry').querySelector('.keywords-container'));
+                if (e.target.classList.contains('remove-keyword-btn')) e.target.closest('.keyword-entry').remove();
+            });
+        }
+        
+        pokemonForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const pkmId = pokemonForm.querySelector('#pkm-id').value.trim();
+            if (!pkmId) {
+                alert('고유 ID를 입력해주세요.');
+                return;
+            }
+            const pokemonData = {
+                name_ko: pokemonForm.querySelector('#pkm-name-ko').value,
+                name_en: pokemonForm.querySelector('#pkm-name-en').value,
+                grade: pokemonForm.querySelector('#pkm-grade').value,
+                imageURL: pokemonForm.querySelector('#pkm-image-url').value,
+                faceImageURL: pokemonForm.querySelector('#pkm-face-url').value,
+                types: Array.from(pokemonForm.querySelectorAll('input[name="types"]:checked')).map(cb => cb.value),
+                recommendedNatures: Array.from(pokemonForm.querySelectorAll('input[name="natures"]:checked')).map(cb => cb.value),
+                recommendedItems: Array.from(itemsSelect.selectedOptions).map(opt => opt.value),
+                recommendedRunes: Array.from(runesSelect.selectedOptions).map(opt => opt.value),
+                recommendedChips: Array.from(chipsSelect.selectedOptions).map(opt => opt.value),
+                skills: Array.from(skillsContainer.querySelectorAll('.skill-entry')).map(entry => ({
+                    name: entry.querySelector('[name^="skill_name"]').value,
+                    type: entry.querySelector('[name^="skill_type"]').value,
+                    description: entry.querySelector('[name^="skill_desc"]').value,
+                    keywords: Array.from(entry.querySelectorAll('.keyword-entry')).map(kwEntry => ({
+                        term: kwEntry.querySelector('[name="keyword_term"]').value,
+                        desc: kwEntry.querySelector('[name="keyword_desc"]').value
+                    }))
+                }))
+            };
+            db.collection("pokemon").doc(pkmId).set(pokemonData)
+                .then(() => {
+                    alert(`'${pokemonData.name_ko}' 정보가 성공적으로 저장되었습니다!`);
+                    if (!Array.from(pokemonSelectList.options).some(opt => opt.value === pkmId)) {
+                        loadPokemonList();
+                    }
+                })
+                .catch((error) => {
+                    alert("저장 중 오류가 발생했습니다.");
+                    console.error("Error writing document: ", error);
+                });
+        });
 
         populateDropdowns();
         loadPokemonList();
     }
-
 
     // --- 팁 & 노하우 관리 기능 ---
     const tipForm = document.getElementById('tip-form');
@@ -113,13 +240,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('ID, 제목, 내용을 모두 입력해주세요.');
                 return;
             }
-
             const tipData = {
                 id: tipId,
                 name: tipTitle,
                 htmlContent: tipContent
             };
-
             db.collection("tips").doc(tipId).set(tipData)
                 .then(() => {
                     alert('팁이 성공적으로 저장되었습니다!');
