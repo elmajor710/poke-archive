@@ -304,6 +304,10 @@ header h1 {
         display: block !important;
     }
 
-    .deck-pokemon-cell { cursor: pointer; }
-    .deck-composition-container { display: none; }
+    .deck-pokemon-cell {
+    cursor: pointer; /* PC, 모바일 모두 클릭 커서 표시 */
+}
+.deck-composition-container {
+    display: none; /* PC, 모바일 모두 덱 구성원 목록 숨김 */
+}
 }
