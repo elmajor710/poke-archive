@@ -841,15 +841,16 @@ document.addEventListener('DOMContentLoaded', () => {
         async function getNextData(currentLevel, id, menuId) {
             const nextLevel = currentLevel + 1;
             
-            // 포켓몬 타입 또는 등급 메뉴의 최종 단계일 때 Firebase에서 데이터를 가져옵니다.
+            // ▼▼▼ 포켓몬 데이터를 Firebase에서 가져오도록 수정 ▼▼▼
             if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) {
                 try {
                     const docRef = db.collection("pokemon").doc(id);
                     const doc = await docRef.get();
                     if (doc.exists) {
+                        console.log("Firebase에서 데이터를 성공적으로 가져왔습니다:", doc.data());
                         return doc.data();
                     } else {
-                        // Firebase에 없으면 로컬 data.js에서 찾기
+                        // Firebase에 없으면 로컬 data.js에서 찾기 (기존 데이터 호환)
                         return DB.pokemonType.lev4?.[id] || null;
                     }
                 } catch (error) {
@@ -858,7 +859,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // 팁&노하우 메뉴일 때 Firebase에서 데이터를 가져오는 로직 추가
+            // 팁&노하우 메뉴일 때 Firebase에서 데이터를 가져오는 로직
             if (menuId === 'tips' && nextLevel === 3) {
                  try {
                     const docRef = db.collection("tips").doc(id);
@@ -866,7 +867,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (doc.exists) {
                         return doc.data();
                     } else {
-                        // Firebase에 없으면 로컬 data.js에서 찾기 (기존 데이터 호환)
                         return DB.tips.lev3?.[id] || null;
                     }
                 } catch (error) {
