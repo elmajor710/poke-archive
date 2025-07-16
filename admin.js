@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Firestore 'db' 객체가 HTML에서 먼저 초기화되었다고 가정합니다.
     if (!window.db) {
         console.error("Firestore 'db' 객체를 찾을 수 없습니다. HTML 파일의 스크립트 순서를 확인하세요.");
         return;
@@ -38,8 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const chipsSelect = pokemonForm.querySelector('#pkm-chips');
         const skillsContainer = pokemonForm.querySelector('#skills-container');
         const addSkillBtn = pokemonForm.querySelector('#add-skill-btn');
-        const deletePokemonBtn = pokemonForm.querySelector('.btn-danger');
-
+        const deletePokemonBtn = pokemonForm.querySelector('#delete-pokemon-btn');
 
         function populateDropdowns() {
             if (typesContainer) typesContainer.innerHTML = DB.pokemonType.lev2.map(type => `<label><input type="checkbox" name="types" value="${type.id}"> ${type.name}</label>`).join('');
@@ -152,26 +150,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        deletePokemonBtn.addEventListener('click', async () => {
-            const pkmId = pokemonForm.querySelector('#pkm-id').value.trim();
-            if (!pkmId) {
-                alert('삭제할 포켓몬 데이터가 없습니다. 먼저 불러와주세요.');
-                return;
-            }
-            if (confirm(`정말로 '${pkmId}' 포켓몬 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
-                try {
-                    await db.collection("pokemon").doc(pkmId).delete();
-                    alert(`'${pkmId}' 데이터가 성공적으로 삭제되었습니다.`);
-                    pokemonForm.reset();
-                    skillsContainer.innerHTML = '';
-                    addSkillRow();
-                    loadPokemonList();
-                } catch (error) {
-                    alert('삭제 중 오류가 발생했습니다.');
-                    console.error("삭제 오류: ", error);
+        if(deletePokemonBtn) {
+            deletePokemonBtn.addEventListener('click', async () => {
+                const pkmId = pokemonForm.querySelector('#pkm-id').value.trim();
+                if (!pkmId) {
+                    alert('삭제할 포켓몬 데이터가 없습니다. 먼저 불러와주세요.');
+                    return;
                 }
-            }
-        });
+                if (confirm(`정말로 '${pkmId}' 포켓몬 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
+                    try {
+                        await db.collection("pokemon").doc(pkmId).delete();
+                        alert(`'${pkmId}' 데이터가 성공적으로 삭제되었습니다.`);
+                        pokemonForm.reset();
+                        skillsContainer.innerHTML = '';
+                        addSkillRow();
+                        loadPokemonList();
+                    } catch (error) {
+                        alert('삭제 중 오류가 발생했습니다.');
+                        console.error("삭제 오류: ", error);
+                    }
+                }
+            });
+        }
         
         if (addSkillBtn) addSkillBtn.addEventListener('click', () => addSkillRow());
         if (skillsContainer) {
@@ -226,6 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
         populateDropdowns();
         loadPokemonList();
     }
+
 
     // --- 팁 & 노하우 관리 기능 ---
     const tipForm = document.getElementById('tip-form');
