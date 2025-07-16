@@ -213,10 +213,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- 팁 & 노하우 관리 기능 ---
-    const tipForm = document.getElementById('tip-form');
-    if (tipForm) {
-        const tipSelectList = document.getElementById('tip-select-list');
-        const loadTipBtn = document.getElementById('load-tip-btn');
+    const tipManagementPanel = document.getElementById('tips-management');
+    if(tipManagementPanel) {
+        const tipForm = tipManagementPanel.querySelector('#tip-form');
+        const tipSelectList = tipManagementPanel.querySelector('#tip-select-list');
+        const loadTipBtn = tipManagementPanel.querySelector('#load-tip-btn');
         
         async function loadTipsList() {
             try {
@@ -286,25 +287,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         const deleteTipBtn = tipForm.querySelector('.btn-danger');
-        deleteTipBtn.addEventListener('click', () => {
-             const tipId = tipForm.querySelector('#tip-id').value.trim();
-             if (!tipId) {
-                 alert('삭제할 팁의 ID를 입력해주세요.');
-                 return;
-             }
-             if (confirm(`정말로 '${tipId}' 팁을 삭제하시겠습니까?`)) {
-                 db.collection("tips").doc(tipId).delete()
-                    .then(() => {
-                        alert('팁이 성공적으로 삭제되었습니다.');
-                        tipForm.reset();
-                        loadTipsList(); 
-                    })
-                    .catch(error => {
-                        console.error("팁 삭제 오류: ", error);
-                        alert('팁 삭제 중 오류가 발생했습니다.');
-                    });
-             }
-        });
+        if(deleteTipBtn) {
+            deleteTipBtn.addEventListener('click', () => {
+                 const tipId = tipForm.querySelector('#tip-id').value.trim();
+                 if (!tipId) {
+                     alert('삭제할 팁의 ID를 입력해주세요.');
+                     return;
+                 }
+                 if (confirm(`정말로 '${tipId}' 팁을 삭제하시겠습니까?`)) {
+                     db.collection("tips").doc(tipId).delete()
+                        .then(() => {
+                            alert('팁이 성공적으로 삭제되었습니다.');
+                            tipForm.reset();
+                            loadTipsList(); 
+                        })
+                        .catch(error => {
+                            console.error("팁 삭제 오류: ", error);
+                            alert('팁 삭제 중 오류가 발생했습니다.');
+                        });
+                 }
+            });
+        }
         
         loadTipsList();
     }

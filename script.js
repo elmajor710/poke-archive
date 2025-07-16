@@ -858,7 +858,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // ▼▼▼ 팁&노하우 메뉴일 때 Firebase에서 데이터를 가져오는 로직 추가 ▼▼▼
+            // 팁&노하우 메뉴일 때 Firebase에서 데이터를 가져오는 로직 추가
             if (menuId === 'tips' && nextLevel === 3) {
                  try {
                     const docRef = db.collection("tips").doc(id);
@@ -874,7 +874,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     return DB.tips.lev3?.[id] || null;
                 }
             }
-            // ▲▲▲ 여기까지 추가 ▲▲▲
             
             // 나머지 메뉴들은 로컬 data.js를 사용합니다.
             if (nextLevel === 2) return DB[menuId]?.lev2;
