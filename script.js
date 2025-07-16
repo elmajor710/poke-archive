@@ -14,27 +14,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const isMobile = () => window.innerWidth <= 768;
 
     // --- 유틸리티 함수 ---
-    function showModal(title, contentHTML, isWeatherPopup = false, callback) {
+    function showModal(title, contentHTML) {
         const existingModal = document.querySelector('.modal-overlay');
         if (existingModal) existingModal.remove();
         
         const modalOverlay = document.createElement('div');
         modalOverlay.className = 'modal-overlay';
         
-        let modalClass = 'modal-content';
-        if (isWeatherPopup) modalClass += ' weather-popup';
-        
-        modalOverlay.innerHTML = `<div class="${modalClass}"><div class="modal-header"><h2>${title}</h2><button class="modal-close-btn">&times;</button></div><div class="modal-body">${contentHTML}</div></div>`;
+        modalOverlay.innerHTML = `<div class="modal-content"><div class="modal-header"><h2>${title}</h2><button class="modal-close-btn">&times;</button></div><div class="modal-body">${contentHTML}</div></div>`;
         document.body.appendChild(modalOverlay);
         
         modalOverlay.addEventListener('click', (e) => {
-            const target = e.target;
-            const weatherOption = target.closest('.weather-option');
-
-            if (target.matches('.modal-overlay, .modal-close-btn')) {
-                modalOverlay.remove();
-            } else if (isWeatherPopup && weatherOption && callback) {
-                callback(weatherOption.dataset.weatherName);
+            if (e.target.matches('.modal-overlay, .modal-close-btn')) {
                 modalOverlay.remove();
             }
         });
@@ -149,15 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             el.addEventListener('click', () => { 
                 const skillIndex = parseInt(el.dataset.skillIndex);
                 const skill = data.skills[skillIndex];
-                if (skill) {
-                    let skillDetailContent = `<p>${skill.description || ''}</p>`;
-                    if (skill.keywords && skill.keywords.length > 0) {
-                        skillDetailContent += '<hr><h4>키워드 설명</h4><ul>';
-                        skill.keywords.forEach(kw => { skillDetailContent += `<li><strong>${kw.term}:</strong> ${kw.desc}</li>`; });
-                        skillDetailContent += '</ul>';
-                    }
-                    showModal(skill.name, skillDetailContent); 
-                }
+                if (skill) { showModal(skill.name, `<p>${skill.description || ''}</p>`); }
             }); 
         });
         
@@ -167,9 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const itemType = el.dataset.itemType;
                 const dbKey = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
                 const itemData = DB[dbKey]?.lev4?.[itemId];
-                if (itemData) { 
-                    showModal(itemData.name, `<p>${itemData.description || '상세 정보가 없습니다.'}</p>`); 
-                }
+                if (itemData) { showModal(itemData.name, `<p>${itemData.description || '상세 정보가 없습니다.'}</p>`); }
             }); 
         });
 
@@ -252,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextLevel = currentLevel + 1;
         const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
         
-        if (nextLevel === (categoryInfo?.levels || 0)) { // 최종 레벨일 경우
+        if (nextLevel === (categoryInfo?.levels || 0)) {
             let collectionName = menuId;
             if(menuId === 'pokemonType' || menuId === 'pokemonGrade') collectionName = 'pokemon';
             
