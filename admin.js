@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         await db.collection("pokemon").doc(pkmId).delete();
                         alert(`'${pkmId}' 데이터가 성공적으로 삭제되었습니다.`);
                         pokemonForm.reset();
-                        skillsContainer.innerHTML = '';
+                        if(skillsContainer) skillsContainer.innerHTML = '';
                         addSkillRow();
                         loadPokemonList();
                     } catch (error) { alert('삭제 중 오류가 발생했습니다.'); console.error("삭제 오류: ", error); }
@@ -261,4 +261,4 @@ document.addEventListener('DOMContentLoaded', () => {
              }
         });
     }
-});
+}); // 이 닫는 괄호가 누락되었습니다.

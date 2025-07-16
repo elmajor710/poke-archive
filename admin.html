@@ -98,8 +98,14 @@
 
             <div id="tips-management" class="admin-tab-content">
                 <header class="admin-header">
-                    <h1>팁 & 노하우 관리</h1>
-                </header>
+    <h1>팁 & 노하우 관리</h1>
+    <div>
+        <select id="tip-select-list" style="padding: 10px;">
+            <option value="">-- 팁 선택 --</option>
+        </select>
+        <button id="load-tip-btn" type="button" class="btn btn-primary">불러오기</button>
+    </div>
+</header>
                 <section class="content-section">
                     <h2>팁 추가/수정</h2>
                     <form id="tip-form" class="form-grid">
