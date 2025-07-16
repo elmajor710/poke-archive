@@ -14,23 +14,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const isMobile = () => window.innerWidth <= 768;
 
     // --- 유틸리티 함수 ---
-    function showModal(title, contentHTML) {
+    function showModal(title, contentHTML, isWeatherPopup = false, callback) {
         const existingModal = document.querySelector('.modal-overlay');
         if (existingModal) existingModal.remove();
         
         const modalOverlay = document.createElement('div');
         modalOverlay.className = 'modal-overlay';
         
-        modalOverlay.innerHTML = `<div class="modal-content"><div class="modal-header"><h2>${title}</h2><button class="modal-close-btn">&times;</button></div><div class="modal-body">${contentHTML}</div></div>`;
+        let modalClass = 'modal-content';
+        if (isWeatherPopup) modalClass += ' weather-popup';
+        
+        modalOverlay.innerHTML = `<div class="${modalClass}"><div class="modal-header"><h2>${title}</h2><button class="modal-close-btn">&times;</button></div><div class="modal-body">${contentHTML}</div></div>`;
         document.body.appendChild(modalOverlay);
         
         modalOverlay.addEventListener('click', (e) => {
-            if (e.target.matches('.modal-overlay, .modal-close-btn')) {
+            const target = e.target;
+            const weatherOption = target.closest('.weather-option');
+
+            if (target.matches('.modal-overlay, .modal-close-btn')) {
+                modalOverlay.remove();
+            } else if (isWeatherPopup && weatherOption && callback) {
+                callback(weatherOption.dataset.weatherName);
                 modalOverlay.remove();
             }
         });
     }
-
+    
     // --- 렌더링 함수들 ---
     function renderPokemonView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
@@ -140,7 +149,15 @@ document.addEventListener('DOMContentLoaded', () => {
             el.addEventListener('click', () => { 
                 const skillIndex = parseInt(el.dataset.skillIndex);
                 const skill = data.skills[skillIndex];
-                if (skill) { showModal(skill.name, `<p>${skill.description || ''}</p>`); }
+                if (skill) {
+                    let skillDetailContent = `<p>${skill.description || ''}</p>`;
+                    if (skill.keywords && skill.keywords.length > 0) {
+                        skillDetailContent += '<hr><h4>키워드 설명</h4><ul>';
+                        skill.keywords.forEach(kw => { skillDetailContent += `<li><strong>${kw.term}:</strong> ${kw.desc}</li>`; });
+                        skillDetailContent += '</ul>';
+                    }
+                    showModal(skill.name, skillDetailContent); 
+                }
             }); 
         });
         
@@ -150,7 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const itemType = el.dataset.itemType;
                 const dbKey = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
                 const itemData = DB[dbKey]?.lev4?.[itemId];
-                if (itemData) { showModal(itemData.name, `<p>${itemData.description || '상세 정보가 없습니다.'}</p>`); }
+                if (itemData) { 
+                    showModal(itemData.name, `<p>${itemData.description || '상세 정보가 없습니다.'}</p>`); 
+                }
             }); 
         });
 
@@ -233,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextLevel = currentLevel + 1;
         const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
         
-        if (nextLevel === (categoryInfo?.levels || 0)) {
+        if (nextLevel === (categoryInfo?.levels || 0)) { // 최종 레벨일 경우
             let collectionName = menuId;
             if(menuId === 'pokemonType' || menuId === 'pokemonGrade') collectionName = 'pokemon';
             
@@ -323,13 +342,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     async function initialize() {
         try {
-            // 1. Firebase에서 최신 데이터 목록 가져오기
+            // Firebase에서 최신 데이터 목록 가져오기
             const pokemonSnapshot = await db.collection("pokemon").get();
             const firebasePokemonData = {};
             pokemonSnapshot.forEach(doc => {
                 firebasePokemonData[doc.id] = doc.data();
             });
-            // 2. 로컬 DB를 Firebase 데이터로 완전히 교체
             DB.pokemonType.lev4 = firebasePokemonData;
 
             const tipsSnapshot = await db.collection("tips").get();
@@ -338,7 +356,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 fbTips.push({ id: doc.id, name: doc.data().name });
             });
             
-            // 3. 로컬 팁 목록과 Firebase 팁 목록을 중복 없이 합치기
             const existingTipIds = new Set(DB.tips.lev2.map(t => t.id));
             fbTips.forEach(tip => {
                 if (!existingTipIds.has(tip.id)) {
@@ -346,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // 4. 최종 데이터를 기반으로 메뉴 목록(lev3) 자동 생성
+            // 최종 데이터를 기반으로 메뉴 목록(lev3) 자동 생성
             const types = {};
             DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
             Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
