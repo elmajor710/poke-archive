@@ -195,7 +195,9 @@ header h1 {
 .deck-pokemon-cell { cursor: pointer; }
 .deck-pokemon-cell img { width: 64px; height: 64px; display: block; margin: 0 auto 5px; object-fit: contain; }
 .deck-pokemon-cell .position-number { font-weight: bold; font-size: 0.9em; color: #555; display: block; }
-.deck-composition-container { display: none !important; }
+.deck-composition-container {
+    display: none !important; /* !important를 추가하여 다른 규칙보다 우선적으로 적용 */
+}
 
 .content-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.95em; }
 .content-table th, .content-table td { border: 1px solid var(--border-color); padding: 8px 10px; text-align: left; }
