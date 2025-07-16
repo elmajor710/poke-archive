@@ -208,7 +208,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         populatePokemonDropdowns();
         loadPokemonList();
-        addSkillRow();
     }
 
 
@@ -218,7 +217,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const tipForm = tipManagementPanel.querySelector('#tip-form');
         const tipSelectList = tipManagementPanel.querySelector('#tip-select-list');
         const loadTipBtn = tipManagementPanel.querySelector('#load-tip-btn');
-        
+        const deleteTipBtn = tipForm.querySelector('.btn-danger');
+
         async function loadTipsList() {
             try {
                 const snapshot = await db.collection("tips").orderBy("name").get();
@@ -286,7 +286,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         });
         
-        const deleteTipBtn = tipForm.querySelector('.btn-danger');
         if(deleteTipBtn) {
             deleteTipBtn.addEventListener('click', () => {
                  const tipId = tipForm.querySelector('#tip-id').value.trim();
