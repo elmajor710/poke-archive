@@ -903,23 +903,31 @@ document.addEventListener('DOMContentLoaded', () => {
     
         async function initialize() {
             try {
-                // Firebase에서 데이터 가져와서 로컬 DB와 병합
+                // 1. Firebase에서 최신 데이터 목록 가져오기
+                const pokemonSnapshot = await db.collection("pokemon").get();
+                pokemonSnapshot.forEach(doc => {
+                    // 로컬 DB (DB.pokemonType.lev4)에 Firebase 데이터 덮어쓰기/추가하기
+                    DB.pokemonType.lev4[doc.id] = doc.data();
+                });
+
                 const tipsSnapshot = await db.collection("tips").get();
                 const fbTips = [];
                 tipsSnapshot.forEach(doc => {
                     fbTips.push({ id: doc.id, name: doc.data().name });
                 });
                 
-                // 중복 제거하며 병합
+                // 2. 로컬 data.js와 Firebase 데이터를 합쳐서 최종 목록 만들기
+                // (중복 제거 로직 포함)
                 const existingTipIds = new Set(DB.tips.lev2.map(t => t.id));
                 fbTips.forEach(tip => {
                     if (!existingTipIds.has(tip.id)) {
                         DB.tips.lev2.push(tip);
+                        existingTipIds.add(tip.id);
                     }
                 });
 
 
-                // lev3 데이터 자동 생성
+                // 3. 최종 데이터를 기반으로 메뉴 자동 생성
                 const types = {};
                 DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
                 Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
@@ -943,7 +951,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 DB.pokemonGrade.lev3 = grades;
 
-                // 사이드바 메뉴 생성
+                // 4. 사이드바 메뉴 생성
                 const sidebarContent = document.createElement('div');
                 sidebarContent.className = 'panel-content';
                 DB.sidebarMenu.forEach(item => {
@@ -958,9 +966,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(existingContent) existingContent.remove();
                 sidebar.appendChild(sidebarContent);
                 addEventListeners();
+
             } catch (error) {
-                console.error("초기화 중 오류 발생:", error);
-                document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. data.js 또는 script.js 파일을 확인해주세요.";
+                console.error("초기화 중 심각한 오류 발생:", error);
+                document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
             }
         }
     
