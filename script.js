@@ -734,13 +734,12 @@ document.addEventListener('DOMContentLoaded', () => {
         function handleMainButtonClick() {
             Object.values(panels).forEach((panel, index) => {
                 if (index > 0) { 
-                    panel.classList.remove('visible', 'is-hidden');
+                    panel.classList.remove('visible');
+                    if (isMobile()) panel.classList.add('is-hidden');
                 }
             });
             setActive(0, null);
-            if (isMobile()) {
-                sidebar.classList.remove('is-hidden');
-            }
+            sidebar.classList.remove('is-hidden');
         }
 
         function renderPanelContent(level, data, menuId, clickedId) {
@@ -902,8 +901,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     
-        function initialize() {
+        async function initialize() {
             try {
+                // Firebase에서 데이터 가져와서 로컬 DB와 병합
+                const tipsSnapshot = await db.collection("tips").get();
+                const fbTips = [];
+                tipsSnapshot.forEach(doc => {
+                    fbTips.push({ id: doc.id, name: doc.data().name });
+                });
+                
+                // 중복 제거하며 병합
+                const existingTipIds = new Set(DB.tips.lev2.map(t => t.id));
+                fbTips.forEach(tip => {
+                    if (!existingTipIds.has(tip.id)) {
+                        DB.tips.lev2.push(tip);
+                    }
+                });
+
+
                 // lev3 데이터 자동 생성
                 const types = {};
                 DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
