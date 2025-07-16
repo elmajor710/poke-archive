@@ -215,6 +215,49 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 팁 & 노하우 관리 기능 ---
     const tipForm = document.getElementById('tip-form');
     if (tipForm) {
+        const tipSelectList = document.getElementById('tip-select-list');
+        const loadTipBtn = document.getElementById('load-tip-btn');
+        
+        async function loadTipsList() {
+            try {
+                const snapshot = await db.collection("tips").orderBy("name").get();
+                tipSelectList.innerHTML = '<option value="">-- 팁 선택 --</option>'; 
+                snapshot.forEach(doc => {
+                    const tip = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = tip.name || doc.id;
+                    tipSelectList.appendChild(option);
+                });
+            } catch (error) { console.error("팁 목록 로딩 오류: ", error); }
+        }
+
+        if(loadTipBtn) {
+            loadTipBtn.addEventListener('click', async () => {
+                const selectedId = tipSelectList.value;
+                if (!selectedId) {
+                    alert('불러올 팁을 선택해주세요.');
+                    return;
+                }
+                try {
+                    const docRef = db.collection("tips").doc(selectedId);
+                    const doc = await docRef.get();
+                    if (doc.exists) {
+                        const data = doc.data();
+                        tipForm.querySelector('#tip-id').value = data.id || '';
+                        tipForm.querySelector('#tip-title').value = data.name || '';
+                        tipForm.querySelector('#tip-content').value = data.htmlContent || '';
+                        alert(`'${data.name}' 데이터를 불러왔습니다.`);
+                    } else {
+                        alert('해당 ID의 팁 데이터를 찾을 수 없습니다.');
+                    }
+                } catch (error) {
+                    alert('데이터를 불러오는 중 오류가 발생했습니다.');
+                    console.error("팁 데이터 불러오기 오류: ", error);
+                }
+            });
+        }
+
         tipForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const tipId = tipForm.querySelector('#tip-id').value.trim();
@@ -234,6 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(() => {
                     alert('팁이 성공적으로 저장되었습니다!');
                     tipForm.reset();
+                    loadTipsList(); 
                 })
                 .catch(error => {
                     console.error("팁 저장 오류: ", error);
@@ -253,6 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     .then(() => {
                         alert('팁이 성공적으로 삭제되었습니다.');
                         tipForm.reset();
+                        loadTipsList(); 
                     })
                     .catch(error => {
                         console.error("팁 삭제 오류: ", error);
@@ -260,5 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
              }
         });
+        
+        loadTipsList();
     }
-}); // 이 닫는 괄호가 누락되었습니다.
+});

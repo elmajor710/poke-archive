@@ -841,6 +841,7 @@ document.addEventListener('DOMContentLoaded', () => {
         async function getNextData(currentLevel, id, menuId) {
             const nextLevel = currentLevel + 1;
             
+            // 포켓몬 타입 또는 등급 메뉴의 최종 단계일 때 Firebase에서 데이터를 가져옵니다.
             if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) {
                 try {
                     const docRef = db.collection("pokemon").doc(id);
@@ -848,17 +849,38 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (doc.exists) {
                         return doc.data();
                     } else {
+                        // Firebase에 없으면 로컬 data.js에서 찾기
                         return DB.pokemonType.lev4?.[id] || null;
                     }
                 } catch (error) {
+                    console.error("Firebase 포켓몬 데이터 로딩 오류:", error);
                     return DB.pokemonType.lev4?.[id] || null;
                 }
             }
-    
+            
+            // ▼▼▼ 팁&노하우 메뉴일 때 Firebase에서 데이터를 가져오는 로직 추가 ▼▼▼
+            if (menuId === 'tips' && nextLevel === 3) {
+                 try {
+                    const docRef = db.collection("tips").doc(id);
+                    const doc = await docRef.get();
+                    if (doc.exists) {
+                        return doc.data();
+                    } else {
+                        // Firebase에 없으면 로컬 data.js에서 찾기 (기존 데이터 호환)
+                        return DB.tips.lev3?.[id] || null;
+                    }
+                } catch (error) {
+                    console.error("Firebase 팁 데이터 로딩 오류:", error);
+                    return DB.tips.lev3?.[id] || null;
+                }
+            }
+            // ▲▲▲ 여기까지 추가 ▲▲▲
+            
+            // 나머지 메뉴들은 로컬 data.js를 사용합니다.
             if (nextLevel === 2) return DB[menuId]?.lev2;
             if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
             if (nextLevel === 4) return DB[menuId]?.lev4?.[id];
-    
+
             return null;
         }
     
