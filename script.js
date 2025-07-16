@@ -267,7 +267,149 @@ document.addEventListener('DOMContentLoaded', () => {
 }
         
         function renderCalendarView(contentDiv, data) {
-            // ... 이전과 동일 ...
+            let currentCalendarDate = new Date();
+            
+            function buildCalendar(year, month) {
+                const calendarView = document.createElement('div');
+                calendarView.className = 'calendar-view';
+                
+                const monthEvents = {};
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const daysInMonth = lastDay.getDate();
+                const startDay = firstDay.getDay();
+
+                const addEvent = (event, eventDate) => {
+                    const day = eventDate.getDate();
+                    if (!monthEvents[day]) monthEvents[day] = [];
+                    
+                    const fullEventInfo = {
+                        ...event,
+                        startDate: new Date(event.date + 'T00:00:00'),
+                        endDate: new Date(new Date(event.date + 'T00:00:00').setDate(new Date(event.date + 'T00:00:00').getDate() + (event.duration - 1)))
+                    };
+                    monthEvents[day].push(fullEventInfo);
+                };
+
+                (data.events || []).forEach(event => {
+                    for (let i = 0; i < (event.duration || 1); i++) {
+                        const eventDate = new Date(event.date + 'T00:00:00');
+                        eventDate.setDate(eventDate.getDate() + i);
+                        if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                            addEvent(event, eventDate);
+                        }
+                    }
+                });
+
+                (data.recurringEvents || []).forEach(re => {
+                     let currentDate = new Date(re.startDate + 'T00:00:00');
+                     while (currentDate.getFullYear() < year + 2) {
+                        if (currentDate.getFullYear() === year && currentDate.getMonth() > month) break;
+                        if (currentDate.getFullYear() > year) break;
+
+                        for (let i = 0; i < (re.duration || 1); i++) {
+                            const eventDate = new Date(currentDate);
+                            eventDate.setDate(eventDate.getDate() + i);
+                             if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                                addEvent({ ...re, date: currentDate.toISOString().split('T')[0] }, eventDate);
+                            }
+                        }
+                        if (re.interval === '4_weeks') {
+                            currentDate.setDate(currentDate.getDate() + 28);
+                        } else {
+                            break;
+                        }
+                    }
+                });
+                
+                let html = `
+                    <div class="calendar-header">
+                        <span class="calendar-title">${year}년 ${month + 1}월</span>
+                        <div class="calendar-nav">
+                            <button id="cal-prev-btn">&lt; 이전</button>
+                            <button id="cal-today-btn">Today</button>
+                            <button id="cal-next-btn">다음 &gt;</button>
+                        </div>
+                    </div>
+                    <div class="calendar-legend">
+                         <div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div>
+                        <div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div>
+                        <div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div>
+                    </div>
+                    <table class="calendar-grid">
+                        <thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead>
+                        <tbody>`;
+
+                let dateCounter = 1;
+                for (let i = 0; i < 6; i++) {
+                    html += '<tr>';
+                    for (let j = 0; j < 7; j++) {
+                        if (i === 0 && j < startDay || dateCounter > daysInMonth) {
+                            html += '<td class="day-other-month"></td>';
+                        } else {
+                            const today = new Date();
+                            const isToday = (dateCounter === today.getDate() && month === today.getMonth() && year === today.getFullYear());
+                            const eventsOnDay = monthEvents[dateCounter];
+                            let cellClass = 'day-current-month';
+                            if (isToday) cellClass += ' day-today';
+                            if (eventsOnDay) cellClass += ' has-events';
+                            
+                            html += `<td class="${cellClass}" data-day="${dateCounter}">
+                                        <div class="date-number">${dateCounter}</div>`;
+                            if (eventsOnDay) {
+                                html += `<div class="event-markers">`;
+                                eventsOnDay.forEach(event => {
+                                    html += `<div class="event-marker event-type-${event.type}">${event.title || event.name}</div>`;
+                                });
+                                html += `</div>`;
+                            }
+                            html += '</td>';
+                            dateCounter++;
+                        }
+                    }
+                    html += '</tr>';
+                    if (dateCounter > daysInMonth) break;
+                }
+                html += `</tbody></table>`;
+                calendarView.innerHTML = html;
+                
+                calendarView.addEventListener('click', (e) => {
+                    const target = e.target;
+                    if(target.id === 'cal-prev-btn') {
+                        currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+                        updateCalendar();
+                    } else if (target.id === 'cal-next-btn') {
+                        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+                        updateCalendar();
+                    } else if (target.id === 'cal-today-btn') {
+                        currentCalendarDate = new Date();
+                        updateCalendar();
+                    } else {
+                        const cell = target.closest('.has-events');
+                        if (cell) {
+                            const day = parseInt(cell.dataset.day);
+                            const events = monthEvents[day];
+                            if(events && events.length > 0) {
+                                const eventContent = events.map(evt => {
+                                    const duration = evt.duration || 1;
+                                    const startStr = evt.startDate.toISOString().split('T')[0];
+                                    const endStr = evt.endDate.toISOString().split('T')[0];
+                                    const period = duration > 1 ? `${startStr} ~ ${endStr} (${duration}일간)` : startStr;
+                                    return `<h4>${evt.title || evt.name}</h4><p><strong>기간:</strong> ${period}</p><p>${evt.description}</p>`;
+                                }).join('<hr>');
+                                showModal(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')} 이벤트`, eventContent);
+                            }
+                        }
+                    }
+                });
+                return calendarView;
+            }
+
+            function updateCalendar() {
+                contentDiv.innerHTML = '';
+                contentDiv.appendChild(buildCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth()));
+            }
+            updateCalendar();
         }
 
         function renderDeckBuilder(contentDiv) {
