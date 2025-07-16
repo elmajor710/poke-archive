@@ -902,56 +902,67 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     
         async function initialize() {
-        try {
-            // 1. Firebase에서 최신 포켓몬 데이터 목록 전체를 가져옵니다.
-            const pokemonSnapshot = await db.collection("pokemon").get();
-            const firebasePokemonData = {};
-            pokemonSnapshot.forEach(doc => {
-                firebasePokemonData[doc.id] = doc.data();
-            });
-            // 2. 로컬 DB를 Firebase 데이터로 완전히 교체합니다.
-            DB.pokemonType.lev4 = firebasePokemonData;
+            try {
+                // Firebase에서 최신 포켓몬 데이터 목록 전체를 가져옵니다.
+                const pokemonSnapshot = await db.collection("pokemon").get();
+                const firebasePokemonData = {};
+                pokemonSnapshot.forEach(doc => {
+                    firebasePokemonData[doc.id] = doc.data();
+                });
+                // 로컬 DB를 Firebase 데이터로 완전히 교체합니다.
+                DB.pokemonType.lev4 = firebasePokemonData;
 
-            // (팁&노하우 데이터 병합 로직은 이전과 동일)
-            const tipsSnapshot = await db.collection("tips").get();
-            const fbTips = [];
-            tipsSnapshot.forEach(doc => {
-                fbTips.push({ id: doc.id, name: doc.data().name });
-            });
-            const existingTipIds = new Set(DB.tips.lev2.map(t => t.id));
-            fbTips.forEach(tip => {
-                if (!existingTipIds.has(tip.id)) {
-                    DB.tips.lev2.push(tip);
-                    existingTipIds.add(tip.id);
-                }
-            });
+                // Firebase에서 최신 팁 데이터 목록 전체를 가져옵니다.
+                const tipsSnapshot = await db.collection("tips").get();
+                const fbTips = [];
+                tipsSnapshot.forEach(doc => {
+                    fbTips.push({ id: doc.id, name: doc.data().name });
+                });
+                // 로컬 팁 목록과 Firebase 팁 목록을 중복 없이 합칩니다.
+                const existingTipIds = new Set(DB.tips.lev2.map(t => t.id));
+                fbTips.forEach(tip => {
+                    if (!existingTipIds.has(tip.id)) {
+                        DB.tips.lev2.push(tip);
+                        existingTipIds.add(tip.id);
+                    }
+                });
 
 
-            // 3. 최종 데이터를 기반으로 메뉴 자동 생성 (이하 로직은 동일)
-            const types = {};
-            DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
-            Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
-                const pkmName = pokemon.name_ko || (pokemon.name && pokemon.name.ko);
-                if (pokemon.types && pkmName) {
-                    pokemon.types.forEach(typeId => {
-                        if (types[typeId]) { types[typeId].push({ id: pokemonId, name: pkmName }); }
-                    });
-                }
-            });
-            DB.pokemonType.lev3 = types;
+                // 최종 데이터를 기반으로 메뉴 자동 생성
+                const types = {};
+                DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
+                Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
+                    const pkmName = pokemon.name_ko || (pokemon.name && pokemon.name.ko);
+                    if (pokemon.types && pkmName) {
+                        pokemon.types.forEach(typeId => {
+                            if (types[typeId]) { types[typeId].push({ id: pokemonId, name: pkmName }); }
+                        });
+                    }
+                });
+                DB.pokemonType.lev3 = types;
 
-            const grades = {};
-            DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
-            Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
-                const pkmName = pokemon.name_ko || (pokemon.name && pokemon.name.ko);
-                if (pokemon && pokemon.grade && pkmName) {
-                     const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id;
-                    if (gradeId && grades[gradeId]) { grades[gradeId].push({ id: pokemonId, name: pkmName }); }
-                }
-            });
-            DB.pokemonGrade.lev3 = grades;
+                const grades = {};
+                DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
+                Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
+                    const pkmName = pokemon.name_ko || (pokemon.name && pokemon.name.ko);
+                    if (pokemon && pokemon.grade && pkmName) {
+                         const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id;
+                        if (gradeId && grades[gradeId]) { grades[gradeId].push({ id: pokemonId, name: pkmName }); }
+                    }
+                });
+                DB.pokemonGrade.lev3 = grades;
 
-            // 4. 사이드바 메뉴 생성
+                // 사이드바 메뉴 생성
+                renderSidebar();
+                addEventListeners();
+
+            } catch (error) {
+                console.error("초기화 중 심각한 오류 발생:", error);
+                document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
+            }
+        }
+        
+        function renderSidebar() {
             const sidebarContent = document.createElement('div');
             sidebarContent.className = 'panel-content';
             DB.sidebarMenu.forEach(item => {
@@ -965,13 +976,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const existingContent = sidebar.querySelector('.panel-content');
             if(existingContent) existingContent.remove();
             sidebar.appendChild(sidebarContent);
-            addEventListeners();
-
-        } catch (error) {
-            console.error("초기화 중 심각한 오류 발생:", error);
-            document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
         }
-    }
     
         function addEventListeners() {
             appContainer.addEventListener('click', e => {
