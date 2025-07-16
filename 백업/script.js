@@ -744,11 +744,22 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const contentDiv = targetPanel.querySelector('.panel-content');
             if (!contentDiv) return;
+
+            const panelHeader = targetPanel.querySelector('.panel-header');
+            const existingMainBtn = panelHeader.querySelector('.main-btn');
+            if (existingMainBtn) {
+                existingMainBtn.remove(); // 다른 화면으로 이동 시, 이전에 있던 메인 버튼을 우선 제거
+            }
     
             contentDiv.innerHTML = '';
             contentDiv.scrollTop = 0;
 
             if (clickedId === 'deckBuilder') {
+                const mainButton = document.createElement('button');
+                mainButton.className = 'main-btn';
+                mainButton.textContent = '메인';
+                panelHeader.appendChild(mainButton);
+                
                 if (isMobile()) {
                     contentDiv.innerHTML = `<div class="pc-only-message"><h3>기능 안내</h3><p>배치툴 기능은 화면이 넓은 PC 환경에 최적화되어 있습니다.<br>PC에서 접속하여 이용해주세요.</p></div>`;
                 } else {
@@ -766,6 +777,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
     
             if (isFinalView) {
+                const mainButton = document.createElement('button');
+                mainButton.className = 'main-btn';
+                mainButton.textContent = '메인';
+                panelHeader.appendChild(mainButton);
+
                 if (menuId === 'deck' && data.composition) {
                     renderDeckView(contentDiv, data);
                 } else if(menuId === 'calendar') {
