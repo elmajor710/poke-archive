@@ -14,7 +14,7 @@
                 <ul>
                     <li><a href="#" class="admin-tab-link active" data-tab="pokemon-management">포켓몬 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="tips-management">팁 & 노하우 관리</a></li>
-                    </ul>
+                </ul>
             </nav>
         </aside>
         <main class="admin-main">
@@ -29,12 +29,11 @@
                     </div>
                 </header>
                 <section class="content-section">
-                    <h2>포켓몬 추가/수정</h2>
                     <form id="pokemon-form">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="pkm-id">고유 ID (영문)</label>
-                                <input type="text" id="pkm-id" placeholder="새로 추가할 경우 영문 ID 입력">
+                                <input type="text" id="pkm-id" placeholder="새 포켓몬 ID 또는 불러온 ID">
                             </div>
                             <div class="form-group">
                                 <label for="pkm-name-ko">한글 이름</label>
@@ -60,7 +59,7 @@
                                 <label for="pkm-image-url">전체 이미지 URL</label>
                                 <input type="text" id="pkm-image-url">
                             </div>
-                             <div class="form-group form-group-span-2">
+                            <div class="form-group form-group-span-2">
                                 <label for="pkm-face-url">얼굴 이미지 URL</label>
                                 <input type="text" id="pkm-face-url">
                             </div>
@@ -72,11 +71,11 @@
                         <div class="form-section">
                             <h3>추천 빌드</h3>
                             <div class="form-group">
-                                <label>추천 성격 (다중선택 가능)</label>
+                                <label>추천 성격</label>
                                 <div id="pkm-natures-container" class="checkbox-group scrollable"></div>
                             </div>
                             <div class="form-group">
-                                 <label for="pkm-items">추천 아이템 (다중선택: Ctrl 또는 Shift + 클릭)</label>
+                                 <label for="pkm-items">추천 아이템</label>
                                  <select id="pkm-items" multiple></select>
                             </div>
                              <div class="form-group">

@@ -26,10 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 포켓몬 관리 기능 ---
-    const pokemonForm = document.getElementById('pokemon-form');
-    if (pokemonForm) {
-        const pokemonSelectList = document.getElementById('pokemon-select-list');
-        const loadPokemonBtn = document.getElementById('load-pokemon-btn');
+    const pokemonManagementPanel = document.getElementById('pokemon-management');
+    if (pokemonManagementPanel) {
+        const pokemonForm = pokemonManagementPanel.querySelector('#pokemon-form');
+        const pokemonSelectList = pokemonManagementPanel.querySelector('#pokemon-select-list');
+        const loadPokemonBtn = pokemonManagementPanel.querySelector('#load-pokemon-btn');
         const typesContainer = pokemonForm.querySelector('#pkm-types-container');
         const naturesContainer = pokemonForm.querySelector('#pkm-natures-container');
         const itemsSelect = pokemonForm.querySelector('#pkm-items');
@@ -39,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const addSkillBtn = pokemonForm.querySelector('#add-skill-btn');
         const deletePokemonBtn = pokemonForm.querySelector('#delete-pokemon-btn');
 
-        function populateDropdowns() {
+        function populatePokemonDropdowns() {
             if (typesContainer) typesContainer.innerHTML = DB.pokemonType.lev2.map(type => `<label><input type="checkbox" name="types" value="${type.id}"> ${type.name}</label>`).join('');
             if (naturesContainer) naturesContainer.innerHTML = DB.definitions.natures.map(nature => `<label><input type="checkbox" name="natures" value="${nature.id}"> ${nature.name}</label>`).join('');
             if (itemsSelect) {
@@ -64,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) { console.error("포켓몬 목록 로딩 오류: ", error); }
         }
 
-        function populateForm(data) {
+        function populatePokemonForm(data) {
             pokemonForm.reset();
             if(skillsContainer) skillsContainer.innerHTML = '';
             pokemonForm.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
@@ -76,8 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
             pokemonForm.querySelector('#pkm-image-url').value = data.imageURL || '';
             pokemonForm.querySelector('#pkm-face-url').value = data.faceImageURL || '';
 
-            data.types?.forEach(id => { pokemonForm.querySelector(`input[name="types"][value="${id}"]`)?.setAttribute('checked', 'true'); });
-            data.recommendedNatures?.forEach(id => { pokemonForm.querySelector(`input[name="natures"][value="${id}"]`)?.setAttribute('checked', 'true'); });
+            data.types?.forEach(id => { const cb = pokemonForm.querySelector(`input[name="types"][value="${id}"]`); if(cb) cb.checked = true; });
+            data.recommendedNatures?.forEach(id => { const cb = pokemonForm.querySelector(`input[name="natures"][value="${id}"]`); if(cb) cb.checked = true; });
 
             Array.from(itemsSelect.options).forEach(opt => opt.selected = data.recommendedItems?.includes(opt.value));
             Array.from(runesSelect.options).forEach(opt => opt.selected = data.recommendedRunes?.includes(opt.value));
@@ -93,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const skillId = skillCount;
             const skillEntry = document.createElement('div');
             skillEntry.className = 'skill-entry';
-            skillEntry.dataset.skillId = skillId;
             const skillName = skillData?.name || '';
             const skillType = skillData?.type || 'Active';
             const skillDesc = skillData?.description || '';
@@ -131,33 +131,22 @@ document.addEventListener('DOMContentLoaded', () => {
         
         loadPokemonBtn.addEventListener('click', async () => {
             const selectedId = pokemonSelectList.value;
-            if (!selectedId) {
-                alert('불러올 포켓몬을 선택해주세요.');
-                return;
-            }
+            if (!selectedId) { alert('불러올 포켓몬을 선택해주세요.'); return; }
             try {
                 const docRef = db.collection("pokemon").doc(selectedId);
                 const doc = await docRef.get();
                 if (doc.exists) {
-                    populateForm({ id: doc.id, ...doc.data() });
+                    populatePokemonForm({ id: doc.id, ...doc.data() });
                     alert(`'${doc.data().name_ko}' 데이터를 불러왔습니다.`);
-                } else {
-                    alert('해당 ID의 포켓몬 데이터를 찾을 수 없습니다.');
-                }
-            } catch (error) {
-                alert('데이터를 불러오는 중 오류가 발생했습니다.');
-                console.error("데이터 불러오기 오류: ", error);
-            }
+                } else { alert('해당 ID의 포켓몬 데이터를 찾을 수 없습니다.'); }
+            } catch (error) { alert('데이터를 불러오는 중 오류가 발생했습니다.'); console.error("데이터 불러오기 오류: ", error); }
         });
         
         if(deletePokemonBtn) {
             deletePokemonBtn.addEventListener('click', async () => {
                 const pkmId = pokemonForm.querySelector('#pkm-id').value.trim();
-                if (!pkmId) {
-                    alert('삭제할 포켓몬 데이터가 없습니다. 먼저 불러와주세요.');
-                    return;
-                }
-                if (confirm(`정말로 '${pkmId}' 포켓몬 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
+                if (!pkmId) { alert('삭제할 포켓몬 데이터가 없습니다.'); return; }
+                if (confirm(`정말로 '${pkmId}' 포켓몬 데이터를 삭제하시겠습니까?`)) {
                     try {
                         await db.collection("pokemon").doc(pkmId).delete();
                         alert(`'${pkmId}' 데이터가 성공적으로 삭제되었습니다.`);
@@ -165,10 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         skillsContainer.innerHTML = '';
                         addSkillRow();
                         loadPokemonList();
-                    } catch (error) {
-                        alert('삭제 중 오류가 발생했습니다.');
-                        console.error("삭제 오류: ", error);
-                    }
+                    } catch (error) { alert('삭제 중 오류가 발생했습니다.'); console.error("삭제 오류: ", error); }
                 }
             });
         }
@@ -185,10 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pokemonForm.addEventListener('submit', e => {
             e.preventDefault();
             const pkmId = pokemonForm.querySelector('#pkm-id').value.trim();
-            if (!pkmId) {
-                alert('고유 ID를 입력해주세요.');
-                return;
-            }
+            if (!pkmId) { alert('고유 ID를 입력해주세요.'); return; }
             const pokemonData = {
                 name_ko: pokemonForm.querySelector('#pkm-name-ko').value,
                 name_en: pokemonForm.querySelector('#pkm-name-en').value,
@@ -223,8 +206,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         });
 
-        populateDropdowns();
+        populatePokemonDropdowns();
         loadPokemonList();
+        addSkillRow();
     }
 
 
