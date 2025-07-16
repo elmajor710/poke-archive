@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
             } else {
-                finalHTML += statsHTML + skillsHTML + buildHTML;
+                finalHTML += `<div class="info-sections">${statsHTML}${skillsHTML}${buildHTML}</div>`;
             }
             
             detailView.innerHTML = finalHTML;
@@ -197,74 +197,70 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function renderDeckView(contentDiv, data) {
-    let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
-    if (data.description) { html += `<p>${data.description}</p>`; }
-    
-    const grid = Array(3).fill(null).map(() => Array(3).fill(null));
-    const positionMap = { 'vanguard_1': [0, 2], 'vanguard_2': [1, 2], 'vanguard_3': [2, 2], 'rearguard_4': [0, 1], 'rearguard_5': [1, 1], 'rearguard_6': [2, 1], 'assist_1': [0, 0], 'assist_2': [1, 0], 'assist_3': [2, 0] };
-    
-    data.composition.forEach(member => { 
-        const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
-        if (!pkmData) return; 
-        const roleKey = member.role === 'assist' ? 'assist' : (member.position < 4 ? 'vanguard' : 'rearguard'); 
-        const key = `${roleKey}_${member.position}`; 
-        const [row, col] = positionMap[key]; 
-        grid[row][col] = { ...pkmData, id: member.pokemonId, role: member.role, position: member.position }; 
-    });
-
-    html += `<h4>덱 배치</h4><table class="deck-grid-table"><thead><tr><th>어시스트</th><th>후방</th><th>전방</th></tr></thead><tbody>`;
-    for (let i = 0; i < 3; i++) { 
-        html += '<tr>'; 
-        for (let j = 0; j < 3; j++) { 
-            const cell = grid[i][j]; 
-            if (cell) { 
-                const roleText = cell.role === 'assist' ? '어시스트' : '메인'; 
-                html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="position-number">${roleText} #${cell.position}</span></div></td>`; 
-            } else { 
-                html += '<td></td>'; 
-            } 
-        } 
-        html += '</tr>'; 
-    }
-    html += `</tbody></table>`;
-    
-    html += `<div class="deck-composition-container"><h4>덱 구성원</h4>`;
-    const mainMembers = data.composition.filter(m => m.role === 'main').sort((a,b) => a.position - b.position);
-    const assistMembers = data.composition.filter(m => m.role === 'assist').sort((a,b) => a.position - b.position);
-    if (mainMembers.length > 0) {
-        html += `<h5>메인</h5><ul class="deck-composition-list">`;
-        mainMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>메인 #${member.position}:</b> ${pkmData.name_ko}</li>`; });
-        html += `</ul>`;
-    }
-    if (assistMembers.length > 0) {
-        html += `<h5>어시스트</h5><ul class="deck-composition-list">`;
-        assistMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>어시스트 #${member.position}:</b> ${pkmData.name_ko}</li>`; });
-        html += `</ul>`;
-    }
-    html += `</div>`; // .deck-composition-container 닫기
-    contentDiv.innerHTML = html;
-
-    contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
-        cell.addEventListener('click', () => {
-            // isMobile() 체크를 제거하여 PC에서도 클릭이 가능하도록 함
-            const pokemonId = cell.dataset.pokemonId;
-            const pkmData = DB.pokemonType.lev4[pokemonId];
-            if (pkmData) {
-                let typesHTML = (pkmData.types || []).map(typeId => {
-                    const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-                    return typeInfo ? `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>` : '';
-                }).join(' ');
-
-                const modalContent = `
-                    <div class="badge-container">
-                        <span class="grade-badge grade-${pkmData.grade.toLowerCase().replace('+', '-plus')}">${pkmData.grade}</span>
-                        ${typesHTML}
-                    </div>`;
-                showModal(pkmData.name_ko, modalContent);
+            let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
+            if (data.description) { html += `<p>${data.description}</p>`; }
+            const grid = Array(3).fill(null).map(() => Array(3).fill(null));
+            const positionMap = { 'vanguard_1': [0, 2], 'vanguard_2': [1, 2], 'vanguard_3': [2, 2], 'rearguard_4': [0, 1], 'rearguard_5': [1, 1], 'rearguard_6': [2, 1], 'assist_1': [0, 0], 'assist_2': [1, 0], 'assist_3': [2, 0] };
+            data.composition.forEach(member => { 
+                const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
+                if (!pkmData) return; 
+                const roleKey = member.role === 'assist' ? 'assist' : (member.position < 4 ? 'vanguard' : 'rearguard'); 
+                const key = `${roleKey}_${member.position}`; 
+                const [row, col] = positionMap[key]; 
+                grid[row][col] = { ...pkmData, id: member.pokemonId, role: member.role, position: member.position }; 
+            });
+            html += `<h4>덱 배치</h4><table class="deck-grid-table"><thead><tr><th>어시스트</th><th>후방</th><th>전방</th></tr></thead><tbody>`;
+            for (let i = 0; i < 3; i++) { 
+                html += '<tr>'; 
+                for (let j = 0; j < 3; j++) { 
+                    const cell = grid[i][j]; 
+                    if (cell) { 
+                        const roleText = cell.role === 'assist' ? '어시스트' : '메인'; 
+                        html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="position-number">${roleText} #${cell.position}</span></div></td>`; 
+                    } else { 
+                        html += '<td></td>'; 
+                    } 
+                } 
+                html += '</tr>'; 
             }
-        });
-    });
-}
+            html += `</tbody></table>`;
+            
+            html += `<div class="deck-composition-container" style="display: none;"><h4>덱 구성원</h4>`;
+            const mainMembers = data.composition.filter(m => m.role === 'main').sort((a,b) => a.position - b.position);
+            const assistMembers = data.composition.filter(m => m.role === 'assist').sort((a,b) => a.position - b.position);
+            if (mainMembers.length > 0) {
+                html += `<h5>메인</h5><ul class="deck-composition-list">`;
+                mainMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>메인 #${member.position}:</b> ${pkmData.name_ko}</li>`; });
+                html += `</ul>`;
+            }
+            if (assistMembers.length > 0) {
+                html += `<h5>어시스트</h5><ul class="deck-composition-list">`;
+                assistMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>어시스트 #${member.position}:</b> ${pkmData.name_ko}</li>`; });
+                html += `</ul>`;
+            }
+            html += `</div>`;
+            contentDiv.innerHTML = html;
+        
+            contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
+                cell.addEventListener('click', () => {
+                    const pokemonId = cell.dataset.pokemonId;
+                    const pkmData = DB.pokemonType.lev4[pokemonId];
+                    if (pkmData) {
+                        let typesHTML = (pkmData.types || []).map(typeId => {
+                            const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+                            return typeInfo ? `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>` : '';
+                        }).join(' ');
+        
+                        const modalContent = `
+                            <div class="badge-container">
+                                <span class="grade-badge grade-${pkmData.grade.toLowerCase().replace('+', '-plus')}">${pkmData.grade}</span>
+                                ${typesHTML}
+                            </div>`;
+                        showModal(pkmData.name_ko, modalContent);
+                    }
+                });
+            });
+        }
         
         function renderCalendarView(contentDiv, data) {
             let currentCalendarDate = new Date();
@@ -282,7 +278,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const addEvent = (event, eventDate) => {
                     const day = eventDate.getDate();
                     if (!monthEvents[day]) monthEvents[day] = [];
-                    
                     const fullEventInfo = {
                         ...event,
                         startDate: new Date(event.date + 'T00:00:00'),
@@ -306,7 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
                      while (currentDate.getFullYear() < year + 2) {
                         if (currentDate.getFullYear() === year && currentDate.getMonth() > month) break;
                         if (currentDate.getFullYear() > year) break;
-
                         for (let i = 0; i < (re.duration || 1); i++) {
                             const eventDate = new Date(currentDate);
                             eventDate.setDate(eventDate.getDate() + i);
@@ -738,6 +732,18 @@ document.addEventListener('DOMContentLoaded', () => {
             updateTeamEffects();
         }
         
+        function handleMainButtonClick() {
+            Object.values(panels).forEach((panel, index) => {
+                if (index > 0) { 
+                    panel.classList.remove('visible', 'is-hidden');
+                }
+            });
+            setActive(0, null);
+            if (isMobile()) {
+                sidebar.classList.remove('is-hidden');
+            }
+        }
+
         function renderPanelContent(level, data, menuId, clickedId) {
             const targetPanel = panels[`lev${level}`];
             if (!targetPanel) return;
@@ -748,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const panelHeader = targetPanel.querySelector('.panel-header');
             const existingMainBtn = panelHeader.querySelector('.main-btn');
             if (existingMainBtn) {
-                existingMainBtn.remove(); // 다른 화면으로 이동 시, 이전에 있던 메인 버튼을 우선 제거
+                existingMainBtn.remove();
             }
     
             contentDiv.innerHTML = '';
@@ -936,7 +942,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!button) return;
                 if (button.classList.contains('back-btn')) { 
                     handleBackClick(button); 
-                } else if (button.dataset.level) { 
+                } else if (button.classList.contains('main-btn')) {
+                    handleMainButtonClick();
+                }
+                else if (button.dataset.level) { 
                     handleMenuClick(button); 
                 }
             });
