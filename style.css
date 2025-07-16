@@ -281,33 +281,16 @@ header h1 {
     border-radius: 0;
 }
 
-@media (max-width: 768px) {
-    #sidebar, .panel { 
-        position: absolute; 
-        width: 100%; 
-    }
-    #sidebar.is-hidden, .panel.is-hidden { 
-        transform: translateX(-100%); 
-        z-index: 1; 
-    }
+/* --- 추천덱 페이지 UI 최종 수정 --- */
 
-    .pokemon-detail-view.use-tabs .tab-nav,
-    .pokemon-detail-view:not(.use-tabs) .tab-nav {
-        display: flex;
-    }
-    .pokemon-detail-view.use-tabs .tab-pane,
-    .pokemon-detail-view:not(.use-tabs) .tab-pane {
-        display: none !important;
-    }
-    .pokemon-detail-view.use-tabs .tab-pane.active,
-    .pokemon-detail-view:not(.use-tabs) .tab-pane.active {
-        display: block !important;
-    }
-
-    .deck-pokemon-cell {
-    cursor: pointer; /* PC, 모바일 모두 클릭 커서 표시 */
+/* PC와 모바일 모두 클릭 가능하도록 커서 모양 변경 */
+.deck-pokemon-cell {
+    cursor: pointer;
 }
+
+/* PC와 모바일 모두 덱 구성원 목록을 항상 숨김 */
 .deck-composition-container {
-    display: none; /* PC, 모바일 모두 덱 구성원 목록 숨김 */
+    display: none !important; /* !important를 추가하여 다른 규칙보다 우선적으로 적용 */
 }
-}
+
+/* 이전에 추가했던 @media 규칙 안의 관련 코드는 모두 삭제해주세요. */
