@@ -1,8 +1,65 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => { // async 추가
     if (!window.db) {
         console.error("Firestore 'db' 객체를 찾을 수 없습니다. HTML 파일의 스크립트 순서를 확인하세요.");
         return;
     }
+
+    // --- 새로 추가된 데이터 로딩 함수 ---
+    // admin 페이지가 필요로 하는 모든 데이터를 Firebase에서 미리 불러옵니다.
+    async function initializeAdminData() {
+        try {
+            const collections = ['pokemon', 'items', 'runeAndChips', 'tips', 'events', 'recommendedDecks'];
+            const promises = collections.map(col => db.collection(col).get());
+
+            const [
+                pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, 
+                tipsSnapshot, eventsSnapshot, decksSnapshot
+            ] = await Promise.all(promises);
+
+            const snapshotToMap = (snapshot) => {
+                const dataMap = {};
+                snapshot.forEach(doc => {
+                    dataMap[doc.id] = { id: doc.id, ...doc.data() };
+                });
+                return dataMap;
+            };
+
+            // DB 객체에 데이터 채우기
+            DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
+            DB.item.lev4 = snapshotToMap(itemsSnapshot);
+            DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
+            DB.tips.lev3 = snapshotToMap(tipsSnapshot);
+            DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name }));
+            DB.deck.lev4 = snapshotToMap(decksSnapshot);
+            DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
+            
+            // 아이템, 룬/칩 등급별 목록 생성 (포켓몬 관리 탭의 드롭다운 채우기 위해 필요)
+            const itemGrades = { god: [], legendary: [], epic: [] };
+            Object.entries(DB.item.lev4).forEach(([itemId, item]) => {
+                const gradeKey = item.grade?.toLowerCase();
+                if (itemGrades[gradeKey]) {
+                    itemGrades[gradeKey].push({ id: itemId, name: item.name });
+                }
+            });
+            DB.item.lev3 = itemGrades;
+
+            const runeAndChipTypes = { rune: [], chip: [] };
+            Object.entries(DB.runeAndChip.lev4).forEach(([rcId, rc]) => {
+                if(runeAndChipTypes[rc.type]) {
+                    runeAndChipTypes[rc.type].push({ id: rcId, name: rc.name });
+                }
+            });
+            DB.runeAndChip.lev3 = runeAndChipTypes;
+
+        } catch (error) {
+            console.error("관리자 페이지 데이터 초기화 오류:", error);
+            alert("데이터를 불러오는 데 실패했습니다. 페이지를 새로고침 해주세요.");
+        }
+    }
+
+    // --- 페이지 시작 시 데이터 로딩부터 실행 ---
+    await initializeAdminData();
+
 
     // --- 탭 전환 기능 ---
     const adminNav = document.getElementById('admin-nav');
