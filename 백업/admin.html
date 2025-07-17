@@ -51,7 +51,7 @@
                                     <option value="S+">S+</option>
                                     <option value="S">S</option>
                                 </select>
-                            </div>
+                            </div>                    
                             <div class="form-group form-group-span-2">
                                 <label>타입 (다중선택 가능)</label>
                                 <div id="pkm-types-container" class="checkbox-group"></div>
@@ -65,6 +65,39 @@
                                 <input type="text" id="pkm-face-url">
                             </div>
                         </div>
+                        <div class="form-section">
+                        <h3>종족값</h3>
+                        <div class="form-grid stats-grid">
+                            <div class="form-group">
+                                <label for="pkm-stat-total">총스탯</label>
+                                <input type="number" id="pkm-stat-total" readonly>
+                            </div>
+                            <div></div> <div class="form-group">
+                                <label for="pkm-stat-hp">HP</label>
+                                <input type="number" id="pkm-stat-hp" class="stat-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="pkm-stat-speed">Speed</label>
+                                <input type="number" id="pkm-stat-speed" class="stat-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="pkm-stat-patk">P.ATK</label>
+                                <input type="number" id="pkm-stat-patk" class="stat-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="pkm-stat-pdef">P.DEF</label>
+                                <input type="number" id="pkm-stat-pdef" class="stat-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="pkm-stat-spatk">SP.ATK</label>
+                                <input type="number" id="pkm-stat-spatk" class="stat-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="pkm-stat-spdef">SP.DEF</label>
+                                <input type="number" id="pkm-stat-spdef" class="stat-input">
+                            </div>
+                        </div>
+                    </div>                
                         <div class="form-section">
                             <h3>스킬 정보 <button type="button" id="add-skill-btn" class="btn btn-small">+</button></h3>
                             <div id="skills-container"></div>
@@ -99,6 +132,12 @@
             <div id="tips-management" class="admin-tab-content">
                 <header class="admin-header">
                     <h1>팁 & 노하우 관리</h1>
+                    <div>
+                        <select id="tip-select-list" style="padding: 10px;">
+                            <option value="">-- 팁 선택 --</option>
+                        </select>
+                        <button id="load-tip-btn" type="button" class="btn btn-primary">불러오기</button>
+                    </div>
                 </header>
                 <section class="content-section">
                     <h2>팁 추가/수정</h2>
@@ -117,7 +156,7 @@
                         </div>
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">저장하기</button>
-                            <button type="button" class="btn btn-danger">삭제하기</button>
+                            <button id="delete-tip-btn" type="button" class="btn btn-danger">삭제하기</button>
                         </div>
                     </form>
                 </section>
@@ -137,8 +176,8 @@
             appId: "1:1012379289991:web:5c33d4ac7536672d956b22"
         };
       firebase.initializeApp(firebaseConfig);
-  window.db = firebase.firestore(); // <- 이렇게 수정해주세요.
-</script>
+      window.db = firebase.firestore();
+    </script>
     
     <script src="data.js"></script> 
     <script src="admin.js"></script>

@@ -33,26 +33,28 @@ const DB = {
         { id: 'calendar', name: '캘린더', levels: 2 },
         { id: 'tips', name: '팁&노하우', levels: 3 },
     ],
-    pokemonType: {
-        lev2: [ 
-            { id: 'normal', name: '노말', color: '#A8A878' }, { id: 'fire', name: '불', color: '#F08030' }, { id: 'water', name: '물', color: '#6890F0' }, { id: 'grass', name: '풀', color: '#78C850' }, { id: 'electric', name: '전기', color: '#F8D030' }, { id: 'ice', name: '얼음', color: '#98D8D8' }, { id: 'fighting', name: '격투', color: '#C03028' }, { id: 'poison', name: '독', color: '#A040A0' }, { id: 'ground', name: '땅', color: '#E0C068' }, { id: 'flying', name: '비행', color: '#A890F0' }, { id: 'psychic', name: '에스퍼', color: '#F85888' }, { id: 'bug', name: '벌레', color: '#A8B820' }, { id: 'rock', name: '바위', color: '#B8A038' }, { id: 'ghost', name: '유령', color: '#705898' }, { id: 'dragon', name: '드래곤', color: '#7038F8' }, { id: 'dark', name: '악', color: '#705848' }, { id: 'steel', name: '강철', color: '#B8B8D0' }, { id: 'fairy', name: '페어리', color: '#EE99AC' },
-        ],
-        lev3: {},
-        lev4: {
-            "megamewtwox": {
-                "name_ko": "메가뮤츠X", "name_en": "Mega Mewtwo X", "grade": "SS", "types": ["psychic", "fighting"], "imageURL": "https://images.gameinfo.io/pokemon-trimmed/150-mega-x.png", "faceImageURL": "https://images.gameinfo.io/pokemon-icons/150-mega-x.png", "stats": { "HP": 106, "Speed": 130, "P.ATK": 190, "P.DEF": 100, "SP.ATK": 154, "SP.DEF": 100 },
-                "skills": [], "recommendedNatures": ["jolly", "adamant"], "recommendedItems": ["Immortal Sword_God", "immortalsword_leg", "mysteriousnecklace", "scarletthornblade", "metalcoat", "springglove"], "recommendedRunes": ["deadly", "warlike", "punch"], "recommendedChips": ["lonewolf", "frogthorn"]
-            },
-            "megamewtwoy": {
-                "name_ko": "메가뮤츠Y", "name_en": "Mega Mewtwo Y", "grade": "SS", "types": ["psychic"], "imageURL": "https://images.gameinfo.io/pokemon-trimmed/150-mega-y.png", "faceImageURL": "https://images.gameinfo.io/pokemon-icons/150-mega-y.png", "stats": { "HP": 106, "Speed": 140, "P.ATK": 150, "P.DEF": 70, "SP.ATK": 194, "SP.DEF": 120 },
-                "skills": [], "recommendedNatures": [], "recommendedItems": [], "recommendedRunes": [], "recommendedChips": []
-            }
-        }
-    },
+    // data.js 파일의 pokemonType 부분을 아래와 같이 수정합니다.
+pokemonType: {
+    lev2: [ 
+        { id: 'normal', name: '노말', color: '#A8A878' }, { id: 'fire', name: '불', color: '#F08030' },
+        { id: 'water', name: '물', color: '#6890F0' }, { id: 'grass', name: '풀', color: '#78C850' },
+        { id: 'electric', name: '전기', color: '#F8D030' }, { id: 'ice', name: '얼음', color: '#98D8D8' },
+        { id: 'fighting', name: '격투', color: '#C03028' }, { id: 'poison', name: '독', color: '#A040A0' },
+        { id: 'ground', name: '땅', color: '#E0C068' }, { id: 'flying', name: '비행', color: '#A890F0' },
+        { id: 'psychic', name: '에스퍼', color: '#F85888' }, { id: 'bug', name: '벌레', color: '#A8B820' },
+        { id: 'rock', name: '바위', color: '#B8A038' }, { id: 'ghost', name: '유령', color: '#705898' },
+        { id: 'dragon', name: '드래곤', color: '#7038F8' }, { id: 'dark', name: '악', color: '#705848' },
+        { id: 'steel', name: '강철', color: '#B8B8D0' }, { id: 'fairy', name: '페어리', color: '#EE99AC' },
+    ],
+    lev3: { },
+    lev4: {
+        // 이 부분을 비워서, 모든 포켓몬 데이터는 Firebase에서 가져오도록 합니다.
+    }
+},
     pokemonGrade: {
         lev2: [ { id: 'ss', name: 'SS' }, { id: 'sPlus', name: 'S+' }, { id: 's', name: 'S' } ],
         lev3: {}
-    },
+        },
     item: {
     lev2: [ 
         {id:'god', name:'빨강(God)'},

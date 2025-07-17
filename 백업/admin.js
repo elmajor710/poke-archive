@@ -39,6 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const skillsContainer = pokemonForm.querySelector('#skills-container');
         const addSkillBtn = pokemonForm.querySelector('#add-skill-btn');
         const deletePokemonBtn = pokemonForm.querySelector('#delete-pokemon-btn');
+        const statInputs = pokemonForm.querySelectorAll('.stat-input');
+        const totalStatInput = pokemonForm.querySelector('#pkm-stat-total');
 
         function populatePokemonDropdowns() {
             if (typesContainer) typesContainer.innerHTML = DB.pokemonType.lev2.map(type => `<label><input type="checkbox" name="types" value="${type.id}"> ${type.name}</label>`).join('');
@@ -84,9 +86,33 @@ document.addEventListener('DOMContentLoaded', () => {
             Array.from(runesSelect.options).forEach(opt => opt.selected = data.recommendedRunes?.includes(opt.value));
             Array.from(chipsSelect.options).forEach(opt => opt.selected = data.recommendedChips?.includes(opt.value));
             
+            if (data.stats) {
+                pokemonForm.querySelector('#pkm-stat-hp').value = data.stats.HP || '';
+                pokemonForm.querySelector('#pkm-stat-speed').value = data.stats.Speed || '';
+                pokemonForm.querySelector('#pkm-stat-patk').value = data.stats['P.ATK'] || '';
+                pokemonForm.querySelector('#pkm-stat-pdef').value = data.stats['P.DEF'] || '';
+                pokemonForm.querySelector('#pkm-stat-spatk').value = data.stats['SP.ATK'] || '';
+                pokemonForm.querySelector('#pkm-stat-spdef').value = data.stats['SP.DEF'] || '';
+            } else {
+                 statInputs.forEach(input => input.value = '');
+            }
+            updateTotalStat();
+
             if(data.skills && data.skills.length > 0) data.skills.forEach(skill => addSkillRow(skill));
             else addSkillRow();
         }
+
+        function updateTotalStat() {
+            let total = 0;
+            statInputs.forEach(input => {
+                total += Number(input.value) || 0;
+            });
+            totalStatInput.value = total;
+        }
+        
+        statInputs.forEach(input => {
+            input.addEventListener('input', updateTotalStat);
+        });
 
         let skillCount = 0;
         function addSkillRow(skillData = null) {
@@ -151,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         await db.collection("pokemon").doc(pkmId).delete();
                         alert(`'${pkmId}' 데이터가 성공적으로 삭제되었습니다.`);
                         pokemonForm.reset();
-                        skillsContainer.innerHTML = '';
+                        if(skillsContainer) skillsContainer.innerHTML = '';
                         addSkillRow();
                         loadPokemonList();
                     } catch (error) { alert('삭제 중 오류가 발생했습니다.'); console.error("삭제 오류: ", error); }
@@ -172,6 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const pkmId = pokemonForm.querySelector('#pkm-id').value.trim();
             if (!pkmId) { alert('고유 ID를 입력해주세요.'); return; }
+            
             const pokemonData = {
                 name_ko: pokemonForm.querySelector('#pkm-name-ko').value,
                 name_en: pokemonForm.querySelector('#pkm-name-en').value,
@@ -179,10 +206,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 imageURL: pokemonForm.querySelector('#pkm-image-url').value,
                 faceImageURL: pokemonForm.querySelector('#pkm-face-url').value,
                 types: Array.from(pokemonForm.querySelectorAll('input[name="types"]:checked')).map(cb => cb.value),
-                recommendedNatures: Array.from(pokemonForm.querySelectorAll('input[name="natures"]:checked')).map(cb => cb.value),
-                recommendedItems: Array.from(itemsSelect.selectedOptions).map(opt => opt.value),
-                recommendedRunes: Array.from(runesSelect.selectedOptions).map(opt => opt.value),
-                recommendedChips: Array.from(chipsSelect.selectedOptions).map(opt => opt.value),
+                stats: {
+                    HP: Number(pokemonForm.querySelector('#pkm-stat-hp').value) || 0,
+                    Speed: Number(pokemonForm.querySelector('#pkm-stat-speed').value) || 0,
+                    'P.ATK': Number(pokemonForm.querySelector('#pkm-stat-patk').value) || 0,
+                    'P.DEF': Number(pokemonForm.querySelector('#pkm-stat-pdef').value) || 0,
+                    'SP.ATK': Number(pokemonForm.querySelector('#pkm-stat-spatk').value) || 0,
+                    'SP.DEF': Number(pokemonForm.querySelector('#pkm-stat-spdef').value) || 0,
+                },
                 skills: Array.from(skillsContainer.querySelectorAll('.skill-entry')).map(entry => ({
                     name: entry.querySelector('[name^="skill_name"]').value,
                     type: entry.querySelector('[name^="skill_type"]').value,
@@ -191,8 +222,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         term: kwEntry.querySelector('[name="keyword_term"]').value,
                         desc: kwEntry.querySelector('[name="keyword_desc"]').value
                     }))
-                }))
+                })),
+                recommendedNatures: Array.from(pokemonForm.querySelectorAll('input[name="natures"]:checked')).map(cb => cb.value),
+                recommendedItems: Array.from(itemsSelect.selectedOptions).map(opt => opt.value),
+                recommendedRunes: Array.from(runesSelect.selectedOptions).map(opt => opt.value),
+                recommendedChips: Array.from(chipsSelect.selectedOptions).map(opt => opt.value)
             };
+            
             db.collection("pokemon").doc(pkmId).set(pokemonData)
                 .then(() => {
                     alert(`'${pokemonData.name_ko}' 정보가 성공적으로 저장되었습니다!`);
@@ -213,8 +249,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- 팁 & 노하우 관리 기능 ---
-    const tipForm = document.getElementById('tip-form');
-    if (tipForm) {
+    const tipManagementPanel = document.getElementById('tips-management');
+    if(tipManagementPanel) {
+        const tipForm = tipManagementPanel.querySelector('#tip-form');
+        const tipSelectList = tipManagementPanel.querySelector('#tip-select-list');
+        const loadTipBtn = tipManagementPanel.querySelector('#load-tip-btn');
+        const deleteTipBtn = tipForm.querySelector('.btn-danger');
+
+        async function loadTipsList() {
+            try {
+                const snapshot = await db.collection("tips").orderBy("name").get();
+                tipSelectList.innerHTML = '<option value="">-- 팁 선택 --</option>'; 
+                snapshot.forEach(doc => {
+                    const tip = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = tip.name || doc.id;
+                    tipSelectList.appendChild(option);
+                });
+            } catch (error) { console.error("팁 목록 로딩 오류: ", error); }
+        }
+
+        if(loadTipBtn) {
+            loadTipBtn.addEventListener('click', async () => {
+                const selectedId = tipSelectList.value;
+                if (!selectedId) {
+                    alert('불러올 팁을 선택해주세요.');
+                    return;
+                }
+                try {
+                    const docRef = db.collection("tips").doc(selectedId);
+                    const doc = await docRef.get();
+                    if (doc.exists) {
+                        const data = doc.data();
+                        tipForm.querySelector('#tip-id').value = data.id || '';
+                        tipForm.querySelector('#tip-title').value = data.name || '';
+                        tipForm.querySelector('#tip-content').value = data.htmlContent || '';
+                        alert(`'${data.name}' 데이터를 불러왔습니다.`);
+                    } else {
+                        alert('해당 ID의 팁 데이터를 찾을 수 없습니다.');
+                    }
+                } catch (error) {
+                    alert('데이터를 불러오는 중 오류가 발생했습니다.');
+                    console.error("팁 데이터 불러오기 오류: ", error);
+                }
+            });
+        }
+
         tipForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const tipId = tipForm.querySelector('#tip-id').value.trim();
@@ -234,6 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(() => {
                     alert('팁이 성공적으로 저장되었습니다!');
                     tipForm.reset();
+                    loadTipsList(); 
                 })
                 .catch(error => {
                     console.error("팁 저장 오류: ", error);
@@ -241,24 +323,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         });
         
-        const deleteTipBtn = tipForm.querySelector('.btn-danger');
-        deleteTipBtn.addEventListener('click', () => {
-             const tipId = tipForm.querySelector('#tip-id').value.trim();
-             if (!tipId) {
-                 alert('삭제할 팁의 ID를 입력해주세요.');
-                 return;
-             }
-             if (confirm(`정말로 '${tipId}' 팁을 삭제하시겠습니까?`)) {
-                 db.collection("tips").doc(tipId).delete()
-                    .then(() => {
-                        alert('팁이 성공적으로 삭제되었습니다.');
-                        tipForm.reset();
-                    })
-                    .catch(error => {
-                        console.error("팁 삭제 오류: ", error);
-                        alert('팁 삭제 중 오류가 발생했습니다.');
-                    });
-             }
-        });
+        if(deleteTipBtn) {
+            deleteTipBtn.addEventListener('click', () => {
+                 const tipId = tipForm.querySelector('#tip-id').value.trim();
+                 if (!tipId) {
+                     alert('삭제할 팁의 ID를 입력해주세요.');
+                     return;
+                 }
+                 if (confirm(`정말로 '${tipId}' 팁을 삭제하시겠습니까?`)) {
+                     db.collection("tips").doc(tipId).delete()
+                        .then(() => {
+                            alert('팁이 성공적으로 삭제되었습니다.');
+                            tipForm.reset();
+                            loadTipsList(); 
+                        })
+                        .catch(error => {
+                            console.error("팁 삭제 오류: ", error);
+                            alert('팁 삭제 중 오류가 발생했습니다.');
+                        });
+                 }
+            });
+        }
+        
+        loadTipsList();
     }
 });
