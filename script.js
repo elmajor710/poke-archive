@@ -842,9 +842,13 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPanelContent(nextLevel, nextData, menuId, id);
     }
     
-    // getNextData 함수를 동기적으로 변경 (async/await 제거)
     function getNextData(currentLevel, id, menuId) {
         const nextLevel = currentLevel + 1;
+    
+        // 포켓몬 상세 정보(lev4)는 어떤 경로로 접근하든 항상 DB.pokemonType.lev4 에서 가져오도록 수정
+        if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) {
+            return DB.pokemonType.lev4?.[id];
+        }
     
         if (nextLevel === 2) return DB[menuId]?.lev2;
         if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
