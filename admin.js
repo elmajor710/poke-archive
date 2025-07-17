@@ -97,11 +97,11 @@ document.addEventListener('DOMContentLoaded', () => {
                  statInputs.forEach(input => input.value = '');
             }
             updateTotalStat();
-            
+
             if(data.skills && data.skills.length > 0) data.skills.forEach(skill => addSkillRow(skill));
             else addSkillRow();
         }
-
+        
         function updateTotalStat() {
             let total = 0;
             statInputs.forEach(input => {
@@ -244,21 +244,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         populatePokemonDropdowns();
         loadPokemonList();
-        if(!skillsContainer || skillsContainer.children.length === 0) {
-            addSkillRow();
-        }
+        addSkillRow();
     }
 
 
     // --- 아이템 관리 기능 ---
-    const itemForm = document.getElementById('item-form');
-    if (itemForm) {
+    const itemManagementPanel = document.getElementById('item-management');
+    if (itemManagementPanel) {
+        const itemForm = itemManagementPanel.querySelector('#item-form');
         itemForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const itemId = itemForm.querySelector('#item-id').value.trim();
             if (!itemId) { alert('고유 ID를 입력해주세요.'); return; }
 
             const itemData = {
+                id: itemId,
                 name: itemForm.querySelector('#item-name').value.trim(),
                 grade: itemForm.querySelector('#item-grade').value,
                 imageURL: itemForm.querySelector('#item-image-url').value.trim(),
@@ -278,14 +278,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 룬&칩 관리 기능 ---
-    const runeChipForm = document.getElementById('rune-chip-form');
-    if (runeChipForm) {
+    const runeChipManagementPanel = document.getElementById('rune-chip-management');
+    if (runeChipManagementPanel) {
+        const runeChipForm = runeChipManagementPanel.querySelector('#rune-chip-form');
         runeChipForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const rcId = runeChipForm.querySelector('#rc-id').value.trim();
             if (!rcId) { alert('고유 ID를 입력해주세요.'); return; }
 
             const runeChipData = {
+                id: rcId,
                 name: runeChipForm.querySelector('#rc-name').value.trim(),
                 type: runeChipForm.querySelector('#rc-type').value,
                 imageURL: runeChipForm.querySelector('#rc-image-url').value.trim(),
