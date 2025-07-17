@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 전역 변수 및 초기 설정 ---
     const appContainer = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
-    const welcomeScreen = document.getElementById('welcome-screen'); // welcome-screen 참조 추가
     const panels = {
         lev1: sidebar,
         lev2: document.getElementById('lev2-panel'),
@@ -13,20 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let activeButtons = {};
     const isMobile = () => window.innerWidth <= 768;
-
-    // --- 새로운 핵심 로직: 환영 화면 보이기/숨기기 제어 함수 ---
-    function updateWelcomeScreenVisibility() {
-        if (!welcomeScreen) return;
-
-        const isPanelVisible = document.querySelector('.panel.visible');
-        
-        // PC 화면이고, 보이는 패널이 없을 때만 환영 화면을 보여줌
-        if (!isMobile() && !isPanelVisible) {
-            welcomeScreen.style.display = 'flex';
-        } else {
-            welcomeScreen.style.display = 'none';
-        }
-    }
 
     // --- 유틸리티 함수 ---
     function showModal(title, contentHTML, isWeatherPopup = false, callback) {
@@ -762,7 +747,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isMobile()) {
             sidebar.classList.remove('is-hidden');
         }
-        updateWelcomeScreenVisibility(); // welcome-screen 상태 업데이트
     }
 
     function renderPanelContent(level, data, menuId, clickedId) {
@@ -856,7 +840,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         setActive(level, button);
         renderPanelContent(nextLevel, nextData, menuId, id);
-        updateWelcomeScreenVisibility(); // welcome-screen 상태 업데이트
     }
     
     function getNextData(currentLevel, id, menuId) {
@@ -890,7 +873,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         setActive(level - 1, null);
-        updateWelcomeScreenVisibility(); // welcome-screen 상태 업데이트
     }
     
     function setActive(level, target) {
@@ -982,7 +964,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             renderSidebar();
             addEventListeners();
-            updateWelcomeScreenVisibility(); // 페이지 로드 후 welcome-screen 초기 상태 설정
 
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);

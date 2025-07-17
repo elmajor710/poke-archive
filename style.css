@@ -402,9 +402,9 @@ header h1 {
     }
 }
 
-/* --- PC 초기 화면 스타일 (JavaScript 제어 방식) --- */
+/* --- PC 초기 화면 스타일 (최종 수정본) --- */
 #welcome-screen {
-    display: none; /* 기본적으로 숨겨두고, JavaScript가 필요할 때만 보여줍니다. */
+    display: flex; /* PC에서는 기본적으로 보이도록 설정 */
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -424,4 +424,16 @@ header h1 {
     margin: 0;
     font-size: 2.5em;
     color: #333;
+}
+
+/* 핵심 규칙 1: 패널이 활성화되면(메뉴 클릭 시) 환영 화면을 숨김 */
+#app-container.panel-active #welcome-screen {
+    display: none;
+}
+
+/* 핵심 규칙 2: 모바일 화면에서는 환영 화면을 항상 숨김 */
+@media (max-width: 768px) {
+    #welcome-screen {
+        display: none !important; /* !important를 사용해 다른 규칙보다 우선 적용 */
+    }
 }
