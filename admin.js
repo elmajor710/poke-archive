@@ -516,7 +516,11 @@ document.addEventListener('DOMContentLoaded', () => {
                  }
             });
         }
-        // --- 캘린더 관리 기능 ---
+        
+        loadTipsList();
+    }
+
+    // --- 캘린더 관리 기능 ---
     const calendarManagementPanel = document.getElementById('calendar-management');
     if (calendarManagementPanel) {
         const calendarForm = calendarManagementPanel.querySelector('#calendar-form');
@@ -525,7 +529,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const deleteEventBtn = calendarForm.querySelector('#delete-event-btn');
         const generateEventIdBtn = calendarForm.querySelector('#generate-event-id-btn');
 
-        // Firestore 'events' 컬렉션에서 데이터 목록을 불러와 드롭다운에 채웁니다.
         async function loadEventsList() {
             try {
                 const snapshot = await db.collection("events").orderBy("startDate", "desc").get();
@@ -543,7 +546,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Firestore 타임스탬프를 'YYYY-MM-DD' 형식의 문자열로 변환합니다.
         function formatDate(timestamp) {
             if (!timestamp) return '';
             const date = timestamp.toDate();
@@ -553,7 +555,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return `${year}-${month}-${day}`;
         }
 
-        // 불러오기 버튼 클릭 이벤트
         loadEventBtn.addEventListener('click', async () => {
             const selectedId = eventSelectList.value;
             if (!selectedId) return alert('불러올 이벤트를 선택해주세요.');
@@ -576,14 +577,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // ID 자동생성 버튼 클릭 이벤트
         generateEventIdBtn.addEventListener('click', () => {
             const type = calendarForm.querySelector('#event-type').value;
             const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
             calendarForm.querySelector('#event-id').value = `${type}_${date}_${Math.random().toString(36).substr(2, 5)}`;
         });
         
-        // 저장 버튼 클릭 이벤트 (폼 제출)
         calendarForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const eventId = calendarForm.querySelector('#event-id').value.trim();
@@ -597,10 +596,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 title: calendarForm.querySelector('#event-title').value.trim(),
                 type: calendarForm.querySelector('#event-type').value,
                 description: calendarForm.querySelector('#event-description').value.trim(),
-                // 날짜를 Firestore Timestamp 형식으로 변환하여 저장
                 startDate: firebase.firestore.Timestamp.fromDate(startDate),
                 endDate: firebase.firestore.Timestamp.fromDate(endDate),
-                // index.html 호환성을 위해 기존 필드명도 유지
                 date: calendarForm.querySelector('#event-start-date').value,
                 duration: duration > 0 ? duration : 1,
             };
@@ -617,7 +614,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         });
 
-        // 삭제 버튼 클릭 이벤트
         deleteEventBtn.addEventListener('click', () => {
             const eventId = calendarForm.querySelector('#event-id').value.trim();
             if (!eventId) return alert('삭제할 이벤트가 없습니다.');
@@ -635,14 +631,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        // 페이지 로드 시 이벤트 목록 즉시 로딩
         loadEventsList();
     }
-        loadTipsList();
-    }
-});
 
-// --- 추천 덱 관리 기능 ---
+    // --- 추천 덱 관리 기능 ---
     const deckManagementPanel = document.getElementById('deck-management');
     if (deckManagementPanel) {
         const deckForm = deckManagementPanel.querySelector('#deck-form');
@@ -652,13 +644,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const pokemonSelects = deckForm.querySelectorAll('.deck-pokemon-select');
         const visualSlots = deckForm.querySelectorAll('.deck-vis-slot');
 
-        // 모든 포켓몬 목록을 가져와서 드롭다운(<select>)에 채웁니다.
         function populatePokemonSelectors() {
-            // script.js 에서 이미 모든 포켓몬 정보를 DB.pokemonType.lev4에 로드했습니다.
             const allPokemon = Object.values(DB.pokemonType.lev4).sort((a, b) => a.name_ko.localeCompare(b.name_ko));
             
             pokemonSelects.forEach(select => {
-                // 기존 옵션 초기화 (맨 처음 '선택' 옵션은 제외)
                 select.innerHTML = '<option value="">선택</option>';
                 allPokemon.forEach(pkm => {
                     const option = document.createElement('option');
@@ -669,7 +658,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        // 드롭다운 선택이 변경될 때 시각적 배치도를 업데이트합니다.
         pokemonSelects.forEach(select => {
             select.addEventListener('change', (e) => {
                 const selectedPkmId = e.target.value;
@@ -689,7 +677,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
         
-        // 시각적 배치도의 포켓몬 클릭 시 정보 팝업을 띄웁니다.
         deckManagementPanel.querySelector('.deck-vis-grid').addEventListener('click', (e) => {
             if (e.target.tagName === 'IMG') {
                 const pkmId = e.target.dataset.pokemonId;
@@ -701,7 +688,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // 저장된 추천 덱 목록을 불러옵니다.
         async function loadDecksList() {
             try {
                 const snapshot = await db.collection("recommendedDecks").get();
@@ -716,7 +702,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) { console.error("덱 목록 로딩 오류: ", error); }
         }
 
-        // 불러오기 버튼 클릭 이벤트
         loadDeckBtn.addEventListener('click', async () => {
             const selectedId = deckSelectList.value;
             if (!selectedId) return alert('불러올 덱을 선택해주세요.');
@@ -728,7 +713,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 deckForm.querySelector('#deck-name').value = data.name || '';
                 deckForm.querySelector('#deck-description').value = data.description || '';
                 
-                // 모든 드롭다운과 시각적 슬롯 초기화
                 pokemonSelects.forEach(s => s.value = '');
                 visualSlots.forEach(slot => {
                     const role = slot.dataset.role;
@@ -737,13 +721,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     slot.innerHTML = originalText;
                 });
 
-                // 불러온 데이터로 채우기
                 (data.composition || []).forEach(member => {
                     const { role, position, pokemonId } = member;
                     const select = deckForm.querySelector(`.deck-pokemon-select[data-role="${role}"][data-position="${position}"]`);
                     if (select) {
                         select.value = pokemonId;
-                        // 수동으로 change 이벤트를 발생시켜 시각적 슬롯도 업데이트
                         select.dispatchEvent(new Event('change'));
                     }
                 });
@@ -751,7 +733,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // 폼 제출 (저장) 이벤트
         deckForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const deckId = deckForm.querySelector('#deck-id').value.trim();
@@ -779,13 +760,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(() => {
                     alert('추천 덱이 성공적으로 저장되었습니다!');
                     deckForm.reset();
-                    pokemonSelects.forEach(s => s.dispatchEvent(new Event('change'))); // 시각적 슬롯 리셋
+                    pokemonSelects.forEach(s => s.dispatchEvent(new Event('change')));
                     loadDecksList();
                 })
                 .catch(error => console.error("덱 저장 오류: ", error));
         });
 
-        // 삭제 버튼 이벤트
         deleteDeckBtn.addEventListener('click', () => {
             const deckId = deckForm.querySelector('#deck-id').value.trim();
             if (!deckId) return alert('삭제할 덱이 없습니다.');
@@ -800,7 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        // 초기화
         populatePokemonSelectors();
         loadDecksList();
     }
+});
