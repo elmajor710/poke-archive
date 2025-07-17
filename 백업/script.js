@@ -814,13 +814,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    async function handleMenuClick(button) {
+    function handleMenuClick(button) {
         const level = parseInt(button.dataset.level);
         const id = button.dataset.id;
         const menuId = button.dataset.menuId || id;
         
         const nextLevel = level + 1;
-        const nextData = await getNextData(level, id, menuId); 
+        const nextData = getNextData(level, id, menuId); 
         
         const currentPanel = panels[`lev${level}`] || sidebar;
         const nextPanel = panels[`lev${nextLevel}`];
@@ -842,36 +842,9 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPanelContent(nextLevel, nextData, menuId, id);
     }
     
-    async function getNextData(currentLevel, id, menuId) {
+    // getNextData 함수를 동기적으로 변경 (async/await 제거)
+    function getNextData(currentLevel, id, menuId) {
         const nextLevel = currentLevel + 1;
-        
-        if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) {
-            try {
-                const docRef = db.collection("pokemon").doc(id);
-                const doc = await docRef.get();
-                if (doc.exists) {
-                    return doc.data();
-                } else {
-                    return DB.pokemonType.lev4?.[id] || null;
-                }
-            } catch (error) {
-                return DB.pokemonType.lev4?.[id] || null;
-            }
-        }
-        
-        if (menuId === 'tips' && nextLevel === 3) {
-             try {
-                const docRef = db.collection("tips").doc(id);
-                const doc = await docRef.get();
-                if (doc.exists) {
-                    return doc.data();
-                } else {
-                    return DB.tips.lev3?.[id] || null;
-                }
-            } catch (error) {
-                return DB.tips.lev3?.[id] || null;
-            }
-        }
     
         if (nextLevel === 2) return DB[menuId]?.lev2;
         if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
@@ -907,33 +880,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // 데이터를 한 번에 가져와서 로컬 DB 객체를 업데이트하는 통합 함수
+    async function fetchAllDataFromFirebase() {
+        // 각 컬렉션에서 모든 문서를 가져오는 Promise 배열 생성
+        const collections = ['pokemon', 'items', 'runeAndChips', 'tips'];
+        const promises = collections.map(col => db.collection(col).get());
+        
+        // 모든 Promise를 동시에 실행
+        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot] = await Promise.all(promises);
+
+        // 헬퍼 함수: 스냅샷을 { id: data } 형태의 객체로 변환
+        const snapshotToMap = (snapshot) => {
+            const dataMap = {};
+            snapshot.forEach(doc => {
+                dataMap[doc.id] = doc.data();
+            });
+            return dataMap;
+        };
+
+        // 로컬 DB 객체를 Firebase 데이터로 교체
+        DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
+        DB.item.lev4 = snapshotToMap(itemsSnapshot);
+        DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
+        
+        // 팁 데이터는 lev2(목록)와 lev3(내용) 구조가 다르므로 별도 처리
+        DB.tips.lev3 = snapshotToMap(tipsSnapshot);
+        DB.tips.lev2 = Object.entries(DB.tips.lev3).map(([id, data]) => ({ id, name: data.name }));
+    }
+
     async function initialize() {
         try {
-            // Firebase에서 최신 포켓몬 데이터 목록 전체를 가져옵니다.
-            const pokemonSnapshot = await db.collection("pokemon").get();
-            const firebasePokemonData = {};
-            pokemonSnapshot.forEach(doc => {
-                firebasePokemonData[doc.id] = doc.data();
-            });
-            // 로컬 DB를 Firebase 데이터로 완전히 교체합니다.
-            DB.pokemonType.lev4 = firebasePokemonData;
+            // 1. Firebase에서 모든 최신 데이터를 가져와 로컬 DB 객체를 업데이트
+            await fetchAllDataFromFirebase();
 
-            // Firebase에서 최신 팁 데이터 목록 전체를 가져옵니다.
-            const tipsSnapshot = await db.collection("tips").get();
-            const fbTips = [];
-            tipsSnapshot.forEach(doc => {
-                fbTips.push({ id: doc.id, name: doc.data().name });
-            });
-            // 로컬 팁 목록과 Firebase 팁 목록을 중복 없이 합칩니다.
-            const existingTipIds = new Set(DB.tips.lev2.map(t => t.id));
-            fbTips.forEach(tip => {
-                if (!existingTipIds.has(tip.id)) {
-                    DB.tips.lev2.push(tip);
-                }
-            });
-
-
-            // 최종 데이터를 기반으로 메뉴 목록(lev3) 자동 생성
+            // 2. 가져온 최신 데이터를 기반으로 메뉴 목록(lev3) 자동 생성
+            // 포켓몬 타입별 목록 생성
             const types = {};
             DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
             Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
@@ -946,6 +927,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             DB.pokemonType.lev3 = types;
 
+            // 포켓몬 등급별 목록 생성
             const grades = {};
             DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
             Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
@@ -956,9 +938,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             DB.pokemonGrade.lev3 = grades;
+            
+            // 아이템 등급별 목록 생성
+            const itemGrades = { god: [], legendary: [], epic: [] };
+            Object.entries(DB.item.lev4).forEach(([itemId, item]) => {
+                const gradeKey = item.grade?.toLowerCase();
+                if (itemGrades[gradeKey]) {
+                    itemGrades[gradeKey].push({ id: itemId, name: item.name });
+                }
+            });
+            DB.item.lev3 = itemGrades;
+            
+            // 룬, 칩별 목록 생성
+            const runeAndChipTypes = { rune: [], chip: [] };
+            Object.entries(DB.runeAndChip.lev4).forEach(([rcId, rc]) => {
+                if(runeAndChipTypes[rc.type]) {
+                    runeAndChipTypes[rc.type].push({ id: rcId, name: rc.name });
+                }
+            });
+            DB.runeAndChip.lev3 = runeAndChipTypes;
 
+            // 3. 화면 렌더링
             renderSidebar();
             addEventListeners();
+
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
