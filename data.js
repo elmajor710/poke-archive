@@ -29,92 +29,46 @@ const DB = {
         { id: 'pokemonGrade', name: '포켓몬 등급', levels: 4 },
         { id: 'item', name: '아이템', levels: 4 },
         { id: 'runeAndChip', name: '룬&칩', levels: 4 },
-        { id: 'deck', name: '덱 구성', levels: 4 },
+        { id: 'deck', name: '덱 구성', levels: 3 },
         { id: 'calendar', name: '캘린더', levels: 2 },
         { id: 'tips', name: '팁&노하우', levels: 3 },
     ],
-    // data.js 파일의 pokemonType 부분을 아래와 같이 수정합니다.
-pokemonType: {
-    lev2: [ 
-        { id: 'normal', name: '노말', color: '#A8A878' }, { id: 'fire', name: '불', color: '#F08030' },
-        { id: 'water', name: '물', color: '#6890F0' }, { id: 'grass', name: '풀', color: '#78C850' },
-        { id: 'electric', name: '전기', color: '#F8D030' }, { id: 'ice', name: '얼음', color: '#98D8D8' },
-        { id: 'fighting', name: '격투', color: '#C03028' }, { id: 'poison', name: '독', color: '#A040A0' },
-        { id: 'ground', name: '땅', color: '#E0C068' }, { id: 'flying', name: '비행', color: '#A890F0' },
-        { id: 'psychic', name: '에스퍼', color: '#F85888' }, { id: 'bug', name: '벌레', color: '#A8B820' },
-        { id: 'rock', name: '바위', color: '#B8A038' }, { id: 'ghost', name: '유령', color: '#705898' },
-        { id: 'dragon', name: '드래곤', color: '#7038F8' }, { id: 'dark', name: '악', color: '#705848' },
-        { id: 'steel', name: '강철', color: '#B8B8D0' }, { id: 'fairy', name: '페어리', color: '#EE99AC' },
-    ],
-    lev3: { },
-    lev4: {
-        // 이 부분을 비워서, 모든 포켓몬 데이터는 Firebase에서 가져오도록 합니다.
-    }
-},
+    pokemonType: {
+        lev2: [ 
+            { id: 'normal', name: '노말', color: '#A8A878' }, { id: 'fire', name: '불', color: '#F08030' },
+            { id: 'water', name: '물', color: '#6890F0' }, { id: 'grass', name: '풀', color: '#78C850' },
+            { id: 'electric', name: '전기', color: '#F8D030' }, { id: 'ice', name: '얼음', color: '#98D8D8' },
+            { id: 'fighting', name: '격투', color: '#C03028' }, { id: 'poison', name: '독', color: '#A040A0' },
+            { id: 'ground', name: '땅', color: '#E0C068' }, { id: 'flying', name: '비행', color: '#A890F0' },
+            { id: 'psychic', name: '에스퍼', color: '#F85888' }, { id: 'bug', name: '벌레', color: '#A8B820' },
+            { id: 'rock', name: '바위', color: '#B8A038' }, { id: 'ghost', name: '유령', color: '#705898' },
+            { id: 'dragon', name: '드래곤', color: '#7038F8' }, { id: 'dark', name: '악', color: '#705848' },
+            { id: 'steel', name: '강철', color: '#B8B8D0' }, { id: 'fairy', name: '페어리', color: '#EE99AC' },
+        ],
+        lev3: {}, 
+        lev4: {}
+    },
     pokemonGrade: {
         lev2: [ { id: 'ss', name: 'SS' }, { id: 'sPlus', name: 'S+' }, { id: 's', name: 'S' } ],
         lev3: {}
-        },
-    item: {
-    lev2: [ 
-        {id:'god', name:'빨강(God)'},
-        {id:'legendary', name:'주황(Legendary)'},
-        {id:'epic', name:'보라(Epic)'}
-    ],
-    lev3: { },
-    lev4: { }
-},
-    runeAndChip: {
-    lev2: [ 
-        {id: 'rune', name: '룬'}, 
-        {id: 'chip', name: '칩'} 
-    ],
-    lev3: { 
-        rune: [ 
-            { id: 'deadly', name: '치명 / Deadly' }, 
-            { id: 'warlike', name: '전투광 / Warlike' }, 
-            { id: 'shield', name: '실드 / Shield' }, 
-            { id: 'king-kong', name: '금강 / King Kong' }, 
-            { id: 'shelter', name: '비호 / Shelter' }, 
-            { id: 'defend', name: '방어 / Defend' }, 
-            { id: 'shine', name: '반짝임 / Shine' }, 
-            { id: 'counter', name: '반격 / Counter' }, 
-            { id: 'punch', name: '강격 / Punch' }
-        ], 
-        chip: [ 
-            { id: 'firedance', name: '화무 / Fire Dance' }, 
-            { id: 'sacrifice', name: '헌제 / Sacrifice' }, 
-            { id: 'psychic', name: '초능 / Psychic' }, 
-            { id: 'snakesoul', name: '뱀유령 / Snake Soul' }, 
-            { id: 'fistshield', name: '방패 / Fist Shield' }, 
-            { id: 'lonewolf', name: '늑대행자 / Lone Wolf' }, 
-            { id: 'tortoiseshell', name: '귀갑 / Tortoise Shell' }, 
-            { id: 'fear', name: '공포 / Fear' }, 
-            { id: 'frogthorn', name: '개구리가시 / Frog Thorn' }
-        ] 
     },
-    lev4: { 
-        'deadly': { name: '치명 / Deadly', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/deadly.png', description: '치명타 확률과 치명타 피해량을 증가시킵니다.' },
-        'warlike': { name: '전투광 / Warlike', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/warlike.png', description: '공격 시 추가 피해를 입힙니다.'},
-        'shield': { name: '실드 / Shield', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/shield.png', description: '상세 설명이 필요합니다.'},
-        'king-kong': { name: '금강 / King Kong', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/king-kong.png', description: '상세 설명이 필요합니다.'},
-        'shelter': { name: '비호 / Shelter', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/shelter.png', description: '상세 설명이 필요합니다.'},
-        'defend': { name: '방어 / Defend', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/defend.png', description: '상세 설명이 필요합니다.'},
-        'shine': { name: '반짝임 / Shine', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/shine.png', description: '상세 설명이 필요합니다.'},
-        'counter': { name: '반격 / Counter', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/counter.png', description: '상세 설명이 필요합니다.'},
-        'punch': { name: '강격 / Punch', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/punch.png', description: '상세 설명이 필요합니다.'},
-        
-        'firedance': { name: '화무 / Fire Dance', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/firedance.jpg', description: '불꽃 타입 스킬의 위력을 증폭시킵니다.' },
-        'sacrifice': { name: '헌제 / Sacrifice', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/sacrifice.jpg', description: '상세 설명이 필요합니다.'},
-        'psychic': { name: '초능 / Psychic', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/psychic.jpg', description: '상세 설명이 필요합니다.'},
-        'snakesoul': { name: '뱀유령 / Snake Soul', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/snakesoul.jpg', description: '상세 설명이 필요합니다.'},
-        'fistshield': { name: '방패 / Fist Shield', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/fistshield.jpg', description: '상세 설명이 필요합니다.'},
-        'lonewolf': { name: '늑대행자 / Lone Wolf', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/lonewolf.jpg', description: '주변에 아군이 없을 때 공격력이 대폭 상승합니다.'},
-        'tortoiseshell': { name: '귀갑 / Tortoise Shell', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/tortoiseshell.jpg', description: '상세 설명이 필요합니다.'},
-        'fear': { name: '공포 / Fear', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/fear.jpg', description: '상세 설명이 필요합니다.'},
-        'frogthorn': { name: '개구리가시 / Frog Thorn', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/frogthorn.jpg', description: '상세 설명이 필요합니다.'}
-    }
-},
+    item: {
+        lev2: [ 
+            {id:'god', name:'빨강(God)'},
+            {id:'legendary', name:'주황(Legendary)'},
+            {id:'epic', name:'보라(Epic)'}
+        ],
+        lev3: {},
+        lev4: {}
+    },
+    runeAndChip: {
+        lev2: [ 
+            {id: 'rune', name: '룬'}, 
+            {id: 'chip', name: '칩'} 
+        ],
+        lev3: {},
+        lev4: {}
+    },
     deck: {
         lev2: [ { id: 'recommended', name: '추천덱' }, { id: 'builder', name: '배치툴' } ],
         lev3: { 
