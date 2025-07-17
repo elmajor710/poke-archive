@@ -404,7 +404,7 @@ header h1 {
 
 /* --- PC 초기 화면 스타일 (최종 수정본) --- */
 #welcome-screen {
-    display: flex; /* PC에서는 기본적으로 보이도록 설정 */
+    display: none; /* 모바일에선 항상 숨김 */
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -426,14 +426,9 @@ header h1 {
     color: #333;
 }
 
-/* 핵심 규칙 1: 패널이 활성화되면(메뉴 클릭 시) 환영 화면을 숨김 */
-#app-container.panel-active #welcome-screen {
-    display: none;
-}
-
-/* 핵심 규칙 2: 모바일 화면에서는 환영 화면을 항상 숨김 */
-@media (max-width: 768px) {
+/* PC 화면에서만 보이도록 설정 */
+@media (min-width: 769px) {
     #welcome-screen {
-        display: none !important; /* !important를 사용해 다른 규칙보다 우선 적용 */
+        display: flex;
     }
 }
