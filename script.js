@@ -885,44 +885,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // 데이터를 한 번에 가져와서 로컬 DB 객체를 업데이트하는 통합 함수
-    async function fetchAllDataFromFirebase() {
-        // 각 컬렉션에서 모든 문서를 가져오는 Promise 배열 생성
-        const collections = ['pokemon', 'items', 'runeAndChips', 'tips', 'events']; // 'events' 컬렉션 추가
-        const promises = collections.map(col => db.collection(col).get());
-        
-        // 모든 Promise를 동시에 실행
-        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, eventsSnapshot] = await Promise.all(promises);
+    // 전체를 이 코드로 교체해주세요.
+async function fetchAllDataFromFirebase() {
+    const collections = ['pokemon', 'items', 'runeAndChips', 'tips', 'events', 'recommendedDecks']; // 'recommendedDecks' 추가
+    const promises = collections.map(col => db.collection(col).get());
 
-        // 헬퍼 함수: 스냅샷을 { id: data } 형태의 객체로 변환
-        const snapshotToMap = (snapshot) => {
-            const dataMap = {};
-            snapshot.forEach(doc => {
-                dataMap[doc.id] = { id: doc.id, ...doc.data() }; // 데이터에 id도 포함시킴
-            });
-            return dataMap;
-        };
-        
-        // 헬퍼 함수: 이벤트 스냅샷을 배열로 변환
-        const eventsToArray = (snapshot) => {
-            const dataArray = [];
-            snapshot.forEach(doc => {
-                dataArray.push({ id: doc.id, ...doc.data() });
-            });
-            return dataArray;
-        }
+    const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, eventsSnapshot, decksSnapshot] = await Promise.all(promises);
 
-        // 로컬 DB 객체를 Firebase 데이터로 교체
-        DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
-        DB.item.lev4 = snapshotToMap(itemsSnapshot);
-        DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
-        
-        // 팁 데이터는 lev2(목록)와 lev3(내용) 구조가 다르므로 별도 처리
-        DB.tips.lev3 = snapshotToMap(tipsSnapshot);
-        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name }));
+    const snapshotToMap = (snapshot) => {
+        const dataMap = {};
+        snapshot.forEach(doc => {
+            dataMap[doc.id] = { id: doc.id, ...doc.data() };
+        });
+        return dataMap;
+    };
 
-        // 캘린더 이벤트 데이터 교체 (기존 recurringEvents는 유지하고 events만 교체)
-        DB.calendar.lev2.events = eventsToArray(eventsSnapshot);
+    const eventsToArray = (snapshot) => {
+        const dataArray = [];
+        snapshot.forEach(doc => {
+            dataArray.push({ id: doc.id, ...doc.data() });
+        });
+        return dataArray;
     }
+
+    DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
+    DB.item.lev4 = snapshotToMap(itemsSnapshot);
+    DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
+    DB.tips.lev3 = snapshotToMap(tipsSnapshot);
+    DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name }));
+    DB.calendar.lev2.events = eventsToArray(eventsSnapshot);
+
+    // 새로 추가된 부분: 추천 덱 데이터 처리
+    DB.deck.lev4 = snapshotToMap(decksSnapshot);
+    DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
+}
     async function initialize() {
         try {
             // 1. Firebase에서 모든 최신 데이터를 가져와 로컬 DB 객체를 업데이트

@@ -641,3 +641,166 @@ document.addEventListener('DOMContentLoaded', () => {
         loadTipsList();
     }
 });
+
+// --- 추천 덱 관리 기능 ---
+    const deckManagementPanel = document.getElementById('deck-management');
+    if (deckManagementPanel) {
+        const deckForm = deckManagementPanel.querySelector('#deck-form');
+        const deckSelectList = deckManagementPanel.querySelector('#deck-select-list');
+        const loadDeckBtn = deckManagementPanel.querySelector('#load-deck-btn');
+        const deleteDeckBtn = deckForm.querySelector('#delete-deck-btn');
+        const pokemonSelects = deckForm.querySelectorAll('.deck-pokemon-select');
+        const visualSlots = deckForm.querySelectorAll('.deck-vis-slot');
+
+        // 모든 포켓몬 목록을 가져와서 드롭다운(<select>)에 채웁니다.
+        function populatePokemonSelectors() {
+            // script.js 에서 이미 모든 포켓몬 정보를 DB.pokemonType.lev4에 로드했습니다.
+            const allPokemon = Object.values(DB.pokemonType.lev4).sort((a, b) => a.name_ko.localeCompare(b.name_ko));
+            
+            pokemonSelects.forEach(select => {
+                // 기존 옵션 초기화 (맨 처음 '선택' 옵션은 제외)
+                select.innerHTML = '<option value="">선택</option>';
+                allPokemon.forEach(pkm => {
+                    const option = document.createElement('option');
+                    option.value = pkm.id;
+                    option.textContent = pkm.name_ko;
+                    select.appendChild(option);
+                });
+            });
+        }
+        
+        // 드롭다운 선택이 변경될 때 시각적 배치도를 업데이트합니다.
+        pokemonSelects.forEach(select => {
+            select.addEventListener('change', (e) => {
+                const selectedPkmId = e.target.value;
+                const role = e.target.dataset.role;
+                const position = e.target.dataset.position;
+                
+                const targetSlot = deckManagementPanel.querySelector(`.deck-vis-slot[data-role="${role}"][data-position="${position}"]`);
+                if (!targetSlot) return;
+
+                if (selectedPkmId) {
+                    const pkmData = DB.pokemonType.lev4[selectedPkmId];
+                    targetSlot.innerHTML = `<img src="${pkmData.faceImageURL}" alt="${pkmData.name_ko}" data-pokemon-id="${selectedPkmId}">`;
+                } else {
+                    const originalText = (role === 'main' ? (position < 4 ? 'VAN ' : 'REAR ') : 'AST ') + position;
+                    targetSlot.innerHTML = originalText;
+                }
+            });
+        });
+        
+        // 시각적 배치도의 포켓몬 클릭 시 정보 팝업을 띄웁니다.
+        deckManagementPanel.querySelector('.deck-vis-grid').addEventListener('click', (e) => {
+            if (e.target.tagName === 'IMG') {
+                const pkmId = e.target.dataset.pokemonId;
+                const pkmData = DB.pokemonType.lev4[pkmId];
+                if (pkmData) {
+                    const types = pkmData.types.map(typeId => DB.pokemonType.lev2.find(t => t.id === typeId).name).join(', ');
+                    alert(`이름: ${pkmData.name_ko}\n타입: ${types}`);
+                }
+            }
+        });
+
+        // 저장된 추천 덱 목록을 불러옵니다.
+        async function loadDecksList() {
+            try {
+                const snapshot = await db.collection("recommendedDecks").get();
+                deckSelectList.innerHTML = '<option value="">-- 추천 덱 선택 --</option>';
+                snapshot.forEach(doc => {
+                    const deck = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = deck.name || doc.id;
+                    deckSelectList.appendChild(option);
+                });
+            } catch (error) { console.error("덱 목록 로딩 오류: ", error); }
+        }
+
+        // 불러오기 버튼 클릭 이벤트
+        loadDeckBtn.addEventListener('click', async () => {
+            const selectedId = deckSelectList.value;
+            if (!selectedId) return alert('불러올 덱을 선택해주세요.');
+
+            const doc = await db.collection("recommendedDecks").doc(selectedId).get();
+            if (doc.exists) {
+                const data = doc.data();
+                deckForm.querySelector('#deck-id').value = doc.id;
+                deckForm.querySelector('#deck-name').value = data.name || '';
+                deckForm.querySelector('#deck-description').value = data.description || '';
+                
+                // 모든 드롭다운과 시각적 슬롯 초기화
+                pokemonSelects.forEach(s => s.value = '');
+                visualSlots.forEach(slot => {
+                    const role = slot.dataset.role;
+                    const position = slot.dataset.position;
+                    const originalText = (role === 'main' ? (position < 4 ? 'VAN ' : 'REAR ') : 'AST ') + position;
+                    slot.innerHTML = originalText;
+                });
+
+                // 불러온 데이터로 채우기
+                (data.composition || []).forEach(member => {
+                    const { role, position, pokemonId } = member;
+                    const select = deckForm.querySelector(`.deck-pokemon-select[data-role="${role}"][data-position="${position}"]`);
+                    if (select) {
+                        select.value = pokemonId;
+                        // 수동으로 change 이벤트를 발생시켜 시각적 슬롯도 업데이트
+                        select.dispatchEvent(new Event('change'));
+                    }
+                });
+                alert(`'${data.name}' 덱을 불러왔습니다.`);
+            }
+        });
+
+        // 폼 제출 (저장) 이벤트
+        deckForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const deckId = deckForm.querySelector('#deck-id').value.trim();
+            if (!deckId) return alert('덱 고유 ID를 입력해주세요.');
+
+            const composition = [];
+            pokemonSelects.forEach(select => {
+                if (select.value) {
+                    composition.push({
+                        role: select.dataset.role,
+                        position: parseInt(select.dataset.position, 10),
+                        pokemonId: select.value
+                    });
+                }
+            });
+
+            const deckData = {
+                id: deckId,
+                name: deckForm.querySelector('#deck-name').value.trim(),
+                description: deckForm.querySelector('#deck-description').value.trim(),
+                composition: composition
+            };
+            
+            db.collection("recommendedDecks").doc(deckId).set(deckData)
+                .then(() => {
+                    alert('추천 덱이 성공적으로 저장되었습니다!');
+                    deckForm.reset();
+                    pokemonSelects.forEach(s => s.dispatchEvent(new Event('change'))); // 시각적 슬롯 리셋
+                    loadDecksList();
+                })
+                .catch(error => console.error("덱 저장 오류: ", error));
+        });
+
+        // 삭제 버튼 이벤트
+        deleteDeckBtn.addEventListener('click', () => {
+            const deckId = deckForm.querySelector('#deck-id').value.trim();
+            if (!deckId) return alert('삭제할 덱이 없습니다.');
+            if (confirm(`정말로 '${deckId}' 덱을 삭제하시겠습니까?`)) {
+                db.collection("recommendedDecks").doc(deckId).delete()
+                    .then(() => {
+                        alert('덱이 성공적으로 삭제되었습니다.');
+                        deckForm.reset();
+                        pokemonSelects.forEach(s => s.dispatchEvent(new Event('change')));
+                        loadDecksList();
+                    });
+            }
+        });
+        
+        // 초기화
+        populatePokemonSelectors();
+        loadDecksList();
+    }
