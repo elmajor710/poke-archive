@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 이제 db 객체는 항상 존재하므로, if (!window.db) 확인이 필요 없습니다.
-    const db = window.db;
+    if (!window.db) {
+        console.error("Firestore 'db' 객체를 찾을 수 없습니다. HTML 파일의 스크립트 순서를 확인하세요.");
+        return;
+    }
 
     // --- 탭 전환 기능 ---
     const adminNav = document.getElementById('admin-nav');
@@ -242,7 +244,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         populatePokemonDropdowns();
         loadPokemonList();
-        addSkillRow();
+        if(!skillsContainer || skillsContainer.children.length === 0) {
+            addSkillRow();
+        }
     }
 
 
@@ -310,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const tipForm = tipManagementPanel.querySelector('#tip-form');
         const tipSelectList = tipManagementPanel.querySelector('#tip-select-list');
         const loadTipBtn = tipManagementPanel.querySelector('#load-tip-btn');
-        const deleteTipBtn = tipForm.querySelector('.btn-danger');
+        const deleteTipBtn = tipForm.querySelector('#delete-tip-btn');
 
         async function loadTipsList() {
             try {
