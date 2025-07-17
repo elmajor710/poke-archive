@@ -401,3 +401,32 @@ header h1 {
         display: block !important;
     }
 }
+
+/* --- PC 초기 화면 스타일 --- */
+#welcome-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    color: #555;
+    padding: 20px;
+}
+
+#welcome-screen img {
+    max-width: 250px;
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+#welcome-screen h1 {
+    margin: 0;
+    font-size: 2.5em;
+    color: #333;
+}
+
+/* 핵심 제어 코드: content-area에 panel-active 클래스가 붙으면 welcome-screen을 숨김 */
+#content-area.panel-active #welcome-screen {
+    display: none;
+}

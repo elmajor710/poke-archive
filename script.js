@@ -737,16 +737,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function handleMainButtonClick() {
-        Object.values(panels).forEach((panel, index) => {
-            if (index > 0) { 
-                panel.classList.remove('visible', 'is-hidden');
-            }
-        });
-        setActive(0, null);
-        if (isMobile()) {
-            sidebar.classList.remove('is-hidden');
+    Object.values(panels).forEach((panel, index) => {
+        if (index > 0) { 
+            panel.classList.remove('visible', 'is-hidden');
         }
+    });
+    document.getElementById('content-area').classList.remove('panel-active'); // <-- 이 한 줄 추가!
+    setActive(0, null);
+    if (isMobile()) {
+        sidebar.classList.remove('is-hidden');
     }
+}
 
     function renderPanelContent(level, data, menuId, clickedId) {
         const targetPanel = panels[`lev${level}`];
@@ -815,32 +816,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function handleMenuClick(button) {
-        const level = parseInt(button.dataset.level);
-        const id = button.dataset.id;
-        const menuId = button.dataset.menuId || id;
-        
-        const nextLevel = level + 1;
-        const nextData = getNextData(level, id, menuId); 
-        
-        const currentPanel = panels[`lev${level}`] || sidebar;
-        const nextPanel = panels[`lev${nextLevel}`];
-    
-        if (!nextPanel) return;
-    
-        if (isMobile()) {
-            currentPanel.classList.add('is-hidden');
-        }
-    
-        Object.values(panels).forEach((panel, index) => {
-            if(index > 0 && panel !== nextPanel) { panel.classList.remove('visible'); }
-        });
-        nextPanel.classList.remove('is-hidden');
-        nextPanel.classList.add('visible');
-        
-        setActive(level, button);
-    
-        renderPanelContent(nextLevel, nextData, menuId, id);
+    const level = parseInt(button.dataset.level);
+    const id = button.dataset.id;
+    const menuId = button.dataset.menuId || id;
+
+    const nextLevel = level + 1;
+    const nextData = getNextData(level, id, menuId); 
+
+    const currentPanel = panels[`lev${level}`] || sidebar;
+    const nextPanel = panels[`lev${nextLevel}`];
+
+    if (!nextPanel) return;
+
+    if (isMobile()) {
+        currentPanel.classList.add('is-hidden');
     }
+
+    Object.values(panels).forEach((panel, index) => {
+        if(index > 0 && panel !== nextPanel) { panel.classList.remove('visible'); }
+    });
+    nextPanel.classList.remove('is-hidden');
+    nextPanel.classList.add('visible');
+    document.getElementById('content-area').classList.add('panel-active'); // <-- 이 한 줄 추가!
+
+    setActive(level, button);
+
+    renderPanelContent(nextLevel, nextData, menuId, id);
+}
     
     function getNextData(currentLevel, id, menuId) {
         const nextLevel = currentLevel + 1;
@@ -858,18 +860,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function handleBackClick(button) {
-        const parentPanel = button.closest('.panel');
-        if (!parentPanel) return;
-        const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
-        const currentPanel = panels[`lev${level}`];
-        const prevPanel = panels[`lev${level - 1}`] || sidebar;
-        currentPanel.classList.remove('visible');
-        if (prevPanel) {
-            if (isMobile()) { prevPanel.classList.remove('is-hidden'); }
-            if(prevPanel !== sidebar) { prevPanel.classList.add('visible'); }
+    const parentPanel = button.closest('.panel');
+    if (!parentPanel) return;
+    const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
+    const currentPanel = panels[`lev${level}`];
+    const prevPanel = panels[`lev${level - 1}`] || sidebar;
+    currentPanel.classList.remove('visible');
+    if (prevPanel) {
+        if (isMobile()) { prevPanel.classList.remove('is-hidden'); }
+        if(prevPanel !== sidebar) { 
+            prevPanel.classList.add('visible'); 
+        } else {
+            // 사이드바로 돌아왔을 때 welcome-screen을 다시 보이게 함
+            document.getElementById('content-area').classList.remove('panel-active'); // <-- 이 else 블록 추가!
         }
-        setActive(level - 1, null);
     }
+    setActive(level - 1, null);
+}
     
     function setActive(level, target) {
         for (let i = level; i <= 4; i++) {
