@@ -199,9 +199,37 @@ header h1 {
     display: none !important; /* !important를 추가하여 다른 규칙보다 우선적으로 적용 */
 }
 
-.content-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.95em; }
-.content-table th, .content-table td { border: 1px solid var(--border-color); padding: 8px 10px; text-align: left; }
-.content-table th { background-color: #f8f9fa; font-weight: 600; }
+/* 팁&노하우 등 콘텐츠 내부 표 스타일 */
+.content-table {
+    width: 100%;
+    border-collapse: collapse; /* 테두리를 한 줄로 합쳐줍니다 */
+    margin: 15px 0;
+    font-size: 0.95em;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    border-radius: 6px;
+    overflow: hidden; /* 모서리를 둥글게 처리하기 위해 필요 */
+}
+
+.content-table th,
+.content-table td {
+    border: 1px solid #dee2e6; /* 회색 테두리 */
+    padding: 12px 15px; /* 셀 안쪽 여백 */
+    text-align: left;
+}
+
+.content-table th {
+    background-color: #f8f9fa; /* 헤더 배경색 */
+    font-weight: 600;
+    color: #333;
+}
+
+.content-table tbody tr:nth-of-type(even) {
+    background-color: #f8f9fa; /* 짝수 행에 살짝 배경색을 줍니다 (선택사항) */
+}
+
+.content-table tbody tr:last-of-type {
+    border-bottom: 2px solid var(--primary-color);
+}
 
 .modal-overlay {
     position: fixed;
