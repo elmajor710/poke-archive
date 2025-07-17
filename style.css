@@ -155,21 +155,14 @@ header h1 {
 }
 
 .item-description { white-space: pre-wrap; line-height: 1.7; background-color: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 14px; color: #333; }
-.stats-table {
-    border-collapse: collapse;
-    margin: 10px 0;
-    width: 100%;
-    max-width: 500px; 
-}
+.stats-table { border-collapse: collapse; margin: 10px 0; width: 100%; max-width: 500px; }
 .stats-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
 .stats-table td:first-child { font-weight: 600; color: #555; padding-right: 20px; }
-
 .pokemon-detail-view, .simple-detail-view, .deck-detail-view { padding: 10px; }
 .pokemon-detail-view h2, .simple-detail-view h2, .deck-detail-view h2 { font-size: 2em; margin-bottom: 10px; }
 .pokemon-detail-view .main-image, .simple-detail-view .main-image { max-width: 200px; display: block; margin: 20px auto; }
 .pokemon-detail-view h4, .simple-detail-view h4, .deck-detail-view h4, .deck-builder-view h4, h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
 .deck-detail-view h5 { margin-top: 15px; margin-bottom: 10px; font-size: 1.1em; }
-
 .badge-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; align-items: center; }
 .type-badge, .grade-badge { color: white; padding: 4px 12px; border-radius: 15px; font-size: 0.9em; font-weight: 600; }
 .grade-badge.grade-ss { background-color: var(--grade-ss-color); }
@@ -178,7 +171,6 @@ header h1 {
 .grade-badge.grade-god { background-color: var(--item-god-color); }
 .grade-badge.grade-legendary { background-color: var(--item-legendary-color); }
 .grade-badge.grade-epic { background-color: var(--item-epic-color); }
-
 .skill-list, .recommend-list { list-style: none; padding: 0; }
 .skill-list { display: flex; flex-direction: column; gap: 8px; }
 .skill-item { background: #f8f9fa; border-radius: 5px; padding: 10px; display: flex; justify-content: flex-start; align-items: center; gap: 10px; }
@@ -187,7 +179,6 @@ header h1 {
 .recommend-list { display: flex; flex-wrap: wrap; gap: 10px; }
 .recommend-item { display: flex; align-items: center; gap: 8px; background: #f8f9fa; padding: 5px 10px; border-radius: 5px; cursor: pointer; border: 1px solid #eee; flex-shrink: 0; }
 .recommend-item img { width: 32px; height: 32px; }
-
 .deck-grid-table { width: 100%; max-width: 600px; border-collapse: collapse; margin: 20px auto; table-layout: fixed; }
 .deck-grid-table th, .deck-grid-table td { border: 1px solid var(--border-color); text-align: center; padding: 8px; vertical-align: middle; }
 .deck-grid-table th { background-color: #f8f9fa; font-weight: bold; height: auto; }
@@ -195,87 +186,18 @@ header h1 {
 .deck-pokemon-cell { cursor: pointer; }
 .deck-pokemon-cell img { width: 64px; height: 64px; display: block; margin: 0 auto 5px; object-fit: contain; }
 .deck-pokemon-cell .position-number { font-weight: bold; font-size: 0.9em; color: #555; display: block; }
-.deck-composition-container {
-    display: none !important; /* !important를 추가하여 다른 규칙보다 우선적으로 적용 */
-}
-
-/* 팁&노하우 등 콘텐츠 내부 표 스타일 (개선된 버전) */
-.content-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    font-size: 1em; /* 폰트 크기를 약간 키워 가독성 향상 */
-    border: 1px solid #ccc; /* 바깥쪽 전체 테두리 */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.content-table th,
-.content-table td {
-    /* 기존 border 속성 대신 padding으로 상하좌우 간격 조정 */
-    padding: 12px 15px;
-    text-align: left;
-    /* 각 셀의 아래쪽에만 구분선(border)을 넣어 깔끔하게 만듦 */
-    border-bottom: 1px solid #ddd;
-}
-
-.content-table th {
-    /* 헤더(항목) 배경색을 사이트의 메인 색상으로 변경 */
-    background-color: var(--primary-color);
-    color: white; /* 헤더 글자색을 흰색으로 변경 */
-    font-weight: 600;
-    /* 헤더의 하단 테두리는 색상을 없애줍니다 */
-    border-bottom: none;
-}
-
-/* 본문 행은 모두 흰색으로 설정 */
-.content-table tbody tr {
-    background-color: #fff;
-}
-
-/* 짝수 행에 색을 넣는 규칙은 제거하고, 마우스를 올렸을 때 색이 변하는 효과 추가 */
-.content-table tbody tr:hover {
-    background-color: #f5f5f5;
-}
-
-/* 마지막 행의 하단 테두리는 없애서 깔끔하게 마무리 */
-.content-table tbody tr:last-of-type td {
-    border-bottom: none;
-}
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    padding: 20px;
-}
-.modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 500px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-}
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-}
+.deck-composition-container { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+.content-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 1em; border: 1px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.content-table th, .content-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
+.content-table th { background-color: var(--primary-color); color: white; font-weight: 600; border-bottom: none; }
+.content-table tbody tr { background-color: #fff; }
+.content-table tbody tr:hover { background-color: #f5f5f5; }
+.content-table tbody tr:last-of-type td { border-bottom: none; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+.modal-content { background: white; padding: 20px; border-radius: 8px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
 .modal-header h2 { margin: 0; font-size: 1.3em; }
 .modal-close-btn { font-size: 24px; font-weight: bold; cursor: pointer; border: none; background: none; }
-
 .calendar-view { padding: 10px; }
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
 .calendar-title { font-size: 1.5em; font-weight: bold; }
@@ -298,7 +220,6 @@ header h1 {
 .day-today .date-number { background-color: var(--primary-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; }
 .event-markers { margin-top: 5px; display: flex; flex-direction: column; gap: 3px; }
 .event-marker { font-size: 0.8em; padding: 2px 4px; border-radius: 4px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
 .deck-builder-view { display: flex; flex-direction: row; gap: 20px; height: 100%; }
 .placement-container { flex: 0 0 320px; }
 .placement-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -331,73 +252,55 @@ header h1 {
 .synergy-table tr.current-synergy { background-color: var(--active-color); font-weight: bold; }
 .pc-only-message { padding: 40px 20px; text-align: center; color: #555; background-color: #f8f9fa; border-radius: 8px; margin: auto; }
 .pc-only-message h3 { font-size: 1.5em; margin-top: 0; margin-bottom: 10px; color: #333; }
-
-/* --- 화면 분기 최종 로직 --- */
-.pokemon-detail-view.use-tabs .tab-nav {
-    display: flex;
-}
-.pokemon-detail-view.use-tabs .tab-pane {
-    display: none;
-}
-.pokemon-detail-view.use-tabs .tab-pane.active {
-    display: block;
-}
-.pokemon-detail-view:not(.use-tabs) .tab-nav {
-    display: none;
-}
-.pokemon-detail-view:not(.use-tabs) .info-sections {
-    display: block;
-}
-.pokemon-detail-view.use-tabs .info-sections {
-    display: none;
-}
-.tab-nav {
-    border-bottom: 1px solid var(--border-color);
-    margin: 20px 0;
-}
-.tab-button {
-    flex: 1;
-    padding: 12px 5px;
-    text-align: center;
-    background: none;
-    border: none;
-    font-size: 1em;
-    font-weight: 600;
-    color: #888;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: color 0.2s, border-color 0.2s;
-}
-.tab-button.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
-}
-.tab-pane {
-    display: none;
-}
-.tab-pane.active {
-    display: block;
-}
+.pokemon-detail-view.use-tabs .tab-nav { display: flex; }
+.pokemon-detail-view.use-tabs .tab-pane { display: none; }
+.pokemon-detail-view.use-tabs .tab-pane.active { display: block; }
+.pokemon-detail-view:not(.use-tabs) .tab-nav { display: none; }
+.pokemon-detail-view:not(.use-tabs) .info-sections { display: block; }
+.pokemon-detail-view.use-tabs .info-sections { display: none; }
+.tab-nav { border-bottom: 1px solid var(--border-color); margin: 20px 0; }
+.tab-button { flex: 1; padding: 12px 5px; text-align: center; background: none; border: none; font-size: 1em; font-weight: 600; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: color 0.2s, border-color 0.2s; }
+.tab-button.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
 
 @media (max-width: 768px) {
-    #sidebar, .panel { 
-        position: absolute; 
-        width: 100%; 
-    }
-    #sidebar.is-hidden, .panel.is-hidden { 
-        transform: translateX(-100%); 
-        z-index: 1; 
-    }
-    .pokemon-detail-view .tab-nav {
-        display: flex;
-    }
-    .pokemon-detail-view .info-sections {
-        display: none;
-    }
-    .pokemon-detail-view .tab-pane {
+    #sidebar, .panel { position: absolute; width: 100%; }
+    #sidebar.is-hidden, .panel.is-hidden { transform: translateX(-100%); z-index: 1; }
+    .pokemon-detail-view .tab-nav { display: flex; }
+    .pokemon-detail-view .info-sections { display: none; }
+    .pokemon-detail-view .tab-pane { display: none !important; }
+    .pokemon-detail-view .tab-pane.active { display: block !important; }
+}
+
+/* --- PC 초기 화면 스타일 (최종 수정본) --- */
+#welcome-screen {
+    display: flex; /* PC에서는 기본적으로 보이도록 설정 */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    color: #555;
+    padding: 20px;
+}
+#welcome-screen img {
+    max-width: 250px;
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+#welcome-screen h1 {
+    margin: 0;
+    font-size: 2.5em;
+    color: #333;
+}
+/* 핵심 규칙 1: 패널이 활성화되면(메뉴 클릭 시) 환영 화면을 숨김 */
+#app-container.panel-active #welcome-screen {
+    display: none;
+}
+/* 핵심 규칙 2: 모바일 화면에서는 환영 화면을 항상 강제로 숨김 */
+@media (max-width: 768px) {
+    #welcome-screen {
         display: none !important;
-    }
-    .pokemon-detail-view .tab-pane.active {
-        display: block !important;
     }
 }

@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log('스크립트 초기화 완료. Nirvana Pokedex 최종 완성본');
 
-    // 전역 변수 및 초기 설정
+    // --- 전역 변수 및 초기 설정 ---
     const appContainer = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
     const panels = {
@@ -735,10 +735,11 @@ document.addEventListener('DOMContentLoaded', () => {
         applyFilters();
         updateTeamEffects();
     }
-    
+
+    // --- 이벤트 핸들러 및 페이지 로직 (최종 수정본) ---
     function handleMainButtonClick() {
         Object.values(panels).forEach((panel, index) => {
-            if (index > 0) { 
+            if (index > 0) {
                 panel.classList.remove('visible', 'is-hidden');
             }
         });
@@ -746,60 +747,51 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isMobile()) {
             sidebar.classList.remove('is-hidden');
         }
+        // 신호 끄기
+        appContainer.classList.remove('panel-active');
     }
 
     function renderPanelContent(level, data, menuId, clickedId) {
         const targetPanel = panels[`lev${level}`];
         if (!targetPanel) return;
-        
         const contentDiv = targetPanel.querySelector('.panel-content');
         if (!contentDiv) return;
-
         const panelHeader = targetPanel.querySelector('.panel-header');
         const existingMainBtn = panelHeader.querySelector('.main-btn');
-        if (existingMainBtn) {
-            existingMainBtn.remove();
-        }
-    
+        if (existingMainBtn) existingMainBtn.remove();
         contentDiv.innerHTML = '';
         contentDiv.scrollTop = 0;
-
         if (clickedId === 'deckBuilder') {
             const mainButton = document.createElement('button');
             mainButton.className = 'main-btn';
             mainButton.textContent = '메인';
             panelHeader.appendChild(mainButton);
-            
             if (isMobile()) {
                 contentDiv.innerHTML = `<div class="pc-only-message"><h3>기능 안내</h3><p>배치툴 기능은 화면이 넓은 PC 환경에 최적화되어 있습니다.<br>PC에서 접속하여 이용해주세요.</p></div>`;
             } else {
                 renderDeckBuilder(contentDiv);
             }
-            return; 
+            return;
         }
-        
         if (!data) {
             contentDiv.innerHTML = "데이터를 불러오지 못했습니다.";
             return;
         }
-        
         const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
         const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
-    
         if (isFinalView) {
             const mainButton = document.createElement('button');
             mainButton.className = 'main-btn';
             mainButton.textContent = '메인';
             panelHeader.appendChild(mainButton);
-
             if (menuId === 'deck' && data.composition) {
                 renderDeckView(contentDiv, data);
-            } else if(menuId === 'calendar') {
+            } else if (menuId === 'calendar') {
                 renderCalendarView(contentDiv, data);
             } else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
-                renderPokemonView(contentDiv, data, menuId); 
-            } else { 
-                renderSimpleView(contentDiv, data); 
+                renderPokemonView(contentDiv, data, menuId);
+            } else {
+                renderSimpleView(contentDiv, data);
             }
         } else {
             data.forEach(item => {
@@ -818,42 +810,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const level = parseInt(button.dataset.level);
         const id = button.dataset.id;
         const menuId = button.dataset.menuId || id;
-        
         const nextLevel = level + 1;
-        const nextData = getNextData(level, id, menuId); 
-        
+        const nextData = getNextData(level, id, menuId);
         const currentPanel = panels[`lev${level}`] || sidebar;
         const nextPanel = panels[`lev${nextLevel}`];
-    
         if (!nextPanel) return;
-    
         if (isMobile()) {
             currentPanel.classList.add('is-hidden');
         }
-    
         Object.values(panels).forEach((panel, index) => {
-            if(index > 0 && panel !== nextPanel) { panel.classList.remove('visible'); }
+            if (index > 0 && panel !== nextPanel) { panel.classList.remove('visible'); }
         });
         nextPanel.classList.remove('is-hidden');
         nextPanel.classList.add('visible');
-        
         setActive(level, button);
-    
         renderPanelContent(nextLevel, nextData, menuId, id);
+        
+        // 신호 켜기
+        appContainer.classList.add('panel-active');
     }
     
     function getNextData(currentLevel, id, menuId) {
         const nextLevel = currentLevel + 1;
-    
-        // 포켓몬 상세 정보(lev4)는 어떤 경로로 접근하든 항상 DB.pokemonType.lev4 에서 가져오도록 수정
         if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) {
             return DB.pokemonType.lev4?.[id];
         }
-    
         if (nextLevel === 2) return DB[menuId]?.lev2;
         if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
         if (nextLevel === 4) return DB[menuId]?.lev4?.[id];
-    
         return null;
     }
     
@@ -864,9 +848,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentPanel = panels[`lev${level}`];
         const prevPanel = panels[`lev${level - 1}`] || sidebar;
         currentPanel.classList.remove('visible');
-        if (prevPanel) {
-            if (isMobile()) { prevPanel.classList.remove('is-hidden'); }
-            if(prevPanel !== sidebar) { prevPanel.classList.add('visible'); }
+        
+        if (prevPanel && prevPanel !== sidebar) {
+            prevPanel.classList.remove('is-hidden');
+            prevPanel.classList.add('visible');
+        } else if (prevPanel === sidebar) {
+            // 사이드바로 돌아올 때 신호 끄기
+            appContainer.classList.remove('panel-active');
+            if (isMobile()) {
+                prevPanel.classList.remove('is-hidden');
+            }
         }
         setActive(level - 1, null);
     }
@@ -884,95 +875,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // 데이터를 한 번에 가져와서 로컬 DB 객체를 업데이트하는 통합 함수
-    // 전체를 이 코드로 교체해주세요.
-async function fetchAllDataFromFirebase() {
-    const collections = ['pokemon', 'items', 'runeAndChips', 'tips', 'events', 'recommendedDecks']; // 'recommendedDecks' 추가
-    const promises = collections.map(col => db.collection(col).get());
-
-    const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, eventsSnapshot, decksSnapshot] = await Promise.all(promises);
-
-    const snapshotToMap = (snapshot) => {
-        const dataMap = {};
-        snapshot.forEach(doc => {
-            dataMap[doc.id] = { id: doc.id, ...doc.data() };
-        });
-        return dataMap;
-    };
-
-    const eventsToArray = (snapshot) => {
-        const dataArray = [];
-        snapshot.forEach(doc => {
-            dataArray.push({ id: doc.id, ...doc.data() });
-        });
-        return dataArray;
+    async function fetchAllDataFromFirebase() {
+        const collections = ['pokemon', 'items', 'runeAndChips', 'tips', 'events', 'recommendedDecks'];
+        const promises = collections.map(col => db.collection(col).get());
+        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, eventsSnapshot, decksSnapshot] = await Promise.all(promises);
+        const snapshotToMap = (snapshot) => { const dataMap = {}; snapshot.forEach(doc => { dataMap[doc.id] = { id: doc.id, ...doc.data() }; }); return dataMap; };
+        const eventsToArray = (snapshot) => { const dataArray = []; snapshot.forEach(doc => { dataArray.push({ id: doc.id, ...doc.data() }); }); return dataArray; };
+        DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
+        DB.item.lev4 = snapshotToMap(itemsSnapshot);
+        DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
+        DB.tips.lev3 = snapshotToMap(tipsSnapshot);
+        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name }));
+        DB.calendar.lev2.events = eventsToArray(eventsSnapshot);
+        DB.deck.lev4 = snapshotToMap(decksSnapshot);
+        DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
     }
-
-    DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
-    DB.item.lev4 = snapshotToMap(itemsSnapshot);
-    DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
-    DB.tips.lev3 = snapshotToMap(tipsSnapshot);
-    DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name }));
-    DB.calendar.lev2.events = eventsToArray(eventsSnapshot);
-
-    // 새로 추가된 부분: 추천 덱 데이터 처리
-    DB.deck.lev4 = snapshotToMap(decksSnapshot);
-    DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
-}
+    
     async function initialize() {
         try {
-            // 1. Firebase에서 모든 최신 데이터를 가져와 로컬 DB 객체를 업데이트
             await fetchAllDataFromFirebase();
-
-            // 2. 가져온 최신 데이터를 기반으로 메뉴 목록(lev3) 자동 생성
-            // 포켓몬 타입별 목록 생성
             const types = {};
             DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
-            Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
-                const pkmName = pokemon.name_ko || (pokemon.name && pokemon.name.ko);
-                if (pokemon.types && Array.isArray(pokemon.types) && pkmName) {
-                    pokemon.types.forEach(typeId => {
-                        if (types[typeId]) { types[typeId].push({ id: pokemonId, name: pkmName }); }
-                    });
-                }
-            });
+            Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => { const pkmName = pokemon.name_ko || (pokemon.name && pokemon.name.ko); if (pokemon.types && Array.isArray(pokemon.types) && pkmName) { pokemon.types.forEach(typeId => { if (types[typeId]) { types[typeId].push({ id: pokemonId, name: pkmName }); } }); } });
             DB.pokemonType.lev3 = types;
-
-            // 포켓몬 등급별 목록 생성
             const grades = {};
             DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
-            Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
-                const pkmName = pokemon.name_ko || (pokemon.name && pokemon.name.ko);
-                if (pokemon && pokemon.grade && pkmName) {
-                     const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id;
-                    if (gradeId && grades[gradeId]) { grades[gradeId].push({ id: pokemonId, name: pkmName }); }
-                }
-            });
+            Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => { const pkmName = pokemon.name_ko || (pokemon.name && pokemon.name.ko); if (pokemon && pokemon.grade && pkmName) { const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id; if (gradeId && grades[gradeId]) { grades[gradeId].push({ id: pokemonId, name: pkmName }); } } });
             DB.pokemonGrade.lev3 = grades;
-            
-            // 아이템 등급별 목록 생성
             const itemGrades = { god: [], legendary: [], epic: [] };
-            Object.entries(DB.item.lev4).forEach(([itemId, item]) => {
-                const gradeKey = item.grade?.toLowerCase();
-                if (itemGrades[gradeKey]) {
-                    itemGrades[gradeKey].push({ id: itemId, name: item.name });
-                }
-            });
+            Object.entries(DB.item.lev4).forEach(([itemId, item]) => { const gradeKey = item.grade?.toLowerCase(); if (itemGrades[gradeKey]) { itemGrades[gradeKey].push({ id: itemId, name: item.name }); } });
             DB.item.lev3 = itemGrades;
-            
-            // 룬, 칩별 목록 생성
             const runeAndChipTypes = { rune: [], chip: [] };
-            Object.entries(DB.runeAndChip.lev4).forEach(([rcId, rc]) => {
-                if(runeAndChipTypes[rc.type]) {
-                    runeAndChipTypes[rc.type].push({ id: rcId, name: rc.name });
-                }
-            });
+            Object.entries(DB.runeAndChip.lev4).forEach(([rcId, rc]) => { if (rc.type && runeAndChipTypes[rc.type]) { runeAndChipTypes[rc.type].push({ id: rcId, name: rc.name }); } });
             DB.runeAndChip.lev3 = runeAndChipTypes;
 
-            // 3. 화면 렌더링
             renderSidebar();
             addEventListeners();
-
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
@@ -998,13 +936,12 @@ async function fetchAllDataFromFirebase() {
         appContainer.addEventListener('click', e => {
             const button = e.target.closest('button');
             if (!button) return;
-            if (button.classList.contains('back-btn')) { 
-                handleBackClick(button); 
+            if (button.classList.contains('back-btn')) {
+                handleBackClick(button);
             } else if (button.classList.contains('main-btn')) {
                 handleMainButtonClick();
-            }
-            else if (button.dataset.level) { 
-                handleMenuClick(button); 
+            } else if (button.dataset.level) {
+                handleMenuClick(button);
             }
         });
     }
