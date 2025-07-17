@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  statInputs.forEach(input => input.value = '');
             }
             updateTotalStat();
-
+            
             if(data.skills && data.skills.length > 0) data.skills.forEach(skill => addSkillRow(skill));
             else addSkillRow();
         }
@@ -244,9 +244,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
         populatePokemonDropdowns();
         loadPokemonList();
-        addSkillRow();
+        if(!skillsContainer || skillsContainer.children.length === 0) {
+            addSkillRow();
+        }
     }
 
+
+    // --- 아이템 관리 기능 ---
+    const itemForm = document.getElementById('item-form');
+    if (itemForm) {
+        itemForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const itemId = itemForm.querySelector('#item-id').value.trim();
+            if (!itemId) { alert('고유 ID를 입력해주세요.'); return; }
+
+            const itemData = {
+                name: itemForm.querySelector('#item-name').value.trim(),
+                grade: itemForm.querySelector('#item-grade').value,
+                imageURL: itemForm.querySelector('#item-image-url').value.trim(),
+                description: itemForm.querySelector('#item-description').value.trim(),
+            };
+
+            db.collection("items").doc(itemId).set(itemData)
+                .then(() => {
+                    alert('아이템이 성공적으로 저장되었습니다!');
+                    itemForm.reset();
+                })
+                .catch(error => {
+                    console.error("아이템 저장 오류: ", error);
+                    alert('아이템 저장 중 오류가 발생했습니다.');
+                });
+        });
+    }
+
+    // --- 룬&칩 관리 기능 ---
+    const runeChipForm = document.getElementById('rune-chip-form');
+    if (runeChipForm) {
+        runeChipForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const rcId = runeChipForm.querySelector('#rc-id').value.trim();
+            if (!rcId) { alert('고유 ID를 입력해주세요.'); return; }
+
+            const runeChipData = {
+                name: runeChipForm.querySelector('#rc-name').value.trim(),
+                type: runeChipForm.querySelector('#rc-type').value,
+                imageURL: runeChipForm.querySelector('#rc-image-url').value.trim(),
+                description: runeChipForm.querySelector('#rc-description').value.trim(),
+            };
+
+            db.collection("runeAndChips").doc(rcId).set(runeChipData)
+                .then(() => {
+                    alert('룬/칩이 성공적으로 저장되었습니다!');
+                    runeChipForm.reset();
+                })
+                .catch(error => {
+                    console.error("룬/칩 저장 오류: ", error);
+                    alert('룬/칩 저장 중 오류가 발생했습니다.');
+                });
+        });
+    }
 
     // --- 팁 & 노하우 관리 기능 ---
     const tipManagementPanel = document.getElementById('tips-management');
