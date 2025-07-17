@@ -14,23 +14,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const isMobile = () => window.innerWidth <= 768;
 
     // --- 유틸리티 함수 ---
-    function showModal(title, contentHTML) {
+    function showModal(title, contentHTML, isWeatherPopup = false, callback) {
         const existingModal = document.querySelector('.modal-overlay');
         if (existingModal) existingModal.remove();
         
         const modalOverlay = document.createElement('div');
         modalOverlay.className = 'modal-overlay';
         
-        modalOverlay.innerHTML = `<div class="modal-content"><div class="modal-header"><h2>${title}</h2><button class="modal-close-btn">&times;</button></div><div class="modal-body">${contentHTML}</div></div>`;
+        let modalClass = 'modal-content';
+        if (isWeatherPopup) modalClass += ' weather-popup';
+        
+        modalOverlay.innerHTML = `<div class="${modalClass}"><div class="modal-header"><h2>${title}</h2><button class="modal-close-btn">&times;</button></div><div class="modal-body">${contentHTML}</div></div>`;
         document.body.appendChild(modalOverlay);
         
         modalOverlay.addEventListener('click', (e) => {
-            if (e.target.matches('.modal-overlay, .modal-close-btn')) {
+            const target = e.target;
+            const weatherOption = target.closest('.weather-option');
+
+            if (target.matches('.modal-overlay, .modal-close-btn')) {
+                modalOverlay.remove();
+            } else if (isWeatherPopup && weatherOption && callback) {
+                callback(weatherOption.dataset.weatherName);
                 modalOverlay.remove();
             }
         });
     }
-    
+
     // --- 렌더링 함수들 ---
     function renderPokemonView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
@@ -192,98 +201,636 @@ document.addEventListener('DOMContentLoaded', () => {
         contentDiv.innerHTML = html;
     }
 
+    function renderDeckView(contentDiv, data) {
+        let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
+        if (data.description) { html += `<p>${data.description}</p>`; }
+        const grid = Array(3).fill(null).map(() => Array(3).fill(null));
+        const positionMap = { 'vanguard_1': [0, 2], 'vanguard_2': [1, 2], 'vanguard_3': [2, 2], 'rearguard_4': [0, 1], 'rearguard_5': [1, 1], 'rearguard_6': [2, 1], 'assist_1': [0, 0], 'assist_2': [1, 0], 'assist_3': [2, 0] };
+        data.composition.forEach(member => { 
+            const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
+            if (!pkmData) return; 
+            const roleKey = member.role === 'assist' ? 'assist' : (member.position < 4 ? 'vanguard' : 'rearguard'); 
+            const key = `${roleKey}_${member.position}`; 
+            const [row, col] = positionMap[key]; 
+            grid[row][col] = { ...pkmData, id: member.pokemonId, role: member.role, position: member.position }; 
+        });
+        html += `<h4>덱 배치</h4><table class="deck-grid-table"><thead><tr><th>어시스트</th><th>후방</th><th>전방</th></tr></thead><tbody>`;
+        for (let i = 0; i < 3; i++) { 
+            html += '<tr>'; 
+            for (let j = 0; j < 3; j++) { 
+                const cell = grid[i][j]; 
+                if (cell) { 
+                    const roleText = cell.role === 'assist' ? '어시스트' : '메인'; 
+                    html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="position-number">${roleText} #${cell.position}</span></div></td>`; 
+                } else { 
+                    html += '<td></td>'; 
+                } 
+            } 
+            html += '</tr>'; 
+        }
+        html += `</tbody></table>`;
+        
+        html += `<div class="deck-composition-container"><h4>덱 구성원</h4>`;
+        const mainMembers = data.composition.filter(m => m.role === 'main').sort((a,b) => a.position - b.position);
+        const assistMembers = data.composition.filter(m => m.role === 'assist').sort((a,b) => a.position - b.position);
+        if (mainMembers.length > 0) {
+            html += `<h5>메인</h5><ul class="deck-composition-list">`;
+            mainMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>메인 #${member.position}:</b> ${pkmData.name_ko}</li>`; });
+            html += `</ul>`;
+        }
+        if (assistMembers.length > 0) {
+            html += `<h5>어시스트</h5><ul class="deck-composition-list">`;
+            assistMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>어시스트 #${member.position}:</b> ${pkmData.name_ko}</li>`; });
+            html += `</ul>`;
+        }
+        html += `</div>`;
+        contentDiv.innerHTML = html;
+    
+        contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
+            cell.addEventListener('click', () => {
+                const pokemonId = cell.dataset.pokemonId;
+                const pkmData = DB.pokemonType.lev4[pokemonId];
+                if (pkmData) {
+                    let typesHTML = (pkmData.types || []).map(typeId => {
+                        const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+                        return typeInfo ? `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>` : '';
+                    }).join(' ');
+    
+                    const modalContent = `
+                        <div class="badge-container">
+                            <span class="grade-badge grade-${pkmData.grade.toLowerCase().replace('+', '-plus')}">${pkmData.grade}</span>
+                            ${typesHTML}
+                        </div>`;
+                    showModal(pkmData.name_ko, modalContent);
+                }
+            });
+        });
+    }
+    
+    function renderCalendarView(contentDiv, data) {
+        let currentCalendarDate = new Date();
+        
+        function buildCalendar(year, month) {
+            const calendarView = document.createElement('div');
+            calendarView.className = 'calendar-view';
+            const monthEvents = {};
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startDay = firstDay.getDay();
+
+            const addEvent = (event, eventDate) => {
+                const day = eventDate.getDate();
+                if (!monthEvents[day]) monthEvents[day] = [];
+                const fullEventInfo = {
+                    ...event,
+                    startDate: new Date(event.date + 'T00:00:00'),
+                    endDate: new Date(new Date(event.date + 'T00:00:00').setDate(new Date(event.date + 'T00:00:00').getDate() + (event.duration - 1)))
+                };
+                monthEvents[day].push(fullEventInfo);
+            };
+
+            (data.events || []).forEach(event => {
+                for (let i = 0; i < (event.duration || 1); i++) {
+                    const eventDate = new Date(event.date + 'T00:00:00');
+                    eventDate.setDate(eventDate.getDate() + i);
+                    if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                        addEvent(event, eventDate);
+                    }
+                }
+            });
+
+            (data.recurringEvents || []).forEach(re => {
+                 let currentDate = new Date(re.startDate + 'T00:00:00');
+                 while (currentDate.getFullYear() < year + 2) {
+                    if (currentDate.getFullYear() === year && currentDate.getMonth() > month) break;
+                    if (currentDate.getFullYear() > year) break;
+                    for (let i = 0; i < (re.duration || 1); i++) {
+                        const eventDate = new Date(currentDate);
+                        eventDate.setDate(eventDate.getDate() + i);
+                         if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                            addEvent({ ...re, date: currentDate.toISOString().split('T')[0] }, eventDate);
+                        }
+                    }
+                    if (re.interval === '4_weeks') {
+                        currentDate.setDate(currentDate.getDate() + 28);
+                    } else {
+                        break;
+                    }
+                }
+            });
+            
+            let html = `
+                <div class="calendar-header">
+                    <span class="calendar-title">${year}년 ${month + 1}월</span>
+                    <div class="calendar-nav">
+                        <button id="cal-prev-btn">&lt; 이전</button>
+                        <button id="cal-today-btn">Today</button>
+                        <button id="cal-next-btn">다음 &gt;</button>
+                    </div>
+                </div>
+                <div class="calendar-legend">
+                     <div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div>
+                    <div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div>
+                    <div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div>
+                </div>
+                <table class="calendar-grid">
+                    <thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead>
+                    <tbody>`;
+
+            let dateCounter = 1;
+            for (let i = 0; i < 6; i++) {
+                html += '<tr>';
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < startDay || dateCounter > daysInMonth) {
+                        html += '<td class="day-other-month"></td>';
+                    } else {
+                        const today = new Date();
+                        const isToday = (dateCounter === today.getDate() && month === today.getMonth() && year === today.getFullYear());
+                        const eventsOnDay = monthEvents[dateCounter];
+                        let cellClass = 'day-current-month';
+                        if (isToday) cellClass += ' day-today';
+                        if (eventsOnDay) cellClass += ' has-events';
+                        
+                        html += `<td class="${cellClass}" data-day="${dateCounter}">
+                                    <div class="date-number">${dateCounter}</div>`;
+                        if (eventsOnDay) {
+                            html += `<div class="event-markers">`;
+                            eventsOnDay.forEach(event => {
+                                html += `<div class="event-marker event-type-${event.type}">${event.title || event.name}</div>`;
+                            });
+                            html += `</div>`;
+                        }
+                        html += '</td>';
+                        dateCounter++;
+                    }
+                }
+                html += '</tr>';
+                if (dateCounter > daysInMonth) break;
+            }
+            html += `</tbody></table>`;
+            calendarView.innerHTML = html;
+            
+            calendarView.addEventListener('click', (e) => {
+                const target = e.target;
+                if(target.id === 'cal-prev-btn') {
+                    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+                    updateCalendar();
+                } else if (target.id === 'cal-next-btn') {
+                    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+                    updateCalendar();
+                } else if (target.id === 'cal-today-btn') {
+                    currentCalendarDate = new Date();
+                    updateCalendar();
+                } else {
+                    const cell = target.closest('.has-events');
+                    if (cell) {
+                        const day = parseInt(cell.dataset.day);
+                        const events = monthEvents[day];
+                        if(events && events.length > 0) {
+                            const eventContent = events.map(evt => {
+                                const duration = evt.duration || 1;
+                                const startStr = evt.startDate.toISOString().split('T')[0];
+                                const endStr = evt.endDate.toISOString().split('T')[0];
+                                const period = duration > 1 ? `${startStr} ~ ${endStr} (${duration}일간)` : startStr;
+                                return `<h4>${evt.title || evt.name}</h4><p><strong>기간:</strong> ${period}</p><p>${evt.description}</p>`;
+                            }).join('<hr>');
+                            showModal(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')} 이벤트`, eventContent);
+                        }
+                    }
+                }
+            });
+            return calendarView;
+        }
+
+        function updateCalendar() {
+            contentDiv.innerHTML = '';
+            contentDiv.appendChild(buildCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth()));
+        }
+        updateCalendar();
+    }
+
+    function renderDeckBuilder(contentDiv) {
+        let html = `
+        <div class="deck-builder-view">
+            <div class="placement-container">
+                <div class="placement-grid">
+                    <div class="placement-slot-header" id="weather-icon-container" style="visibility: hidden;">☀️</div>
+                    <div class="placement-slot-header" id="synergy-icon-container" style="visibility: hidden;">
+                        <img src="https://i.imgur.com/g0t51J7.png" alt="타입 시너지">
+                    </div>
+                    <div class="placement-slot-header"></div>
+                    <div class="placement-slot assist" data-role="assist" data-position="1">어시스트_#1</div>
+                    <div class="placement-slot main rearguard" data-role="main" data-position="4">후방_#4</div>
+                    <div class="placement-slot main vanguard" data-role="main" data-position="1">전방_#1</div>
+                    <div class="placement-slot assist" data-role="assist" data-position="2">어시스트_#2</div>
+                    <div class="placement-slot main rearguard" data-role="main" data-position="5">후방_#5</div>
+                    <div class="placement-slot main vanguard" data-role="main" data-position="2">전방_#2</div>
+                    <div class="placement-slot assist" data-role="assist" data-position="3">어시스트_#3</div>
+                    <div class="placement-slot main rearguard" data-role="main" data-position="6">후방_#6</div>
+                    <div class="placement-slot main vanguard" data-role="main" data-position="3">전방_#3</div>
+                </div>
+            </div>
+            <div class="source-container">
+                <h4>포켓몬 목록</h4>
+                <div class="source-filter-bar">
+                    <select id="grade-filter" class="filter-dropdown">
+                        <option value="all">모든 등급</option>
+                        <option value="SS">SS</option>
+                        <option value="S+">S+</option>
+                        <option value="S">S</option>
+                    </select>
+                    <select id="type-filter" class="filter-dropdown">
+                        <option value="all">모든 타입</option>
+                    </select>
+                </div>
+                <div class="source-list"></div>
+            </div>
+        </div>`;
+        contentDiv.innerHTML = html;
+
+        const sourceList = contentDiv.querySelector('.source-list');
+        const placementGrid = contentDiv.querySelector('.placement-grid');
+        const weatherIconContainer = contentDiv.querySelector('#weather-icon-container');
+        const synergyIconContainer = contentDiv.querySelector('#synergy-icon-container');
+        const gradeFilter = contentDiv.querySelector('#grade-filter');
+        const typeFilter = contentDiv.querySelector('#type-filter');
+        
+        let placedPokemon = new Map();
+
+        DB.pokemonType.lev2.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type.id;
+            option.textContent = type.name;
+            typeFilter.appendChild(option);
+        });
+
+        function applyFilters() {
+            const selectedGrade = gradeFilter.value;
+            const selectedType = typeFilter.value;
+            
+            let filteredPokemon = Object.entries(DB.pokemonType.lev4).filter(([id, pkm]) => {
+                const gradeMatch = selectedGrade === 'all' || !pkm.grade || pkm.grade === selectedGrade;
+                const typeMatch = selectedType === 'all' || (pkm.types && pkm.types.includes(selectedType));
+                return gradeMatch && typeMatch;
+            });
+
+            filteredPokemon.sort(([, a], [, b]) => (a.name_ko || a.name).localeCompare(b.name_ko || b.name));
+            
+            renderSourceList(filteredPokemon);
+        }
+
+        function renderSourceList(pokemonList) {
+            sourceList.innerHTML = '';
+            const grid = document.createElement('div');
+            grid.className = 'source-list-grid';
+            grid.innerHTML = pokemonList.map(([id, pkm]) => createPokemonIconHTML(id, pkm)).join('');
+            sourceList.appendChild(grid);
+        }
+        
+        function createPokemonIconHTML(id, pkm) {
+            return `<div class="pokemon-source-icon" draggable="true" data-pokemon-id="${id}">
+                        <img src="${pkm.faceImageURL}" alt="${pkm.name_ko || pkm.name}">
+                        <span>${pkm.name_ko || pkm.name}</span>
+                    </div>`;
+        }
+
+        gradeFilter.addEventListener('change', applyFilters);
+        typeFilter.addEventListener('change', applyFilters);
+    
+        let draggedItem = null; 
+        
+        sourceList.addEventListener('dragstart', e => {
+            const target = e.target.closest('.pokemon-source-icon');
+            if (target) {
+                draggedItem = target;
+                e.dataTransfer.setData('text/plain', target.dataset.pokemonId);
+            }
+        });
+
+        placementGrid.addEventListener('dragstart', e => {
+            const target = e.target.closest('.placement-slot');
+            if (target && target.querySelector('.deck-pokemon-cell')) {
+                draggedItem = target;
+            }
+        });
+
+        placementGrid.addEventListener('dragover', e => e.preventDefault());
+
+        placementGrid.addEventListener('drop', e => {
+            e.preventDefault();
+            const targetSlot = e.target.closest('.placement-slot');
+            if (!targetSlot || !draggedItem) return;
+
+            const sourcePokemonId = draggedItem.classList.contains('placement-slot') 
+                ? placedPokemon.get(draggedItem)
+                : draggedItem.dataset.pokemonId;
+            
+            if (!sourcePokemonId) return;
+
+            if (draggedItem.classList.contains('placement-slot')) {
+                const sourceSlot = draggedItem;
+                if (targetSlot === sourceSlot) return; 
+
+                const targetPokemonId = placedPokemon.get(targetSlot);
+                
+                if (targetPokemonId) { 
+                    const sourcePokemonData = DB.pokemonType.lev4[sourcePokemonId];
+                    const targetPokemonData = DB.pokemonType.lev4[targetPokemonId];
+
+                    placePokemonInSlot(sourceSlot, targetPokemonId, targetPokemonData);
+                    placePokemonInSlot(targetSlot, sourcePokemonId, sourcePokemonData);
+                } else { 
+                    const sourcePokemonData = DB.pokemonType.lev4[sourcePokemonId];
+                    placePokemonInSlot(targetSlot, sourcePokemonId, sourcePokemonData);
+                    clearSlot(sourceSlot);
+                }
+            }
+            else if (draggedItem.classList.contains('pokemon-source-icon')) {
+                if (placedPokemon.has(targetSlot)) {
+                    alert('슬롯이 비어있지 않습니다. 포켓몬을 제거하거나 다른 빈 슬롯으로 옮겨주세요.');
+                    return;
+                }
+                const pokemonData = DB.pokemonType.lev4[sourcePokemonId];
+                placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
+            }
+            draggedItem = null;
+            updateTeamEffects();
+        });
+
+        function placePokemonInSlot(slot, pokemonId, pokemonData) {
+            slot.innerHTML = `<div class="deck-pokemon-cell" draggable="true">
+                                <img src="${pokemonData.faceImageURL}" alt="${pokemonData.name_ko}"/>
+                                <button class="remove-pkm-btn">×</button>
+                              </div>`;
+            placedPokemon.set(slot, pokemonId);
+        }
+
+        function clearSlot(slot) {
+            const role = slot.dataset.role;
+            const position = slot.dataset.position;
+            let placeholderText = '';
+            if(role === 'assist') placeholderText = `어시스트_#${position}`;
+            else if (role === 'main') {
+                const area = slot.classList.contains('vanguard') ? '전방' : '후방';
+                placeholderText = `${area}_#${position}`;
+            }
+            slot.innerHTML = placeholderText;
+            placedPokemon.delete(slot);
+        }
+        
+        placementGrid.addEventListener('click', e => {
+            const removeButton = e.target.closest('.remove-pkm-btn');
+            if(removeButton) {
+                const parentSlot = removeButton.closest('.placement-slot');
+                if (parentSlot) {
+                    clearSlot(parentSlot);
+                    updateTeamEffects();
+                }
+                return; 
+            }
+
+            const pkmCell = e.target.closest('.deck-pokemon-cell');
+            if(pkmCell) {
+                const parentSlot = pkmCell.closest('.placement-slot');
+                if (!parentSlot) return;
+
+                const pokemonId = placedPokemon.get(parentSlot);
+                if (!pokemonId) return;
+
+                const pokemonData = DB.pokemonType.lev4[pokemonId];
+                if(pokemonData) {
+                    let modalTitle = pokemonData.name_ko;
+                    let modalContentHTML = '';
+
+                    const typesHTML = pokemonData.types.map(typeId => {
+                        const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+                        return typeInfo ? `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>` : '';
+                    }).join(' ');
+
+                    if (parentSlot.dataset.role === 'assist' && pokemonData.contractInfo) {
+                        modalTitle = `${pokemonData.name_ko} - 계약장 정보`;
+                        const contract = pokemonData.contractInfo;
+                        
+                        modalContentHTML = `
+                            <div class="badge-container">${typesHTML}</div>
+                            <h4>기본 능력치</h4>
+                            <table class="stats-table">
+                                ${Object.entries(contract.stats).map(([stat, value]) => `<tr><td>${stat}</td><td>${value}</td></tr>`).join('')}
+                            </table>
+                            <h4>효과: ${contract.skill.name} <span class="skill-type">${contract.skill.type}</span></h4>
+                            <div class="item-description">${contract.skill.description.replace(/\n/g, '<br>')}</div>
+                        `;
+                    } 
+                    else {
+                        modalTitle = pokemonData.name_ko;
+                        modalContentHTML = `<div class="badge-container">${typesHTML}</div>`;
+                    }
+                    
+                    showModal(modalTitle, modalContentHTML);
+                }
+            }
+        });
+
+        function updateTeamEffects() {
+            updateWeatherIcon();
+            updateSynergyIcon();
+        }
+        
+        const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
+
+        function updateWeatherIcon() {
+            const pokemonWithWeather = Array.from(placedPokemon.values()).some(id => DB.pokemonType.lev4[id]?.weatherEffects);
+            weatherIconContainer.style.visibility = pokemonWithWeather ? 'visible' : 'hidden';
+        }
+
+        function updateSynergyIcon() {
+            const mainPokemonIds = [];
+            placedPokemon.forEach((pokemonId, slot) => {
+                if(slot.dataset.role === 'main') {
+                    mainPokemonIds.push(pokemonId);
+                }
+            });
+
+            const synergy = calculateSynergy(mainPokemonIds);
+            const icon = synergyIconContainer.querySelector('img');
+            if (synergy) {
+                icon.src = synergy.imageURL;
+                icon.alt = synergy.name;
+                synergyIconContainer.dataset.synergyId = synergy.id;
+                synergyIconContainer.style.visibility = 'visible';
+            } else {
+                synergyIconContainer.style.visibility = 'hidden';
+                synergyIconContainer.removeAttribute('data-synergy-id');
+            }
+        }
+        
+        function calculateSynergy(pokemonIds) {
+            if (pokemonIds.length < 6) return null;
+            const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
+            const typePokemonCount = {};
+            mainPokemon.forEach(pkm => {
+                if (pkm && pkm.types) {
+                    pkm.types.forEach(type => {
+                        typePokemonCount[type] = (typePokemonCount[type] || 0) + 1;
+                    });
+                }
+            });
+            const counts = Object.values(typePokemonCount);
+            const totalPairs = counts.map(c => Math.floor(c / 2)).reduce((a, b) => a + b, 0);
+            const totalUniqueTypes = Object.keys(typePokemonCount).length;
+
+            if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
+            if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
+            if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
+            if (totalPairs >= 4) return DB.synergyEffects.find(s => s.id === 'same2x4');
+            if (totalPairs >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
+            if (totalUniqueTypes >= 6) return DB.synergyEffects.find(s => s.id === 'diff6');
+
+            return null;
+        }
+
+        synergyIconContainer.addEventListener('click', () => {
+            const synergyId = synergyIconContainer.dataset.synergyId;
+            let contentHTML = `
+                <table class="synergy-table">
+                    <thead><tr><th>타입 시너지 효과</th><th>설명</th></tr></thead>
+                    <tbody>`;
+            DB.synergyEffects.forEach(effect => {
+                const isCurrent = (synergyId && effect.id === synergyId) ? 'current-synergy' : '';
+                contentHTML += `
+                    <tr class="${isCurrent}">
+                        <td><img src="${effect.imageURL}" alt="${effect.name}"></td>
+                        <td>${effect.description}</td>
+                    </tr>`;
+            });
+            contentHTML += `</tbody></table>`;
+            showModal('타입 시너지 효과', contentHTML);
+        });
+
+        weatherIconContainer.addEventListener('click', () => {
+            let weatherOptionsHTML = '';
+            const uniqueWeatherEffects = new Map();
+            Array.from(placedPokemon.values()).forEach(id => {
+                const pkm = DB.pokemonType.lev4[id];
+                if (pkm?.weatherEffects) {
+                    pkm.weatherEffects.forEach(effect => {
+                        if (!uniqueWeatherEffects.has(effect.name)) {
+                            uniqueWeatherEffects.set(effect.name, effect.description);
+                        }
+                    });
+                }
+            });
+
+            if (uniqueWeatherEffects.size > 0) {
+                uniqueWeatherEffects.forEach((desc, name) => {
+                    weatherOptionsHTML += `<div class="weather-option" data-weather-name="${name}"><strong>${name}</strong><div class="weather-desc">${desc}</div></div>`;
+                });
+                showModal('날씨 효과 선택', weatherOptionsHTML, true, (selectedWeather) => {
+                     weatherIconContainer.textContent = weatherToEmoji[selectedWeather] || '☀️';
+                });
+            }
+        });
+
+        applyFilters();
+        updateTeamEffects();
+    }
+    
+    function handleMainButtonClick() {
+        Object.values(panels).forEach((panel, index) => {
+            if (index > 0) { 
+                panel.classList.remove('visible', 'is-hidden');
+            }
+        });
+        setActive(0, null);
+        if (isMobile()) {
+            sidebar.classList.remove('is-hidden');
+        }
+    }
+
     function renderPanelContent(level, data, menuId, clickedId) {
         const targetPanel = panels[`lev${level}`];
         if (!targetPanel) return;
+        
         const contentDiv = targetPanel.querySelector('.panel-content');
         if (!contentDiv) return;
-        
+
         const panelHeader = targetPanel.querySelector('.panel-header');
         const existingMainBtn = panelHeader.querySelector('.main-btn');
-        if (existingMainBtn) existingMainBtn.remove();
-
+        if (existingMainBtn) {
+            existingMainBtn.remove();
+        }
+    
         contentDiv.innerHTML = '';
         contentDiv.scrollTop = 0;
 
-        if (!data) {
-            contentDiv.innerHTML = "데이터를 불러오지 못했습니다.";
-            return;
-        }
-
-        const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
-        const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
-
-        if (isFinalView) {
+        if (clickedId === 'deckBuilder') {
             const mainButton = document.createElement('button');
             mainButton.className = 'main-btn';
             mainButton.textContent = '메인';
             panelHeader.appendChild(mainButton);
             
-            if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
+            if (isMobile()) {
+                contentDiv.innerHTML = `<div class="pc-only-message"><h3>기능 안내</h3><p>배치툴 기능은 화면이 넓은 PC 환경에 최적화되어 있습니다.<br>PC에서 접속하여 이용해주세요.</p></div>`;
+            } else {
+                renderDeckBuilder(contentDiv);
+            }
+            return; 
+        }
+        
+        if (!data) {
+            contentDiv.innerHTML = "데이터를 불러오지 못했습니다.";
+            return;
+        }
+        
+        const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
+        const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
+    
+        if (isFinalView) {
+            const mainButton = document.createElement('button');
+            mainButton.className = 'main-btn';
+            mainButton.textContent = '메인';
+            panelHeader.appendChild(mainButton);
+
+            if (menuId === 'deck' && data.composition) {
+                renderDeckView(contentDiv, data);
+            } else if(menuId === 'calendar') {
+                renderCalendarView(contentDiv, data);
+            } else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
                 renderPokemonView(contentDiv, data, menuId); 
             } else { 
                 renderSimpleView(contentDiv, data); 
             }
         } else {
-            if (Array.isArray(data)) {
-                data.forEach(item => {
-                    const button = document.createElement('button');
-                    button.className = 'list-item';
-                    button.textContent = item.name;
-                    button.dataset.id = item.id;
-                    button.dataset.level = level;
-                    button.dataset.menuId = menuId;
-                    contentDiv.appendChild(button);
-                });
-            }
+            data.forEach(item => {
+                const button = document.createElement('button');
+                button.className = 'list-item';
+                button.textContent = item.name;
+                button.dataset.id = item.id;
+                button.dataset.level = level;
+                button.dataset.menuId = menuId;
+                contentDiv.appendChild(button);
+            });
         }
     }
     
-    async function getNextData(currentLevel, id, menuId) {
-        const nextLevel = currentLevel + 1;
-        const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
-        
-        if (nextLevel === (categoryInfo?.levels || 0)) {
-            let collectionName = menuId;
-            if(menuId === 'pokemonType' || menuId === 'pokemonGrade') collectionName = 'pokemon';
-            if(menuId === 'item') collectionName = 'items';
-            if(menuId === 'runeAndChip') collectionName = 'runeAndChips';
-            
-            try {
-                const docRef = db.collection(collectionName).doc(id);
-                const doc = await docRef.get();
-                if (doc.exists) {
-                    return doc.data();
-                }
-            } catch (error) {
-                console.error(`Firebase ${collectionName} 데이터 로딩 오류:`, error);
-            }
-            return DB[menuId]?.lev4?.[id] || DB[menuId]?.lev3?.[id] || null;
-        }
-        
-        if (nextLevel === 2) return DB[menuId]?.lev2;
-        if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
-        
-        return null;
-    }
-    
-    async function handleMenuClick(button) {
+    function handleMenuClick(button) {
         const level = parseInt(button.dataset.level);
         const id = button.dataset.id;
         const menuId = button.dataset.menuId || id;
         
         const nextLevel = level + 1;
-        const nextData = await getNextData(level, id, menuId); 
+        const nextData = getNextData(level, id, menuId); 
         
         const currentPanel = panels[`lev${level}`] || sidebar;
         const nextPanel = panels[`lev${nextLevel}`];
-
+    
         if (!nextPanel) return;
-
+    
         if (isMobile()) {
             currentPanel.classList.add('is-hidden');
         }
-
+    
         Object.values(panels).forEach((panel, index) => {
             if(index > 0 && panel !== nextPanel) { panel.classList.remove('visible'); }
         });
@@ -291,10 +838,21 @@ document.addEventListener('DOMContentLoaded', () => {
         nextPanel.classList.add('visible');
         
         setActive(level, button);
-
+    
         renderPanelContent(nextLevel, nextData, menuId, id);
     }
-
+    
+    // getNextData 함수를 동기적으로 변경 (async/await 제거)
+    function getNextData(currentLevel, id, menuId) {
+        const nextLevel = currentLevel + 1;
+    
+        if (nextLevel === 2) return DB[menuId]?.lev2;
+        if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
+        if (nextLevel === 4) return DB[menuId]?.lev4?.[id];
+    
+        return null;
+    }
+    
     function handleBackClick(button) {
         const parentPanel = button.closest('.panel');
         if (!parentPanel) return;
@@ -302,26 +860,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentPanel = panels[`lev${level}`];
         const prevPanel = panels[`lev${level - 1}`] || sidebar;
         currentPanel.classList.remove('visible');
-        if(isMobile()) {
-             if (prevPanel) prevPanel.classList.remove('is-hidden');
+        if (prevPanel) {
+            if (isMobile()) { prevPanel.classList.remove('is-hidden'); }
+            if(prevPanel !== sidebar) { prevPanel.classList.add('visible'); }
         }
-        if(prevPanel !== sidebar) { prevPanel.classList.add('visible'); }
-        setActive(level - 1, activeButtons[level - 2]);
+        setActive(level - 1, null);
     }
     
-    function handleMainButtonClick() {
-        Object.values(panels).forEach((panel, index) => {
-            if (index > 0) { 
-                panel.classList.remove('visible');
-                if(isMobile()) panel.classList.add('is-hidden');
-            }
-        });
-        setActive(0, null);
-        sidebar.classList.remove('is-hidden');
-    }
-
     function setActive(level, target) {
-        for (let i = level; i < 4; i++) {
+        for (let i = level; i <= 4; i++) {
             if (activeButtons[i]) {
                 activeButtons[i].classList.remove('active');
                 activeButtons[i] = null;
@@ -333,40 +880,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // 데이터를 한 번에 가져와서 로컬 DB 객체를 업데이트하는 통합 함수
+    async function fetchAllDataFromFirebase() {
+        // 각 컬렉션에서 모든 문서를 가져오는 Promise 배열 생성
+        const collections = ['pokemon', 'items', 'runeAndChips', 'tips'];
+        const promises = collections.map(col => db.collection(col).get());
+        
+        // 모든 Promise를 동시에 실행
+        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot] = await Promise.all(promises);
+
+        // 헬퍼 함수: 스냅샷을 { id: data } 형태의 객체로 변환
+        const snapshotToMap = (snapshot) => {
+            const dataMap = {};
+            snapshot.forEach(doc => {
+                dataMap[doc.id] = doc.data();
+            });
+            return dataMap;
+        };
+
+        // 로컬 DB 객체를 Firebase 데이터로 교체
+        DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
+        DB.item.lev4 = snapshotToMap(itemsSnapshot);
+        DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
+        
+        // 팁 데이터는 lev2(목록)와 lev3(내용) 구조가 다르므로 별도 처리
+        DB.tips.lev3 = snapshotToMap(tipsSnapshot);
+        DB.tips.lev2 = Object.entries(DB.tips.lev3).map(([id, data]) => ({ id, name: data.name }));
+    }
+
     async function initialize() {
         try {
-            // 1. Firebase에서 모든 데이터 컬렉션을 동시에 가져오기
-            const [pokemonSnapshot, tipsSnapshot, itemsSnapshot, runeAndChipsSnapshot] = await Promise.all([
-                db.collection("pokemon").get(),
-                db.collection("tips").get(),
-                db.collection("items").get(),
-                db.collection("runeAndChips").get()
-            ]);
+            // 1. Firebase에서 모든 최신 데이터를 가져와 로컬 DB 객체를 업데이트
+            await fetchAllDataFromFirebase();
 
-            // 2. Firebase 데이터로 로컬 DB 덮어쓰기
-            pokemonSnapshot.forEach(doc => { DB.pokemonType.lev4[doc.id] = doc.data(); });
-            tipsSnapshot.forEach(doc => { DB.tips.lev3[doc.id] = doc.data(); });
-            itemsSnapshot.forEach(doc => { DB.item.lev4[doc.id] = doc.data(); });
-            runeAndChipsSnapshot.forEach(doc => { DB.runeAndChip.lev4[doc.id] = doc.data(); });
-
-            // 3. 최종 데이터를 기반으로 메뉴 목록(lev2, lev3) 자동 생성
-            DB.tips.lev2 = Object.entries(DB.tips.lev3).map(([id, data]) => ({ id, name: data.name }));
-            
-            DB.item.lev3 = { god: [], legendary: [], epic: [] };
-            Object.entries(DB.item.lev4).forEach(([id, data]) => {
-                const category = data.grade?.toLowerCase();
-                if(DB.item.lev3[category]) {
-                    DB.item.lev3[category].push({ id, name: data.name });
-                }
-            });
-
-            DB.runeAndChip.lev3 = { rune: [], chip: [] };
-             Object.entries(DB.runeAndChip.lev4).forEach(([id, data]) => {
-                if(DB.runeAndChip.lev3[data.type]) {
-                    DB.runeAndChip.lev3[data.type].push({ id, name: data.name });
-                }
-            });
-            
+            // 2. 가져온 최신 데이터를 기반으로 메뉴 목록(lev3) 자동 생성
+            // 포켓몬 타입별 목록 생성
             const types = {};
             DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
             Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
@@ -379,6 +927,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             DB.pokemonType.lev3 = types;
 
+            // 포켓몬 등급별 목록 생성
             const grades = {};
             DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
             Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
@@ -390,7 +939,26 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             DB.pokemonGrade.lev3 = grades;
             
-            // 4. 사이드바 메뉴 생성 및 이벤트 리스너 추가
+            // 아이템 등급별 목록 생성
+            const itemGrades = { god: [], legendary: [], epic: [] };
+            Object.entries(DB.item.lev4).forEach(([itemId, item]) => {
+                const gradeKey = item.grade?.toLowerCase();
+                if (itemGrades[gradeKey]) {
+                    itemGrades[gradeKey].push({ id: itemId, name: item.name });
+                }
+            });
+            DB.item.lev3 = itemGrades;
+            
+            // 룬, 칩별 목록 생성
+            const runeAndChipTypes = { rune: [], chip: [] };
+            Object.entries(DB.runeAndChip.lev4).forEach(([rcId, rc]) => {
+                if(runeAndChipTypes[rc.type]) {
+                    runeAndChipTypes[rc.type].push({ id: rcId, name: rc.name });
+                }
+            });
+            DB.runeAndChip.lev3 = runeAndChipTypes;
+
+            // 3. 화면 렌더링
             renderSidebar();
             addEventListeners();
 
