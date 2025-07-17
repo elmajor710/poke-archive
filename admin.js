@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    if (!window.db) {
-        console.error("Firestore 'db' 객체를 찾을 수 없습니다. HTML 파일의 스크립트 순서를 확인하세요.");
-        return;
-    }
+    // 이제 db 객체는 항상 존재하므로, if (!window.db) 확인이 필요 없습니다.
+    const db = window.db;
 
     // --- 탭 전환 기능 ---
     const adminNav = document.getElementById('admin-nav');

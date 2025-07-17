@@ -11,13 +11,13 @@
         <aside class="admin-sidebar">
             <h2>관리 메뉴</h2>
             <nav id="admin-nav">
-            <ul>
-                <li><a href="#" class="admin-tab-link active" data-tab="pokemon-management">포켓몬 관리</a></li>
-                <li><a href="#" class="admin-tab-link" data-tab="item-management">아이템 관리</a></li>
-                <li><a href="#" class="admin-tab-link" data-tab="rune-chip-management">룬&칩 관리</a></li>
-                <li><a href="#" class="admin-tab-link" data-tab="tips-management">팁 & 노하우 관리</a></li>
-            </ul>
-        </nav>
+                <ul>
+                    <li><a href="#" class="admin-tab-link active" data-tab="pokemon-management">포켓몬 관리</a></li>
+                    <li><a href="#" class="admin-tab-link" data-tab="item-management">아이템 관리</a></li>
+                    <li><a href="#" class="admin-tab-link" data-tab="rune-chip-management">룬&칩 관리</a></li>
+                    <li><a href="#" class="admin-tab-link" data-tab="tips-management">팁 & 노하우 관리</a></li>
+                </ul>
+            </nav>
         </aside>
         <main class="admin-main">
             <div id="pokemon-management" class="admin-tab-content active">
@@ -33,212 +33,89 @@
                 <section class="content-section">
                     <h2>포켓몬 추가/수정</h2>
                     <form id="pokemon-form">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="pkm-id">고유 ID (영문)</label>
-                                <input type="text" id="pkm-id" placeholder="새 포켓몬 ID 또는 불러온 ID">
-                            </div>
-                            <div class="form-group">
-                                <label for="pkm-name-ko">한글 이름</label>
-                                <input type="text" id="pkm-name-ko">
-                            </div>
-                            <div class="form-group">
-                                <label for="pkm-name-en">영문 이름</label>
-                                <input type="text" id="pkm-name-en">
-                            </div>
-                            <div class="form-group">
-                                <label for="pkm-grade">등급</label>
-                                <select id="pkm-grade">
-                                    <option value="SS">SS</option>
-                                    <option value="S+">S+</option>
-                                    <option value="S">S</option>
-                                </select>
-                            </div>                    
-                            <div class="form-group form-group-span-2">
-                                <label>타입 (다중선택 가능)</label>
-                                <div id="pkm-types-container" class="checkbox-group"></div>
-                            </div>
-                            <div class="form-group form-group-span-2">
-                                <label for="pkm-image-url">전체 이미지 URL</label>
-                                <input type="text" id="pkm-image-url">
-                            </div>
-                             <div class="form-group form-group-span-2">
-                                <label for="pkm-face-url">얼굴 이미지 URL</label>
-                                <input type="text" id="pkm-face-url">
-                            </div>
+                        </form>
+                </section>
+            </div>
+
+            <div id="item-management" class="admin-tab-content">
+                <header class="admin-header">
+                    <h1>아이템 관리</h1>
+                </header>
+                <section class="content-section">
+                    <h2>아이템 추가/수정</h2>
+                    <form id="item-form">
+                        <div class="form-group">
+                            <label for="item-id">고유 ID (영문, 소문자, 띄어쓰기 없이)</label>
+                            <input type="text" id="item-id" placeholder="예: immortal-sword-god">
                         </div>
-                        <div class="form-section">
-                        <h3>종족값</h3>
-                        <div class="form-grid stats-grid">
-                            <div class="form-group">
-                                <label for="pkm-stat-total">총스탯</label>
-                                <input type="number" id="pkm-stat-total" readonly>
-                            </div>
-                            <div></div> <div class="form-group">
-                                <label for="pkm-stat-hp">HP</label>
-                                <input type="number" id="pkm-stat-hp" class="stat-input">
-                            </div>
-                            <div class="form-group">
-                                <label for="pkm-stat-speed">Speed</label>
-                                <input type="number" id="pkm-stat-speed" class="stat-input">
-                            </div>
-                            <div class="form-group">
-                                <label for="pkm-stat-patk">P.ATK</label>
-                                <input type="number" id="pkm-stat-patk" class="stat-input">
-                            </div>
-                            <div class="form-group">
-                                <label for="pkm-stat-pdef">P.DEF</label>
-                                <input type="number" id="pkm-stat-pdef" class="stat-input">
-                            </div>
-                            <div class="form-group">
-                                <label for="pkm-stat-spatk">SP.ATK</label>
-                                <input type="number" id="pkm-stat-spatk" class="stat-input">
-                            </div>
-                            <div class="form-group">
-                                <label for="pkm-stat-spdef">SP.DEF</label>
-                                <input type="number" id="pkm-stat-spdef" class="stat-input">
-                            </div>
+                        <div class="form-group">
+                            <label for="item-name">이름 (한글/영문)</label>
+                            <input type="text" id="item-name" placeholder="예: 녹슨검/Immortal Sword">
                         </div>
-                    </div>                
-                        <div class="form-section">
-                            <h3>스킬 정보 <button type="button" id="add-skill-btn" class="btn btn-small">+</button></h3>
-                            <div id="skills-container"></div>
+                        <div class="form-group">
+                            <label for="item-grade">등급</label>
+                            <select id="item-grade">
+                                <option value="God">빨강(God)</option>
+                                <option value="Legendary">주황(Legendary)</option>
+                                <option value="Epic">보라(Epic)</option>
+                            </select>
                         </div>
-                        <div class="form-section">
-                            <h3>추천 빌드</h3>
-                            <div class="form-group">
-                                <label>추천 성격</label>
-                                <div id="pkm-natures-container" class="checkbox-group scrollable"></div>
-                            </div>
-                            <div class="form-group">
-                                 <label for="pkm-items">추천 아이템</label>
-                                 <select id="pkm-items" multiple></select>
-                            </div>
-                             <div class="form-group">
-                                 <label for="pkm-runes">추천 룬</label>
-                                 <select id="pkm-runes" multiple></select>
-                            </div>
-                             <div class="form-group">
-                                 <label for="pkm-chips">추천 칩</label>
-                                 <select id="pkm-chips" multiple></select>
-                            </div>
+                        <div class="form-group">
+                            <label for="item-image-url">이미지 URL</label>
+                            <input type="text" id="item-image-url">
                         </div>
-                        <div class="form-actions">
+                        <div class="form-group form-group-span-2">
+                            <label for="item-description">설명</label>
+                            <textarea id="item-description" rows="5"></textarea>
+                        </div>
+                        <div class="form-actions form-group-span-2">
                             <button type="submit" class="btn btn-primary">저장하기</button>
-                            <button id="delete-pokemon-btn" type="button" class="btn btn-danger">삭제하기</button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+            <div id="rune-chip-management" class="admin-tab-content">
+                 <header class="admin-header">
+                    <h1>룬&칩 관리</h1>
+                </header>
+                <section class="content-section">
+                    <h2>룬&칩 추가/수정</h2>
+                    <form id="rune-chip-form">
+                        <div class="form-group">
+                            <label for="rc-id">고유 ID (영문, 소문자, 띄어쓰기 없이)</label>
+                            <input type="text" id="rc-id" placeholder="예: deadly">
+                        </div>
+                        <div class="form-group">
+                            <label for="rc-name">이름 (한글/영문)</label>
+                            <input type="text" id="rc-name" placeholder="예: 치명 / Deadly">
+                        </div>
+                        <div class="form-group">
+                            <label for="rc-type">종류</label>
+                            <select id="rc-type">
+                                <option value="rune">룬</option>
+                                <option value="chip">칩</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="rc-image-url">이미지 URL</label>
+                            <input type="text" id="rc-image-url">
+                        </div>
+                        <div class="form-group form-group-span-2">
+                            <label for="rc-description">설명</label>
+                            <textarea id="rc-description" rows="5"></textarea>
+                        </div>
+                        <div class="form-actions form-group-span-2">
+                            <button type="submit" class="btn btn-primary">저장하기</button>
                         </div>
                     </form>
                 </section>
             </div>
 
             <div id="tips-management" class="admin-tab-content">
-                <header class="admin-header">
-                    <h1>팁 & 노하우 관리</h1>
-                    <div>
-                        <select id="tip-select-list" style="padding: 10px;">
-                            <option value="">-- 팁 선택 --</option>
-                        </select>
-                        <button id="load-tip-btn" type="button" class="btn btn-primary">불러오기</button>
-                    </div>
-                </header>
-                <section class="content-section">
-                    <h2>팁 추가/수정</h2>
-                    <form id="tip-form">
-                        <div class="form-group">
-                            <label for="tip-id">고유 ID (영문, 소문자, 띄어쓰기 없이)</label>
-                            <input type="text" id="tip-id" placeholder="예: how-to-get-gold">
-                        </div>
-                        <div class="form-group">
-                            <label for="tip-title">글 제목</label>
-                            <input type="text" id="tip-title" placeholder="예: 골드 수급처 총정리">
-                        </div>
-                        <div class="form-group">
-                            <label for="tip-content">내용 (HTML 코드 입력 가능)</label>
-                            <textarea id="tip-content" rows="15" placeholder="예: <h3>주요 재화 수급처 목록</h3>..."></textarea>
-                        </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">저장하기</button>
-                            <button id="delete-tip-btn" type="button" class="btn btn-danger">삭제하기</button>
-                        </div>
-                    </form>
-                </section>
-            </div>
+                </div>
         </main>
     </div>
-    <div id="item-management" class="admin-tab-content">
-            <header class="admin-header">
-                <h1>아이템 관리</h1>
-            </header>
-            <section class="content-section">
-                <h2>아이템 추가/수정</h2>
-                <form id="item-form">
-                    <div class="form-group">
-                        <label for="item-id">고유 ID (영문, 소문자, 띄어쓰기 없이)</label>
-                        <input type="text" id="item-id" placeholder="예: immortal-sword-god">
-                    </div>
-                    <div class="form-group">
-                        <label for="item-name">이름 (한글/영문)</label>
-                        <input type="text" id="item-name" placeholder="예: 녹슨검/Immortal Sword">
-                    </div>
-                    <div class="form-group">
-                        <label for="item-grade">등급</label>
-                        <select id="item-grade">
-                            <option value="God">빨강(God)</option>
-                            <option value="Legendary">주황(Legendary)</option>
-                            <option value="Epic">보라(Epic)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="item-image-url">이미지 URL</label>
-                        <input type="text" id="item-image-url">
-                    </div>
-                    <div class="form-group form-group-span-2">
-                        <label for="item-description">설명</label>
-                        <textarea id="item-description" rows="5"></textarea>
-                    </div>
-                    <div class="form-actions form-group-span-2">
-                        <button type="submit" class="btn btn-primary">저장하기</button>
-                    </div>
-                </form>
-            </section>
-        </div>
-
-        <div id="rune-chip-management" class="admin-tab-content">
-             <header class="admin-header">
-                <h1>룬&칩 관리</h1>
-            </header>
-            <section class="content-section">
-                <h2>룬&칩 추가/수정</h2>
-                <form id="rune-chip-form">
-                    <div class="form-group">
-                        <label for="rc-id">고유 ID (영문, 소문자, 띄어쓰기 없이)</label>
-                        <input type="text" id="rc-id" placeholder="예: deadly">
-                    </div>
-                    <div class="form-group">
-                        <label for="rc-name">이름 (한글/영문)</label>
-                        <input type="text" id="rc-name" placeholder="예: 치명 / Deadly">
-                    </div>
-                    <div class="form-group">
-                        <label for="rc-type">종류</label>
-                        <select id="rc-type">
-                            <option value="rune">룬</option>
-                            <option value="chip">칩</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="rc-image-url">이미지 URL</label>
-                        <input type="text" id="rc-image-url">
-                    </div>
-                    <div class="form-group form-group-span-2">
-                        <label for="rc-description">설명</label>
-                        <textarea id="rc-description" rows="5"></textarea>
-                    </div>
-                    <div class="form-actions form-group-span-2">
-                        <button type="submit" class="btn btn-primary">저장하기</button>
-                    </div>
-                </form>
-            </section>
-        </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
