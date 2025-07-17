@@ -254,58 +254,170 @@ document.addEventListener('DOMContentLoaded', () => {
     const itemManagementPanel = document.getElementById('item-management');
     if (itemManagementPanel) {
         const itemForm = itemManagementPanel.querySelector('#item-form');
+        const itemSelectList = itemManagementPanel.querySelector('#item-select-list');
+        const loadItemBtn = itemManagementPanel.querySelector('#load-item-btn');
+        const deleteItemBtn = itemForm.querySelector('#delete-item-btn');
+
+        async function loadItemsList() {
+            try {
+                const snapshot = await db.collection("items").orderBy("name").get();
+                itemSelectList.innerHTML = '<option value="">-- 아이템 선택 --</option>';
+                snapshot.forEach(doc => {
+                    const item = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = item.name || doc.id;
+                    itemSelectList.appendChild(option);
+                });
+            } catch (error) { console.error("아이템 목록 로딩 오류: ", error); }
+        }
+
+        if(loadItemBtn) {
+            loadItemBtn.addEventListener('click', async () => {
+                const selectedId = itemSelectList.value;
+                if (!selectedId) { alert('불러올 아이템을 선택해주세요.'); return; }
+                try {
+                    const docRef = db.collection("items").doc(selectedId);
+                    const doc = await docRef.get();
+                    if (doc.exists) {
+                        const data = doc.data();
+                        itemForm.querySelector('#item-id').value = doc.id || '';
+                        itemForm.querySelector('#item-name').value = data.name || '';
+                        itemForm.querySelector('#item-grade').value = data.grade || 'Epic';
+                        itemForm.querySelector('#item-image-url').value = data.imageURL || '';
+                        itemForm.querySelector('#item-description').value = data.description || '';
+                        alert(`'${data.name}' 데이터를 불러왔습니다.`);
+                    } else { alert('해당 ID의 아이템 데이터를 찾을 수 없습니다.'); }
+                } catch (error) { alert('데이터를 불러오는 중 오류가 발생했습니다.'); console.error("아이템 데이터 불러오기 오류: ", error); }
+            });
+        }
+
         itemForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const itemId = itemForm.querySelector('#item-id').value.trim();
             if (!itemId) { alert('고유 ID를 입력해주세요.'); return; }
 
             const itemData = {
-                id: itemId,
                 name: itemForm.querySelector('#item-name').value.trim(),
                 grade: itemForm.querySelector('#item-grade').value,
                 imageURL: itemForm.querySelector('#item-image-url').value.trim(),
                 description: itemForm.querySelector('#item-description').value.trim(),
             };
 
-            db.collection("items").doc(itemId).set(itemData)
+            db.collection("items").doc(itemId).set(itemData, { merge: true })
                 .then(() => {
                     alert('아이템이 성공적으로 저장되었습니다!');
                     itemForm.reset();
+                    loadItemsList();
                 })
                 .catch(error => {
                     console.error("아이템 저장 오류: ", error);
                     alert('아이템 저장 중 오류가 발생했습니다.');
                 });
         });
+
+        if(deleteItemBtn) {
+            deleteItemBtn.addEventListener('click', () => {
+                 const itemId = itemForm.querySelector('#item-id').value.trim();
+                 if (!itemId) { alert('삭제할 아이템의 ID를 입력해주세요.'); return; }
+                 if (confirm(`정말로 '${itemId}' 아이템을 삭제하시겠습니까?`)) {
+                     db.collection("items").doc(itemId).delete()
+                        .then(() => {
+                            alert('아이템이 성공적으로 삭제되었습니다.');
+                            itemForm.reset();
+                            loadItemsList(); 
+                        })
+                        .catch(error => { console.error("아이템 삭제 오류: ", error); });
+                 }
+            });
+        }
+        
+        loadItemsList();
     }
 
     // --- 룬&칩 관리 기능 ---
     const runeChipManagementPanel = document.getElementById('rune-chip-management');
     if (runeChipManagementPanel) {
         const runeChipForm = runeChipManagementPanel.querySelector('#rune-chip-form');
+        const rcSelectList = runeChipManagementPanel.querySelector('#rc-select-list');
+        const loadRcBtn = runeChipManagementPanel.querySelector('#load-rc-btn');
+        const deleteRcBtn = runeChipForm.querySelector('#delete-rc-btn');
+
+        async function loadRuneChipList() {
+            try {
+                const snapshot = await db.collection("runeAndChips").orderBy("name").get();
+                rcSelectList.innerHTML = '<option value="">-- 룬/칩 선택 --</option>';
+                snapshot.forEach(doc => {
+                    const rc = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = rc.name || doc.id;
+                    rcSelectList.appendChild(option);
+                });
+            } catch (error) { console.error("룬/칩 목록 로딩 오류: ", error); }
+        }
+        
+        if(loadRcBtn) {
+            loadRcBtn.addEventListener('click', async () => {
+                const selectedId = rcSelectList.value;
+                if (!selectedId) { alert('불러올 룬/칩을 선택해주세요.'); return; }
+                try {
+                    const docRef = db.collection("runeAndChips").doc(selectedId);
+                    const doc = await docRef.get();
+                    if (doc.exists) {
+                        const data = doc.data();
+                        runeChipForm.querySelector('#rc-id').value = doc.id || '';
+                        runeChipForm.querySelector('#rc-name').value = data.name || '';
+                        runeChipForm.querySelector('#rc-type').value = data.type || 'rune';
+                        runeChipForm.querySelector('#rc-image-url').value = data.imageURL || '';
+                        runeChipForm.querySelector('#rc-description').value = data.description || '';
+                        alert(`'${data.name}' 데이터를 불러왔습니다.`);
+                    } else { alert('해당 ID의 룬/칩 데이터를 찾을 수 없습니다.'); }
+                } catch (error) { alert('데이터를 불러오는 중 오류가 발생했습니다.'); console.error("룬/칩 데이터 불러오기 오류: ", error); }
+            });
+        }
+
         runeChipForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const rcId = runeChipForm.querySelector('#rc-id').value.trim();
             if (!rcId) { alert('고유 ID를 입력해주세요.'); return; }
 
             const runeChipData = {
-                id: rcId,
                 name: runeChipForm.querySelector('#rc-name').value.trim(),
                 type: runeChipForm.querySelector('#rc-type').value,
                 imageURL: runeChipForm.querySelector('#rc-image-url').value.trim(),
                 description: runeChipForm.querySelector('#rc-description').value.trim(),
             };
 
-            db.collection("runeAndChips").doc(rcId).set(runeChipData)
+            db.collection("runeAndChips").doc(rcId).set(runeChipData, { merge: true })
                 .then(() => {
                     alert('룬/칩이 성공적으로 저장되었습니다!');
                     runeChipForm.reset();
+                    loadRuneChipList();
                 })
                 .catch(error => {
                     console.error("룬/칩 저장 오류: ", error);
                     alert('룬/칩 저장 중 오류가 발생했습니다.');
                 });
         });
+        
+        if(deleteRcBtn) {
+            deleteRcBtn.addEventListener('click', () => {
+                 const rcId = runeChipForm.querySelector('#rc-id').value.trim();
+                 if (!rcId) { alert('삭제할 룬/칩의 ID를 입력해주세요.'); return; }
+                 if (confirm(`정말로 '${rcId}' 룬/칩을 삭제하시겠습니까?`)) {
+                     db.collection("runeAndChips").doc(rcId).delete()
+                        .then(() => {
+                            alert('룬/칩이 성공적으로 삭제되었습니다.');
+                            runeChipForm.reset();
+                            loadRuneChipList(); 
+                        })
+                        .catch(error => { console.error("룬/칩 삭제 오류: ", error); });
+                 }
+            });
+        }
+
+        loadRuneChipList();
     }
 
     // --- 팁 & 노하우 관리 기능 ---
