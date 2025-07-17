@@ -401,34 +401,3 @@ header h1 {
         display: block !important;
     }
 }
-
-/* --- PC 초기 화면 스타일 (최종 수정본) --- */
-#welcome-screen {
-    display: none; /* 모바일에선 항상 숨김 */
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    text-align: center;
-    color: #555;
-    padding: 20px;
-}
-
-#welcome-screen img {
-    max-width: 250px;
-    margin-bottom: 20px;
-    opacity: 0.8;
-}
-
-#welcome-screen h1 {
-    margin: 0;
-    font-size: 2.5em;
-    color: #333;
-}
-
-/* PC 화면에서만 보이도록 설정 */
-@media (min-width: 769px) {
-    #welcome-screen {
-        display: flex;
-    }
-}
