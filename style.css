@@ -1,6 +1,6 @@
 :root {
     --sidebar-width: 240px;
-    --right-ad-width: 180px; /* 우측 광고 너비 변수 추가 */
+    --right-ad-width: 180px;
     --primary-color: #007bff;
     --active-color: #e6f7ff;
     --border-color: #dee2e6;
@@ -30,7 +30,7 @@ body {
     height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* body 레벨에서 스크롤 방지 */
+    overflow: hidden;
 }
 
 header {
@@ -44,11 +44,13 @@ header {
 
 /* --- 광고 컨테이너 스타일 --- */
 .ad-container {
-    overflow: hidden; /* ★ 중요: 이 속성이 광고가 박스를 넘어가지 않게 함 */
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f1f1f1;
+    background-color: #FFA726; /* 주황색으로 변경 */
+    color: white;
+    font-weight: bold;
 }
 
 #ad-container-top {
@@ -61,11 +63,12 @@ header {
     display: none; /* 모바일에선 기본적으로 숨김 */
 }
 
-/* --- 메인 레이아웃 재구성 --- */
+
+/* --- 메인 레이아웃 --- */
 #main-layout-container {
     display: flex;
     flex-grow: 1;
-    min-height: 0; /* flex 자식 요소의 높이 문제 해결 */
+    min-height: 0;
 }
 
 #app-container {
@@ -73,7 +76,7 @@ header {
     flex-grow: 1;
     position: relative;
     overflow: hidden;
-    min-width: 0; /* flex 자식 요소의 너비 문제 해결 */
+    min-width: 0;
 }
 
 #sidebar {
@@ -94,7 +97,6 @@ header {
     background-color: #e9ecef;
 }
 
-/* --- 패널 및 콘텐츠 스타일 (기존과 거의 동일) --- */
 .panel {
     position: absolute;
     top: 0;
@@ -139,7 +141,6 @@ header {
     overflow-y: auto;
     flex-grow: 1;
 }
-/* ... (이하 모든 기존 스타일은 생략 없이 그대로 유지) ... */
 .back-btn, .main-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border-color); background-color: #f8f9fa; cursor: pointer; }
 .main-btn { padding: 5px 12px; border-radius: 5px; background-color: #6c757d; color: white; border: 1px solid #6c757d; cursor: pointer; }
 .menu-item, .list-item { display: block; width: 100%; text-align: left; padding: 12px; margin-bottom: 5px; border: 1px solid #eee; background: #f9f9f9; border-radius: 6px; font-size: 16px; cursor: pointer; }
@@ -255,17 +256,12 @@ header {
 #main-placeholder { display: none; }
 
 /* --- 미디어 쿼리 (화면 크기별 레이아웃 조정) --- */
-@media (max-width: 1199px) {
+@media (max-width: 768px) {
     #sidebar, .panel { position: absolute; width: 100%; }
     #sidebar.is-hidden, .panel.is-hidden { transform: translateX(-100%); z-index: 1; }
 }
 
-@media (min-width: 1200px) {
-    #ad-container-right {
-        display: flex;
-        width: var(--right-ad-width);
-        flex-shrink: 0;
-    }
+@media (min-width: 769px) {
     #main-placeholder {
         display: flex;
         flex-direction: column;
