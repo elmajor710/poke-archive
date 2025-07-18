@@ -62,16 +62,16 @@ header h1 {
     min-height: 100px; 
 }
 
+/* 기존 PC 및 기본 스타일 (그대로 유지) */
 #ad-container-top {
     width: 100%;
-    min-height: 150px;
+    min-height: 180px; 
     max-height: 250px;
     flex-shrink: 0;
-    display: block; /* flex 대신 block으로 변경 */
-    /* align-items, justify-content 속성은 flex가 아니므로 제거합니다. */
+    display: block;
 }
 
-/* 광고 자체를 가운데 정렬하기 위해 아래 코드를 추가합니다. */
+/* 광고 자체를 가운데 정렬하기 위한 코드 (그대로 유지) */
 #ad-container-top > .adsbygoogle {
     display: block;
     margin: 0 auto;
@@ -246,6 +246,14 @@ header h1 {
     #sidebar.is-hidden, .panel.is-hidden { 
         transform: translateX(-100%); 
         z-index: 1; 
+    }
+}
+
+/* --- [여기에 추가] 모바일 화면(가로 768px 이하)에서만 적용될 스타일 --- */
+@media (max-width: 768px) {
+    #ad-container-top {
+        min-height: 100px; /* 모바일 최소 높이 (추천) */
+        max-height: 150px; /* 모바일 최대 높이 (추천) */
     }
 }
 
