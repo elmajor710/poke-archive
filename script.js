@@ -736,7 +736,9 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTeamEffects();
     }
     
-    function handleMainButtonClick() {
+        function handleMainButtonClick() {
+        // [수정] 아래 한 줄 추가
+        appContainer.classList.remove('menu-active');
         Object.values(panels).forEach((panel, index) => {
             if (index > 0) { 
                 panel.classList.remove('visible', 'is-hidden');
@@ -815,6 +817,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function handleMenuClick(button) {
+        // [수정] 아래 한 줄 추가
+        appContainer.classList.add('menu-active');
         const level = parseInt(button.dataset.level);
         const id = button.dataset.id;
         const menuId = button.dataset.menuId || id;

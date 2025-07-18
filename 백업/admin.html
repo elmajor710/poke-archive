@@ -16,6 +16,7 @@
                     <li><a href="#" class="admin-tab-link" data-tab="item-management">아이템 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="rune-chip-management">룬&칩 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="tips-management">팁 & 노하우 관리</a></li>
+                    <li><a href="#" class="admin-tab-link" data-tab="calendar-management">캘린더 관리</a></li>
                 </ul>
             </nav>
         </aside>
@@ -257,6 +258,59 @@
                     </form>
                 </section>
             </div>
+            <div id="calendar-management" class="admin-tab-content">
+    <header class="admin-header">
+        <h1>캘린더 이벤트 관리</h1>
+        <div>
+            <select id="event-select-list" style="padding: 10px;">
+                <option value="">-- 이벤트 선택 --</option>
+            </select>
+            <button id="load-event-btn" type="button" class="btn btn-primary">불러오기</button>
+        </div>
+    </header>
+    <section class="content-section">
+        <h2>이벤트 추가/수정</h2>
+        <form id="calendar-form">
+            <div class="form-group">
+                <label for="event-id">고유 ID (자동생성 또는 직접입력)</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="event-id" placeholder="예: ranking_20250718">
+                    <button type="button" id="generate-event-id-btn" class="btn">ID 자동생성</button>
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="event-title">이벤트 제목</label>
+                    <input type="text" id="event-title" placeholder="예: 웅의 메가 강철톤">
+                </div>
+                <div class="form-group">
+                    <label for="event-type">이벤트 종류</label>
+                    <select id="event-type">
+                        <option value="ranking">랭킹뽑기</option>
+                        <option value="limited">한정뽑기</option>
+                        <option value="luckycat">복냥이</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="event-start-date">시작 날짜</label>
+                    <input type="date" id="event-start-date">
+                </div>
+                <div class="form-group">
+                    <label for="event-end-date">종료 날짜</label>
+                    <input type="date" id="event-end-date">
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 20px;">
+                <label for="event-description">상세 내용 (텍스트 또는 HTML)</label>
+                <textarea id="event-description" rows="5"></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">저장하기</button>
+                <button id="delete-event-btn" type="button" class="btn btn-danger">삭제하기</button>
+            </div>
+        </form>
+    </section>
+</div>
         </main>
     </div>
 

@@ -516,7 +516,128 @@ document.addEventListener('DOMContentLoaded', () => {
                  }
             });
         }
+        // --- 캘린더 관리 기능 ---
+    const calendarManagementPanel = document.getElementById('calendar-management');
+    if (calendarManagementPanel) {
+        const calendarForm = calendarManagementPanel.querySelector('#calendar-form');
+        const eventSelectList = calendarManagementPanel.querySelector('#event-select-list');
+        const loadEventBtn = calendarManagementPanel.querySelector('#load-event-btn');
+        const deleteEventBtn = calendarForm.querySelector('#delete-event-btn');
+        const generateEventIdBtn = calendarForm.querySelector('#generate-event-id-btn');
+
+        // Firestore 'events' 컬렉션에서 데이터 목록을 불러와 드롭다운에 채웁니다.
+        async function loadEventsList() {
+            try {
+                const snapshot = await db.collection("events").orderBy("startDate", "desc").get();
+                eventSelectList.innerHTML = '<option value="">-- 이벤트 선택 --</option>';
+                snapshot.forEach(doc => {
+                    const event = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = `${event.title} (${doc.id})`;
+                    eventSelectList.appendChild(option);
+                });
+            } catch (error) {
+                console.error("이벤트 목록 로딩 오류: ", error);
+                alert("이벤트 목록을 불러오는 데 실패했습니다.");
+            }
+        }
+
+        // Firestore 타임스탬프를 'YYYY-MM-DD' 형식의 문자열로 변환합니다.
+        function formatDate(timestamp) {
+            if (!timestamp) return '';
+            const date = timestamp.toDate();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // 불러오기 버튼 클릭 이벤트
+        loadEventBtn.addEventListener('click', async () => {
+            const selectedId = eventSelectList.value;
+            if (!selectedId) return alert('불러올 이벤트를 선택해주세요.');
+            try {
+                const docRef = db.collection("events").doc(selectedId);
+                const doc = await docRef.get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    calendarForm.querySelector('#event-id').value = doc.id;
+                    calendarForm.querySelector('#event-title').value = data.title || '';
+                    calendarForm.querySelector('#event-type').value = data.type || 'ranking';
+                    calendarForm.querySelector('#event-description').value = data.description || '';
+                    calendarForm.querySelector('#event-start-date').value = formatDate(data.startDate);
+                    calendarForm.querySelector('#event-end-date').value = formatDate(data.endDate);
+                    alert(`'${data.title}' 데이터를 불러왔습니다.`);
+                }
+            } catch (error) {
+                console.error("이벤트 데이터 불러오기 오류: ", error);
+                alert("이벤트 데이터를 불러오는 데 실패했습니다.");
+            }
+        });
+
+        // ID 자동생성 버튼 클릭 이벤트
+        generateEventIdBtn.addEventListener('click', () => {
+            const type = calendarForm.querySelector('#event-type').value;
+            const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            calendarForm.querySelector('#event-id').value = `${type}_${date}_${Math.random().toString(36).substr(2, 5)}`;
+        });
         
+        // 저장 버튼 클릭 이벤트 (폼 제출)
+        calendarForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const eventId = calendarForm.querySelector('#event-id').value.trim();
+            if (!eventId) return alert('고유 ID를 입력하거나 자동생성해주세요.');
+
+            const startDate = new Date(calendarForm.querySelector('#event-start-date').value);
+            const endDate = new Date(calendarForm.querySelector('#event-end-date').value);
+            const duration = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
+
+            const eventData = {
+                title: calendarForm.querySelector('#event-title').value.trim(),
+                type: calendarForm.querySelector('#event-type').value,
+                description: calendarForm.querySelector('#event-description').value.trim(),
+                // 날짜를 Firestore Timestamp 형식으로 변환하여 저장
+                startDate: firebase.firestore.Timestamp.fromDate(startDate),
+                endDate: firebase.firestore.Timestamp.fromDate(endDate),
+                // index.html 호환성을 위해 기존 필드명도 유지
+                date: calendarForm.querySelector('#event-start-date').value,
+                duration: duration > 0 ? duration : 1,
+            };
+
+            db.collection("events").doc(eventId).set(eventData)
+                .then(() => {
+                    alert('이벤트가 성공적으로 저장되었습니다!');
+                    calendarForm.reset();
+                    loadEventsList();
+                })
+                .catch(error => {
+                    console.error("이벤트 저장 오류: ", error);
+                    alert('이벤트 저장 중 오류가 발생했습니다.');
+                });
+        });
+
+        // 삭제 버튼 클릭 이벤트
+        deleteEventBtn.addEventListener('click', () => {
+            const eventId = calendarForm.querySelector('#event-id').value.trim();
+            if (!eventId) return alert('삭제할 이벤트가 없습니다.');
+            if (confirm(`정말로 '${eventId}' 이벤트를 삭제하시겠습니까?`)) {
+                db.collection("events").doc(eventId).delete()
+                    .then(() => {
+                        alert('이벤트가 성공적으로 삭제되었습니다.');
+                        calendarForm.reset();
+                        loadEventsList();
+                    })
+                    .catch(error => {
+                        console.error("이벤트 삭제 오류: ", error);
+                        alert('이벤트 삭제 중 오류가 발생했습니다.');
+                    });
+            }
+        });
+        
+        // 페이지 로드 시 이벤트 목록 즉시 로딩
+        loadEventsList();
+    }
         loadTipsList();
     }
 });
