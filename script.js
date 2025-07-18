@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeButtons = {};
     const isMobile = () => window.innerWidth <= 768;
 
+    // ... (기존의 모든 함수들은 변경 없이 그대로 유지됩니다) ...
     function showModal(title, contentHTML, isWeatherPopup = false, callback) {
         const existingModal = document.querySelector('.modal-overlay');
         if (existingModal) existingModal.remove();
