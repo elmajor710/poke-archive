@@ -1016,6 +1016,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
+    function addEventListeners() {
+        // --- [수정] 무효 트래픽 방지 클릭 리스너 추가 ---
+        document.body.addEventListener('click', (e) => {
+            if (e.target.closest('.ad-container')) {
+                adBlockManager.recordClick();
+            }
+        });
+        
+        appContainer.addEventListener('click', e => {
+            const button = e.target.closest('button');
+            if (!button) return;
+            if (button.classList.contains('back-btn')) { 
+                handleBackClick(button); 
+            } else if (button.classList.contains('main-btn')) {
+                handleMainButtonClick();
+            }
+            else if (button.dataset.level) { 
+                handleMenuClick(button); 
+            }
+        });
+    }
+
     initialize();
 });

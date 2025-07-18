@@ -259,3 +259,8 @@ header h1 {
     #main-placeholder p { font-size: 1.2em; font-weight: 500; color: #495057; }
     #app-container.menu-active #main-placeholder { display: none; }
 }
+
+/* --- 무효 트래픽 방지용 스타일 --- */
+.ad-container.hidden {
+    display: none !important;
+}
