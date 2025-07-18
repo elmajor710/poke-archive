@@ -1,3 +1,4 @@
+alert("이것이 보이면 최신 파일이 맞습니다!");
 document.addEventListener('DOMContentLoaded', () => {
     console.log('스크립트 초기화 완료. Nirvana Pokedex 최종 완성본');
 
