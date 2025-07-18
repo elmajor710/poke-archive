@@ -9,20 +9,17 @@
 <body>
     <div class="admin-container">
         <aside class="admin-sidebar">
-    <h2>관리 메뉴</h2>
-    <nav id="admin-nav">
-        <ul>
-            <li><a href="#" class="admin-tab-link active" data-tab="pokemon-management">포켓몬 관리</a></li>
-            <li><a href="#" class="admin-tab-link" data-tab="item-management">아이템 관리</a></li>
-            <li><a href="#" class="admin-tab-link" data-tab="rune-chip-management">룬&칩 관리</a></li>
-            <li><a href="#" class="admin-tab-link" data-tab="tips-management">팁 & 노하우 관리</a></li>
-            <li><a href="#" class="admin-tab-link" data-tab="calendar-management">캘린더 관리</a></li>
-            
-            <li><a href="#" class="admin-tab-link" data-tab="deck-management">추천 덱 관리</a></li>
-
-        </ul>
-    </nav>
-</aside>
+            <h2>관리 메뉴</h2>
+            <nav id="admin-nav">
+                <ul>
+                    <li><a href="#" class="admin-tab-link active" data-tab="pokemon-management">포켓몬 관리</a></li>
+                    <li><a href="#" class="admin-tab-link" data-tab="item-management">아이템 관리</a></li>
+                    <li><a href="#" class="admin-tab-link" data-tab="rune-chip-management">룬&칩 관리</a></li>
+                    <li><a href="#" class="admin-tab-link" data-tab="tips-management">팁 & 노하우 관리</a></li>
+                    <li><a href="#" class="admin-tab-link" data-tab="calendar-management">캘린더 관리</a></li>
+                </ul>
+            </nav>
+        </aside>
         <main class="admin-main">
             <div id="pokemon-management" class="admin-tab-content active">
                 <header class="admin-header">
@@ -228,83 +225,7 @@
                     </form>
                 </section>
             </div>
-            <div id="deck-management" class="admin-tab-content">
-    <header class="admin-header">
-        <h1>추천 덱 관리</h1>
-        <div>
-            <select id="deck-select-list" style="padding: 10px;">
-                <option value="">-- 추천 덱 선택 --</option>
-            </select>
-            <button id="load-deck-btn" type="button" class="btn btn-primary">불러오기</button>
-        </div>
-    </header>
-    <section class="content-section">
-        <h2>추천 덱 추가/수정</h2>
-        <form id="deck-form">
-            <div class="form-group">
-                <label for="deck-id">덱 고유 ID</label>
-                <input type="text" id="deck-id" placeholder="예: water_fairy_deck">
-            </div>
-            <div class="form-group">
-                <label for="deck-name">덱 이름</label>
-                <input type="text" id="deck-name" placeholder="예: 물 & 페어리 추천덱">
-            </div>
-            <div class="form-group form-group-span-2">
-                <label for="deck-description">덱 설명</label>
-                <textarea id="deck-description" rows="3"></textarea>
-            </div>
 
-            <div class="form-section">
-                <h3>덱 구성 (포켓몬 선택)</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                    <div id="deck-composition-selectors">
-                        <h4>메인 포켓몬</h4>
-                        <div class="form-grid">
-                            <div class="form-group"><label>전방 #1</label><select class="deck-pokemon-select" data-role="main" data-position="1"><option value="">선택</option></select></div>
-                            <div class="form-group"><label>전방 #2</label><select class="deck-pokemon-select" data-role="main" data-position="2"><option value="">선택</option></select></div>
-                            <div class="form-group"><label>전방 #3</label><select class="deck-pokemon-select" data-role="main" data-position="3"><option value="">선택</option></select></div>
-                            <div class="form-group"><label>후방 #4</label><select class="deck-pokemon-select" data-role="main" data-position="4"><option value="">선택</option></select></div>
-                            <div class="form-group"><label>후방 #5</label><select class="deck-pokemon-select" data-role="main" data-position="5"><option value="">선택</option></select></div>
-                            <div class="form-group"><label>후방 #6</label><select class="deck-pokemon-select" data-role="main" data-position="6"><option value="">선택</option></select></div>
-                        </div>
-                        <h4 style="margin-top: 20px;">어시스트 포켓몬</h4>
-                        <div class="form-grid">
-                            <div class="form-group"><label>어시스트 #1</label><select class="deck-pokemon-select" data-role="assist" data-position="1"><option value="">선택</option></select></div>
-                            <div class="form-group"><label>어시스트 #2</label><select class="deck-pokemon-select" data-role="assist" data-position="2"><option value="">선택</option></select></div>
-                            <div class="form-group"><label>어시스트 #3</label><select class="deck-pokemon-select" data-role="assist" data-position="3"><option value="">선택</option></select></div>
-                        </div>
-                    </div>
-                    <div id="deck-visual-display" style="padding-top: 20px;">
-                        <style>
-                            .deck-vis-grid { display: grid; grid-template-columns: repeat(3, 80px); gap: 8px; justify-content: center; }
-                            .deck-vis-slot { width: 80px; height: 80px; background: #eee; border: 2px dashed #ccc; border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 12px; color: #777; position: relative; }
-                            .deck-vis-slot img { max-width: 90%; max-height: 90%; cursor: pointer; }
-                            .deck-vis-slot .pos-label { position: absolute; bottom: 2px; right: 4px; font-weight: bold; }
-                            .deck-vis-slot.main { border-style: solid; }
-                            .deck-vis-slot.assist { border-style: dotted; }
-                        </style>
-                        <div class="deck-vis-grid">
-                            <div class="deck-vis-slot assist" data-role="assist" data-position="1">AST 1</div>
-                            <div class="deck-vis-slot main" data-role="main" data-position="4">REAR 4</div>
-                            <div class="deck-vis-slot main" data-role="main" data-position="1">VAN 1</div>
-                            <div class="deck-vis-slot assist" data-role="assist" data-position="2">AST 2</div>
-                            <div class="deck-vis-slot main" data-role="main" data-position="5">REAR 5</div>
-                            <div class="deck-vis-slot main" data-role="main" data-position="2">VAN 2</div>
-                            <div class="deck-vis-slot assist" data-role="assist" data-position="3">AST 3</div>
-                            <div class="deck-vis-slot main" data-role="main" data-position="6">REAR 6</div>
-                            <div class="deck-vis-slot main" data-role="main" data-position="3">VAN 3</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">저장하기</button>
-                <button id="delete-deck-btn" type="button" class="btn btn-danger">삭제하기</button>
-            </div>
-        </form>
-    </section>
-</div>
             <div id="tips-management" class="admin-tab-content">
                 <header class="admin-header">
                     <h1>팁 & 노하우 관리</h1>
