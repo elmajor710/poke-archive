@@ -62,7 +62,7 @@ header h1 {
 
 #ad-container-top {
     width: 100%;
-    min-height: 90px;  /* 최소 높이: 레이아웃 유지 */
+    min-height: 150px;  /* 최소 높이: 레이아웃 유지 */
     max-height: 250px; /* 최대 높이: 사용자 경험 보호 */
     flex-shrink: 0;
     display: flex;
