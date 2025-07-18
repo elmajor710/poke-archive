@@ -1,9 +1,11 @@
 :root {
     --sidebar-width: 240px;
+    --right-ad-width: 180px; /* PC 우측 광고 너비 */
     --primary-color: #007bff;
     --active-color: #e6f7ff;
     --border-color: #dee2e6;
     --slide-duration: 0.35s;
+    /* ... (기타 색상 변수들은 그대로 유지) ... */
     --grade-ss-color: #ff8a80;
     --grade-s-plus-color: #ffb74d;
     --grade-s-color: #fff176;
@@ -52,7 +54,7 @@ header h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #9575CD; /* 보라색으로 변경 */
+    background-color: #9575CD; /* 보라색 */
     color: white;
     font-size: 14px;
     font-weight: bold;
@@ -70,7 +72,7 @@ header h1 {
 
 /* --- 메인 레이아웃 --- */
 #page-body {
-    display: flex; /* PC 레이아웃을 위해 추가 */
+    display: flex;
     flex-grow: 1;
     overflow: hidden;
 }

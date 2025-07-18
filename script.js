@@ -1,7 +1,61 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log('스크립트 초기화 완료. Nirvana Pokedex 최종 완성본');
 
-    // 전역 변수 및 초기 설정
+    // --- 무효 트래픽 방지 로직 (파일 최상단에서 먼저 실행) ---
+    const adBlockManager = {
+        CLICK_LIMIT: 3, // 클릭 제한 횟수
+        TIME_WINDOW: 5 * 60 * 1000, // 제한 시간 (5분)
+        
+        // 페이지 로드 시 광고 차단 여부 확인
+        checkAndApplyBlock: function() {
+            const expiresAt = localStorage.getItem('adBlockExpiresAt');
+            if (!expiresAt) return;
+
+            const now = new Date().getTime();
+            if (now < parseInt(expiresAt)) {
+                console.warn('광고가 비정상적인 클릭으로 인해 일시적으로 차단되었습니다.');
+                this.hideAds();
+            } else {
+                // 차단 기간 만료 시 기록 삭제
+                localStorage.removeItem('adBlockExpiresAt');
+                localStorage.removeItem('adClickTimestamps');
+            }
+        },
+
+        // 광고 컨테이너에 클릭 이벤트 기록
+        recordClick: function() {
+            let timestamps = JSON.parse(localStorage.getItem('adClickTimestamps')) || [];
+            const now = new Date().getTime();
+
+            // 5분이 지난 기록은 삭제
+            timestamps = timestamps.filter(ts => (now - ts) < this.TIME_WINDOW);
+            
+            timestamps.push(now);
+            localStorage.setItem('adClickTimestamps', JSON.stringify(timestamps));
+            
+            // 클릭 횟수가 제한을 초과하면 차단 적용
+            if (timestamps.length >= this.CLICK_LIMIT) {
+                console.error('제한 횟수를 초과하는 클릭이 감지되었습니다. 24시간 동안 광고를 차단합니다.');
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(0, 0, 0, 0); // 다음날 0시 0분 0초
+                
+                localStorage.setItem('adBlockExpiresAt', tomorrow.getTime());
+                this.hideAds();
+            }
+        },
+        
+        // 모든 광고 컨테이너를 숨기는 함수
+        hideAds: function() {
+            document.querySelectorAll('.ad-container').forEach(container => {
+                container.classList.add('hidden');
+            });
+        }
+    };
+
+    adBlockManager.checkAndApplyBlock(); // 페이지 로드 시 즉시 실행
+
+    // --- 기존 코드 시작 ---
     const appContainer = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
     const panels = {
@@ -13,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeButtons = {};
     const isMobile = () => window.innerWidth <= 768;
 
-    // --- 유틸리티 함수 ---
+    // ... (기존의 모든 함수들은 변경 없이 그대로 유지됩니다) ...
     function showModal(title, contentHTML, isWeatherPopup = false, callback) {
         const existingModal = document.querySelector('.modal-overlay');
         if (existingModal) existingModal.remove();
@@ -40,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 렌더링 함수들 ---
     function renderPokemonView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
         const nameKo = data.name_ko || (data.name && data.name.ko) || '이름 없음';
@@ -736,7 +789,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTeamEffects();
     }
     
-        function handleMainButtonClick() {
+    function handleMainButtonClick() {
         // [수정] 아래 한 줄 추가
         appContainer.classList.remove('menu-active');
         Object.values(panels).forEach((panel, index) => {
@@ -889,44 +942,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // 데이터를 한 번에 가져와서 로컬 DB 객체를 업데이트하는 통합 함수
-    async function fetchAllDataFromFirebase() {
-        // 각 컬렉션에서 모든 문서를 가져오는 Promise 배열 생성
-        const collections = ['pokemon', 'items', 'runeAndChips', 'tips', 'events']; // 'events' 컬렉션 추가
-        const promises = collections.map(col => db.collection(col).get());
-        
-        // 모든 Promise를 동시에 실행
-        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, eventsSnapshot] = await Promise.all(promises);
+    // 전체를 이 코드로 교체해주세요.
+async function fetchAllDataFromFirebase() {
+    const collections = ['pokemon', 'items', 'runeAndChips', 'tips', 'events', 'recommendedDecks']; // 'recommendedDecks' 추가
+    const promises = collections.map(col => db.collection(col).get());
 
-        // 헬퍼 함수: 스냅샷을 { id: data } 형태의 객체로 변환
-        const snapshotToMap = (snapshot) => {
-            const dataMap = {};
-            snapshot.forEach(doc => {
-                dataMap[doc.id] = { id: doc.id, ...doc.data() }; // 데이터에 id도 포함시킴
-            });
-            return dataMap;
-        };
-        
-        // 헬퍼 함수: 이벤트 스냅샷을 배열로 변환
-        const eventsToArray = (snapshot) => {
-            const dataArray = [];
-            snapshot.forEach(doc => {
-                dataArray.push({ id: doc.id, ...doc.data() });
-            });
-            return dataArray;
-        }
+    const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, eventsSnapshot, decksSnapshot] = await Promise.all(promises);
 
-        // 로컬 DB 객체를 Firebase 데이터로 교체
-        DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
-        DB.item.lev4 = snapshotToMap(itemsSnapshot);
-        DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
-        
-        // 팁 데이터는 lev2(목록)와 lev3(내용) 구조가 다르므로 별도 처리
-        DB.tips.lev3 = snapshotToMap(tipsSnapshot);
-        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name }));
+    const snapshotToMap = (snapshot) => {
+        const dataMap = {};
+        snapshot.forEach(doc => {
+            dataMap[doc.id] = { id: doc.id, ...doc.data() };
+        });
+        return dataMap;
+    };
 
-        // 캘린더 이벤트 데이터 교체 (기존 recurringEvents는 유지하고 events만 교체)
-        DB.calendar.lev2.events = eventsToArray(eventsSnapshot);
+    const eventsToArray = (snapshot) => {
+        const dataArray = [];
+        snapshot.forEach(doc => {
+            dataArray.push({ id: doc.id, ...doc.data() });
+        });
+        return dataArray;
     }
+
+    DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
+    DB.item.lev4 = snapshotToMap(itemsSnapshot);
+    DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
+    DB.tips.lev3 = snapshotToMap(tipsSnapshot);
+    DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name }));
+    DB.calendar.lev2.events = eventsToArray(eventsSnapshot);
+
+    // 새로 추가된 부분: 추천 덱 데이터 처리
+    DB.deck.lev4 = snapshotToMap(decksSnapshot);
+    DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
+}
     async function initialize() {
         try {
             // 1. Firebase에서 모든 최신 데이터를 가져와 로컬 DB 객체를 업데이트
@@ -1003,20 +1052,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addEventListeners() {
-        appContainer.addEventListener('click', e => {
-            const button = e.target.closest('button');
-            if (!button) return;
-            if (button.classList.contains('back-btn')) { 
-                handleBackClick(button); 
-            } else if (button.classList.contains('main-btn')) {
-                handleMainButtonClick();
-            }
-            else if (button.dataset.level) { 
-                handleMenuClick(button); 
-            }
-        });
-    }
-    function addEventListeners() {
         // --- [수정] 무효 트래픽 방지 클릭 리스너 추가 ---
         document.body.addEventListener('click', (e) => {
             if (e.target.closest('.ad-container')) {
@@ -1037,6 +1072,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
+    
     initialize();
 });
