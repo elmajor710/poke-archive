@@ -67,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeButtons = {};
     const isMobile = () => window.innerWidth <= 768;
 
-    // ... (기존의 모든 함수들은 변경 없이 그대로 유지됩니다) ...
     function showModal(title, contentHTML, isWeatherPopup = false, callback) {
         const existingModal = document.querySelector('.modal-overlay');
         if (existingModal) existingModal.remove();
@@ -790,7 +789,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function handleMainButtonClick() {
-        // [수정] 아래 한 줄 추가
         appContainer.classList.remove('menu-active');
         Object.values(panels).forEach((panel, index) => {
             if (index > 0) { 
@@ -870,7 +868,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function handleMenuClick(button) {
-        // [수정] 아래 한 줄 추가
         appContainer.classList.add('menu-active');
         const level = parseInt(button.dataset.level);
         const id = button.dataset.id;
@@ -902,7 +899,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function getNextData(currentLevel, id, menuId) {
         const nextLevel = currentLevel + 1;
     
-        // 포켓몬 상세 정보(lev4)는 어떤 경로로 접근하든 항상 DB.pokemonType.lev4 에서 가져오도록 수정
         if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) {
             return DB.pokemonType.lev4?.[id];
         }
@@ -941,48 +937,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // 데이터를 한 번에 가져와서 로컬 DB 객체를 업데이트하는 통합 함수
-    // 전체를 이 코드로 교체해주세요.
-async function fetchAllDataFromFirebase() {
-    const collections = ['pokemon', 'items', 'runeAndChips', 'tips', 'events', 'recommendedDecks']; // 'recommendedDecks' 추가
-    const promises = collections.map(col => db.collection(col).get());
+    async function fetchAllDataFromFirebase() {
+        const collections = ['pokemon', 'items', 'runeAndChips', 'tips', 'events', 'recommendedDecks'];
+        const promises = collections.map(col => db.collection(col).get());
 
-    const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, eventsSnapshot, decksSnapshot] = await Promise.all(promises);
+        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, eventsSnapshot, decksSnapshot] = await Promise.all(promises);
 
-    const snapshotToMap = (snapshot) => {
-        const dataMap = {};
-        snapshot.forEach(doc => {
-            dataMap[doc.id] = { id: doc.id, ...doc.data() };
-        });
-        return dataMap;
-    };
+        const snapshotToMap = (snapshot) => {
+            const dataMap = {};
+            snapshot.forEach(doc => {
+                dataMap[doc.id] = { id: doc.id, ...doc.data() };
+            });
+            return dataMap;
+        };
 
-    const eventsToArray = (snapshot) => {
-        const dataArray = [];
-        snapshot.forEach(doc => {
-            dataArray.push({ id: doc.id, ...doc.data() });
-        });
-        return dataArray;
+        const eventsToArray = (snapshot) => {
+            const dataArray = [];
+            snapshot.forEach(doc => {
+                dataArray.push({ id: doc.id, ...doc.data() });
+            });
+            return dataArray;
+        }
+
+        DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
+        DB.item.lev4 = snapshotToMap(itemsSnapshot);
+        DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
+        DB.tips.lev3 = snapshotToMap(tipsSnapshot);
+        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name }));
+        DB.calendar.lev2.events = eventsToArray(eventsSnapshot);
+        
+        DB.deck.lev4 = snapshotToMap(decksSnapshot);
+        DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
     }
 
-    DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
-    DB.item.lev4 = snapshotToMap(itemsSnapshot);
-    DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
-    DB.tips.lev3 = snapshotToMap(tipsSnapshot);
-    DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name }));
-    DB.calendar.lev2.events = eventsToArray(eventsSnapshot);
-
-    // 새로 추가된 부분: 추천 덱 데이터 처리
-    DB.deck.lev4 = snapshotToMap(decksSnapshot);
-    DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
-}
     async function initialize() {
         try {
-            // 1. Firebase에서 모든 최신 데이터를 가져와 로컬 DB 객체를 업데이트
             await fetchAllDataFromFirebase();
 
-            // 2. 가져온 최신 데이터를 기반으로 메뉴 목록(lev3) 자동 생성
-            // 포켓몬 타입별 목록 생성
             const types = {};
             DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
             Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
@@ -995,7 +986,6 @@ async function fetchAllDataFromFirebase() {
             });
             DB.pokemonType.lev3 = types;
 
-            // 포켓몬 등급별 목록 생성
             const grades = {};
             DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
             Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
@@ -1007,7 +997,6 @@ async function fetchAllDataFromFirebase() {
             });
             DB.pokemonGrade.lev3 = grades;
             
-            // 아이템 등급별 목록 생성
             const itemGrades = { god: [], legendary: [], epic: [] };
             Object.entries(DB.item.lev4).forEach(([itemId, item]) => {
                 const gradeKey = item.grade?.toLowerCase();
@@ -1017,7 +1006,6 @@ async function fetchAllDataFromFirebase() {
             });
             DB.item.lev3 = itemGrades;
             
-            // 룬, 칩별 목록 생성
             const runeAndChipTypes = { rune: [], chip: [] };
             Object.entries(DB.runeAndChip.lev4).forEach(([rcId, rc]) => {
                 if(runeAndChipTypes[rc.type]) {
@@ -1026,9 +1014,12 @@ async function fetchAllDataFromFirebase() {
             });
             DB.runeAndChip.lev3 = runeAndChipTypes;
 
-            // 3. 화면 렌더링
             renderSidebar();
             addEventListeners();
+
+            console.log('페이지 초기화 완료. 광고를 요청합니다.');
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
 
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
@@ -1052,7 +1043,6 @@ async function fetchAllDataFromFirebase() {
     }
 
     function addEventListeners() {
-        // --- [수정] 무효 트래픽 방지 클릭 리스너 추가 ---
         document.body.addEventListener('click', (e) => {
             if (e.target.closest('.ad-container')) {
                 adBlockManager.recordClick();
