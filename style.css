@@ -48,26 +48,31 @@ header h1 {
     font-size: 1.5em;
 }
 
-/* --- 광고 컨테이너 스타일 --- */
+/* 광고 컨테이너 공통 스타일 수정 */
 .ad-container {
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f1f1f1; /* 회색으로 변경 */
-    color: #cccccc; /* 글자색도 회색 계열로 변경 */
+    background-color: #f1f1f1;
+    color: #cccccc;
     font-size: 14px;
     font-weight: bold;
+    /* --- [추가] 모든 광고 컨테이너에 최소 높이 보장 --- */
+    min-height: 50px; 
 }
 
+/* 최상단 광고 컨테이너 스타일 수정 */
 #ad-container-top {
     width: 100%;
-    min-height: 150px;  /* 최소 높이: 레이아웃 유지 */
-    max-height: 250px; /* 최대 높이: 사용자 경험 보호 */
+    min-height: 150px;
+    max-height: 250px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    /* --- [추가] 반응형 배너의 일반적인 최소 너비 지정 --- */
+    min-width: 320px;
 }
 
 #ad-container-right {
