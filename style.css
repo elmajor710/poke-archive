@@ -54,8 +54,8 @@ header h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #9575CD; /* 보라색 */
-    color: white;
+    background-color: #f1f1f1; /* 회색으로 변경 */
+    color: #cccccc; /* 글자색도 회색 계열로 변경 */
     font-size: 14px;
     font-weight: bold;
 }
