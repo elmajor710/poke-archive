@@ -972,8 +972,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function initialize() {
         try {
+            // 1. Firebase에서 모든 최신 데이터를 가져와 로컬 DB 객체를 업데이트
             await fetchAllDataFromFirebase();
 
+            // 2. 가져온 최신 데이터를 기반으로 메뉴 목록(lev3) 자동 생성 (기존과 동일)
             const types = {};
             DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
             Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
@@ -1014,14 +1016,27 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             DB.runeAndChip.lev3 = runeAndChipTypes;
 
+            // 3. 화면 렌더링
             renderSidebar();
             addEventListeners();
 
-            console.log('페이지 초기화 완료. 광고를 요청합니다.');
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
+            // --- 💡 [최종 수정된 부분] ---
+            // 4. 페이지 렌더링 시간을 확보하기 위해 잠시 후 광고를 요청합니다.
+            console.log('페이지 초기화 완료. 렌더링 후 광고를 요청합니다.');
+            setTimeout(() => {
+                try {
+                    // 이 시점에는 컨테이너의 너비가 계산된 후이므로 오류가 발생하지 않습니다.
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                    console.log('광고 요청 스크립트 실행.');
+                } catch (e) {
+                    // 만약 광고 요청 자체에서 다른 오류가 발생해도 페이지가 깨지지 않도록 별도 처리합니다.
+                    console.error('광고 로드 중 오류 발생:', e);
+                }
+            }, 100); // 100ms(0.1초)의 지연을 주어 브라우저가 렌더링할 시간을 확실히 보장합니다.
 
         } catch (error) {
+            // 이 부분은 이제 광고 오류가 아닌, 정말 데이터 로딩 등의 심각한 오류 시에만 실행됩니다.
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
         }
