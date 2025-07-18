@@ -59,20 +59,22 @@ header h1 {
     font-size: 14px;
     font-weight: bold;
     /* --- [추가] 모든 광고 컨테이너에 최소 높이 보장 --- */
-    min-height: 250px; 
+    min-height: 100px; 
 }
 
-/* 최상단 광고 컨테이너 스타일 수정 */
 #ad-container-top {
     width: 100%;
     min-height: 150px;
     max-height: 250px;
     flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* --- [추가] 반응형 배너의 일반적인 최소 너비 지정 --- */
-    min-width: 320px;
+    display: block; /* flex 대신 block으로 변경 */
+    /* align-items, justify-content 속성은 flex가 아니므로 제거합니다. */
+}
+
+/* 광고 자체를 가운데 정렬하기 위해 아래 코드를 추가합니다. */
+#ad-container-top > .adsbygoogle {
+    display: block;
+    margin: 0 auto;
 }
 
 #ad-container-right {
