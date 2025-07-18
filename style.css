@@ -252,8 +252,8 @@ header h1 {
 /* --- [추가] 모바일 화면(가로 768px 이하)에서만 적용될 스타일 --- */
 @media (max-width: 768px) {
     #ad-container-top {
-        min-height: 50px; /* 100px -> 50px로 수정 */
-        max-height: 50px; /* 150px -> 50px로 수정 */
+        height: 50px !important; /* 높이를 50px로 강제 */
+        min-height: 50px !important; /* 최소 높이도 50px로 강제 */
     }
 }
 
