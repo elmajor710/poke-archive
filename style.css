@@ -1,11 +1,9 @@
 :root {
     --sidebar-width: 240px;
-    --right-ad-width: 180px; /* PC 우측 광고 너비 */
     --primary-color: #007bff;
     --active-color: #e6f7ff;
     --border-color: #dee2e6;
     --slide-duration: 0.35s;
-    /* ... (기타 색상 변수들은 그대로 유지) ... */
     --grade-ss-color: #ff8a80;
     --grade-s-plus-color: #ffb74d;
     --grade-s-color: #fff176;
@@ -26,7 +24,7 @@
 
 body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -46,35 +44,6 @@ header {
 header h1 {
     margin: 0;
     font-size: 1.5em;
-}
-
-/* --- 광고 컨테이너 스타일 --- */
-.ad-container {
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f1f1f1; /* 회색으로 변경 */
-    color: #cccccc; /* 글자색도 회색 계열로 변경 */
-    font-size: 14px;
-    font-weight: bold;
-}
-
-#ad-container-top {
-    width: 100%;
-    height: 100px; /* 상단 광고 높이 고정 */
-    flex-shrink: 0;
-}
-
-#ad-container-right {
-    display: none; /* 모바일에선 기본적으로 숨김 */
-}
-
-/* --- 메인 레이아웃 --- */
-#page-body {
-    display: flex;
-    flex-grow: 1;
-    overflow: hidden;
 }
 
 #app-container {
@@ -100,34 +69,107 @@ header h1 {
     flex-grow: 1;
     position: relative;
     overflow: hidden;
-    background-color: #e9ecef;
 }
 
-/* --- 초기화면 Placeholder --- */
-#main-placeholder {
-    display: none; /* 모바일에서는 숨김 */
+.panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform var(--slide-duration) ease-in-out;
+    visibility: hidden;
+    z-index: 1;
 }
 
-/* (이하 기존 스타일은 그대로 유지) */
-.panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: flex; flex-direction: column; transform: translateX(100%); transition: transform var(--slide-duration) ease-in-out; visibility: hidden; z-index: 1; }
-.panel.visible { transform: translateX(0); visibility: visible; z-index: 5; }
+#sidebar {
+    position: static;
+    transform: translateX(0);
+    visibility: visible;
+}
+
+.panel.visible {
+    transform: translateX(0);
+    visibility: visible;
+    z-index: 5;
+}
+
 #lev3-panel.visible { z-index: 6; }
 #lev4-panel.visible { z-index: 7; }
-.panel-header { padding: 10px 15px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
-.panel-content { padding: 10px; overflow-y: auto; flex-grow: 1; }
-.back-btn, .main-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border-color); background-color: #f8f9fa; cursor: pointer; }
-.main-btn { padding: 5px 12px; border-radius: 5px; background-color: #6c757d; color: white; border: 1px solid #6c757d; cursor: pointer; }
-.menu-item, .list-item { display: block; width: 100%; text-align: left; padding: 12px; margin-bottom: 5px; border: 1px solid #eee; background: #f9f9f9; border-radius: 6px; font-size: 16px; cursor: pointer; }
-.menu-item.active, .list-item.active { background-color: var(--active-color); border-left: 4px solid var(--primary-color); font-weight: 600; }
+
+.panel-header {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.back-btn, .main-btn {
+    padding: 5px 12px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.main-btn {
+    padding: 5px 12px;
+    border-radius: 5px;
+    background-color: #6c757d;
+    color: white;
+    border: 1px solid #6c757d;
+    cursor: pointer;
+}
+
+.panel-content {
+    padding: 10px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.menu-item,
+.list-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px;
+    margin-bottom: 5px;
+    border: 1px solid #eee;
+    background: #f9f9f9;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.menu-item.active,
+.list-item.active {
+    background-color: var(--active-color);
+    border-left: 4px solid var(--primary-color);
+    font-weight: 600;
+}
+
 .item-description { white-space: pre-wrap; line-height: 1.7; background-color: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 14px; color: #333; }
-.stats-table { border-collapse: collapse; margin: 10px 0; width: 100%; max-width: 500px;  }
+.stats-table {
+    border-collapse: collapse;
+    margin: 10px 0;
+    width: 100%;
+    max-width: 500px; 
+}
 .stats-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
 .stats-table td:first-child { font-weight: 600; color: #555; padding-right: 20px; }
+
 .pokemon-detail-view, .simple-detail-view, .deck-detail-view { padding: 10px; }
 .pokemon-detail-view h2, .simple-detail-view h2, .deck-detail-view h2 { font-size: 2em; margin-bottom: 10px; }
 .pokemon-detail-view .main-image, .simple-detail-view .main-image { max-width: 200px; display: block; margin: 20px auto; }
 .pokemon-detail-view h4, .simple-detail-view h4, .deck-detail-view h4, .deck-builder-view h4, h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
 .deck-detail-view h5 { margin-top: 15px; margin-bottom: 10px; font-size: 1.1em; }
+
 .badge-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; align-items: center; }
 .type-badge, .grade-badge { color: white; padding: 4px 12px; border-radius: 15px; font-size: 0.9em; font-weight: 600; }
 .grade-badge.grade-ss { background-color: var(--grade-ss-color); }
@@ -136,6 +178,7 @@ header h1 {
 .grade-badge.grade-god { background-color: var(--item-god-color); }
 .grade-badge.grade-legendary { background-color: var(--item-legendary-color); }
 .grade-badge.grade-epic { background-color: var(--item-epic-color); }
+
 .skill-list, .recommend-list { list-style: none; padding: 0; }
 .skill-list { display: flex; flex-direction: column; gap: 8px; }
 .skill-item { background: #f8f9fa; border-radius: 5px; padding: 10px; display: flex; justify-content: flex-start; align-items: center; gap: 10px; }
@@ -144,6 +187,7 @@ header h1 {
 .recommend-list { display: flex; flex-wrap: wrap; gap: 10px; }
 .recommend-item { display: flex; align-items: center; gap: 8px; background: #f8f9fa; padding: 5px 10px; border-radius: 5px; cursor: pointer; border: 1px solid #eee; flex-shrink: 0; }
 .recommend-item img { width: 32px; height: 32px; }
+
 .deck-grid-table { width: 100%; max-width: 600px; border-collapse: collapse; margin: 20px auto; table-layout: fixed; }
 .deck-grid-table th, .deck-grid-table td { border: 1px solid var(--border-color); text-align: center; padding: 8px; vertical-align: middle; }
 .deck-grid-table th { background-color: #f8f9fa; font-weight: bold; height: auto; }
@@ -151,15 +195,48 @@ header h1 {
 .deck-pokemon-cell { cursor: pointer; }
 .deck-pokemon-cell img { width: 64px; height: 64px; display: block; margin: 0 auto 5px; object-fit: contain; }
 .deck-pokemon-cell .position-number { font-weight: bold; font-size: 0.9em; color: #555; display: block; }
-.deck-composition-container { display: none !important; }
+.deck-composition-container {
+    display: none !important;
+}
+
 .content-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.95em; }
 .content-table th, .content-table td { border: 1px solid var(--border-color); padding: 8px 10px; text-align: left; }
 .content-table th { background-color: #f8f9fa; font-weight: 600; }
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
-.modal-content { background: white; padding: 20px; border-radius: 8px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
 .modal-header h2 { margin: 0; font-size: 1.3em; }
 .modal-close-btn { font-size: 24px; font-weight: bold; cursor: pointer; border: none; background: none; }
+
 .calendar-view { padding: 10px; }
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
 .calendar-title { font-size: 1.5em; font-weight: bold; }
@@ -182,6 +259,7 @@ header h1 {
 .day-today .date-number { background-color: var(--primary-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; }
 .event-markers { margin-top: 5px; display: flex; flex-direction: column; gap: 3px; }
 .event-marker { font-size: 0.8em; padding: 2px 4px; border-radius: 4px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 .deck-builder-view { display: flex; flex-direction: row; gap: 20px; height: 100%; }
 .placement-container { flex: 0 0 320px; }
 .placement-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -214,20 +292,54 @@ header h1 {
 .synergy-table tr.current-synergy { background-color: var(--active-color); font-weight: bold; }
 .pc-only-message { padding: 40px 20px; text-align: center; color: #555; background-color: #f8f9fa; border-radius: 8px; margin: auto; }
 .pc-only-message h3 { font-size: 1.5em; margin-top: 0; margin-bottom: 10px; color: #333; }
-.pokemon-detail-view.use-tabs .tab-nav { display: flex; }
-.pokemon-detail-view.use-tabs .tab-pane { display: none; }
-.pokemon-detail-view.use-tabs .tab-pane.active { display: block; }
-.pokemon-detail-view:not(.use-tabs) .tab-nav { display: none; }
-.pokemon-detail-view:not(.use-tabs) .info-sections { display: block; }
-.pokemon-detail-view.use-tabs .info-sections { display: none; }
-.tab-nav { border-bottom: 1px solid var(--border-color); margin: 20px 0; }
-.tab-button { flex: 1; padding: 12px 5px; text-align: center; background: none; border: none; font-size: 1em; font-weight: 600; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: color 0.2s, border-color 0.2s; }
-.tab-button.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
-.tab-pane { display: none; }
-.tab-pane.active { display: block; }
 
-/* --- 미디어 쿼리 --- */
-@media (max-width: 1199px) { /* 모바일 & 태블릿 */
+.pokemon-detail-view.use-tabs .tab-nav {
+    display: flex;
+}
+.pokemon-detail-view.use-tabs .tab-pane {
+    display: none;
+}
+.pokemon-detail-view.use-tabs .tab-pane.active {
+    display: block;
+}
+.pokemon-detail-view:not(.use-tabs) .tab-nav {
+    display: none;
+}
+.pokemon-detail-view:not(.use-tabs) .info-sections {
+    display: block;
+}
+.pokemon-detail-view.use-tabs .info-sections {
+    display: none;
+}
+.tab-nav {
+    border-bottom: 1px solid var(--border-color);
+    margin: 20px 0;
+}
+.tab-button {
+    flex: 1;
+    padding: 12px 5px;
+    text-align: center;
+    background: none;
+    border: none;
+    font-size: 1em;
+    font-weight: 600;
+    color: #888;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+}
+.tab-button.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+.tab-pane {
+    display: none;
+}
+.tab-pane.active {
+    display: block;
+}
+
+@media (max-width: 768px) {
     #sidebar, .panel { 
         position: absolute; 
         width: 100%; 
@@ -236,33 +348,120 @@ header h1 {
         transform: translateX(-100%); 
         z-index: 1; 
     }
-}
-
-@media (min-width: 1200px) { /* PC */
-    #app-container {
-        flex-grow: 1;
-        min-width: 0;
-    }
-    #ad-container-right {
-        display: block;
-        width: var(--right-ad-width);
-        flex-shrink: 0;
-    }
-    #main-placeholder {
+    .pokemon-detail-view .tab-nav {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-        text-align: center;
-        padding: 20px;
     }
-    #main-placeholder img { max-width: 80%; max-height: 60%; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); margin-bottom: 25px; }
-    #main-placeholder p { font-size: 1.2em; font-weight: 500; color: #495057; }
-    #app-container.menu-active #main-placeholder { display: none; }
+    .pokemon-detail-view .info-sections {
+        display: none;
+    }
+    .pokemon-detail-view .tab-pane {
+        display: none !important;
+    }
+    .pokemon-detail-view .tab-pane.active {
+        display: block !important;
+    }
 }
 
-/* --- 무효 트래픽 방지용 스타일 --- */
-.ad-container.hidden {
+/* --- ▼▼▼ 운영자 모드 콘텐츠를 위한 공용 스타일 ▼▼▼ --- */
+
+/* 템플릿 A: 카드형 표 (1개 행 = 1개 카드) */
+.responsive-table {
+    border: none !important;
+    box-shadow: none !important;
+}
+.responsive-table thead {
     display: none !important;
 }
+.responsive-table tr {
+    display: block !important;
+    border: 1px solid #ddd !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    margin-bottom: 20px !important;
+    background-color: #ffffff !important;
+    max-width: 700px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+.responsive-table td {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 12px 15px !important;
+    text-align: right !important;
+    border-bottom: 1px solid #eee !important;
+}
+.responsive-table td:last-child {
+    border-bottom: none !important;
+}
+.responsive-table td::before {
+    content: attr(data-label) !important;
+    font-weight: bold !important;
+    text-align: left !important;
+    margin-right: 15px !important;
+    color: #333 !important;
+}
+
+/* 템플릿 B: 2단 컬럼 효과 카드 */
+.rune-effects-container {
+    display: grid !important;
+    gap: 20px !important;
+    max-width: 800px !important;
+    margin: 30px auto !important;
+}
+.rune-effect-box {
+    border: 1px solid #ddd !important;
+    border-radius: 8px !important;
+    padding: 20px !important;
+    background-color: #fff !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+}
+.rune-effect-box h3 {
+    margin: 0 0 10px 0 !important;
+    color: #c0392b !important;
+    font-size: 1.1em !important;
+    text-align: left !important;
+}
+.rune-effect-box p {
+    margin: 0 !important;
+    font-size: 1em !important;
+    text-align: left !important;
+}
+@media (min-width: 768px) {
+    .rune-effects-container {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+
+/* 템플릿 C: 1단 정보 카드 (칩 세트 가이드용) */
+.chip-set-container h2 {
+    color: #4a4a4a;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    text-align: center;
+}
+.effect-card {
+    background-color: #fff !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08) !important;
+    padding: 15px 25px !important;
+    margin-bottom: 25px !important;
+    border: 1px solid #e0e0e0 !important;
+}
+.effect-card h3, .effect-card .description-text {
+    text-align: left !important;
+}
+.stat-list li:last-child {
+    margin-bottom: 0 !important;
+}
+.english-term { color: #777; font-size: 0.8em; margin-left: 5px; font-style: italic; }
+.stat-list { list-style: none; padding: 0; margin: 0; }
+.stat-list li { display: flex; align-items: center; margin-bottom: 15px; font-size: 1.1em; }
+.stat-list .icon { margin-right: 12px; color: #e65100; }
+.stat-list .label { color: #555; flex-grow: 1; }
+.stat-list .value { font-weight: bold; color: #000; }
+.description-text { line-height: 1.7; font-size: 1.1em; }
+.description-text .highlight { font-weight: bold; color: #5c6bc0; }
+.info-text { font-size: 0.9em; color: #888; margin-top: 10px; text-align: right; }
