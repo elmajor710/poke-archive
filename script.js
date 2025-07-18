@@ -1,20 +1,36 @@
-alert("이것이 보이면 최신 파일이 맞습니다!");
 document.addEventListener('DOMContentLoaded', () => {
     console.log('스크립트 초기화 완료. Nirvana Pokedex 최종 완성본');
 
-    // --- 광고 요청 함수 분리 ---
-    // 페이지의 모든 리소스(CSS, 이미지 등) 로딩이 완료된 후 호출될 함수입니다.
-    function requestAds() {
-        console.log('모든 리소스 로딩 완료. 광고 로드를 시도합니다.');
-        try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-            console.log('광고 요청 스크립트 실행 완료.');
-        } catch (e) {
-            console.error('광고 로드 중 오류 발생:', e);
-        }
+    // --- ResizeObserver를 사용한 광고 설정 함수 ---
+    function setupAdObservers() {
+        const adContainers = document.querySelectorAll('.ad-container');
+        if (adContainers.length === 0) return;
+
+        console.log('광고 컨테이너 관찰을 시작합니다.');
+
+        const adObserver = new ResizeObserver(entries => {
+            for (const entry of entries) {
+                // contentRect.width는 패딩을 제외한 순수 콘텐츠 영역의 너비입니다.
+                // 이 너비가 0보다 크다는 것은 컨테이너가 화면에 그려졌음을 의미합니다.
+                if (entry.contentRect.width > 0) {
+                    console.log(`'${entry.target.id}' 컨테이너가 준비되었습니다. 광고를 요청합니다.`);
+                    
+                    try {
+                        (window.adsbygoogle = window.adsbygoogle || []).push({});
+                    } catch (e) {
+                        console.error(`'${entry.target.id}' 광고 요청 중 오류 발생:`, e);
+                    }
+
+                    // 광고는 한 번만 요청해야 하므로, 요청 후 해당 컨테이너의 관찰을 중단합니다.
+                    adObserver.unobserve(entry.target);
+                }
+            }
+        });
+
+        // 모든 광고 컨테이너에 관찰자(Observer)를 붙입니다.
+        adContainers.forEach(container => adObserver.observe(container));
     }
-    
+
     // --- 무효 트래픽 방지 로직 ---
     const adBlockManager = {
         CLICK_LIMIT: 3,
@@ -55,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     adBlockManager.checkAndApplyBlock();
 
-    // --- 기존 코드 시작 ---
+    // --- 페이지 로직 (기존 함수들은 그대로 유지) ---
     const appContainer = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
     const panels = {
@@ -221,8 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // (renderSimpleView, renderDeckView 등 나머지 함수들은 변경 없이 그대로 유지됩니다)
-    // ...
     function renderSimpleView(contentDiv, data) {
         let html = `<div class="simple-detail-view"><h2>${data.name}</h2>`;
         if (data.htmlContent) {
@@ -834,8 +848,6 @@ document.addEventListener('DOMContentLoaded', () => {
             renderSidebar();
             addEventListeners();
             
-            // 💡 이 부분에서 광고 로직이 제거되고 window.onload로 이동되었습니다.
-
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
@@ -877,11 +889,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // --- 💡 [최종 수정] `window.onload` 이벤트 리스너 추가 ---
-    // DOMContentLoaded가 아닌, 페이지의 모든 리소스(CSS, 이미지)가 로드된 후 광고를 요청합니다.
-    window.onload = function() {
-        requestAds();
-    };
-
+    // 페이지의 모든 로직을 실행
     initialize();
+    
+    // 페이지의 기본 로직과 별개로 광고 관찰자 설정
+    setupAdObservers();
 });
