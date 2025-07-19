@@ -293,6 +293,7 @@ header h1 {
   border-radius: 4px;
   overflow: hidden; 
   margin-bottom: 20px;
+  height: fit-content; /* 추가: 내용물 크기에 높이를 맞추도록 강제합니다. */
 }
 
 .info-table-label,
