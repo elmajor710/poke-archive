@@ -323,3 +323,11 @@ header h1 {
   color: #333;
   line-height: 1.6;
 }
+
+.stop-stretching {
+  /* 모든 종류의 강제 높이 조절에 저항하는 최종 클래스 */
+  height: fit-content !important;
+  min-height: fit-content !important;
+  align-self: flex-start !important;
+  flex-grow: 0 !important;
+}
