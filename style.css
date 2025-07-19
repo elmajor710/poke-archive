@@ -1,6 +1,6 @@
 :root {
     --sidebar-width: 240px;
-    --right-ad-width: 180px; /* PC 우측 광고 너비 */
+    --right-ad-width: 240px; /* PC 우측 광고 너비 */
     --primary-color: #007bff;
     --active-color: #e6f7ff;
     --border-color: #dee2e6;
@@ -65,8 +65,8 @@ header h1 {
 /* 기존 PC 및 기본 스타일 (그대로 유지) */
 #ad-container-top {
     width: 100%;
-    min-height: 180px; 
-    max-height: 250px;
+    min-height: 250px; 
+    max-height: 300px;
     flex-shrink: 0;
     display: block;
 }
