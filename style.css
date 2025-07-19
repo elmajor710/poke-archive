@@ -319,6 +319,7 @@ header h1 {
   margin-bottom: 10px;
   overflow: hidden;
   width: 100%;
+  height: fit-content; /* 높이는 내용물에 맞게 자동 조절 */
 }
 
 .info-card-label {
