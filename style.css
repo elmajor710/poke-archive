@@ -149,10 +149,10 @@ header h1 {
 .stats-table { border-collapse: collapse; margin: 10px 0; width: 100%; max-width: 500px;  }
 .stats-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
 .stats-table td:first-child { font-weight: 600; color: #555; padding-right: 20px; }
-/* style.css 파일에서 이 부분을 찾아서 수정하세요 */
+/* style.css 파일에서 이 부분을 찾아서 height 속성을 추가하세요. */
 .pokemon-detail-view, .simple-detail-view, .deck-detail-view {
     padding: 10px;
-    height: fit-content; /* <<-- 이 한 줄을 추가하여 높이 문제를 해결합니다. */
+    height: fit-content; /* <<-- 모든 문제의 원인을 해결하는 코드입니다. */
 }
 .pokemon-detail-view h2, .simple-detail-view h2, .deck-detail-view h2 { font-size: 2em; margin-bottom: 10px; }
 .pokemon-detail-view .main-image, .simple-detail-view .main-image { max-width: 200px; display: block; margin: 20px auto; }
@@ -318,8 +318,7 @@ header h1 {
   border-radius: 12px;
   margin-bottom: 10px;
   overflow: hidden;
-  width: 100%;
-  height: fit-content; /* 높이는 내용물에 맞게 자동 조절 */
+  width: 100%;  
 }
 
 .info-card-label {
