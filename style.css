@@ -286,3 +286,41 @@ header h1 {
 .ad-container.hidden {
     display: none !important;
 }
+
+/* 운영자 모드용 정보 카드 스타일 */
+.admin-info-card {
+  background-color: #ffffff;
+  border: 1px solid var(--border-color); /* 기존에 사용하시던 테두리 색상 변수 */
+  border-radius: 8px; /* 모서리 둥글게 */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* 은은한 그림자 */
+  margin-bottom: 20px; /* 카드 아래쪽 여백 */
+  overflow: hidden; /* 내부 요소가 모서리를 벗어나지 않도록 */
+}
+
+.admin-info-card .card-header {
+  background-color: #f8f9fa; /* 헤더 배경색 */
+  padding: 12px 16px;
+  font-size: 1.1em;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-info-card .card-body {
+  padding: 16px;
+  font-size: 0.95em;
+  line-height: 1.7;
+}
+
+/* 카드 내용 안의 작은 제목 스타일 */
+.admin-info-card .card-body h4 {
+  font-size: 1em;
+  color: var(--primary-color); /* 기존에 사용하시던 주요 색상 변수 */
+  border-bottom: none; /* 기존 h4 스타일 덮어쓰기 */
+  margin-top: 10px;
+  margin-bottom: 5px;
+  padding-bottom: 0;
+}
+
+.admin-info-card .card-body h4:first-child {
+  margin-top: 0;
+}
