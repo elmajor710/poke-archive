@@ -286,3 +286,18 @@ header h1 {
 .ad-container.hidden {
     display: none !important;
 }
+
+/* style.css 파일에 추가 */
+
+/* 카드형 뷰 높이 자동 조절 및 디자인 개선 */
+.simple-detail-view {
+    height: fit-content; /* 핵심: 내용물에 맞게 높이를 조절 */
+    min-height: 100px;   /* 카드가 너무 작아지는 것을 방지 (값은 조절 가능) */
+    
+    /* 아래는 디자인을 개선하기 위한 추천 스타일입니다 (선택 사항) */
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin: 15px;
+    padding: 20px;
+}
