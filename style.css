@@ -287,7 +287,7 @@ header h1 {
     display: none !important;
 }
 
-/* 최종: 이미지 기반 테이블형 카드 스타일 v3 */
+/* 최종 해결책: !important 강제 적용 */
 .info-table-wrapper {
   border: 1px solid #b0b0b0;
   border-radius: 4px;
@@ -297,10 +297,10 @@ header h1 {
 
 .info-table-label,
 .info-table-value {
-  padding: 5px 12px; 
+  padding: 5px 12px !important;      /* !important 추가 */
   font-size: 14px;
   background-color: #e8f0f7;
-  line-height: 1.5; /* 추가: 줄 간격을 명시적으로 지정해 불필요한 공간을 제거합니다. */
+  line-height: 1.5 !important;       /* !important 추가 */
 }
 
 /* 항목이 있는 윗줄 스타일 */
