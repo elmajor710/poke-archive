@@ -300,6 +300,7 @@ header h1 {
   margin-bottom: 10px;
   overflow: hidden;
   height: fit-content; /* 추가: 이 한 줄로 내용물에 맞게 높이가 자동 조절됩니다. */
+  display: table; /* 추가: 렌더링 방식을 변경하는 마지막 시도 */
 }
 
 .info-card-item:last-child {
