@@ -120,7 +120,7 @@ header h1 {
 }
 
 /* (이하 기존 스타일은 그대로 유지) */
-/* style.css 파일에서 이 부분을 찾아서 수정하세요 */
+/* style.css 파일에서 이 부분을 찾아서 아래처럼 수정하세요 */
 .panel {
     position: absolute;
     top: 0;
@@ -134,7 +134,7 @@ header h1 {
     transition: transform var(--slide-duration) ease-in-out;
     visibility: hidden;
     z-index: 1;
-    align-items: flex-start; /* <<-- 이 한 줄을 추가하세요! */
+    /* align-items: flex-start; <<-- 이 줄을 삭제하세요! */
 }
 .panel.visible { transform: translateX(0); visibility: visible; z-index: 5; }
 #lev3-panel.visible { z-index: 6; }
@@ -149,7 +149,11 @@ header h1 {
 .stats-table { border-collapse: collapse; margin: 10px 0; width: 100%; max-width: 500px;  }
 .stats-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
 .stats-table td:first-child { font-weight: 600; color: #555; padding-right: 20px; }
-.pokemon-detail-view, .simple-detail-view, .deck-detail-view { padding: 10px; }
+/* style.css 파일에서 이 부분을 찾아서 수정하세요 */
+.pokemon-detail-view, .simple-detail-view, .deck-detail-view {
+    padding: 10px;
+    height: fit-content; /* <<-- 이 한 줄을 추가하여 높이 문제를 해결합니다. */
+}
 .pokemon-detail-view h2, .simple-detail-view h2, .deck-detail-view h2 { font-size: 2em; margin-bottom: 10px; }
 .pokemon-detail-view .main-image, .simple-detail-view .main-image { max-width: 200px; display: block; margin: 20px auto; }
 .pokemon-detail-view h4, .simple-detail-view h4, .deck-detail-view h4, .deck-builder-view h4, h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
