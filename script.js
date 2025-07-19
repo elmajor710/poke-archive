@@ -17,17 +17,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     try {
                         (window.adsbygoogle = window.adsbygoogle || []).push({});
 
-                        // --- [핵심 수정] MutationObserver로 구글의 스타일 변경을 감시 ---
+                        // MutationObserver로 구글의 스타일 변경을 감시
                         const styleWatcher = new MutationObserver((mutations) => {
-                            // 구글 스크립트가 style 속성을 변경하면 이 함수가 실행됩니다.
                             for (const mutation of mutations) {
                                 if (mutation.attributeName === 'style') {
-                                    const currentHeight = targetContainer.style.height;
-                                    // 구글이 높이를 'auto'나 다른 값으로 바꾸려 하면, 우리가 50px로 다시 덮어씁니다.
-                                    if (currentHeight !== '50px') {
-                                        console.log(`구글이 '${targetContainer.id}'의 높이를 ${currentHeight}로 변경 시도 -> 50px로 재정의합니다!`);
-                                        targetContainer.style.setProperty('height', '50px', 'important');
-                                        targetContainer.style.setProperty('min-height', '50px', 'important');
+                                    // --- [핵심 수정] 현재 화면 너비가 모바일일 경우에만 높이를 강제하도록 조건 추가 ---
+                                    if (window.innerWidth <= 768) {
+                                        const currentHeight = targetContainer.style.height;
+                                        if (currentHeight !== '50px') {
+                                            console.log(`모바일 화면에서 '${targetContainer.id}'의 높이를 ${currentHeight}로 변경 시도 -> 50px로 재정의합니다!`);
+                                            targetContainer.style.setProperty('height', '50px', 'important');
+                                            targetContainer.style.setProperty('min-height', '50px', 'important');
+                                        }
                                     }
                                     // 임무 완수 후, 감시를 중단하여 불필요한 반복을 막습니다.
                                     styleWatcher.disconnect();
@@ -35,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         });
 
-                        // ad-container-top 요소의 style 속성 변경을 감시 시작
+                        // style 속성 변경을 감시 시작
                         styleWatcher.observe(targetContainer, { attributes: true });
 
                     } catch (e) {
