@@ -287,7 +287,7 @@ header h1 {
     display: none !important;
 }
 
-/* [최종] 데이터 중심의 컴팩트 카드 스타일 */
+/* [최종] 데이터 중심의 컴팩트 카드 스타일 v2 */
 .data-card {
   border-radius: 8px;
   margin-bottom: 16px; /* 카드 사이 간격 */
@@ -297,10 +297,10 @@ header h1 {
 
 /* 카드 내부의 각 데이터 행(row) */
 .data-card .data-row {
-  display: flex; /* 가로 정렬을 위해 Flexbox 사용 */
-  justify-content: space-between; /* 양쪽 끝으로 요소를 배치 */
-  align-items: center; /* 세로 중앙 정렬 */
-  padding: 10px 14px; /* 행 내부의 상하좌우 여백 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px; /* 수정: 상하 여백을 10px에서 8px로 줄여 간격을 좁혔습니다. */
   border-bottom: 1px solid #f0f0f0; /* 행 구분선 */
   gap: 15px; /* 라벨과 값 사이의 최소 간격 */
 }
@@ -322,10 +322,10 @@ header h1 {
 .data-card .data-value {
   color: #333;
   font-size: 0.9em;
-  text-align: right; /* 오른쪽 정렬 */
+  text-align: left; /* 수정: 오른쪽 정렬에서 왼쪽 정렬로 변경했습니다. */
 }
 
-/* 🎨 색상 테마 추가 (사진3 처럼) */
+/* 🎨 색상 테마 추가 */
 /* 예시: '화무' 세트를 위한 불꽃 타입 테마 */
 .data-card.theme-fire {
   border-color: #ffb74d; /* 주황색 테두리 */
