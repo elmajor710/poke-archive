@@ -322,11 +322,18 @@ header h1 {
 }
 
 .info-card-label {
-  padding: 8px 15px;
+  padding: 8px 15px; /* 상하 8px, 좌우 15px 여백 */
   font-size: 14px;
-  color: #d90000;      /* 붉은색 글씨 */
-  font-weight: bold;  /* 볼드체 */
+  color: #d90000;
+  font-weight: bold;
   border-bottom: 1px solid #d1d9e0;
+}
+
+.info-card-value {
+  padding: 10px 15px; /* 상하 10px, 좌우 15px 여백 */
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
 }
 
 .stop-stretching {
