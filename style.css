@@ -287,18 +287,18 @@ header h1 {
     display: none !important;
 }
 
-/* 운영자 모드용 정보 카드 스타일 */
+/* [업그레이드] 운영자 모드용 정보 카드 v2 */
 .admin-info-card {
   background-color: #ffffff;
-  border: 1px solid var(--border-color); /* 기존에 사용하시던 테두리 색상 변수 */
-  border-radius: 8px; /* 모서리 둥글게 */
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* 은은한 그림자 */
-  margin-bottom: 20px; /* 카드 아래쪽 여백 */
-  overflow: hidden; /* 내부 요소가 모서리를 벗어나지 않도록 */
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  overflow: hidden;
 }
 
 .admin-info-card .card-header {
-  background-color: #f8f9fa; /* 헤더 배경색 */
+  background-color: #f8f9fa;
   padding: 12px 16px;
   font-size: 1.1em;
   font-weight: 600;
@@ -306,21 +306,33 @@ header h1 {
 }
 
 .admin-info-card .card-body {
+  /* 카드 몸통에는 전체적인 패딩만 줍니다. */
   padding: 16px;
-  font-size: 0.95em;
-  line-height: 1.7;
 }
 
-/* 카드 내용 안의 작은 제목 스타일 */
-.admin-info-card .card-body h4 {
+/* 챕터별 정보 섹션 */
+.info-section {
+  background-color: #f8f9fa; /* 각 섹션의 은은한 배경색 */
+  border-radius: 6px;
+  padding: 12px; /* 섹션 내부 여백 */
+  margin-bottom: 12px; /* 섹션 사이의 간격 */
+}
+
+/* 마지막 섹션은 아래 여백을 없애 깔끔하게 처리 */
+.info-section:last-child {
+  margin-bottom: 0;
+}
+
+/* 챕터 제목 스타일 */
+.info-section .section-title {
+  font-weight: 600;
+  color: var(--primary-color); /* JT님의 사이트 주요 색상 */
+  margin-bottom: 8px; /* 제목과 내용 사이 간격 */
   font-size: 1em;
-  color: var(--primary-color); /* 기존에 사용하시던 주요 색상 변수 */
-  border-bottom: none; /* 기존 h4 스타일 덮어쓰기 */
-  margin-top: 10px;
-  margin-bottom: 5px;
-  padding-bottom: 0;
 }
 
-.admin-info-card .card-body h4:first-child {
-  margin-top: 0;
+/* 챕터 내용 스타일 */
+.info-section .section-content {
+  line-height: 1.6; /* 줄 간격은 여기서 조절 */
+  font-size: 0.95em;
 }
