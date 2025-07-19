@@ -294,6 +294,7 @@ header h1 {
   overflow: hidden; 
   margin-bottom: 20px;
   height: fit-content; /* 추가: 내용물 크기에 높이를 맞추도록 강제합니다. */
+  display: table; /* 추가: 렌더링 방식을 변경하는 마지막 시도 */
 }
 
 .info-table-label,
