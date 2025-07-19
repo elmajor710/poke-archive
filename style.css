@@ -287,52 +287,50 @@ header h1 {
     display: none !important;
 }
 
-/* [업그레이드] 운영자 모드용 정보 카드 v2 */
-.admin-info-card {
-  background-color: #ffffff;
-  border: 1px solid var(--border-color);
+/* [최종] 데이터 중심의 컴팩트 카드 스타일 */
+.data-card {
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  margin-bottom: 20px;
-  overflow: hidden;
+  margin-bottom: 16px; /* 카드 사이 간격 */
+  border: 1px solid #ddd; /* 기본 테두리 */
+  background-color: #fff;
 }
 
-.admin-info-card .card-header {
-  background-color: #f8f9fa;
-  padding: 12px 16px;
-  font-size: 1.1em;
+/* 카드 내부의 각 데이터 행(row) */
+.data-card .data-row {
+  display: flex; /* 가로 정렬을 위해 Flexbox 사용 */
+  justify-content: space-between; /* 양쪽 끝으로 요소를 배치 */
+  align-items: center; /* 세로 중앙 정렬 */
+  padding: 10px 14px; /* 행 내부의 상하좌우 여백 */
+  border-bottom: 1px solid #f0f0f0; /* 행 구분선 */
+  gap: 15px; /* 라벨과 값 사이의 최소 간격 */
+}
+
+/* 마지막 행은 구분선 제거 */
+.data-card .data-row:last-child {
+  border-bottom: none;
+}
+
+/* 데이터 라벨 (왼쪽 항목 이름) */
+.data-card .data-label {
   font-weight: 600;
-  border-bottom: 1px solid var(--border-color);
+  color: #555;
+  font-size: 0.9em;
+  flex-shrink: 0; /* 라벨이 줄어들지 않도록 함 */
 }
 
-.admin-info-card .card-body {
-  /* 카드 몸통에는 전체적인 패딩만 줍니다. */
-  padding: 16px;
+/* 데이터 값 (오른쪽 내용) */
+.data-card .data-value {
+  color: #333;
+  font-size: 0.9em;
+  text-align: right; /* 오른쪽 정렬 */
 }
 
-/* 챕터별 정보 섹션 */
-.info-section {
-  background-color: #f8f9fa; /* 각 섹션의 은은한 배경색 */
-  border-radius: 6px;
-  padding: 12px; /* 섹션 내부 여백 */
-  margin-bottom: 12px; /* 섹션 사이의 간격 */
+/* 🎨 색상 테마 추가 (사진3 처럼) */
+/* 예시: '화무' 세트를 위한 불꽃 타입 테마 */
+.data-card.theme-fire {
+  border-color: #ffb74d; /* 주황색 테두리 */
+  background-color: #fff8e1; /* 매우 옅은 노란색 배경 */
 }
-
-/* 마지막 섹션은 아래 여백을 없애 깔끔하게 처리 */
-.info-section:last-child {
-  margin-bottom: 0;
-}
-
-/* 챕터 제목 스타일 */
-.info-section .section-title {
-  font-weight: 600;
-  color: var(--primary-color); /* JT님의 사이트 주요 색상 */
-  margin-bottom: 8px; /* 제목과 내용 사이 간격 */
-  font-size: 1em;
-}
-
-/* 챕터 내용 스타일 */
-.info-section .section-content {
-  line-height: 1.6; /* 줄 간격은 여기서 조절 */
-  font-size: 0.95em;
+.data-card.theme-fire .data-label {
+    color: #e65100; /* 진한 주황색 라벨 */
 }
