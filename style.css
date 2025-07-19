@@ -134,10 +134,10 @@ header h1 {
 .stats-table { border-collapse: collapse; margin: 10px 0; width: 100%; max-width: 500px;  }
 .stats-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
 .stats-table td:first-child { font-weight: 600; color: #555; padding-right: 20px; }
-.pokemon-detail-view, .simple-detail-view, .deck-detail-view { padding: 10px; }
-.pokemon-detail-view h2, .simple-detail-view h2, .deck-detail-view h2 { font-size: 2em; margin-bottom: 10px; }
-.pokemon-detail-view .main-image, .simple-detail-view .main-image { max-width: 200px; display: block; margin: 20px auto; }
-.pokemon-detail-view h4, .simple-detail-view h4, .deck-detail-view h4, .deck-builder-view h4, h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
+.pokemon-detail-view, .deck-detail-view { padding: 10px; }
+.pokemon-detail-view h2, .deck-detail-view h2 { font-size: 2em; margin-bottom: 10px; }
+.pokemon-detail-view .main-image { max-width: 200px; display: block; margin: 20px auto; }
+.pokemon-detail-view h4, .deck-detail-view h4, .deck-builder-view h4, h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
 .deck-detail-view h5 { margin-top: 15px; margin-bottom: 10px; font-size: 1.1em; }
 .badge-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; align-items: center; }
 .type-badge, .grade-badge { color: white; padding: 4px 12px; border-radius: 15px; font-size: 0.9em; font-weight: 600; }
@@ -287,40 +287,70 @@ header h1 {
     display: none !important;
 }
 
-/* style.css 파일에 추가 */
+/* style.css에 이 코드만 있도록 정리 */
 
-/* 모든 콘텐츠 카드에 적용될 공통 스타일 */
-.content-card {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    border: 1px solid #e9ecef;
-    padding: 20px 25px;
-    margin-bottom: 20px; /* 카드와 카드 사이의 간격 */
+.effect-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 25px 30px;
+    border: 1px solid #e0e0e0;
 }
-
-/* 카드 내부의 제목 스타일 */
-.content-card h3 {
-    font-size: 1.4em;
-    color: #343a40;
+.effect-card .card-header h2 {
+    font-size: 1.8em;
+    color: #2c3e50;
+    margin: 0 0 5px 0;
+    border: none;
+    padding: 0;
+}
+.effect-card .english-term {
+    font-size: 0.7em;
+    color: #95a5a6;
+    font-style: normal;
+}
+.effect-card .set-category {
+    font-size: 1em;
+    color: #3498db;
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+.effect-card .set-effect-section {
+    margin-top: 15px;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 15px;
+}
+.effect-card .set-effect-section h3 {
+    font-size: 1.3em;
+    color: #34495e;
     margin: 0 0 15px 0;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #f1f3f5;
 }
-
-/* 카드 내부의 리스트 스타일 */
-.content-card ul {
+.effect-card .effect-list {
     list-style: none;
     padding: 0;
     margin: 0;
 }
-
-.content-card ul li {
-    padding: 10px 0;
-    border-bottom: 1px solid #f1f3f5;
-    color: #495057;
+.effect-card .effect-list li {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid #3498db;
+}
+.effect-card .effect-list li:last-child {
+    margin-bottom: 0;
+}
+.effect-card .effect-list .value {
+    font-weight: bold;
+    color: #e74c3c;
+}
+.effect-card .footer-note {
+    font-size: 0.85em;
+    color: #7f8c8d;
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+    text-align: center;
 }
 
-.content-card ul li:last-child {
-    border-bottom: none; /* 마지막 항목에는 밑줄 제거 */
-}
