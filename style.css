@@ -289,15 +289,38 @@ header h1 {
 
 /* style.css 파일에 추가 */
 
-/* 카드형 뷰 높이 자동 조절 및 디자인 개선 */
-.simple-detail-view {
-    height: fit-content; /* 핵심: 내용물에 맞게 높이를 조절 */
-    min-height: 100px;   /* 카드가 너무 작아지는 것을 방지 (값은 조절 가능) */
-    
-    /* 아래는 디자인을 개선하기 위한 추천 스타일입니다 (선택 사항) */
+/* 모든 콘텐츠 카드에 적용될 공통 스타일 */
+.content-card {
     background-color: white;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    margin: 15px;
-    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid #e9ecef;
+    padding: 20px 25px;
+    margin-bottom: 20px; /* 카드와 카드 사이의 간격 */
+}
+
+/* 카드 내부의 제목 스타일 */
+.content-card h3 {
+    font-size: 1.4em;
+    color: #343a40;
+    margin: 0 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+/* 카드 내부의 리스트 스타일 */
+.content-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.content-card ul li {
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f3f5;
+    color: #495057;
+}
+
+.content-card ul li:last-child {
+    border-bottom: none; /* 마지막 항목에는 밑줄 제거 */
 }
