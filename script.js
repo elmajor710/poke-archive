@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log('스크립트 초기화 완료. Nirvana Pokedex 최종 완성본');
 
-    // --- ResizeObserver를 사용한 광고 설정 함수 ---
+    // --- ResizeObserver와 MutationObserver를 사용한 최종 광고 설정 함수 ---
     function setupAdObservers() {
         const adContainers = document.querySelectorAll('.ad-container');
         if (adContainers.length === 0) return;
@@ -10,24 +10,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const adObserver = new ResizeObserver(entries => {
             for (const entry of entries) {
-                // contentRect.width는 패딩을 제외한 순수 콘텐츠 영역의 너비입니다.
-                // 이 너비가 0보다 크다는 것은 컨테이너가 화면에 그려졌음을 의미합니다.
                 if (entry.contentRect.width > 0) {
-                    console.log(`'${entry.target.id}' 컨테이너가 준비되었습니다. 광고를 요청합니다.`);
+                    const targetContainer = entry.target;
+                    console.log(`'${targetContainer.id}' 컨테이너가 준비되었습니다. 광고를 요청합니다.`);
                     
                     try {
                         (window.adsbygoogle = window.adsbygoogle || []).push({});
+
+                        // --- [핵심 수정] MutationObserver로 구글의 스타일 변경을 감시 ---
+                        const styleWatcher = new MutationObserver((mutations) => {
+                            // 구글 스크립트가 style 속성을 변경하면 이 함수가 실행됩니다.
+                            for (const mutation of mutations) {
+                                if (mutation.attributeName === 'style') {
+                                    const currentHeight = targetContainer.style.height;
+                                    // 구글이 높이를 'auto'나 다른 값으로 바꾸려 하면, 우리가 50px로 다시 덮어씁니다.
+                                    if (currentHeight !== '50px') {
+                                        console.log(`구글이 '${targetContainer.id}'의 높이를 ${currentHeight}로 변경 시도 -> 50px로 재정의합니다!`);
+                                        targetContainer.style.setProperty('height', '50px', 'important');
+                                        targetContainer.style.setProperty('min-height', '50px', 'important');
+                                    }
+                                    // 임무 완수 후, 감시를 중단하여 불필요한 반복을 막습니다.
+                                    styleWatcher.disconnect();
+                                }
+                            }
+                        });
+
+                        // ad-container-top 요소의 style 속성 변경을 감시 시작
+                        styleWatcher.observe(targetContainer, { attributes: true });
+
                     } catch (e) {
-                        console.error(`'${entry.target.id}' 광고 요청 중 오류 발생:`, e);
+                        console.error(`'${targetContainer.id}' 광고 요청 중 오류 발생:`, e);
                     }
 
-                    // 광고는 한 번만 요청해야 하므로, 요청 후 해당 컨테이너의 관찰을 중단합니다.
-                    adObserver.unobserve(entry.target);
+                    adObserver.unobserve(targetContainer);
                 }
             }
         });
 
-        // 모든 광고 컨테이너에 관찰자(Observer)를 붙입니다.
         adContainers.forEach(container => adObserver.observe(container));
     }
 
@@ -71,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     adBlockManager.checkAndApplyBlock();
 
-    // --- 페이지 로직 (기존 함수들은 그대로 유지) ---
+    // --- 페이지 로직 ---
     const appContainer = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
     const panels = {
