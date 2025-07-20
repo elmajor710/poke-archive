@@ -313,40 +313,27 @@ header h1 {
   width: 100%;
 }
 
-/* 개별 카드 아이템 (Flex 컨테이너로 설정) */
+/* 최종: Flexbox와 gap을 이용한 간격 조절 */
+
+/* 카드들을 감싸는 리스트 컨테이너 */
+.info-card-list {
+  width: 100%;
+  align-self: flex-start;
+
+  /* 아래 3줄 추가: Flexbox로 전환하여 간격을 제어합니다. */
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* 이 값이 카드 사이의 간격을 직접 결정합니다. */
+}
+
+/* 개별 카드 아이템 */
 .info-card-item {
   display: flex;
   align-items: center;
   background-color: #e8f0f7;
   border: 1px solid #b0b0b0;
   border-radius: 12px;
-  margin-bottom: 1px; /* 수정: 값을 10px에서 4~10px로 줄여 간격을 좁힙니다. */
   width: 100%;
   align-self: flex-start;
-}
-
-/* 카드 내부 라벨 (왼쪽 열) */
-.info-card-label {
-  padding: 12px 15px;
-  font-size: 14px;
-  color: #d90000;
-  font-weight: bold;
-  
-  /* 너비를 120px로 고정하고, 줄어들지 않도록 설정 */
-  flex-basis: 120px; 
-  flex-shrink: 0;
-}
-
-/* 카드 내부 값 (오른쪽 열) */
-.info-card-value {
-  padding: 12px 15px;
-  font-size: 14px;
-  color: #333;
-  line-height: 1.6;
-  
-  /* 남은 공간을 모두 차지하도록 설정 */
-  flex-grow: 1; 
-  
-  /* 라벨과 값 사이의 구분선 */
-  border-left: 1px solid #d1d9e0;
+  /* margin-bottom은 더 이상 필요 없으므로 제거합니다. */
 }
