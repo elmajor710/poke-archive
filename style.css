@@ -382,19 +382,20 @@ header h1 {
   padding-bottom: 0; /* 마지막 효과는 아래쪽 간격 없음 */
 }
 
-/* 우측 컨텐츠에 소제목+본문 그리드 적용 */
+
+/* ── 이렇게 교체 ── */
 .with-subtitle {
   display: grid;
-  grid-auto-rows: auto;
-  row-gap: 8px;
+  /* 첫 칼럼은 소제목에 딱 맞게, 두번째 칼럼은 나머지 전부 차지 */
+  grid-template-columns: max-content 1fr;
+  column-gap: 12px;   /* 소제목과 본문 사이 간격 */
+  row-gap: 8px;       /* 각 행(소제목+본문쌍) 사이 세로 간격 */
 }
 
-/* 소제목 스타일 */
-.sub-title {
+/* 소제목/본문 기본 마진 없애기 */
+.sub-title, .body-text {
   margin: 0;
-  font-size: 14px;
-  font-weight: bold;
-  color: #007bff;
+  padding: 0;
 }
 
 /* 본문 텍스트 스타일 */
