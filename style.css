@@ -306,34 +306,38 @@ header h1 {
     display: none !important;
 }
 
-/* 최종: 좌우 2단 카드 스타일 */
+/* 최종 믹스 스타일: 카드 간격 + 상하 내용 배치 */
 
-/* 카드들을 감싸는 전체 영역 */
+/* 카드들을 감싸는 전체 영역 (카드 간격을 담당) */
 .info-card-list {
-  width: 100%;
-}
-
-/* 최종: Flexbox와 gap을 이용한 간격 조절 */
-
-/* 카드들을 감싸는 리스트 컨테이너 */
-.info-card-list {
-  width: 100%;
-  align-self: flex-start;
-
-  /* 아래 3줄 추가: Flexbox로 전환하여 간격을 제어합니다. */
   display: flex;
   flex-direction: column;
-  gap: 8px; /* 이 값이 카드 사이의 간격을 직접 결정합니다. */
+  gap: 8px; /* 이 값이 카드 사이의 간격을 결정합니다. */
+  width: 100%;
 }
 
 /* 개별 카드 아이템 */
 .info-card-item {
-  display: flex;
-  align-items: center;
   background-color: #e8f0f7;
   border: 1px solid #b0b0b0;
   border-radius: 12px;
-  width: 100%;
-  align-self: flex-start;
-  /* margin-bottom은 더 이상 필요 없으므로 제거합니다. */
+  overflow: hidden;
+  /* 이 카드 자체는 Flex가 아니므로, 내부 요소들은 자동으로 위아래로 쌓입니다. */
+}
+
+/* 카드 내부 라벨 (제목) */
+.info-card-label {
+  padding: 8px 15px;
+  font-size: 14px;
+  color: #d90000;
+  font-weight: bold;
+  border-bottom: 1px solid #d1d9e0; /* 제목과 내용 구분선 */
+}
+
+/* 카드 내부 값 (본론) */
+.info-card-value {
+  padding: 10px 15px;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
 }
