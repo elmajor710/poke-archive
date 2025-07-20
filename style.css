@@ -333,9 +333,9 @@ header h1 {
   flex-shrink: 0;
 }
 
-/* 오른쪽 열 (내용) */
+/* 오른쪽 열 (내용) - 수정 */
 .info-card-value {
-  padding: 12px 15px;
+  padding: 0; /* padding을 여기서 제거하고, 자식 요소에서 개별 관리합니다. */
   font-size: 14px;
   color: #333;
   line-height: 1.6;
@@ -343,25 +343,28 @@ header h1 {
   border-left: 1px solid #d1d9e0;
 }
 
-/* 기본 능력치 리스트 스타일 (검은색 점) */
+/* 기본 능력치 리스트 스타일 - 수정 */
 .bullet-list {
-  list-style-type: disc; /* 검은색 점 기호 사용 */
-  padding-left: 20px; /* 왼쪽 여백 */
+  list-style-type: disc;
+  /* 상하 12px, 우 15px, 좌 35px의 여백을 줍니다 (글머리 기호 공간 포함) */
+  padding: 12px 15px 12px 35px; 
   margin: 0;
 }
 
-/* 각 소지 효과 항목 스타일 */
+/* 각 소지 효과 항목 스타일 - 수정 */
 .effect-item {
-  margin-bottom: 15px;
+  padding: 12px 15px; /* 안쪽 여백을 여기서 설정 */
+  /* 효과들 사이에 옅은 구분선을 추가합니다. */
+  border-bottom: 1px solid #e0e5e9; 
 }
-.effect-item:last-child {
-  margin-bottom: 0;
+.info-card-value > .effect-item:last-child {
+  border-bottom: none; /* 마지막 효과는 구분선 없음 */
 }
 
-/* 소지 효과 소제목 스타일 */
+/* 소지 효과 소제목 스타일 - 변경 없음 (그대로 유지) */
 .effect-subtitle {
-  display: block; /* 소제목을 한 줄 전체 차지하도록 변경 */
+  display: block;
   font-weight: bold;
   color: #007bff;
-  margin-bottom: 5px; /* 소제목과 설명 사이 간격 */
+  margin-bottom: 5px;
 }
