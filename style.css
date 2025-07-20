@@ -306,59 +306,57 @@ header h1 {
     display: none !important;
 }
 
-/* 최종 선택: 좌우 2단 카드 스타일 */
+/* --- 최종: 반응형 카드 스타일 --- */
 
+/* 카드들을 감싸는 전체 영역 */
 .info-card-list {
   width: 100%;
 }
 
+/* [모바일 기본 스타일: 상하 분할]
+  - 화면이 좁을 때를 기본으로, 제목과 내용이 위아래로 표시됩니다.
+*/
 .info-card-item {
-  display: flex;
-  align-items: center;
   background-color: #e8f0f7;
   border: 1px solid #b0b0b0;
   border-radius: 12px;
-  margin-bottom: -10px; /* 카드 사이 간격 */
+  margin-bottom: 10px;
   width: 100%;
+  overflow: hidden;
 }
 
 .info-card-label {
-  padding: 12px 15px; /* 상하 여백을 12px에서 8px로 줄임 */
+  padding: 8px 15px;
   font-size: 14px;
   color: #d90000;
   font-weight: bold;
-  flex-basis: 120px;
-  flex-shrink: 0;
+  border-bottom: 1px solid #d1d9e0; /* 제목과 내용의 구분선 */
 }
 
 .info-card-value {
-  padding: 12px 15px; /* 상하 여백을 12px에서 8px로 줄임 */
+  padding: 10px 15px;
   font-size: 14px;
   color: #333;
   line-height: 1.6;
-  flex-grow: 1;
-  border-left: 1px solid #d1d9e0;
 }
 
-/* 기본 능력치 리스트 스타일 ('ㆍ' 기호) */
-.stat-list {
-  list-style: none; /* 기본 점 제거 */
-  padding-left: 10px;
-  margin: 0;
-}
+/* [PC/태블릿 스타일: 좌우 분할]
+  - 화면 너비가 768px 이상일 때만 아래 스타일이 적용됩니다.
+*/
+@media (min-width: 768px) {
+  .info-card-item {
+    display: flex;         /* 자식 요소를 가로로 나열 */
+    align-items: center;   /* 세로 중앙 정렬 */
+  }
 
-.stat-list li::before {
-  content: "ㆍ"; /* 'ㆍ' 기호 추가 */
-  margin-right: 6px;
-}
+  .info-card-label {
+    flex-basis: 130px;     /* 왼쪽 열 너비 고정 */
+    flex-shrink: 0;
+    border-bottom: none;   /* 상하 분할 때 쓰던 선 제거 */
+  }
 
-/* 소지 효과 소제목 스타일 (볼드체 + 포인트 색상) */
-.effect-subtitle {
-  font-weight: bold;
-  color: #007bff; /* 파란색 계열, 원하시는 색으로 변경 가능 */
-}
-
-/* 소지 효과 단락 간격 조절 */
-.info-card-value p:not(:last-child) {
-  margin-bottom: 12px;
+  .info-card-value {
+    flex-grow: 1;          /* 오른쪽 열이 남은 공간 모두 차지 */
+    border-left: 1px solid #d1d9e0; /* 좌우 분할용 세로선 추가 */
+  }
 }
