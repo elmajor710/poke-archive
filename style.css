@@ -335,11 +335,16 @@ header h1 {
   text-align: center;
 }
 
-.card-content {
-  padding: 10px; /* 카드 전체의 상하 크기 줄일 수 있음 */
-  flex-grow: 1;
-  background-color: #fff;
-  border-left: 1px solid #cdd8e3;
+/* 변경 후 */
+.content-card {
+  display: grid;
+  grid-template-columns: 120px 1fr; /* 좌측 120px, 우측 나머지 */
+  background-color: #f0f5fa;
+  border: 1px solid #cdd8e3;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  width: 100%;
+  overflow: hidden;
 }
 
 /* '기본 능력치' 리스트 스타일 */
@@ -375,4 +380,41 @@ header h1 {
 }
 .effect-table tr:last-child td {
   padding-bottom: 0; /* 마지막 효과는 아래쪽 간격 없음 */
+}
+
+/* 우측 컨텐츠에 소제목+본문 그리드 적용 */
+.with-subtitle {
+  display: grid;
+  grid-auto-rows: auto;
+  row-gap: 8px;
+}
+
+/* 소제목 스타일 */
+.sub-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #007bff;
+}
+
+/* 본문 텍스트 스타일 */
+.body-text {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* 모바일 반응형 (선택 사항) */
+@media (max-width: 600px) {
+  .content-card {
+    grid-template-columns: 100px 1fr;
+  }
+  .card-title {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  .sub-title,
+  .body-text {
+    font-size: 13px;
+  }
 }
