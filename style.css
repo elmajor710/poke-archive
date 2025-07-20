@@ -306,22 +306,24 @@ header h1 {
     display: none !important;
 }
 
-/* 최종 선택: 좌우 2단 카드 스타일 */
+/* 최종: 그룹형 2단 카드 스타일 */
 
 .info-card-list {
   width: 100%;
 }
 
+/* 개별 카드 아이템 */
 .info-card-item {
   display: flex;
-  align-items: center;
-  background-color: #e8f0f7; /* 오타 수정 */
+  align-items: flex-start; /* 수정: 세로 정렬을 '위쪽' 기준으로 변경 */
+  background-color: #e8f0f7;
   border: 1px solid #b0b0b0;
   border-radius: 12px;
-  margin-bottom: 8px; /* 카드 사이 간격 (양수 값 권장) */
+  margin-bottom: 10px;
   width: 100%;
 }
 
+/* 왼쪽 열 (빨간색 제목) */
 .info-card-label {
   padding: 12px 15px;
   font-size: 14px;
@@ -331,6 +333,7 @@ header h1 {
   flex-shrink: 0;
 }
 
+/* 오른쪽 열 (내용) */
 .info-card-value {
   padding: 12px 15px;
   font-size: 14px;
@@ -340,23 +343,16 @@ header h1 {
   border-left: 1px solid #d1d9e0;
 }
 
-/* 기본 능력치 리스트 스타일 ('ㆍ' 기호) */
-.stat-list {
-  list-style: none;
-  padding-left: 10px;
+/* 기본 능력치 리스트 스타일 (검은색 점) */
+.bullet-list {
+  list-style-type: disc; /* 검은색 점 기호 사용 */
+  padding-left: 20px; /* 왼쪽 여백 */
   margin: 0;
-}
-
-.stat-list li::before {
-  content: "ㆍ";
-  margin-right: 6px;
 }
 
 /* 각 소지 효과 항목 스타일 */
 .effect-item {
-  display: flex;           /* 추가: 자식요소(소제목, 설명)를 가로로 정렬 */
-  align-items: flex-start;  /* 추가: 세로 정렬 기준을 위쪽으로 */
-  margin-bottom: 12px;
+  margin-bottom: 15px;
 }
 .effect-item:last-child {
   margin-bottom: 0;
@@ -364,8 +360,8 @@ header h1 {
 
 /* 소지 효과 소제목 스타일 */
 .effect-subtitle {
+  display: block; /* 소제목을 한 줄 전체 차지하도록 변경 */
   font-weight: bold;
   color: #007bff;
-  margin-right: 8px;      /* 소제목과 설명 사이 간격 */
-  flex-shrink: 0;         /* 추가: 소제목이 줄어들지 않도록 보호 */
+  margin-bottom: 5px; /* 소제목과 설명 사이 간격 */
 }
