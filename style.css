@@ -140,7 +140,14 @@ header h1 {
 #lev3-panel.visible { z-index: 6; }
 #lev4-panel.visible { z-index: 7; }
 .panel-header { padding: 10px 15px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
-.panel-content { padding: 10px; overflow-y: auto; flex-grow: 1; }
+/* style.css 파일에서 이 부분을 찾아서 수정하세요 */
+.panel-content {
+    padding: 10px;
+    overflow-y: auto;
+    flex-grow: 1;
+    display: flex;           /* <<-- 이 줄을 추가하세요! */
+    align-items: flex-start; /* <<-- 이 줄을 추가하세요! */
+}
 .back-btn, .main-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border-color); background-color: #f8f9fa; cursor: pointer; }
 .main-btn { padding: 5px 12px; border-radius: 5px; background-color: #6c757d; color: white; border: 1px solid #6c757d; cursor: pointer; }
 .menu-item, .list-item { display: block; width: 100%; text-align: left; padding: 12px; margin-bottom: 5px; border: 1px solid #eee; background: #f9f9f9; border-radius: 6px; font-size: 16px; cursor: pointer; }
