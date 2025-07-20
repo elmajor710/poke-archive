@@ -306,40 +306,50 @@ header h1 {
     display: none !important;
 }
 
-/* 카드들을 감싸는 리스트 컨테이너 */
+/* 최종: 좌우 2단 카드 스타일 */
+
+/* 카드들을 감싸는 전체 영역 */
 .info-card-list {
   width: 100%;
 }
 
-/* 개별 카드 아이템 */
+/* 개별 카드 아이템 (Flex 컨테이너로 설정) */
 .info-card-item {
+  display: flex;           /* 자식 요소(라벨, 값)를 가로로 나열합니다. */
+  align-items: center;     /* 자식 요소를 세로 중앙에 정렬합니다. */
+  
   background-color: #e8f0f7;
   border: 1px solid #b0b0b0;
   border-radius: 12px;
   margin-bottom: 10px;
-  overflow: hidden;
-  width: 100%;  
+  width: 100%;
+  
+  /* 높이 자동 조절 문제를 해결하는 코드 */
+  align-self: flex-start; 
 }
 
+/* 카드 내부 라벨 (왼쪽 열) */
 .info-card-label {
-  padding: 8px 15px; /* 상하 8px, 좌우 15px 여백 */
+  padding: 12px 15px;
   font-size: 14px;
   color: #d90000;
   font-weight: bold;
-  border-bottom: 1px solid #d1d9e0;
+  
+  /* 너비를 120px로 고정하고, 줄어들지 않도록 설정 */
+  flex-basis: 120px; 
+  flex-shrink: 0;
 }
 
+/* 카드 내부 값 (오른쪽 열) */
 .info-card-value {
-  padding: 10px 15px; /* 상하 10px, 좌우 15px 여백 */
+  padding: 12px 15px;
   font-size: 14px;
   color: #333;
   line-height: 1.6;
-}
-
-.stop-stretching {
-  /* 모든 종류의 강제 높이 조절에 저항하는 최종 클래스 */
-  height: fit-content !important;
-  min-height: fit-content !important;
-  align-self: flex-start !important;
-  flex-grow: 0 !important;
+  
+  /* 남은 공간을 모두 차지하도록 설정 */
+  flex-grow: 1; 
+  
+  /* 라벨과 값 사이의 구분선 */
+  border-left: 1px solid #d1d9e0;
 }
