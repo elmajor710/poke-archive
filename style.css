@@ -326,7 +326,7 @@ header h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 15px;
+  padding: 10px; /* 카드 전체의 상하 크기 줄일 수 있음 */
   font-size: 14px;
   color: #d90000;
   font-weight: bold;
@@ -336,7 +336,7 @@ header h1 {
 }
 
 .card-content {
-  padding: 15px;
+  padding: 10px; /* 카드 전체의 상하 크기 줄일 수 있음 */
   flex-grow: 1;
   background-color: #fff;
   border-left: 1px solid #cdd8e3;
