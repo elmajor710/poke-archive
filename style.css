@@ -306,7 +306,7 @@ header h1 {
     display: none !important;
 }
 
-/* ─── 전체 컨테이너 ─── */
+/* ─ 전체 리스트 컨테이너 ─ */
 .info-card-list {
   display: flex;
   flex-direction: column;
@@ -314,66 +314,54 @@ header h1 {
   width: 100%;
 }
 
-/* ─── 카드 아이템 ─── */
+/* ─ 카드 한 줄 ─ */
 .info-card-item {
-  display: flex;
-  align-items: flex-start;       /* 상단 정렬 */
+  display: grid;
+  /* 왼쪽 레이블 고정폭, 오른쪽 내용 나머지 */
+  grid-template-columns: 140px 1fr;
   background-color: #e8f0f7;
-  border: 1px solid #001e3c;      /* 진한 테두리로 변경 */
-  border-radius: 50px;            /* 둥근 모서리 */
-  padding: 0;                     /* 내부 패딩은 자식에게 */
+  border: 1px solid #001e3c;
+  border-radius: 50px;
   overflow: hidden;
 }
 
-/* ─── 왼쪽 레이블 ─── */
+/* ─ 왼쪽 레이블 ─ */
 .info-card-label {
-  flex: 0 0 140px;                /* 고정 너비 */
   padding: 16px;
   font-size: 14px;
   font-weight: bold;
   color: #d90000;
+  align-self: start;
 }
 
-/* ─── 오른쪽 콘텐츠 ─── */
+/* ─ 오른쪽 내용 ─ */
 .info-card-value {
-  flex: 1;
-  border-left: 1px solid #001e3c;
-  padding: 16px;
-  font-size: 14px;
-  color: #333;
+  padding: 0;            /* 내부 여백은 각 섹션에 */
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
-/* ─── 기본 능력치 리스트 ─── */
-.bullet-list {
-  list-style: disc inside;
-  margin: 0;
-  padding: 0;
+/* ─ 오른쪽 안 소제목+본문 블록 ─ */
+.info-card-value .section {
+  padding: 16px;
 }
-.bullet-list li {
+
+/* ─ 블록 사이에만 선 넣기 ─ */
+.info-card-value .section + .section {
+  border-top: 1px solid #d1d9e0;
+}
+
+/* ─ 소제목 스타일 ─ */
+.info-card-value .subtitle {
+  font-weight: bold;
+  color: #007bff;
   margin-bottom: 8px;
 }
 
-/* ─── 소지 효과 리스트 ─── */
-.effect-list {
-  list-style: none;
+/* ─ 본문(문단) 스타일 ─ */
+.info-card-value .section p {
   margin: 0;
-  padding: 0;
-}
-.effect-item {
-  padding: 12px 0;
-  border-bottom: 1px solid #d1d9e0;
-}
-.effect-item:last-child {
-  border-bottom: none;
+  line-height: 1.6;
+  color: #333;
 }
 
-/* ─── 효과 소제목 ─── */
-.effect-subtitle {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: bold;
-  color: #007bff;
-}
