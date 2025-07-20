@@ -320,7 +320,7 @@ header h1 {
   background-color: #e8f0f7;
   border: 1px solid #b0b0b0;
   border-radius: 12px;
-  margin-bottom: 6px; /* 수정: 값을 10px에서 4~10px로 줄여 간격을 좁힙니다. */
+  margin-bottom: 1px; /* 수정: 값을 10px에서 4~10px로 줄여 간격을 좁힙니다. */
   width: 100%;
   align-self: flex-start;
 }
