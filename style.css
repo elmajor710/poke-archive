@@ -309,13 +309,13 @@ header h1 {
     display: none !important;
 }
 
-/* 최종: 그룹형 2단 + 내부 정렬 카드 스타일 */
+/* 최종: ID를 사용한 그룹형 2단 카드 스타일 */
 
-.content-card-list {
+#item-info-section .content-card-list {
   width: 100%;
 }
 
-.content-card {
+#item-info-section .content-card {
   display: flex;
   background-color: #f0f5fa;
   border: 1px solid #cdd8e3;
@@ -325,7 +325,7 @@ header h1 {
   overflow: hidden;
 }
 
-.card-title {
+#item-info-section .card-title {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -338,45 +338,44 @@ header h1 {
   text-align: center;
 }
 
-.card-content {
-  /* 이 컨테이너 자체의 padding을 제거하여 자식 요소가 직접 제어하도록 합니다. */
-  padding: 0; 
+#item-info-section .card-content {
+  padding: 15px;
   flex-grow: 1;
   background-color: #fff;
   border-left: 1px solid #cdd8e3;
 }
 
-/* '기본 능력치' 리스트 스타일 */
-.stat-list-disc {
+#item-info-section .stat-list-disc {
   list-style-type: disc;
-  /* 리스트가 필요한 모든 여백을 직접 가집니다. */
-  padding: 15px 15px 15px 35px; 
+  padding-left: 20px;
   margin: 0;
   font-size: 14px;
   color: #333;
   line-height: 1.8;
 }
 
-/* '소지 효과' 내부 그룹 스타일 */
-.effect-group {
-  /* 각 효과 그룹이 필요한 모든 여백을 직접 가집니다. */
-  padding: 15px;
-}
-.effect-group:not(:last-child) {
-  /* 효과 그룹 사이에 구분선을 추가합니다. */
-  border-bottom: 1px solid #e9ecef;
+#item-info-section .effect-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.8;
 }
 
-.effect-subtitle-blue {
+#item-info-section .effect-subtitle-cell {
+  width: 100px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+  vertical-align: top;
   font-weight: bold;
   color: #007bff;
-  margin-bottom: 5px;
-  font-size: 14px;
 }
 
-.effect-text {
-  margin: 0; /* p 태그의 기본 margin 제거 */
-  font-size: 14px;
+#item-info-section .effect-text-cell {
+  padding-bottom: 10px;
+  vertical-align: top;
   color: #333;
-  line-height: 1.8;
+}
+
+#item-info-section .effect-table tr:last-child td {
+  padding-bottom: 0;
 }
