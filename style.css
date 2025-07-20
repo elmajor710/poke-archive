@@ -306,7 +306,7 @@ header h1 {
     display: none !important;
 }
 
-/* 최종: 그룹형 2단 카드 스타일 (테이블 혼합) */
+/* 최종: 그룹형 2단 + 내부 상하 분할 카드 스타일 */
 
 .content-card-list {
   width: 100%;
@@ -326,7 +326,7 @@ header h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px; /* 카드 전체의 상하 크기 줄일 수 있음 */
+  padding: 15px;
   font-size: 14px;
   color: #d90000;
   font-weight: bold;
@@ -336,7 +336,7 @@ header h1 {
 }
 
 .card-content {
-  padding: 10px; /* 카드 전체의 상하 크기 줄일 수 있음 */
+  padding: 15px;
   flex-grow: 1;
   background-color: #fff;
   border-left: 1px solid #cdd8e3;
@@ -352,27 +352,20 @@ header h1 {
   line-height: 1.8;
 }
 
-/* '소지 효과' 테이블 스타일 */
-.effect-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  line-height: 1.8;
+/* '소지 효과' 내부 그룹 스타일 */
+.effect-group:not(:last-child) {
+  margin-bottom: 15px;
 }
 
-.effect-subtitle-cell {
-  width: 100px; /* 소제목 너비 고정 */
-  padding-right: 10px;
-  padding-bottom: 10px; /* 각 효과 사이의 세로 간격 */
-  vertical-align: top;
+.effect-subtitle-blue {
   font-weight: bold;
   color: #007bff;
+  margin-bottom: 5px; /* 소제목과 설명 사이 간격 */
+  font-size: 14px;
 }
-.effect-text-cell {
-  padding-bottom: 10px; /* 각 효과 사이의 세로 간격 */
-  vertical-align: top;
+
+.effect-text {
+  font-size: 14px;
   color: #333;
-}
-.effect-table tr:last-child td {
-  padding-bottom: 0; /* 마지막 효과는 아래쪽 간격 없음 */
+  line-height: 1.8;
 }
