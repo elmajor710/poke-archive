@@ -339,3 +339,26 @@ header h1 {
   flex-grow: 1;
   border-left: 1px solid #d1d9e0;
 }
+
+/* 기본 능력치 리스트 스타일 ('ㆍ' 기호) */
+.stat-list {
+  list-style: none; /* 기본 점 제거 */
+  padding-left: 10px;
+  margin: 0;
+}
+
+.stat-list li::before {
+  content: "ㆍ"; /* 'ㆍ' 기호 추가 */
+  margin-right: 6px;
+}
+
+/* 소지 효과 소제목 스타일 (볼드체 + 포인트 색상) */
+.effect-subtitle {
+  font-weight: bold;
+  color: #007bff; /* 파란색 계열, 원하시는 색으로 변경 가능 */
+}
+
+/* 소지 효과 단락 간격 조절 */
+.info-card-value p:not(:last-child) {
+  margin-bottom: 12px;
+}
