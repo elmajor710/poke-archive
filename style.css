@@ -354,7 +354,7 @@ header h1 {
 
 /* '소지 효과' 단락 스타일 */
 .effect-paragraph {
-  margin: 0; /* 위아래 기본 여백 제거 */
+  margin: 0;
 }
 .effect-paragraph:not(:last-child) {
   margin-bottom: 15px; /* 단락 사이 간격 */
