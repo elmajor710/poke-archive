@@ -323,7 +323,7 @@ header h1 {
 }
 
 .info-card-label {
-  padding: 10px 15px; /* 상하 여백을 12px에서 8px로 줄임 */
+  padding: 12px 15px; /* 상하 여백을 12px에서 8px로 줄임 */
   font-size: 14px;
   color: #d90000;
   font-weight: bold;
@@ -332,7 +332,7 @@ header h1 {
 }
 
 .info-card-value {
-  padding: 10px 15px; /* 상하 여백을 12px에서 8px로 줄임 */
+  padding: 12px 15px; /* 상하 여백을 12px에서 8px로 줄임 */
   font-size: 14px;
   color: #333;
   line-height: 1.6;
