@@ -315,35 +315,40 @@ header h1 {
   width: 100%;
 }
 
+/* 최종: !important를 사용한 강제 스타일 */
+
 #item-info-section .content-card {
-  display: flex;
-  background-color: #f0f5fa;
-  border: 1px solid #cdd8e3;
-  border-radius: 12px;
-  margin-bottom: 15px;
-  width: 100%;
-  overflow: hidden;
+  display: flex !important;
+  background-color: #f0f5fa !important;
+  border: 1px solid #cdd8e3 !important;
+  border-radius: 12px !important;
+  margin-bottom: 15px !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  /* 높이 관련 문제는 자바스크립트가 원인이므로 이 코드로는 해결이 안 될 수 있습니다. */
 }
 
 #item-info-section .card-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 15px;
-  font-size: 14px;
-  color: #d90000;
-  font-weight: bold;
-  flex-basis: 120px;
-  flex-shrink: 0;
-  text-align: center;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 15px !important;
+  font-size: 14px !important;
+  color: #d90000 !important;
+  font-weight: bold !important;
+  flex-basis: 120px !important;
+  flex-shrink: 0 !important;
+  text-align: center !important;
 }
 
 #item-info-section .card-content {
-  padding: 15px;
-  flex-grow: 1;
-  background-color: #fff;
-  border-left: 1px solid #cdd8e3;
+  padding: 15px !important;
+  flex-grow: 1 !important;
+  background-color: #fff !important;
+  border-left: 1px solid #cdd8e3 !important;
 }
+
+/* (이하 내용 스타일에도 !important를 추가할 수 있지만, 레이아웃에 먼저 집중합니다) */
 
 #item-info-section .stat-list-disc {
   list-style-type: disc;
