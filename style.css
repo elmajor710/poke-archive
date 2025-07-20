@@ -308,61 +308,61 @@ header h1 {
 
 /* 최종: 그룹형 2단 카드 스타일 */
 
-/* 카드들을 감싸는 컨테이너 */
 .content-card-list {
   width: 100%;
 }
 
-/* 개별 카드 한 개 (좌우 2분할의 기본 틀) */
 .content-card {
   display: flex;
-  background-color: #f8f9fa; /* 카드 배경색 */
-  border: 1px solid #dee2e6;   /* 카드 테두리 */
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
   border-radius: 12px;
-  margin-bottom: 15px;         /* 카드 사이 간격 */
+  margin-bottom: 15px;
   width: 100%;
   overflow: hidden;
 }
 
-/* 왼쪽 열 (빨간색 제목) */
 .card-title {
-  display: flex;             /* 제목을 세로 중앙 정렬하기 위해 flex 사용 */
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: 15px;
   font-size: 14px;
   color: #d90000;
   font-weight: bold;
-  flex-basis: 120px;         /* 왼쪽 열 너비 고정 */
+  flex-basis: 120px;
   flex-shrink: 0;
   text-align: center;
 }
 
-/* 오른쪽 열 (내용) */
 .card-content {
   padding: 15px;
   font-size: 14px;
   color: #333;
   line-height: 1.8;
   flex-grow: 1;
-  background-color: #fff; /* 오른쪽 내용 영역 배경색 */
-  border-left: 1px solid #dee2e6; /* 왼쪽 열과의 구분선 */
+  background-color: #fff;
+  border-left: 1px solid #dee2e6;
 }
 
 /* '기본 능력치' 리스트 스타일 */
 .stat-list-disc {
-  list-style-type: disc; /* 검은색 점 기호 */
+  list-style-type: disc;
   padding-left: 20px;
   margin: 0;
 }
 
-/* '소지 효과' 내부 그룹 스타일 */
-.effect-group:not(:last-child) {
-  margin-bottom: 15px; /* 효과 그룹 사이의 간격 */
+/* '소지 효과' 단락 스타일 */
+.effect-paragraph {
+  margin: 0; /* 위아래 기본 여백 제거 */
+}
+.effect-paragraph:not(:last-child) {
+  margin-bottom: 15px; /* 단락 사이 간격 */
 }
 
+/* '소지 효과' 소제목 스타일 */
 .effect-subtitle-blue {
   font-weight: bold;
-  color: #007bff;      /* 파란색 소제목 */
-  margin-bottom: 5px;   /* 소제목과 설명 사이 간격 */
+  color: #007bff;
+  margin-right: 8px; /* 소제목과 설명 사이 간격 */
 }
