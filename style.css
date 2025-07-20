@@ -352,8 +352,10 @@ header h1 {
   margin-right: 6px;
 }
 
-/* 각 소지 효과 항목을 감싸는 div 스타일 */
+/* 각 소지 효과 항목 스타일 */
 .effect-item {
+  display: flex;           /* 추가: 자식요소(소제목, 설명)를 가로로 정렬 */
+  align-items: flex-start;  /* 추가: 세로 정렬 기준을 위쪽으로 */
   margin-bottom: 12px;
 }
 .effect-item:last-child {
@@ -364,5 +366,6 @@ header h1 {
 .effect-subtitle {
   font-weight: bold;
   color: #007bff;
-  margin-right: 8px;
+  margin-right: 8px;      /* 소제목과 설명 사이 간격 */
+  flex-shrink: 0;         /* 추가: 소제목이 줄어들지 않도록 보호 */
 }
