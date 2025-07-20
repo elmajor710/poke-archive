@@ -306,38 +306,36 @@ header h1 {
     display: none !important;
 }
 
-/* 최종 믹스 스타일: 카드 간격 + 상하 내용 배치 */
+/* 최종 선택: 좌우 2단 카드 스타일 */
 
-/* 카드들을 감싸는 전체 영역 (카드 간격을 담당) */
 .info-card-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px; /* 이 값이 카드 사이의 간격을 결정합니다. */
   width: 100%;
 }
 
-/* 개별 카드 아이템 */
 .info-card-item {
+  display: flex;
+  align-items: center;
   background-color: #e8f0f7;
   border: 1px solid #b0b0b0;
   border-radius: 12px;
-  overflow: hidden;
-  /* 이 카드 자체는 Flex가 아니므로, 내부 요소들은 자동으로 위아래로 쌓입니다. */
+  margin-bottom: -10px; /* 카드 사이 간격 */
+  width: 100%;
 }
 
-/* 카드 내부 라벨 (제목) */
 .info-card-label {
-  padding: 8px 15px;
+  padding: 12px 15px;
   font-size: 14px;
   color: #d90000;
   font-weight: bold;
-  border-bottom: 1px solid #d1d9e0; /* 제목과 내용 구분선 */
+  flex-basis: 120px;
+  flex-shrink: 0;
 }
 
-/* 카드 내부 값 (본론) */
 .info-card-value {
-  padding: 10px 15px;
+  padding: 12px 15px;
   font-size: 14px;
   color: #333;
   line-height: 1.6;
+  flex-grow: 1;
+  border-left: 1px solid #d1d9e0;
 }
