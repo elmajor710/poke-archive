@@ -45,12 +45,25 @@ document.addEventListener('DOMContentLoaded', () => {
         function populatePokemonDropdowns() {
             if (typesContainer) typesContainer.innerHTML = DB.pokemonType.lev2.map(type => `<label><input type="checkbox" name="types" value="${type.id}"> ${type.name}</label>`).join('');
             if (naturesContainer) naturesContainer.innerHTML = DB.definitions.natures.map(nature => `<label><input type="checkbox" name="natures" value="${nature.id}"> ${nature.name}</label>`).join('');
+            
             if (itemsSelect) {
                 const allItems = Object.values(DB.item.lev3).flat();
+                // --- ▼▼▼ 가나다순 정렬 코드 추가 ▼▼▼ ---
+                allItems.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
                 itemsSelect.innerHTML = allItems.map(itemRef => `<option value="${itemRef.id}">${itemRef.name} (${DB.item.lev4[itemRef.id]?.grade || 'N/A'})</option>`).join('');
             }
-            if (runesSelect) runesSelect.innerHTML = DB.runeAndChip.lev3.rune.map(runeRef => `<option value="${runeRef.id}">${runeRef.name}</option>`).join('');
-            if (chipsSelect) chipsSelect.innerHTML = DB.runeAndChip.lev3.chip.map(chipRef => `<option value="${chipRef.id}">${chipRef.name}</option>`).join('');
+            if (runesSelect) {
+                const allRunes = DB.runeAndChip.lev3.rune;
+                // --- ▼▼▼ 가나다순 정렬 코드 추가 ▼▼▼ ---
+                allRunes.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+                runesSelect.innerHTML = allRunes.map(runeRef => `<option value="${runeRef.id}">${runeRef.name}</option>`).join('');
+            }
+            if (chipsSelect) {
+                const allChips = DB.runeAndChip.lev3.chip;
+                // --- ▼▼▼ 가나다순 정렬 코드 추가 ▼▼▼ ---
+                allChips.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+                chipsSelect.innerHTML = allChips.map(chipRef => `<option value="${chipRef.id}">${chipRef.name}</option>`).join('');
+            }
         }
 
         async function loadPokemonList() {
