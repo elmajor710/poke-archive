@@ -1,8 +1,49 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에 async 추가하는 것 잊지 마세요!
     if (!window.db) {
         console.error("Firestore 'db' 객체를 찾을 수 없습니다. HTML 파일의 스크립트 순서를 확인하세요.");
         return;
     }
+    
+    // --- ▼▼▼ 바로 여기에 전체 코드를 붙여넣으시면 됩니다 ▼▼▼ ---
+    async function initializeAdminData() {
+        try {
+            const collections = ['pokemon', 'items', 'runeAndChips'];
+            const promises = collections.map(col => db.collection(col).get());
+            const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot] = await Promise.all(promises);
+
+            const snapshotToMap = (snapshot) => {
+                const dataMap = {};
+                snapshot.forEach(doc => { dataMap[doc.id] = { id: doc.id, ...doc.data() }; });
+                return dataMap;
+            };
+
+            DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
+            DB.item.lev4 = snapshotToMap(itemsSnapshot);
+            DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
+            
+            const itemGrades = { god: [], legendary: [], epic: [] };
+            Object.entries(DB.item.lev4).forEach(([itemId, item]) => {
+                const gradeKey = item.grade?.toLowerCase();
+                if (itemGrades[gradeKey]) { itemGrades[gradeKey].push({ id: itemId, name: item.name }); }
+            });
+            DB.item.lev3 = itemGrades;
+
+            const runeAndChipTypes = { rune: [], chip: [] };
+            Object.entries(DB.runeAndChip.lev4).forEach(([rcId, rc]) => {
+                if(rc.type && runeAndChipTypes[rc.type]) {
+                    runeAndChipTypes[rc.type].push({ id: rcId, name: rc.name });
+                }
+            });
+            DB.runeAndChip.lev3 = runeAndChipTypes;
+
+        } catch (error) {
+            console.error("관리자 페이지 데이터 초기화 오류:", error);
+            alert("데이터를 불러오는 데 실패했습니다. 페이지를 새로고침 해주세요.");
+        }
+    }
+    
+    await initializeAdminData();
+    // --- ▲▲▲ 여기까지 입니다 ▲▲▲ ---
 
     // --- 탭 전환 기능 ---
     const adminNav = document.getElementById('admin-nav');
