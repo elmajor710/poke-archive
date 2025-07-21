@@ -177,7 +177,9 @@ header h1 {
 .deck-grid-table { width: 100%; max-width: 600px; border-collapse: collapse; margin: 20px auto; table-layout: fixed; }
 .deck-grid-table th, .deck-grid-table td { border: 1px solid var(--border-color); text-align: center; padding: 8px; vertical-align: middle; }
 .deck-grid-table th { background-color: #f8f9fa; font-weight: bold; height: auto; }
-.deck-grid-table td { height: 120px; }
+.deck-grid-table td {
+    height: 90px; /* 칸이 늘어났으니 높이를 약간 줄여서 보기 좋게 조절 */
+}
 .deck-pokemon-cell { cursor: pointer; }
 .deck-pokemon-cell img { width: 64px; height: 64px; display: block; margin: 0 auto 5px; object-fit: contain; }
 .deck-pokemon-cell .position-number { font-weight: bold; font-size: 0.9em; color: #555; display: block; }
@@ -214,9 +216,7 @@ header h1 {
 .event-marker { font-size: 0.8em; padding: 2px 4px; border-radius: 4px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .deck-builder-view { display: flex; flex-direction: row; gap: 20px; height: 100%; }
 .placement-container { flex: 0 0 320px; }
-.placement-grid.four-by-four {
-    grid-template-columns: repeat(4, 1fr); /* 4열 그리드 */
-}
+.placement-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .placement-slot, .placement-slot-header { aspect-ratio: 1 / 1; border: 2px dashed var(--border-color); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 0.9em; color: #6c757d; font-weight: bold; user-select: none; }
 .placement-slot-header { border-style: solid; border-color: #f0f0f0; }
 .placement-slot.main.vanguard { background-color: #ffcdd2; }
