@@ -274,49 +274,59 @@ document.addEventListener('DOMContentLoaded', () => {
         contentDiv.innerHTML = html;
     }
 
+    // --- ▼▼▼ 4x4 그리드 보기 기능 수정 ▼▼▼ ---
     function renderDeckView(contentDiv, data) {
         let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
         if (data.description) { html += `<p>${data.description}</p>`; }
-        const grid = Array(3).fill(null).map(() => Array(3).fill(null));
-        const positionMap = { 'vanguard_1': [0, 2], 'vanguard_2': [1, 2], 'vanguard_3': [2, 2], 'rearguard_4': [0, 1], 'rearguard_5': [1, 1], 'rearguard_6': [2, 1], 'assist_1': [0, 0], 'assist_2': [1, 0], 'assist_3': [2, 0] };
+        
+        const grid = Array(4).fill(null).map(() => Array(4).fill(null));
+        const positionMap = { 
+            'vanguard_1': [1, 0], 'vanguard_2': [1, 1], 'vanguard_3': [1, 2], 
+            'rearguard_4': [1, 3], 'rearguard_5': [2, 0], 'rearguard_6': [2, 1], 
+            'assist_1': [2, 2], 'assist_2': [2, 3], 'assist_3': [3, 0],
+            'assist_4': [3, 1], 'assist_5': [3, 2], 'assist_6': [3, 3]
+        };
+
         data.composition.forEach(member => { 
             const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
             if (!pkmData) return; 
-            const roleKey = member.role === 'assist' ? 'assist' : (member.position < 4 ? 'vanguard' : 'rearguard'); 
-            const key = `${roleKey}_${member.position}`; 
-            const [row, col] = positionMap[key]; 
-            grid[row][col] = { ...pkmData, id: member.pokemonId, role: member.role, position: member.position }; 
+            
+            let roleKey;
+            if (member.role === 'assist') {
+                roleKey = 'assist';
+            } else {
+                if (member.position <= 3) {
+                    roleKey = 'vanguard';
+                } else {
+                    roleKey = 'rearguard';
+                }
+            }
+            const key = `${roleKey}_${member.position}`;
+            
+            if(positionMap[key]) {
+                const [row, col] = positionMap[key]; 
+                grid[row][col] = { ...pkmData, id: member.pokemonId, role: member.role, position: member.position }; 
+            }
         });
-        html += `<h4>덱 배치</h4><table class="deck-grid-table"><thead><tr><th>어시스트</th><th>후방</th><th>전방</th></tr></thead><tbody>`;
-        for (let i = 0; i < 3; i++) { 
+
+        html += `<h4>덱 배치</h4><table class="deck-grid-table four-by-four-table"><tbody>`;
+        for (let i = 0; i < 4; i++) {
             html += '<tr>'; 
-            for (let j = 0; j < 3; j++) { 
+            for (let j = 0; j < 4; j++) { 
                 const cell = grid[i][j]; 
                 if (cell) { 
-                    const roleText = cell.role === 'assist' ? '어시스트' : '메인'; 
-                    html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="position-number">${roleText} #${cell.position}</span></div></td>`; 
+                    const roleText = cell.role === 'assist' ? '어시스트' : (cell.position < 4 ? '전방' : '후방'); 
+                    const positionNumber = cell.position;
+                    html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="position-number">${roleText} #${positionNumber}</span></div></td>`; 
                 } else { 
-                    html += '<td></td>'; 
+                    html += '<td></td>';
                 } 
             } 
             html += '</tr>'; 
         }
         html += `</tbody></table>`;
-        html += `<div class="deck-composition-container"><h4>덱 구성원</h4>`;
-        const mainMembers = data.composition.filter(m => m.role === 'main').sort((a,b) => a.position - b.position);
-        const assistMembers = data.composition.filter(m => m.role === 'assist').sort((a,b) => a.position - b.position);
-        if (mainMembers.length > 0) {
-            html += `<h5>메인</h5><ul class="deck-composition-list">`;
-            mainMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>메인 #${member.position}:</b> ${pkmData.name_ko}</li>`; });
-            html += `</ul>`;
-        }
-        if (assistMembers.length > 0) {
-            html += `<h5>어시스트</h5><ul class="deck-composition-list">`;
-            assistMembers.forEach(member => { const pkmData = DB.pokemonType.lev4[member.pokemonId]; if(pkmData) html += `<li><b>어시스트 #${member.position}:</b> ${pkmData.name_ko}</li>`; });
-            html += `</ul>`;
-        }
-        html += `</div>`;
         contentDiv.innerHTML = html;
+        
         contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
             cell.addEventListener('click', () => {
                 const pokemonId = cell.dataset.pokemonId;
