@@ -701,6 +701,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         const weatherSelect = deckForm.querySelector('#deck-weather');
         const synergyDisplay = deckForm.querySelector('#deck-synergy-display');
         
+        function calculateSynergy(pokemonIds) {
+            if (!DB.synergyEffects || pokemonIds.length < 6) return null;
+            const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
+            const typePokemonCount = {};
+            mainPokemon.forEach(pkm => {
+                if (pkm && pkm.types) {
+                    pkm.types.forEach(type => {
+                        typePokemonCount[type] = (typePokemonCount[type] || 0) + 1;
+                    });
+                }
+            });
+            const counts = Object.values(typePokemonCount);
+            const totalPairs = counts.map(c => Math.floor(c / 2)).reduce((a, b) => a + b, 0);
+            const totalUniqueTypes = Object.keys(typePokemonCount).length;
+            if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
+            if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
+            if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
+            if (totalPairs >= 4) return DB.synergyEffects.find(s => s.id === 'same2x4');
+            if (totalPairs >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
+            if (totalUniqueTypes >= 6) return DB.synergyEffects.find(s => s.id === 'diff6');
+            return null;
+        }
+
         function updateWeatherOptions() {
             const selectedPokemonIds = Array.from(pokemonSelects).map(s => s.value).filter(Boolean);
             const weatherEffects = new Set();
