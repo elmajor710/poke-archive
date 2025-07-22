@@ -476,11 +476,13 @@ header h1 {
     background-color: #e9ecef;
 }
 
-.four-by-four-table .deck-pokemon-cell img {
-    width: 65%;
-    height: 65%;
+/* style.css 파일에서 이 부분을 찾아주세요 */
+
+.four-by-four-table .header-cell img {
+    width: 70%;
+    height: 70%;
     object-fit: contain;
-    margin-bottom: 4px;
+    object-position: center; /* 이 한 줄을 추가해주세요 */
 }
 
 .four-by-four-table .deck-pokemon-cell .pkm-name {
