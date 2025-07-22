@@ -1,25 +1,35 @@
-document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에 async 추가하는 것 잊지 마세요!
+document.addEventListener('DOMContentLoaded', async () => {
     if (!window.db) {
         console.error("Firestore 'db' 객체를 찾을 수 없습니다. HTML 파일의 스크립트 순서를 확인하세요.");
         return;
     }
     
-    // --- ▼▼▼ 바로 여기에 전체 코드를 붙여넣으시면 됩니다 ▼▼▼ ---
     async function initializeAdminData() {
         try {
-            const collections = ['pokemon', 'items', 'runeAndChips'];
+            const collections = ['pokemon', 'items', 'runeAndChips', 'tips', 'events', 'recommendedDecks'];
             const promises = collections.map(col => db.collection(col).get());
-            const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot] = await Promise.all(promises);
+            const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, eventsSnapshot, decksSnapshot] = await Promise.all(promises);
 
             const snapshotToMap = (snapshot) => {
                 const dataMap = {};
                 snapshot.forEach(doc => { dataMap[doc.id] = { id: doc.id, ...doc.data() }; });
                 return dataMap;
             };
+            
+            const eventsToArray = (snapshot) => {
+                const dataArray = [];
+                snapshot.forEach(doc => { dataArray.push({ id: doc.id, ...doc.data() }); });
+                return dataArray;
+            }
 
             DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
             DB.item.lev4 = snapshotToMap(itemsSnapshot);
             DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
+            DB.tips.lev3 = snapshotToMap(tipsSnapshot);
+            DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name }));
+            DB.calendar.lev2.events = eventsToArray(eventsSnapshot);
+            DB.deck.lev4 = snapshotToMap(decksSnapshot);
+            DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
             
             const itemGrades = { god: [], legendary: [], epic: [] };
             Object.entries(DB.item.lev4).forEach(([itemId, item]) => {
@@ -43,7 +53,6 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
     }
     
     await initializeAdminData();
-    // --- ▲▲▲ 여기까지 입니다 ▲▲▲ ---
 
     // --- 탭 전환 기능 ---
     const adminNav = document.getElementById('admin-nav');
@@ -51,14 +60,16 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
         adminNav.addEventListener('click', (e) => {
             e.preventDefault();
             const clickedLink = e.target.closest('.admin-tab-link');
-            if (!clickedLink || clickedLink.classList.contains('active')) return;
+            if (!clickedLink) return;
 
-            const tabId = clickedLink.dataset.tab;
+            const currentlyActive = adminNav.querySelector('.admin-tab-link.active');
+            if(currentlyActive) currentlyActive.classList.remove('active');
             
-            adminNav.querySelectorAll('.admin-tab-link').forEach(link => link.classList.remove('active'));
-            document.querySelectorAll('.admin-tab-content').forEach(content => content.classList.remove('active'));
+            const currentContent = document.querySelector('.admin-tab-content.active');
+            if(currentContent) currentContent.classList.remove('active');
 
             clickedLink.classList.add('active');
+            const tabId = clickedLink.dataset.tab;
             const targetContent = document.getElementById(tabId);
             if (targetContent) {
                 targetContent.classList.add('active');
@@ -89,19 +100,16 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
             
             if (itemsSelect) {
                 const allItems = Object.values(DB.item.lev3).flat();
-                // --- ▼▼▼ 가나다순 정렬 코드 추가 ▼▼▼ ---
                 allItems.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
                 itemsSelect.innerHTML = allItems.map(itemRef => `<option value="${itemRef.id}">${itemRef.name} (${DB.item.lev4[itemRef.id]?.grade || 'N/A'})</option>`).join('');
             }
             if (runesSelect) {
                 const allRunes = DB.runeAndChip.lev3.rune;
-                // --- ▼▼▼ 가나다순 정렬 코드 추가 ▼▼▼ ---
                 allRunes.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
                 runesSelect.innerHTML = allRunes.map(runeRef => `<option value="${runeRef.id}">${runeRef.name}</option>`).join('');
             }
             if (chipsSelect) {
                 const allChips = DB.runeAndChip.lev3.chip;
-                // --- ▼▼▼ 가나다순 정렬 코드 추가 ▼▼▼ ---
                 allChips.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
                 chipsSelect.innerHTML = allChips.map(chipRef => `<option value="${chipRef.id}">${chipRef.name}</option>`).join('');
             }
@@ -302,7 +310,6 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
             addSkillRow();
         }
     }
-
 
     // --- 아이템 관리 기능 ---
     const itemManagementPanel = document.getElementById('item-management');
@@ -570,7 +577,11 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
                  }
             });
         }
-        // --- 캘린더 관리 기능 ---
+        
+        loadTipsList();
+    }
+
+    // --- 캘린더 관리 기능 ---
     const calendarManagementPanel = document.getElementById('calendar-management');
     if (calendarManagementPanel) {
         const calendarForm = calendarManagementPanel.querySelector('#calendar-form');
@@ -579,7 +590,6 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
         const deleteEventBtn = calendarForm.querySelector('#delete-event-btn');
         const generateEventIdBtn = calendarForm.querySelector('#generate-event-id-btn');
 
-        // Firestore 'events' 컬렉션에서 데이터 목록을 불러와 드롭다운에 채웁니다.
         async function loadEventsList() {
             try {
                 const snapshot = await db.collection("events").orderBy("startDate", "desc").get();
@@ -597,7 +607,6 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
             }
         }
 
-        // Firestore 타임스탬프를 'YYYY-MM-DD' 형식의 문자열로 변환합니다.
         function formatDate(timestamp) {
             if (!timestamp) return '';
             const date = timestamp.toDate();
@@ -607,7 +616,6 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
             return `${year}-${month}-${day}`;
         }
 
-        // 불러오기 버튼 클릭 이벤트
         loadEventBtn.addEventListener('click', async () => {
             const selectedId = eventSelectList.value;
             if (!selectedId) return alert('불러올 이벤트를 선택해주세요.');
@@ -630,14 +638,12 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
             }
         });
 
-        // ID 자동생성 버튼 클릭 이벤트
         generateEventIdBtn.addEventListener('click', () => {
             const type = calendarForm.querySelector('#event-type').value;
             const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
             calendarForm.querySelector('#event-id').value = `${type}_${date}_${Math.random().toString(36).substr(2, 5)}`;
         });
         
-        // 저장 버튼 클릭 이벤트 (폼 제출)
         calendarForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const eventId = calendarForm.querySelector('#event-id').value.trim();
@@ -651,10 +657,8 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
                 title: calendarForm.querySelector('#event-title').value.trim(),
                 type: calendarForm.querySelector('#event-type').value,
                 description: calendarForm.querySelector('#event-description').value.trim(),
-                // 날짜를 Firestore Timestamp 형식으로 변환하여 저장
                 startDate: firebase.firestore.Timestamp.fromDate(startDate),
                 endDate: firebase.firestore.Timestamp.fromDate(endDate),
-                // index.html 호환성을 위해 기존 필드명도 유지
                 date: calendarForm.querySelector('#event-start-date').value,
                 duration: duration > 0 ? duration : 1,
             };
@@ -671,7 +675,6 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
                 });
         });
 
-        // 삭제 버튼 클릭 이벤트
         deleteEventBtn.addEventListener('click', () => {
             const eventId = calendarForm.querySelector('#event-id').value.trim();
             if (!eventId) return alert('삭제할 이벤트가 없습니다.');
@@ -689,14 +692,10 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
             }
         });
         
-        // 페이지 로드 시 이벤트 목록 즉시 로딩
         loadEventsList();
     }
-        loadTipsList();
-    }
-});
-
-// --- 추천 덱 관리 기능 ---
+        
+    // --- 추천 덱 관리 기능 ---
     const deckManagementPanel = document.getElementById('deck-management');
     if (deckManagementPanel) {
         const deckForm = deckManagementPanel.querySelector('#deck-form');
@@ -705,10 +704,8 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
         const deleteDeckBtn = deckForm.querySelector('#delete-deck-btn');
         const pokemonSelects = deckForm.querySelectorAll('.deck-pokemon-select');
 
-        // 모든 포켓몬 목록을 가져와 드롭다운 메뉴에 채워주는 함수
         function populateDeckPokemonSelectors() {
             const pokemonList = Object.values(DB.pokemonType.lev4);
-            // 가나다순으로 정렬
             pokemonList.sort((a, b) => (a.name_ko || '').localeCompare(b.name_ko || '', 'ko'));
             
             const optionsHTML = pokemonList.map(pkm => `<option value="${pkm.id}">${pkm.name_ko}</option>`).join('');
@@ -718,7 +715,6 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
             });
         }
 
-        // 기존에 있던 추천 덱 목록 불러오는 함수
         async function loadDecksList() {
             try {
                 const snapshot = await db.collection("recommendedDecks").orderBy("name").get();
@@ -733,7 +729,6 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
             } catch (error) { console.error("추천 덱 목록 로딩 오류: ", error); }
         }
 
-        // 불러오기 버튼 이벤트
         loadDeckBtn.addEventListener('click', async () => {
             const selectedId = deckSelectList.value;
             if (!selectedId) { alert('불러올 덱을 선택해주세요.'); return; }
@@ -758,7 +753,6 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
             } catch (error) { console.error("덱 데이터 로딩 오류: ", error); alert("덱 데이터를 불러오는 중 오류가 발생했습니다."); }
         });
 
-        // 폼 제출(저장) 이벤트
         deckForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const deckId = deckForm.querySelector('#deck-id').value.trim();
@@ -789,7 +783,6 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
             } catch (error) { console.error("덱 저장 오류: ", error); alert('덱 저장 중 오류가 발생했습니다.'); }
         });
 
-        // 삭제 버튼 이벤트
         deleteDeckBtn.addEventListener('click', async () => {
             const deckId = deckForm.querySelector('#deck-id').value.trim();
             if (!deckId) { alert('삭제할 덱 데이터가 없습니다.'); return; }
@@ -803,7 +796,7 @@ document.addEventListener('DOMContentLoaded', async () => { // <--- 1. 여기에
             }
         });
 
-        // 탭이 로드될 때 포켓몬 목록과 저장된 덱 목록을 모두 불러옴
         populateDeckPokemonSelectors();
         loadDecksList();
     }
+});
