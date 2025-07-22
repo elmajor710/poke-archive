@@ -274,74 +274,112 @@ document.addEventListener('DOMContentLoaded', () => {
         contentDiv.innerHTML = html;
     }
 
-    // --- ▼▼▼ 4x4 그리드 보기 기능 수정 ▼▼▼ ---
-    function renderDeckView(contentDiv, data) {
-        let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
-        if (data.description) { html += `<p>${data.description}</p>`; }
-        
-        const grid = Array(4).fill(null).map(() => Array(4).fill(null));
-        const positionMap = { 
-            'vanguard_1': [1, 0], 'vanguard_2': [1, 1], 'vanguard_3': [1, 2], 
-            'rearguard_4': [1, 3], 'rearguard_5': [2, 0], 'rearguard_6': [2, 1], 
-            'assist_1': [2, 2], 'assist_2': [2, 3], 'assist_3': [3, 0],
-            'assist_4': [3, 1], 'assist_5': [3, 2], 'assist_6': [3, 3]
-        };
-
-        data.composition.forEach(member => { 
-            const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
-            if (!pkmData) return; 
-            
-            let roleKey;
-            if (member.role === 'assist') {
-                roleKey = 'assist';
-            } else {
-                if (member.position <= 3) {
-                    roleKey = 'vanguard';
-                } else {
-                    roleKey = 'rearguard';
-                }
-            }
-            const key = `${roleKey}_${member.position}`;
-            
-            if(positionMap[key]) {
-                const [row, col] = positionMap[key]; 
-                grid[row][col] = { ...pkmData, id: member.pokemonId, role: member.role, position: member.position }; 
+    // --- 시너지 계산 로직 (공통 사용) ---
+    function calculateSynergy(pokemonIds) {
+        if (!DB.synergyEffects || pokemonIds.length < 6) return null;
+        const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
+        const typePokemonCount = {};
+        mainPokemon.forEach(pkm => {
+            if (pkm && pkm.types) {
+                pkm.types.forEach(type => {
+                    typePokemonCount[type] = (typePokemonCount[type] || 0) + 1;
+                });
             }
         });
+        const counts = Object.values(typePokemonCount);
+        const totalPairs = counts.map(c => Math.floor(c / 2)).reduce((a, b) => a + b, 0);
+        const totalUniqueTypes = Object.keys(typePokemonCount).length;
+        if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
+        if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
+        if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
+        if (totalPairs >= 4) return DB.synergyEffects.find(s => s.id === 'same2x4');
+        if (totalPairs >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
+        if (totalUniqueTypes >= 6) return DB.synergyEffects.find(s => s.id === 'diff6');
+        return null;
+    }
 
-        html += `<h4>덱 배치</h4><table class="deck-grid-table four-by-four-table"><tbody>`;
-        for (let i = 0; i < 4; i++) {
-            html += '<tr>'; 
-            for (let j = 0; j < 4; j++) { 
-                const cell = grid[i][j]; 
-                if (cell) { 
+    // --- ▼▼▼ 4x4 그리드 보기 기능 수정 ▼▼▼ ---
+    function renderDeckView(contentDiv, data) {
+    let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
+    if (data.description) { html += `<p>${data.description}</p>`; }
+
+    const grid = Array(4).fill(null).map(() => Array(4).fill(null));
+
+    const positionMap = { 
+        'assist_4': [1, 0], 'assist_1': [1, 1], 'rearguard_4': [1, 2], 'vanguard_1': [1, 3],
+        'assist_5': [2, 0], 'assist_2': [2, 1], 'rearguard_5': [2, 2], 'vanguard_2': [2, 3],
+        'assist_6': [3, 0], 'assist_3': [3, 1], 'rearguard_6': [3, 2], 'vanguard_3': [3, 3]
+    };
+
+    if (data.weather && weatherToEmoji[data.weather]) {
+        grid[0][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather };
+    }
+
+    const mainPokemonIds = data.composition.filter(m => m.role === 'main').map(m => m.pokemonId);
+    const synergy = calculateSynergy(mainPokemonIds);
+    if (synergy) {
+         grid[0][1] = { type: 'header', content: `<img src="${synergy.imageURL}" style="width:50px; height:50px; object-fit:contain;">`, label: synergy.name };
+    }
+
+    data.composition.forEach(member => { 
+        const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
+        if (!pkmData) return; 
+
+        let roleKey;
+        if (member.role === 'assist') {
+            roleKey = 'assist';
+        } else {
+            if (member.position <= 3) {
+                roleKey = 'vanguard';
+            } else {
+                roleKey = 'rearguard';
+            }
+        }
+        const key = `${roleKey}_${member.position}`;
+
+        if(positionMap[key]) {
+            const [row, col] = positionMap[key]; 
+            grid[row][col] = { type: 'pokemon', ...pkmData, role: member.role, position: member.position }; 
+        }
+    });
+
+    html += `<h4>덱 배치</h4><table class="deck-grid-table four-by-four-table"><tbody>`;
+    for (let i = 0; i < 4; i++) {
+        html += '<tr>'; 
+        for (let j = 0; j < 4; j++) { 
+            const cell = grid[i][j]; 
+            if (cell) {
+                if (cell.type === 'pokemon') {
                     const roleText = cell.role === 'assist' ? '어시스트' : (cell.position < 4 ? '전방' : '후방'); 
                     const positionNumber = cell.position;
                     html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="position-number">${roleText} #${positionNumber}</span></div></td>`; 
-                } else { 
-                    html += '<td></td>';
-                } 
-            } 
-            html += '</tr>'; 
-        }
-        html += `</tbody></table>`;
-        contentDiv.innerHTML = html;
-        
-        contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
-            cell.addEventListener('click', () => {
-                const pokemonId = cell.dataset.pokemonId;
-                const pkmData = DB.pokemonType.lev4[pokemonId];
-                if (pkmData) {
-                    let typesHTML = (pkmData.types || []).map(typeId => {
-                        const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-                        return typeInfo ? `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>` : '';
-                    }).join(' ');
-                    const modalContent = `<div class="badge-container"><span class="grade-badge grade-${pkmData.grade.toLowerCase().replace('+', '-plus')}">${pkmData.grade}</span>${typesHTML}</div>`;
-                    showModal(pkmData.name_ko, modalContent);
+                } else if (cell.type === 'header') {
+                    html += `<td style="font-size: 2em; text-align:center; vertical-align:middle;" title="${cell.label}">${cell.content}</td>`;
                 }
-            });
-        });
+            } else { 
+                html += '<td></td>';
+            } 
+        } 
+        html += '</tr>'; 
     }
+    html += `</tbody></table>`;
+    contentDiv.innerHTML = html;
+
+    contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
+        cell.addEventListener('click', () => {
+            const pokemonId = cell.dataset.pokemonId;
+            const pkmData = DB.pokemonType.lev4[pokemonId];
+            if (pkmData) {
+                let typesHTML = (pkmData.types || []).map(typeId => {
+                    const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+                    return typeInfo ? `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>` : '';
+                }).join(' ');
+                const modalContent = `<div class="badge-container"><span class="grade-badge grade-${pkmData.grade.toLowerCase().replace('+', '-plus')}">${pkmData.grade}</span>${typesHTML}</div>`;
+                showModal(pkmData.name_ko, modalContent);
+            }
+        });
+    });
+}
     
     function renderCalendarView(contentDiv, data) {
         let currentCalendarDate = new Date();

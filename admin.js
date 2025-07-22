@@ -696,107 +696,180 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
         
     // --- 추천 덱 관리 기능 ---
-    const deckManagementPanel = document.getElementById('deck-management');
-    if (deckManagementPanel) {
-        const deckForm = deckManagementPanel.querySelector('#deck-form');
-        const deckSelectList = deckManagementPanel.querySelector('#deck-select-list');
-        const loadDeckBtn = deckManagementPanel.querySelector('#load-deck-btn');
-        const deleteDeckBtn = deckForm.querySelector('#delete-deck-btn');
-        const pokemonSelects = deckForm.querySelectorAll('.deck-pokemon-select');
+const deckManagementPanel = document.getElementById('deck-management');
+if (deckManagementPanel) {
+    const deckForm = deckManagementPanel.querySelector('#deck-form');
+    const deckSelectList = deckManagementPanel.querySelector('#deck-select-list');
+    const loadDeckBtn = deckManagementPanel.querySelector('#load-deck-btn');
+    const deleteDeckBtn = deckForm.querySelector('#delete-deck-btn');
+    const pokemonSelects = deckForm.querySelectorAll('.deck-pokemon-select');
+    const weatherSelect = deckForm.querySelector('#deck-weather');
+    const synergyDisplay = deckForm.querySelector('#deck-synergy-display');
 
-        function populateDeckPokemonSelectors() {
-            const pokemonList = Object.values(DB.pokemonType.lev4);
-            pokemonList.sort((a, b) => (a.name_ko || '').localeCompare(b.name_ko || '', 'ko'));
-            
-            const optionsHTML = pokemonList.map(pkm => `<option value="${pkm.id}">${pkm.name_ko}</option>`).join('');
-
-            pokemonSelects.forEach(select => {
-                select.innerHTML = '<option value="">-- 포켓몬 선택 --</option>' + optionsHTML;
-            });
-        }
-
-        async function loadDecksList() {
-            try {
-                const snapshot = await db.collection("recommendedDecks").orderBy("name").get();
-                deckSelectList.innerHTML = '<option value="">-- 추천 덱 선택 --</option>';
-                snapshot.forEach(doc => {
-                    const deck = doc.data();
-                    const option = document.createElement('option');
-                    option.value = doc.id;
-                    option.textContent = deck.name || doc.id;
-                    deckSelectList.appendChild(option);
+    function calculateSynergy(pokemonIds) {
+        if (!DB.synergyEffects || pokemonIds.length < 6) return null;
+        const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
+        const typePokemonCount = {};
+        mainPokemon.forEach(pkm => {
+            if (pkm && pkm.types) {
+                pkm.types.forEach(type => {
+                    typePokemonCount[type] = (typePokemonCount[type] || 0) + 1;
                 });
-            } catch (error) { console.error("추천 덱 목록 로딩 오류: ", error); }
-        }
-
-        loadDeckBtn.addEventListener('click', async () => {
-            const selectedId = deckSelectList.value;
-            if (!selectedId) { alert('불러올 덱을 선택해주세요.'); return; }
-            try {
-                const doc = await db.collection("recommendedDecks").doc(selectedId).get();
-                if (doc.exists) {
-                    const data = doc.data();
-                    deckForm.querySelector('#deck-id').value = doc.id;
-                    deckForm.querySelector('#deck-name').value = data.name || '';
-                    deckForm.querySelector('#deck-description').value = data.description || '';
-                    
-                    pokemonSelects.forEach(select => select.value = '');
-                    if (data.composition) {
-                        data.composition.forEach(member => {
-                            const selector = `.deck-pokemon-select[data-role="${member.role}"][data-position="${member.position}"]`;
-                            const selectEl = deckForm.querySelector(selector);
-                            if (selectEl) selectEl.value = member.pokemonId;
-                        });
-                    }
-                    alert(`'${data.name}' 데이터를 불러왔습니다.`);
-                }
-            } catch (error) { console.error("덱 데이터 로딩 오류: ", error); alert("덱 데이터를 불러오는 중 오류가 발생했습니다."); }
-        });
-
-        deckForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const deckId = deckForm.querySelector('#deck-id').value.trim();
-            if (!deckId) { alert('덱 고유 ID를 입력해주세요.'); return; }
-
-            const composition = [];
-            pokemonSelects.forEach(select => {
-                if (select.value) {
-                    composition.push({
-                        role: select.dataset.role,
-                        position: parseInt(select.dataset.position),
-                        pokemonId: select.value
-                    });
-                }
-            });
-
-            const deckData = {
-                name: deckForm.querySelector('#deck-name').value.trim(),
-                description: deckForm.querySelector('#deck-description').value.trim(),
-                composition: composition
-            };
-
-            try {
-                await db.collection("recommendedDecks").doc(deckId).set(deckData);
-                alert('추천 덱이 성공적으로 저장되었습니다!');
-                deckForm.reset();
-                loadDecksList();
-            } catch (error) { console.error("덱 저장 오류: ", error); alert('덱 저장 중 오류가 발생했습니다.'); }
-        });
-
-        deleteDeckBtn.addEventListener('click', async () => {
-            const deckId = deckForm.querySelector('#deck-id').value.trim();
-            if (!deckId) { alert('삭제할 덱 데이터가 없습니다.'); return; }
-            if (confirm(`정말로 '${deckId}' 덱을 삭제하시겠습니까?`)) {
-                try {
-                    await db.collection("recommendedDecks").doc(deckId).delete();
-                    alert('덱이 성공적으로 삭제되었습니다.');
-                    deckForm.reset();
-                    loadDecksList();
-                } catch (error) { console.error("덱 삭제 오류: ", error); alert('덱 삭제 중 오류가 발생했습니다.'); }
             }
         });
-
-        populateDeckPokemonSelectors();
-        loadDecksList();
+        const counts = Object.values(typePokemonCount);
+        const totalPairs = counts.map(c => Math.floor(c / 2)).reduce((a, b) => a + b, 0);
+        const totalUniqueTypes = Object.keys(typePokemonCount).length;
+        if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
+        if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
+        if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
+        if (totalPairs >= 4) return DB.synergyEffects.find(s => s.id === 'same2x4');
+        if (totalPairs >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
+        if (totalUniqueTypes >= 6) return DB.synergyEffects.find(s => s.id === 'diff6');
+        return null;
     }
+
+    function updateWeatherOptions() {
+        const selectedPokemonIds = Array.from(pokemonSelects).map(s => s.value).filter(Boolean);
+        const weatherEffects = new Set();
+        selectedPokemonIds.forEach(pkmId => {
+            const pkmData = DB.pokemonType.lev4[pkmId];
+            if (pkmData && pkmData.weatherEffects) {
+                pkmData.weatherEffects.forEach(effect => weatherEffects.add(effect));
+            }
+        });
+        const currentSelectedWeather = weatherSelect.value;
+        weatherSelect.innerHTML = '<option value="">없음</option>';
+        const weatherEmojiMap = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
+        weatherEffects.forEach(effect => {
+            const emoji = weatherEmojiMap[effect] ? ` (${weatherEmojiMap[effect]})` : '';
+            weatherSelect.innerHTML += `<option value="${effect}">${effect}${emoji}</option>`;
+        });
+        if (weatherEffects.has(currentSelectedWeather)) {
+            weatherSelect.value = currentSelectedWeather;
+        }
+    }
+
+    function updateSynergyDisplay() {
+        const mainPokemonIds = [];
+        pokemonSelects.forEach(select => {
+            if (select.dataset.role === 'main' && select.value) {
+                mainPokemonIds.push(select.value);
+            }
+        });
+        const synergy = calculateSynergy(mainPokemonIds);
+        if (synergy) {
+            synergyDisplay.innerHTML = `<img src="${synergy.imageURL}" style="width:30px; height:30px; object-fit:contain;"> <strong>${synergy.name}</strong>`;
+        } else {
+            synergyDisplay.innerHTML = `<span>시너지 효과 없음</span>`;
+        }
+    }
+
+    pokemonSelects.forEach(select => {
+        select.addEventListener('change', () => {
+            updateSynergyDisplay();
+            updateWeatherOptions();
+        });
+    });
+
+    function populateDeckPokemonSelectors() {
+        const pokemonList = Object.values(DB.pokemonType.lev4);
+        pokemonList.sort((a, b) => (a.name_ko || '').localeCompare(b.name_ko || '', 'ko'));
+        const optionsHTML = pokemonList.map(pkm => `<option value="${pkm.id}">${pkm.name_ko}</option>`).join('');
+        pokemonSelects.forEach(select => {
+            select.innerHTML = '<option value="">-- 포켓몬 선택 --</option>' + optionsHTML;
+        });
+    }
+
+    async function loadDecksList() {
+        try {
+            const snapshot = await db.collection("recommendedDecks").orderBy("name").get();
+            deckSelectList.innerHTML = '<option value="">-- 추천 덱 선택 --</option>';
+            snapshot.forEach(doc => {
+                const deck = doc.data();
+                const option = document.createElement('option');
+                option.value = doc.id;
+                option.textContent = deck.name || doc.id;
+                deckSelectList.appendChild(option);
+            });
+        } catch (error) { console.error("추천 덱 목록 로딩 오류: ", error); }
+    }
+
+    loadDeckBtn.addEventListener('click', async () => {
+        const selectedId = deckSelectList.value;
+        if (!selectedId) { alert('불러올 덱을 선택해주세요.'); return; }
+        try {
+            const doc = await db.collection("recommendedDecks").doc(selectedId).get();
+            if (doc.exists) {
+                const data = doc.data();
+                deckForm.reset();
+                pokemonSelects.forEach(select => select.value = '');
+                deckForm.querySelector('#deck-id').value = doc.id;
+                deckForm.querySelector('#deck-name').value = data.name || '';
+                deckForm.querySelector('#deck-description').value = data.description || '';
+                if (data.composition) {
+                    data.composition.forEach(member => {
+                        const selector = `.deck-pokemon-select[data-role="${member.role}"][data-position="${member.position}"]`;
+                        const selectEl = deckForm.querySelector(selector);
+                        if (selectEl) selectEl.value = member.pokemonId;
+                    });
+                }
+                updateWeatherOptions();
+                weatherSelect.value = data.weather || '';
+                updateSynergyDisplay();
+                alert(`'${data.name}' 데이터를 불러왔습니다.`);
+            }
+        } catch (error) { console.error("덱 데이터 로딩 오류: ", error); }
+    });
+
+    deckForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const deckId = deckForm.querySelector('#deck-id').value.trim();
+        if (!deckId) { alert('덱 고유 ID를 입력해주세요.'); return; }
+        const composition = [];
+        pokemonSelects.forEach(select => {
+            if (select.value) {
+                composition.push({
+                    role: select.dataset.role,
+                    position: parseInt(select.dataset.position),
+                    pokemonId: select.value
+                });
+            }
+        });
+        const deckData = {
+            name: deckForm.querySelector('#deck-name').value.trim(),
+            description: deckForm.querySelector('#deck-description').value.trim(),
+            weather: weatherSelect.value,
+            composition: composition
+        };
+        try {
+            await db.collection("recommendedDecks").doc(deckId).set(deckData);
+            alert('추천 덱이 성공적으로 저장되었습니다!');
+            deckForm.reset();
+            updateSynergyDisplay();
+            updateWeatherOptions();
+            loadDecksList();
+        } catch (error) { console.error("덱 저장 오류: ", error); }
+    });
+
+    deleteDeckBtn.addEventListener('click', async () => {
+        const deckId = deckForm.querySelector('#deck-id').value.trim();
+        if (!deckId) { alert('삭제할 덱 데이터가 없습니다.'); return; }
+        if (confirm(`정말로 '${deckId}' 덱을 삭제하시겠습니까?`)) {
+            try {
+                await db.collection("recommendedDecks").doc(deckId).delete();
+                alert('덱이 성공적으로 삭제되었습니다.');
+                deckForm.reset();
+                updateSynergyDisplay();
+                updateWeatherOptions();
+                loadDecksList();
+            } catch (error) { console.error("덱 삭제 오류: ", error); }
+        }
+    });
+
+    populateDeckPokemonSelectors();
+    loadDecksList();
+    updateSynergyDisplay();
+    updateWeatherOptions();
+}
 });

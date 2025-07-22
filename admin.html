@@ -319,7 +319,27 @@
         </main>
     </div>
 
-    /* 여기다가 코드 수정한 부분을 넣으라는 의미인가요? */
+    <div class="form-section">
+                            <h3>덱 설정</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="deck-weather">날씨 효과</label>
+                                    <select id="deck-weather">
+                                        <option value="">없음</option>
+                                        <option value="매우맑음">매우맑음 (☀️)</option>
+                                        <option value="맑음">맑음 (🌤️)</option>
+                                        <option value="눈폭풍">눈폭풍 (❄️)</option>
+                                        <option value="비">비 (🌧️)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>타입 시너지 효과 (자동계산)</label>
+                                    <div id="deck-synergy-display" style="display:flex; align-items:center; gap:10px; height:42px; border:1px solid #ddd; padding:0 10px; border-radius:5px; background:#eee;">
+                                        <span>포켓몬을 선택하세요.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
