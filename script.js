@@ -308,27 +308,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4x4 그리드 데이터 구조 생성
     const grid = Array(4).fill(null).map(() => Array(4).fill(null));
 
-    // 포켓몬 위치 매핑 (어시스트: 1~3행 1열, 1~3행 2열 / 메인: 1~3행 3열, 1~3행 4열)
+    // [수정] 포켓몬 위치를 한 줄씩 아래로 내린 새로운 positionMap
     const positionMap = {
-        'assist_1': [0, 0], 'assist_2': [1, 0], 'assist_3': [2, 0],
-        'assist_4': [0, 1], 'assist_5': [1, 1], 'assist_6': [2, 1],
-        'main_4': [0, 2], 'main_5': [1, 2], 'main_6': [2, 2],
-        'main_1': [0, 3], 'main_2': [1, 3], 'main_3': [2, 3]
+        'assist_1': [1, 0], 'assist_2': [2, 0], 'assist_3': [3, 0],
+        'assist_4': [1, 1], 'assist_5': [2, 1], 'assist_6': [3, 1],
+        'main_4':   [1, 2], 'main_5':   [2, 2], 'main_6':   [3, 2], // 후방
+        'main_1':   [1, 3], 'main_2':   [2, 3], 'main_3':   [3, 3]  // 전방
     };
 
-    // 1. 날씨 효과 배치 (3행 0열)
+    // [수정] 1. 날씨와 시너지 효과를 맨 윗줄(0번 줄)에 배치
     if (data.weather && weatherToEmoji[data.weather]) {
-        grid[3][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather };
+        grid[0][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather, colspan: 2 };
     }
-
-    // 2. 타입 시너지 효과 배치 (3행 1열)
     const mainPokemonIds = data.composition.filter(m => m.role === 'main').map(m => m.pokemonId);
-    const synergy = calculateSynergy(mainPokemonIds); // calculateSynergy 함수는 이미 script.js에 존재합니다.
+    const synergy = calculateSynergy(mainPokemonIds);
     if (synergy) {
-         grid[3][1] = { type: 'header', content: `<img src="${synergy.imageURL}">`, label: synergy.name };
+         grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}">`, label: synergy.name, colspan: 2 };
     }
     
-    // 3. 포켓몬 배치
+    // 2. 포켓몬 배치 (이제 1, 2, 3번 줄에 배치됨)
     data.composition.forEach(member => { 
         const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
         if (!pkmData) return; 
@@ -340,19 +338,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 4. HTML 테이블 생성
+    // 3. HTML 테이블 생성
     html += `<h4>덱 배치</h4><table class="deck-grid-table four-by-four-table"><tbody>`;
     for (let i = 0; i < 4; i++) {
         html += '<tr>'; 
-        for (let j = 0; j < 4; j++) { 
+        for (let j = 0; j < 4; j++) {
+            if (grid[i][j] === undefined) continue; // 이미 colspan으로 처리된 칸은 건너뜀
+            
             const cell = grid[i][j]; 
             if (cell) {
                 if (cell.type === 'pokemon') {
                     html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="pkm-name">${cell.name_ko}</span></div></td>`;
                 } else if (cell.type === 'header') {
-                    // 이미지일 경우와 텍스트(이모지)일 경우를 분리
+                    const colspan = cell.colspan ? `colspan="${cell.colspan}"` : '';
                     const contentHTML = cell.content.startsWith('<img') ? cell.content : `<span class="header-emoji">${cell.content}</span>`;
-                    html += `<td class="header-cell" title="${cell.label}">${contentHTML}</td>`;
+                    html += `<td class="header-cell" ${colspan} title="${cell.label}">${contentHTML}</td>`;
+                    if (cell.colspan > 1) {
+                        // colspan 만큼 다음 칸들을 건너뛰도록 처리
+                        for (let k = 1; k < cell.colspan; k++) {
+                            grid[i][j+k] = undefined;
+                        }
+                    }
                 }
             } else { 
                 html += '<td class="empty-cell"></td>'; // 빈 칸
@@ -361,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
         html += '</tr>'; 
     }
     html += `</tbody></table>`;
-    html += `</div>`; // .deck-detail-view 닫기
+    html += `</div>`;
     contentDiv.innerHTML = html;
 
     // 포켓몬 셀 클릭 시 팝업 이벤트 (기존과 동일)
