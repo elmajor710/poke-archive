@@ -431,6 +431,7 @@ header h1 {
 }
 
 /* --- 추천 덱 4x4 그리드 스타일 (진짜 최종 수정본) --- */
+/* --- 추천 덱 4x4 그리드 스타일 (진짜 최종 수정본) --- */
 .four-by-four-table {
     width: 100%;
     max-width: 400px;
@@ -452,8 +453,8 @@ header h1 {
     border-radius: 8px;
 }
 
-/* 이 부분이 핵심입니다: td의 직계 자식(> *) 요소를 부모(td) 크기에 맞춰 띄우고, 
-   그 자식 요소를 flex 컨테이너로 만들어 내부 컨텐츠를 중앙 정렬합니다. */
+/* 이제 td의 직계 자식(새로 만든 div 또는 .deck-pokemon-cell)이 
+   부모(td)를 꽉 채우는 flex 상자가 되어 내용물을 완벽하게 중앙 정렬합니다. */
 .four-by-four-table td > * {
     position: absolute;
     top: 0;
@@ -476,13 +477,11 @@ header h1 {
     background-color: #e9ecef;
 }
 
-/* style.css 파일에서 이 부분을 찾아주세요 */
-
-.four-by-four-table .header-cell img {
-    width: 70%;
-    height: 70%;
+.four-by-four-table .deck-pokemon-cell img {
+    width: 65%;
+    height: 65%;
     object-fit: contain;
-    object-position: center; /* 이 한 줄을 추가해주세요 */
+    margin-bottom: 4px;
 }
 
 .four-by-four-table .deck-pokemon-cell .pkm-name {
@@ -492,6 +491,7 @@ header h1 {
     line-height: 1.2;
 }
 
+/* header-cell은 이제 자식으로 둔 div를 중앙정렬합니다. */
 .four-by-four-table .header-cell {
     background-color: #e9f5ff;
 }
@@ -504,6 +504,7 @@ header h1 {
     width: 70%;
     height: 70%;
     object-fit: contain;
+    object-position: center; /* 이미지 자체의 여백 문제를 해결 */
 }
 
 .four-by-four-table .empty-cell {

@@ -305,18 +305,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
     if (data.description) { html += `<p>${data.description}</p>`; }
 
-    // 4x4 그리드 데이터 구조 생성
     const grid = Array(4).fill(null).map(() => Array(4).fill(null));
 
-    // [수정] 포켓몬 위치를 한 줄씩 아래로 내린 새로운 positionMap
     const positionMap = {
         'assist_1': [1, 0], 'assist_2': [2, 0], 'assist_3': [3, 0],
         'assist_4': [1, 1], 'assist_5': [2, 1], 'assist_6': [3, 1],
-        'main_4':   [1, 2], 'main_5':   [2, 2], 'main_6':   [3, 2], // 후방
-        'main_1':   [1, 3], 'main_2':   [2, 3], 'main_3':   [3, 3]  // 전방
+        'main_4':   [1, 2], 'main_5':   [2, 2], 'main_6':   [3, 2],
+        'main_1':   [1, 3], 'main_2':   [2, 3], 'main_3':   [3, 3]
     };
 
-    // [수정] 1. 날씨와 시너지 효과를 맨 윗줄(0번 줄)에 배치
     if (data.weather && weatherToEmoji[data.weather]) {
         grid[0][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather, colspan: 2 };
     }
@@ -326,11 +323,9 @@ document.addEventListener('DOMContentLoaded', () => {
          grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}">`, label: synergy.name, colspan: 2 };
     }
     
-    // 2. 포켓몬 배치 (이제 1, 2, 3번 줄에 배치됨)
     data.composition.forEach(member => { 
         const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
         if (!pkmData) return; 
-
         const key = `${member.role}_${member.position}`;
         if(positionMap[key]) {
             const [row, col] = positionMap[key]; 
@@ -338,39 +333,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 3. HTML 테이블 생성
     html += `<h4>덱 배치</h4><table class="deck-grid-table four-by-four-table"><tbody>`;
     for (let i = 0; i < 4; i++) {
         html += '<tr>'; 
         for (let j = 0; j < 4; j++) {
-            if (grid[i][j] === undefined) continue; // 이미 colspan으로 처리된 칸은 건너뜀
+            if (grid[i][j] === undefined) continue;
             
             const cell = grid[i][j]; 
             if (cell) {
                 if (cell.type === 'pokemon') {
+                    // 포켓몬 셀은 이미 자식으로 <div class="deck-pokemon-cell">을 가지고 있으므로 수정 필요 없음
                     html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="pkm-name">${cell.name_ko}</span></div></td>`;
                 } else if (cell.type === 'header') {
                     const colspan = cell.colspan ? `colspan="${cell.colspan}"` : '';
                     const contentHTML = cell.content.startsWith('<img') ? cell.content : `<span class="header-emoji">${cell.content}</span>`;
-                    html += `<td class="header-cell" ${colspan} title="${cell.label}">${contentHTML}</td>`;
+                    // ▼▼▼ [핵심 수정] td의 자식으로 <div>를 추가하여 내용을 감싸줍니다. ▼▼▼
+                    html += `<td class="header-cell" ${colspan} title="${cell.label}"><div>${contentHTML}</div></td>`;
                     if (cell.colspan > 1) {
-                        // colspan 만큼 다음 칸들을 건너뛰도록 처리
                         for (let k = 1; k < cell.colspan; k++) {
                             grid[i][j+k] = undefined;
                         }
                     }
                 }
             } else { 
-                html += '<td class="empty-cell"></td>'; // 빈 칸
+                html += '<td class="empty-cell"></td>';
             } 
         } 
         html += '</tr>'; 
     }
-    html += `</tbody></table>`;
-    html += `</div>`;
+    html += `</tbody></table></div>`;
     contentDiv.innerHTML = html;
 
-    // 포켓몬 셀 클릭 시 팝업 이벤트 (기존과 동일)
     contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
         cell.addEventListener('click', () => {
             const pokemonId = cell.dataset.pokemonId;
