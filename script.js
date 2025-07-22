@@ -307,9 +307,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const grid = Array(4).fill(null).map(() => Array(4).fill(null));
 
+    // ▼▼▼ [핵심 수정] 그림과 일치하도록 어시스트 포켓몬의 좌우 위치를 변경한 최종 positionMap ▼▼▼
     const positionMap = {
-        'assist_1': [1, 0], 'assist_2': [2, 0], 'assist_3': [3, 0],
-        'assist_4': [1, 1], 'assist_5': [2, 1], 'assist_6': [3, 1],
+        'assist_4': [1, 0], 'assist_5': [2, 0], 'assist_6': [3, 0],
+        'assist_1': [1, 1], 'assist_2': [2, 1], 'assist_3': [3, 1],
         'main_4':   [1, 2], 'main_5':   [2, 2], 'main_6':   [3, 2],
         'main_1':   [1, 3], 'main_2':   [2, 3], 'main_3':   [3, 3]
     };
@@ -328,8 +329,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!pkmData) return; 
         const key = `${member.role}_${member.position}`;
         if(positionMap[key]) {
-            const [row, col] = positionMap[key]; 
-            grid[row][col] = { type: 'pokemon', ...pkmData };
+            const [row, col] = positionMap[key];
+            grid[row][col] = { type: 'pokemon', role: member.role, ...pkmData };
         }
     });
 
@@ -342,12 +343,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const cell = grid[i][j]; 
             if (cell) {
                 if (cell.type === 'pokemon') {
-                    // 포켓몬 셀은 이미 자식으로 <div class="deck-pokemon-cell">을 가지고 있으므로 수정 필요 없음
-                    html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="pkm-name">${cell.name_ko}</span></div></td>`;
+                    html += `<td class="role-${cell.role}"><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"></div></td>`;
                 } else if (cell.type === 'header') {
                     const colspan = cell.colspan ? `colspan="${cell.colspan}"` : '';
                     const contentHTML = cell.content.startsWith('<img') ? cell.content : `<span class="header-emoji">${cell.content}</span>`;
-                    // ▼▼▼ [핵심 수정] td의 자식으로 <div>를 추가하여 내용을 감싸줍니다. ▼▼▼
                     html += `<td class="header-cell" ${colspan} title="${cell.label}"><div>${contentHTML}</div></td>`;
                     if (cell.colspan > 1) {
                         for (let k = 1; k < cell.colspan; k++) {
