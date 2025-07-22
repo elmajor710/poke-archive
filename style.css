@@ -430,12 +430,12 @@ header h1 {
   }
 }
 
-/* --- 추천 덱 4x4 그리드 스타일 --- */
+/* --- 추천 덱 4x4 그리드 스타일 (진짜 최종 수정본) --- */
 .four-by-four-table {
     width: 100%;
-    max-width: 400px; /* 그리드 최대 너비 조정 */
+    max-width: 400px;
     border-collapse: separate;
-    border-spacing: 5px; /* 칸 사이 간격 */
+    border-spacing: 5px;
     margin: 20px auto;
     table-layout: fixed;
 }
@@ -444,38 +444,32 @@ header h1 {
     border: 1px solid #ddd;
     background-color: #f9f9f9;
     text-align: center;
-    vertical-align: middle;
+    vertical-align: top;
     width: 25%;
     height: 0;
-    padding-bottom: 25%; /* 1:1 비율 유지를 위한 트릭 */
+    padding-bottom: 25%; /* 정사각형 비율 유지 */
     position: relative;
     border-radius: 8px;
 }
 
-/* [수정] td의 자식 요소가 아닌, td 자체에 display:flex를 적용하여 내부 컨텐츠를 중앙 정렬합니다. */
-.four-by-four-table td {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 5px; /* 내부 여백 */
-    height: auto; /* padding-bottom 트릭을 사용하므로 height는 auto로 변경 */
-}
-
-/* [삭제] 불필요해진 기존 td > * 규칙은 제거합니다. */
-
-.four-by-four-table .deck-pokemon-cell {
-    cursor: pointer;
-    transition: background-color 0.2s;
-    /* [추가] deck-pokemon-cell도 flex 컨테이너로 만들어 내부 이미지와 텍스트를 정렬합니다. */
+/* 이 부분이 핵심입니다: td의 직계 자식(> *) 요소를 부모(td) 크기에 맞춰 띄우고, 
+   그 자식 요소를 flex 컨테이너로 만들어 내부 컨텐츠를 중앙 정렬합니다. */
+.four-by-four-table td > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
+    padding: 5px;
+}
+
+.four-by-four-table .deck-pokemon-cell {
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
 .four-by-four-table .deck-pokemon-cell:hover {
