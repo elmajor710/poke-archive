@@ -429,3 +429,80 @@ header h1 {
     font-size: 13px;
   }
 }
+
+/* --- 추천 덱 4x4 그리드 스타일 --- */
+.four-by-four-table {
+    width: 100%;
+    max-width: 400px; /* 그리드 최대 너비 조정 */
+    border-collapse: separate;
+    border-spacing: 5px; /* 칸 사이 간격 */
+    margin: 20px auto;
+    table-layout: fixed;
+}
+
+.four-by-four-table td {
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    text-align: center;
+    vertical-align: middle;
+    width: 25%;
+    height: 0;
+    padding-bottom: 25%; /* 1:1 비율 유지 */
+    position: relative;
+    border-radius: 8px;
+}
+
+.four-by-four-table td > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+}
+
+.four-by-four-table .deck-pokemon-cell {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.four-by-four-table .deck-pokemon-cell:hover {
+    background-color: #e9ecef;
+}
+
+.four-by-four-table .deck-pokemon-cell img {
+    width: 65%;
+    height: 65%;
+    object-fit: contain;
+    margin-bottom: 4px;
+}
+
+.four-by-four-table .deck-pokemon-cell .pkm-name {
+    font-size: 11px;
+    font-weight: bold;
+    color: #333;
+    line-height: 1.2;
+}
+
+.four-by-four-table .header-cell {
+    background-color: #e9f5ff;
+}
+
+.four-by-four-table .header-cell .header-emoji {
+    font-size: 2.5em;
+}
+
+.four-by-four-table .header-cell img {
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+}
+
+.four-by-four-table .empty-cell {
+    background-color: #f0f0f0;
+    border-style: dashed;
+}

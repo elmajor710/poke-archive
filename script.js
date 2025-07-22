@@ -300,49 +300,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ▼▼▼ 4x4 그리드 보기 기능 수정 ▼▼▼ ---
     function renderDeckView(contentDiv, data) {
+    const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
+
     let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
     if (data.description) { html += `<p>${data.description}</p>`; }
 
+    // 4x4 그리드 데이터 구조 생성
     const grid = Array(4).fill(null).map(() => Array(4).fill(null));
 
-    const positionMap = { 
-        'assist_4': [1, 0], 'assist_1': [1, 1], 'rearguard_4': [1, 2], 'vanguard_1': [1, 3],
-        'assist_5': [2, 0], 'assist_2': [2, 1], 'rearguard_5': [2, 2], 'vanguard_2': [2, 3],
-        'assist_6': [3, 0], 'assist_3': [3, 1], 'rearguard_6': [3, 2], 'vanguard_3': [3, 3]
+    // 포켓몬 위치 매핑 (어시스트: 1~3행 1열, 1~3행 2열 / 메인: 1~3행 3열, 1~3행 4열)
+    const positionMap = {
+        'assist_1': [0, 0], 'assist_2': [1, 0], 'assist_3': [2, 0],
+        'assist_4': [0, 1], 'assist_5': [1, 1], 'assist_6': [2, 1],
+        'main_4': [0, 2], 'main_5': [1, 2], 'main_6': [2, 2],
+        'main_1': [0, 3], 'main_2': [1, 3], 'main_3': [2, 3]
     };
 
+    // 1. 날씨 효과 배치 (3행 0열)
     if (data.weather && weatherToEmoji[data.weather]) {
-        grid[0][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather };
+        grid[3][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather };
     }
 
+    // 2. 타입 시너지 효과 배치 (3행 1열)
     const mainPokemonIds = data.composition.filter(m => m.role === 'main').map(m => m.pokemonId);
-    const synergy = calculateSynergy(mainPokemonIds);
+    const synergy = calculateSynergy(mainPokemonIds); // calculateSynergy 함수는 이미 script.js에 존재합니다.
     if (synergy) {
-         grid[0][1] = { type: 'header', content: `<img src="${synergy.imageURL}" style="width:50px; height:50px; object-fit:contain;">`, label: synergy.name };
+         grid[3][1] = { type: 'header', content: `<img src="${synergy.imageURL}">`, label: synergy.name };
     }
-
+    
+    // 3. 포켓몬 배치
     data.composition.forEach(member => { 
         const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
         if (!pkmData) return; 
 
-        let roleKey;
-        if (member.role === 'assist') {
-            roleKey = 'assist';
-        } else {
-            if (member.position <= 3) {
-                roleKey = 'vanguard';
-            } else {
-                roleKey = 'rearguard';
-            }
-        }
-        const key = `${roleKey}_${member.position}`;
-
+        const key = `${member.role}_${member.position}`;
         if(positionMap[key]) {
             const [row, col] = positionMap[key]; 
-            grid[row][col] = { type: 'pokemon', ...pkmData, role: member.role, position: member.position }; 
+            grid[row][col] = { type: 'pokemon', ...pkmData };
         }
     });
 
+    // 4. HTML 테이블 생성
     html += `<h4>덱 배치</h4><table class="deck-grid-table four-by-four-table"><tbody>`;
     for (let i = 0; i < 4; i++) {
         html += '<tr>'; 
@@ -350,21 +348,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const cell = grid[i][j]; 
             if (cell) {
                 if (cell.type === 'pokemon') {
-                    const roleText = cell.role === 'assist' ? '어시스트' : (cell.position < 4 ? '전방' : '후방'); 
-                    const positionNumber = cell.position;
-                    html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="position-number">${roleText} #${positionNumber}</span></div></td>`; 
+                    html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="pkm-name">${cell.name_ko}</span></div></td>`;
                 } else if (cell.type === 'header') {
-                    html += `<td style="font-size: 2em; text-align:center; vertical-align:middle;" title="${cell.label}">${cell.content}</td>`;
+                    // 이미지일 경우와 텍스트(이모지)일 경우를 분리
+                    const contentHTML = cell.content.startsWith('<img') ? cell.content : `<span class="header-emoji">${cell.content}</span>`;
+                    html += `<td class="header-cell" title="${cell.label}">${contentHTML}</td>`;
                 }
             } else { 
-                html += '<td></td>';
+                html += '<td class="empty-cell"></td>'; // 빈 칸
             } 
         } 
         html += '</tr>'; 
     }
     html += `</tbody></table>`;
+    html += `</div>`; // .deck-detail-view 닫기
     contentDiv.innerHTML = html;
 
+    // 포켓몬 셀 클릭 시 팝업 이벤트 (기존과 동일)
     contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
         cell.addEventListener('click', () => {
             const pokemonId = cell.dataset.pokemonId;
