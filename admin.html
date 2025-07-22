@@ -318,24 +318,30 @@
     </section>
 </div>
 <div id="deck-management" class="admin-tab-content">
-    <header class="admin-header"><h1>추천 덱 관리</h1><div><select id="deck-select-list" style="padding: 10px;"><option value="">-- 추천 덱 선택 --</option></select><button id="load-deck-btn" type="button" class="btn btn-primary">불러오기</button></div></header>
-    <section class="content-section"><h2>추천 덱 추가/수정</h2><form id="deck-form"><div class="form-group"><label for="deck-id">덱 고유 ID</label><input type="text" id="deck-id" placeholder="예: water_fairy_deck"></div><div class="form-group"><label for="deck-name">덱 이름</label><input type="text" id="deck-name" placeholder="예: 물 & 페어리 추천덱"></div><div class="form-group form-group-span-2"><label for="deck-description">덱 설명</label><textarea id="deck-description" rows="3"></textarea></div><div class="form-section"><h3>덱 구성 (포켓몬 선택)</h3><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;"><div id="deck-composition-selectors"><h4>메인 포켓몬</h4><div class="form-grid"><div class="form-group"><label>전방 #1</label><select class="deck-pokemon-select" data-role="main" data-position="1"><option value="">선택</option></select></div><div class="form-group"><label>전방 #2</label><select class="deck-pokemon-select" data-role="main" data-position="2"><option value="">선택</option></select></div><div class="form-group"><label>전방 #3</label><select class="deck-pokemon-select" data-role="main" data-position="3"><option value="">선택</option></select></div><div class="form-group"><label>후방 #4</label><select class="deck-pokemon-select" data-role="main" data-position="4"><option value="">선택</option></select></div><div class="form-group"><label>후방 #5</label><select class="deck-pokemon-select" data-role="main" data-position="5"><option value="">선택</option></select></div><div class="form-group"><label>후방 #6</label><select class="deck-pokemon-select" data-role="main" data-position="6"><option value="">선택</option></select></div></div><h4 style="margin-top: 20px;">어시스트 포켓몬</h4><div class="form-grid"><div class="form-group"><label>어시스트 #1</label><select class="deck-pokemon-select" data-role="assist" data-position="1"><option value="">선택</option></select></div><div class="form-group"><label>어시스트 #2</label><select class="deck-pokemon-select" data-role="assist" data-position="2"><option value="">선택</option></select></div><div class="form-group"><label>어시스트 #3</label><select class="deck-pokemon-select" data-role="assist" data-position="3"><option value="">선택</option></select></div><div class="form-group"><label>어시스트 #4</label><select class="deck-pokemon-select" data-role="assist" data-position="4"><option value="">선택</option></select></div><div class="form-group"><label>어시스트 #5</label><select class="deck-pokemon-select" data-role="assist" data-position="5"><option value="">선택</option></select></div><div class="form-group"><label>어시스트 #6</label><select class="deck-pokemon-select" data-role="assist" data-position="6"><option value="">선택</option></select></div></div></div><div id="deck-visual-display" style="padding-top: 20px;"><style>.deck-vis-grid { display: grid; grid-template-columns: repeat(4, 60px); gap: 5px; justify-content: center; }.deck-vis-slot { width: 60px; height: 60px; background: #eee; border: 2px dashed #ccc; border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 10px; color: #777; position: relative; }.deck-vis-slot img { max-width: 90%; max-height: 90%; cursor: pointer; }.deck-vis-slot.main { border-style: solid; }.deck-vis-slot.assist { border-style: dotted; }</style><div class="deck-vis-grid"><div class="deck-vis-slot assist" data-role="assist" data-position="1">A1</div><div class="deck-vis-slot assist" data-role="assist" data-position="2">A2</div><div class="deck-vis-slot assist" data-role="assist" data-position="3">A3</div><div class="deck-vis-slot empty"></div><div class="deck-vis-slot assist" data-role="assist" data-position="4">A4</div><div class="deck-vis-slot assist" data-role="assist" data-position="5">A5</div><div class="deck-vis-slot assist" data-role="assist" data-position="6">A6</div><div class="deck-vis-slot empty"></div><div class="deck-vis-slot main" data-role="main" data-position="4">M4</div><div class="deck-vis-slot main" data-role="main" data-position="5">M5</div><div class="deck-vis-slot main" data-role="main" data-position="6">M6</div><div class="deck-vis-slot empty"></div><div class="deck-vis-slot main" data-role="main" data-position="1">M1</div><div class="deck-vis-slot main" data-role="main" data-position="2">M2</div><div class="deck-vis-slot main" data-role="main" data-position="3">M3</div><div class="deck-vis-slot empty"></div></div></div></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">저장하기</button><button id="delete-deck-btn" type="button" class="btn btn-danger">삭제하기</button></div></form></section>
-</div>
-        </main>
-    </div>
-
-    <div class="form-section">
+                <header class="admin-header">
+                    <h1>추천 덱 관리</h1>
+                    <div>
+                        <select id="deck-select-list" style="padding: 10px;"><option value="">-- 추천 덱 선택 --</option></select>
+                        <button id="load-deck-btn" type="button" class="btn btn-primary">불러오기</button>
+                    </div>
+                </header>
+                <section class="content-section">
+                    <h2>추천 덱 추가/수정</h2>
+                    <form id="deck-form">
+                        <div class="form-grid">
+                            <div class="form-group"><label for="deck-id">덱 고유 ID</label><input type="text" id="deck-id" placeholder="예: water_fairy_deck"></div>
+                            <div class="form-group"><label for="deck-name">덱 이름</label><input type="text" id="deck-name" placeholder="예: 물 & 페어리 추천덱"></div>
+                        </div>
+                        <div class="form-group form-group-span-2"><label for="deck-description">덱 설명</label><textarea id="deck-description" rows="3"></textarea></div>
+                        
+                        <div class="form-section">
                             <h3>덱 설정</h3>
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="deck-weather">날씨 효과</label>
                                     <select id="deck-weather">
                                         <option value="">없음</option>
-                                        <option value="매우맑음">매우맑음 (☀️)</option>
-                                        <option value="맑음">맑음 (🌤️)</option>
-                                        <option value="눈폭풍">눈폭풍 (❄️)</option>
-                                        <option value="비">비 (🌧️)</option>
-                                    </select>
+                                        </select>
                                 </div>
                                 <div class="form-group">
                                     <label>타입 시너지 효과 (자동계산)</label>
@@ -345,23 +351,32 @@
                                 </div>
                             </div>
                         </div>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBEPDK4VMVjEshWthL9Kajan-2EKfuLvZ0",
-            authDomain: "poke-archive-d8e29.firebaseapp.com",
-            projectId: "poke-archive-d8e29",
-            storageBucket: "poke-archive-d8e29.firebasestorage.app",
-            messagingSenderId: "1012379289991",
-            appId: "1:1012379289991:web:5c33d4ac7536672d956b22"
-        };
-      firebase.initializeApp(firebaseConfig);
-      window.db = firebase.firestore();
-    </script>
-    
-    <script src="data.js"></script> 
-    <script src="admin.js"></script>
-</body>
-</html>
+                        <div class="form-section">
+                            <h3>덱 구성 (포켓몬 선택)</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                                <div id="deck-composition-selectors">
+                                    <h4>메인 포켓몬</h4>
+                                    <div class="form-grid">
+                                        <div class="form-group"><label>전방 #1</label><select class="deck-pokemon-select" data-role="main" data-position="1"><option value="">선택</option></select></div>
+                                        <div class="form-group"><label>전방 #2</label><select class="deck-pokemon-select" data-role="main" data-position="2"><option value="">선택</option></select></div>
+                                        <div class="form-group"><label>전방 #3</label><select class="deck-pokemon-select" data-role="main" data-position="3"><option value="">선택</option></select></div>
+                                        <div class="form-group"><label>후방 #4</label><select class="deck-pokemon-select" data-role="main" data-position="4"><option value="">선택</option></select></div>
+                                        <div class="form-group"><label>후방 #5</label><select class="deck-pokemon-select" data-role="main" data-position="5"><option value="">선택</option></select></div>
+                                        <div class="form-group"><label>후방 #6</label><select class="deck-pokemon-select" data-role="main" data-position="6"><option value="">선택</option></select></div>
+                                    </div>
+                                    <h4 style="margin-top: 20px;">어시스트 포켓몬</h4>
+                                    <div class="form-grid">
+                                        <div class="form-group"><label>어시스트 #1</label><select class="deck-pokemon-select" data-role="assist" data-position="1"><option value="">선택</option></select></div>
+                                        <div class="form-group"><label>어시스트 #2</label><select class="deck-pokemon-select" data-role="assist" data-position="2"><option value="">선택</option></select></div>
+                                        <div class="form-group"><label>어시스트 #3</label><select class="deck-pokemon-select" data-role="assist" data-position="3"><option value="">선택</option></select></div>
+                                        <div class="form-group"><label>어시스트 #4</label><select class="deck-pokemon-select" data-role="assist" data-position="4"><option value="">선택</option></select></div>
+                                        <div class="form-group"><label>어시스트 #5</label><select class="deck-pokemon-select" data-role="assist" data-position="5"><option value="">선택</option></select></div>
+                                        <div class="form-group"><label>어시스트 #6</label><select class="deck-pokemon-select" data-role="assist" data-position="6"><option value="">선택</option></select></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions"><button type="submit" class="btn btn-primary">저장하기</button><button id="delete-deck-btn" type="button" class="btn btn-danger">삭제하기</button></div>
+                    </form>
+                </section>
+            </div>
