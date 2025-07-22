@@ -704,37 +704,57 @@ if (deckManagementPanel) {
     const synergyDisplay = deckForm.querySelector('#deck-synergy-display');
 
     function calculateSynergy(pokemonIds) {
-        // DB.synergyEffects가 로드되었는지 확인
-        if (!DB.synergyEffects || pokemonIds.length < 6) return null;
+    // DB 데이터나 포켓몬 ID가 없으면 계산하지 않음
+    if (!DB.synergyEffects || !pokemonIds || pokemonIds.length === 0) return null;
 
-        const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
-        if (mainPokemon.some(pkm => !pkm)) { // 포켓몬 데이터가 아직 로드되지 않은 경우 방지
-            return null;
-        }
-
-        const typePokemonCount = {};
-        mainPokemon.forEach(pkm => {
-            if (pkm && pkm.types) {
-                pkm.types.forEach(type => {
-                    typePokemonCount[type] = (typePokemonCount[type] || 0) + 1;
-                });
-            }
-        });
-
-        const counts = Object.values(typePokemonCount);
-        const totalPairs = counts.map(c => Math.floor(c / 2)).reduce((a, b) => a + b, 0);
-        const totalUniqueTypes = Object.keys(typePokemonCount).length;
-
-        // 시너지 효과 우선순위에 따라 반환
-        if (counts.some(c => c >= 6)) return DB.synergyEffects.find(s => s.id === 'same6');
-        if (counts.filter(c => c >= 3).length >= 2) return DB.synergyEffects.find(s => s.id === 'same3x2');
-        if (counts.some(c => c >= 3)) return DB.synergyEffects.find(s => s.id === 'same3');
-        if (totalPairs >= 4) return DB.synergyEffects.find(s => s.id === 'same2x4');
-        if (totalPairs >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
-        if (totalUniqueTypes >= 6) return DB.synergyEffects.find(s => s.id === 'diff6');
-        
+    const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
+    // 포켓몬 데이터가 하나라도 없으면 계산 중지
+    if (mainPokemon.some(pkm => !pkm)) {
         return null;
     }
+
+    // 1. 모든 포켓몬의 모든 타입을 카운트
+    const typePokemonCount = {};
+    mainPokemon.forEach(pkm => {
+        if (pkm && pkm.types) {
+            pkm.types.forEach(type => {
+                typePokemonCount[type] = (typePokemonCount[type] || 0) + 1;
+            });
+        }
+    });
+
+    // 2. 계산에 필요한 변수들 준비
+    // 각 타입별 포켓몬 수를 내림차순으로 정렬 (예: [4, 2, 1, 1, 1])
+    const counts = Object.values(typePokemonCount).sort((a, b) => b - a);
+    const totalUniqueTypes = Object.keys(typePokemonCount).length;
+    
+    // 같은 타입 2마리 '쌍'의 총 개수 계산
+    const totalPairs = counts.reduce((sum, c) => sum + Math.floor(c / 2), 0);
+
+    // 3. 시너지 우선순위에 따라 최종 효과 결정 (가장 강력한 효과부터 체크)
+    if (counts.length > 0 && counts[0] >= 6) {
+        return DB.synergyEffects.find(s => s.id === 'same6');
+    }
+    if (counts.length >= 2 && counts[0] >= 3 && counts[1] >= 3) {
+        return DB.synergyEffects.find(s => s.id === 'same3x2');
+    }
+    // ▼▼▼ '4+2 조합'을 확인하는 새로운 로직 ▼▼▼
+    if (counts.length >= 2 && counts[0] >= 4 && counts[1] >= 2) {
+        return DB.synergyEffects.find(s => s.id === 'same4_2');
+    }
+    if (totalPairs >= 3) {
+        return DB.synergyEffects.find(s => s.id === 'same2x3');
+    }
+    if (counts.length > 0 && counts[0] >= 3) {
+        return DB.synergyEffects.find(s => s.id === 'same3');
+    }
+    if (totalUniqueTypes >= 6 && pokemonIds.length >= 6) {
+        return DB.synergyEffects.find(s => s.id === 'diff6');
+    }
+
+    // 어떤 조건도 만족하지 못하면 효과 없음
+    return null;
+}
     
     function updateSynergyDisplay() {
         const mainPokemonIds = [];
