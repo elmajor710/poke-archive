@@ -900,55 +900,80 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function initialize() {
-        try {
-            await fetchAllDataFromFirebase();
+    try {
+        await fetchAllDataFromFirebase();
 
-            const types = {};
-            DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
-            Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
-                const pkmName = pokemon.name_ko || (pokemon.name && pokemon.name.ko);
-                if (pokemon.types && Array.isArray(pokemon.types) && pkmName) {
-                    pokemon.types.forEach(typeId => { if (types[typeId]) { types[typeId].push({ id: pokemonId, name: pkmName }); } });
-                }
-            });
-            DB.pokemonType.lev3 = types;
+        // ▼▼▼ 1. 포켓몬 타입 정렬 ▼▼▼
+        // Lev.2 (타입 목록) 가나다순 정렬
+        DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+        
+        const types = {};
+        DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
+        Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
+            const pkmName = pokemon.name_ko || (pokemon.name && pokemon.name.ko);
+            if (pokemon.types && Array.isArray(pokemon.types) && pkmName) {
+                pokemon.types.forEach(typeId => { if (types[typeId]) { types[typeId].push({ id: pokemonId, name: pkmName }); } });
+            }
+        });
 
-            const grades = {};
-            DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
-            Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
-                const pkmName = pokemon.name_ko || (pokemon.name && pokemon.name.ko);
-                if (pokemon && pokemon.grade && pkmName) {
-                     const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id;
-                    if (gradeId && grades[gradeId]) { grades[gradeId].push({ id: pokemonId, name: pkmName }); }
-                }
-            });
-            DB.pokemonGrade.lev3 = grades;
-            
-            const itemGrades = { god: [], legendary: [], epic: [] };
-            Object.entries(DB.item.lev4).forEach(([itemId, item]) => {
-                const gradeKey = item.grade?.toLowerCase();
-                if (itemGrades[gradeKey]) {
-                    itemGrades[gradeKey].push({ id: itemId, name: item.name });
-                }
-            });
-            DB.item.lev3 = itemGrades;
-            
-            const runeAndChipTypes = { rune: [], chip: [] };
-            Object.entries(DB.runeAndChip.lev4).forEach(([rcId, rc]) => {
-                if(runeAndChipTypes[rc.type]) {
-                    runeAndChipTypes[rc.type].push({ id: rcId, name: rc.name });
-                }
-            });
-            DB.runeAndChip.lev3 = runeAndChipTypes;
-
-            renderSidebar();
-            addEventListeners();
-            
-        } catch (error) {
-            console.error("초기화 중 심각한 오류 발생:", error);
-            document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
+        // Lev.3 (타입별 포켓몬 목록) 가나다순 정렬
+        for (const typeId in types) {
+            types[typeId].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         }
+        DB.pokemonType.lev3 = types;
+        // ▲▲▲ 1. 포켓몬 타입 정렬 ▲▲▲
+
+        const grades = {};
+        DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
+        Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
+            const pkmName = pokemon.name_ko || (pokemon.name && pokemon.name.ko);
+            if (pokemon && pokemon.grade && pkmName) {
+                 const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id;
+                if (gradeId && grades[gradeId]) { grades[gradeId].push({ id: pokemonId, name: pkmName }); }
+            }
+        });
+        DB.pokemonGrade.lev3 = grades;
+        
+        // ▼▼▼ 2. 아이템 정렬 ▼▼▼
+        const itemGrades = { god: [], legendary: [], epic: [] };
+        Object.entries(DB.item.lev4).forEach(([itemId, item]) => {
+            const gradeKey = item.grade?.toLowerCase();
+            if (itemGrades[gradeKey]) {
+                itemGrades[gradeKey].push({ id: itemId, name: item.name });
+            }
+        });
+
+        // Lev.3 (등급별 아이템 목록) 가나다순 정렬
+        for (const grade in itemGrades) {
+            itemGrades[grade].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+        }
+        DB.item.lev3 = itemGrades;
+        // ▲▲▲ 2. 아이템 정렬 ▲▲▲
+        
+        // ▼▼▼ 3. 룬 & 칩 정렬 ▼▼▼
+        const runeAndChipTypes = { rune: [], chip: [] };
+        Object.entries(DB.runeAndChip.lev4).forEach(([rcId, rc]) => {
+            if(runeAndChipTypes[rc.type]) {
+                runeAndChipTypes[rc.type].push({ id: rcId, name: rc.name });
+            }
+        });
+
+        // Lev.3 (룬, 칩 각각의 목록) 가나다순 정렬
+        runeAndChipTypes.rune.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+        runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+        DB.runeAndChip.lev3 = runeAndChipTypes;
+        // ▲▲▲ 3. 룬 & 칩 정렬 ▲▲▲
+
+        // 참고: 룬&칩 Lev.2 ('룬', '칩')는 이미 가나다순이라 별도 정렬이 필요 없습니다.
+
+        renderSidebar();
+        addEventListeners();
+        
+    } catch (error) {
+        console.error("초기화 중 심각한 오류 발생:", error);
+        document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
     }
+}
     
     function renderSidebar() {
         const sidebarContent = document.createElement('div');
