@@ -120,7 +120,7 @@ header h1 {
 }
 
 /* (이하 기존 스타일은 그대로 유지) */
-/* style.css 파일에서 이 부분을 찾아서 아래처럼 수정하세요 */
+/* 이 부분을 통째로 복사해서 교체해주세요 */
 .panel {
     position: absolute;
     top: 0;
@@ -134,13 +134,30 @@ header h1 {
     transition: transform var(--slide-duration) ease-in-out;
     visibility: hidden;
     z-index: 1;
-    /* align-items: flex-start; <<-- 이 줄을 삭제하세요! */
+    /* [추가] flex 아이템의 높이 계산 오류를 방지합니다. */
+    min-height: 0;
 }
+
 .panel.visible { transform: translateX(0); visibility: visible; z-index: 5; }
 #lev3-panel.visible { z-index: 6; }
 #lev4-panel.visible { z-index: 7; }
-.panel-header { padding: 10px 15px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
-.panel-content { padding: 10px; overflow-y: auto; flex-grow: 1; }
+
+.panel-header { 
+    padding: 10px 15px; 
+    border-bottom: 1px solid var(--border-color); 
+    flex-shrink: 0; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+.panel-content { 
+    padding: 10px; 
+    overflow-y: auto; 
+    flex-grow: 1; 
+    /* [추가] iOS 기기에서 더 부드러운 스크롤을 제공합니다. */
+    -webkit-overflow-scrolling: touch;
+}
 .back-btn, .main-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border-color); background-color: #f8f9fa; cursor: pointer; }
 .main-btn { padding: 5px 12px; border-radius: 5px; background-color: #6c757d; color: white; border: 1px solid #6c757d; cursor: pointer; }
 .menu-item, .list-item { display: block; width: 100%; text-align: left; padding: 12px; margin-bottom: 5px; border: 1px solid #eee; background: #f9f9f9; border-radius: 6px; font-size: 16px; cursor: pointer; }
