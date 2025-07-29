@@ -903,10 +903,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         await fetchAllDataFromFirebase();
 
-        // ▼▼▼ 1. 포켓몬 타입 정렬 ▼▼▼
-        // Lev.2 (타입 목록) 가나다순 정렬
+        // 1. 포켓몬 타입별 목록 정렬 (기존 유지)
         DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-        
         const types = {};
         DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
         Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
@@ -915,14 +913,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 pokemon.types.forEach(typeId => { if (types[typeId]) { types[typeId].push({ id: pokemonId, name: pkmName }); } });
             }
         });
-
-        // Lev.3 (타입별 포켓몬 목록) 가나다순 정렬
         for (const typeId in types) {
             types[typeId].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         }
         DB.pokemonType.lev3 = types;
-        // ▲▲▲ 1. 포켓몬 타입 정렬 ▲▲▲
 
+        // ▼▼▼ [수정] 포켓몬 등급별 목록 정렬 코드 추가 ▼▼▼
         const grades = {};
         DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
         Object.entries(DB.pokemonType.lev4).forEach(([pokemonId, pokemon]) => {
@@ -932,9 +928,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (gradeId && grades[gradeId]) { grades[gradeId].push({ id: pokemonId, name: pkmName }); }
             }
         });
+        // 이 부분이 빠져있었습니다! 각 등급별 포켓몬 목록을 가나다순으로 정렬합니다.
+        for (const gradeId in grades) {
+            grades[gradeId].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+        }
         DB.pokemonGrade.lev3 = grades;
+        // ▲▲▲ [수정] 포켓몬 등급별 목록 정렬 코드 추가 ▲▲▲
         
-        // ▼▼▼ 2. 아이템 정렬 ▼▼▼
+        // 3. 아이템 목록 정렬 (기존 유지)
         const itemGrades = { god: [], legendary: [], epic: [] };
         Object.entries(DB.item.lev4).forEach(([itemId, item]) => {
             const gradeKey = item.grade?.toLowerCase();
@@ -942,29 +943,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 itemGrades[gradeKey].push({ id: itemId, name: item.name });
             }
         });
-
-        // Lev.3 (등급별 아이템 목록) 가나다순 정렬
         for (const grade in itemGrades) {
             itemGrades[grade].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         }
         DB.item.lev3 = itemGrades;
-        // ▲▲▲ 2. 아이템 정렬 ▲▲▲
         
-        // ▼▼▼ 3. 룬 & 칩 정렬 ▼▼▼
+        // 4. 룬 & 칩 목록 정렬 (기존 유지)
         const runeAndChipTypes = { rune: [], chip: [] };
         Object.entries(DB.runeAndChip.lev4).forEach(([rcId, rc]) => {
             if(runeAndChipTypes[rc.type]) {
                 runeAndChipTypes[rc.type].push({ id: rcId, name: rc.name });
             }
         });
-
-        // Lev.3 (룬, 칩 각각의 목록) 가나다순 정렬
         runeAndChipTypes.rune.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         DB.runeAndChip.lev3 = runeAndChipTypes;
-        // ▲▲▲ 3. 룬 & 칩 정렬 ▲▲▲
-
-        // 참고: 룬&칩 Lev.2 ('룬', '칩')는 이미 가나다순이라 별도 정렬이 필요 없습니다.
 
         renderSidebar();
         addEventListeners();
