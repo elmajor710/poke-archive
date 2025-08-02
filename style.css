@@ -625,3 +625,29 @@ header h1 {
   color: #c92a2a;
   font-weight: 600;
 }
+
+/* =============================================== */
+/* 소지 효과 카드 내부의 2단 분리 스타일 (추가) */
+/* =============================================== */
+
+.effect-grid {
+  display: grid;
+  /* 1열: 소제목 크기만큼, 2열: 나머지 전체 */
+  grid-template-columns: max-content 1fr;
+  align-items: start; /* 각 행의 높이가 달라도 위쪽을 기준으로 정렬 */
+  row-gap: 18px; /* 각 효과 사이의 세로 간격 */
+  column-gap: 15px; /* 소제목과 설명 사이의 가로 간격 */
+}
+
+.effect-subtitle {
+  font-weight: bold;
+  font-size: 14px;
+  color: #007bff;
+  white-space: nowrap; /* 소제목이 길어도 줄바꿈 방지 */
+}
+
+.effect-description {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #333;
+}
