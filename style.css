@@ -651,3 +651,40 @@ header h1 {
   line-height: 1.7;
   color: #333;
 }
+
+/* =============================================== */
+/* 모바일 화면 가독성 개선을 위한 반응형 코드 (추가) */
+/* =============================================== */
+
+@media (max-width: 768px) {
+  /* 외부 카드 레이아웃 (예: '소지 효과' 제목 부분) */
+  .content-card,
+  .info-card-item {
+    grid-template-columns: 1fr; /* 2단 -> 1단으로 변경 */
+    gap: 0;
+  }
+
+  .card-title,
+  .info-card-label {
+    border-right: none; /* 우측 구분선 제거 */
+    border-bottom: 1px solid #e0e6ec; /* 아래쪽 구분선 추가 */
+    padding: 12px 15px;
+    justify-content: flex-start; /* 제목 왼쪽 정렬 */
+  }
+  
+  .card-content,
+  .info-card-value {
+    padding: 15px;
+  }
+
+  /* 내부 2단 레이아웃 (예: '[기본 효과]' 소제목 부분) */
+  .effect-grid {
+    grid-template-columns: 1fr; /* 2단 -> 1단으로 변경 */
+    row-gap: 15px;
+  }
+  
+  .effect-subtitle {
+    /* 소제목 아래에 설명이 오므로, 약간의 여백 추가 */
+    margin-bottom: -5px; 
+  }
+}
