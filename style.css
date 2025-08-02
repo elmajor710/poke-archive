@@ -616,6 +616,7 @@ header h1 {
 .effect-description {
   grid-column: 2;
   color: #333;
+  word-break: break-all; /* <-- 이 줄 추가 */
 }
 
 /* --- 공통 value 스타일 --- */
@@ -650,6 +651,7 @@ header h1 {
   font-size: 14px;
   line-height: 1.7;
   color: #333;
+  word-break: break-all; /* <-- 이 줄 추가 */
 }
 
 /* =============================================== */
