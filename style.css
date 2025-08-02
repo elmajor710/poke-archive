@@ -528,3 +528,100 @@ header h1 {
     background-color: #f0f0f0;
     border-style: dashed;
 }
+
+/* =============================================== */
+/* 새로운 info-card 스타일을 content-card에 맞추는 코드 */
+/* =============================================== */
+
+/* 카드 전체 레이아웃 (content-card와 동일하게) */
+.info-card-item {
+  display: grid;
+  grid-template-columns: 120px 1fr; /* 좌측 제목 120px, 우측 내용 나머지 */
+  background-color: #f8f9fa; /* 배경색 살짝 변경 */
+  border: 1px solid #e0e6ec; /* 테두리 색 살짝 변경 */
+  border-radius: 12px;
+  margin-bottom: 15px;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* 카드 제목 부분 (card-title과 동일하게) */
+.info-card-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 10px;
+  font-size: 14px;
+  color: #d90000;
+  font-weight: bold;
+  text-align: center;
+  border-right: 1px solid #e0e6ec; /* 오른쪽 구분선 추가 */
+}
+
+/* 카드 내용 부분 (card-content와 동일하게) */
+.info-card-value {
+  padding: 15px 20px;
+}
+
+/* --- '기본 능력치' 목록 스타일 --- */
+
+/* stat-list의 기본 스타일 초기화 */
+.stat-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.stat-list li {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.8;
+}
+
+/* li 앞에 • 기호를 추가하여 stat-list-disc와 같아 보이게 함 */
+.stat-list li::before {
+  content: "•";
+  margin-right: 8px;
+  color: #555;
+}
+
+/* span 태그들이 한 줄로 보이도록 처리 */
+.stat-list li .label,
+.stat-list li .value {
+  display: inline;
+}
+
+/* --- '소지 효과' 목록 스타일 --- */
+
+.effect-item {
+  display: grid;
+  grid-template-columns: max-content 1fr; /* 소제목 크기만큼, 나머지는 내용 */
+  gap: 8px 12px; /* 세로, 가로 간격 */
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* 마지막 effect-item을 제외하고 아래쪽에 여백 추가 */
+.effect-item:not(:last-child) {
+  margin-bottom: 15px;
+}
+
+.effect-subtitle {
+  grid-column: 1;
+  font-weight: bold;
+  color: #007bff;
+  white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+.effect-description {
+  grid-column: 2;
+  color: #333;
+}
+
+/* --- 공통 value 스타일 --- */
+
+/* 강조하고 싶은 값에 대한 스타일 (선택사항) */
+.value {
+  color: #c92a2a;
+  font-weight: 600;
+}
