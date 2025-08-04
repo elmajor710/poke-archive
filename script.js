@@ -1003,9 +1003,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // 페이지의 모든 로직을 실행
+// ... 기존 코드 마지막 부분 ...
     initialize();
-    
-    // 페이지의 기본 로직과 별개로 광고 관찰자 설정
     setupAdObservers();
+
+    // ▼▼▼ 모바일 화면 높이 문제 해결을 위한 코드 (추가) ▼▼▼
+    function setScreenHeight() {
+      // 실제 브라우저 창의 내부 높이를 가져옵니다.
+      let vh = window.innerHeight * 0.01;
+      // CSS 변수 '--vh'에 계산된 높이 값을 저장합니다.
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+
+    // 페이지 로드 시 및 화면 크기 변경 시 함수 실행
+    setScreenHeight();
+    window.addEventListener('resize', setScreenHeight);
+    // ▲▲▲ 모바일 화면 높이 문제 해결을 위한 코드 (추가) ▲▲▲
 });
+
