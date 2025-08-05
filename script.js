@@ -168,6 +168,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         let buildHTML = '';
         let hasBuildInfo = false;
+        
+        if (data.build_concept) {
+            buildHTML += `<h4>빌드 콘셉트</h4><p>${data.build_concept}</p>`;
+            hasBuildInfo = true;
+        }
+
         if (data.recommendedNatures && data.recommendedNatures.length > 0) {
             const natureNames = data.recommendedNatures.map(natureId => DB.definitions.natures.find(n => n.id === natureId)?.name || '').filter(Boolean);
             if(natureNames.length > 0) {

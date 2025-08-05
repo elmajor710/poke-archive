@@ -139,6 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             pokemonForm.querySelector('#pkm-grade').value = data.grade || '';
             pokemonForm.querySelector('#pkm-image-url').value = data.imageURL || '';
             pokemonForm.querySelector('#pkm-face-url').value = data.faceImageURL || '';
+            pokemonForm.querySelector('#pkm-build-concept').value = data.build_concept || '';
             data.types?.forEach(id => { const cb = pokemonForm.querySelector(`input[name="types"][value="${id}"]`); if(cb) cb.checked = true; });
             data.recommendedNatures?.forEach(id => { const cb = pokemonForm.querySelector(`input[name="natures"][value="${id}"]`); if(cb) cb.checked = true; });
             Array.from(itemsSelect.options).forEach(opt => opt.selected = data.recommendedItems?.includes(opt.value));
@@ -256,12 +257,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const pkmId = pokemonForm.querySelector('#pkm-id').value.trim();
             if (!pkmId) { alert('고유 ID를 입력해주세요.'); return; }
             
-            const pokemonData = {
+           const pokemonData = {
                 name_ko: pokemonForm.querySelector('#pkm-name-ko').value,
                 name_en: pokemonForm.querySelector('#pkm-name-en').value,
                 grade: pokemonForm.querySelector('#pkm-grade').value,
                 imageURL: pokemonForm.querySelector('#pkm-image-url').value,
                 faceImageURL: pokemonForm.querySelector('#pkm-face-url').value,
+                build_concept: pokemonForm.querySelector('#pkm-build-concept').value,
                 types: Array.from(pokemonForm.querySelectorAll('input[name="types"]:checked')).map(cb => cb.value),
                 stats: {
                     HP: Number(pokemonForm.querySelector('#pkm-stat-hp').value) || 0,
