@@ -263,21 +263,71 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function renderSimpleView(contentDiv, data) {
-        let html = `<div class="simple-detail-view"><h2>${data.name}</h2>`;
-        if (data.htmlContent) {
-            html += data.htmlContent;
-        } else {
+    function renderSimpleView(contentDiv, data, menuId) {
+        // 'item' 또는 'runeAndChip' 메뉴이고, 설명에 카드 리스트가 포함된 경우에만 탭 UI를 적용
+        const isTabTarget = (menuId === 'item' || menuId === 'runeAndChip') && data.description && data.description.includes('content-card-list');
+
+        if (isTabTarget) {
+            // --- 아이템, 룬, 칩을 위한 새로운 탭 뷰 ---
+            const detailView = document.createElement('div');
+            detailView.className = 'simple-detail-view use-tabs';
+
+            let html = `<h2>${data.name}</h2>`;
             if (data.grade) {
                 const gradeClass = `grade-${data.grade.toLowerCase()}`;
                 html += `<div class="badge-container"><span class="grade-badge ${gradeClass}">${data.grade}</span></div>`;
             }
             if (data.imageURL) { html += `<img src="${data.imageURL}" alt="${data.name}" class="main-image">`; }
-            if (data.description) { html += `<div class="item-description">${data.description.replace(/\\n/g, '<br>')}</div>`; }
-            if (data.content) { html += `<p>${data.content}</p>`; }
+
+            // 1. HTML 설명을 임시 DOM으로 만들어 두 개의 카드로 분리
+            const tempContainer = document.createElement('div');
+            tempContainer.innerHTML = data.description;
+            
+            const basicAttributesCard = tempContainer.querySelector('.content-card:first-child .card-content');
+            const carryEffectCard = tempContainer.querySelector('.content-card:last-child .card-content');
+
+            const basicAttributesHTML = basicAttributesCard ? basicAttributesCard.innerHTML : '<p>기본 능력치 정보가 없습니다.</p>';
+            const carryEffectHTML = carryEffectCard ? carryEffectCard.innerHTML : '<p>소지 효과 정보가 없습니다.</p>';
+
+            // 2. 탭 레이아웃 HTML 생성
+            html += `
+                <div class="tab-container">
+                    <nav class="tab-nav">
+                        <button class="tab-button active" data-tab="tab-attributes">기본 능력치</button>
+                        <button class="tab-button" data-tab="tab-effects">소지 효과</button>
+                    </nav>
+                    <div id="tab-attributes" class="tab-pane active">${basicAttributesHTML}</div>
+                    <div id="tab-effects" class="tab-pane">${carryEffectHTML}</div>
+                </div>
+            `;
+            
+            detailView.innerHTML = html;
+            contentDiv.innerHTML = '';
+            contentDiv.appendChild(detailView);
+
+            // 3. 탭 버튼에 이벤트 리스너 추가
+            detailView.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    if (button.classList.contains('active')) return;
+                    detailView.querySelector('.tab-button.active').classList.remove('active');
+                    detailView.querySelector('.tab-pane.active').classList.remove('active');
+                    button.classList.add('active');
+                    detailView.querySelector(`#${button.dataset.tab}`).classList.add('active');
+                });
+            });
+
+        } else {
+            // --- 기존의 간단한 뷰 (팁&노하우 등 다른 메뉴들) ---
+            let html = `<div class="simple-detail-view"><h2>${data.name}</h2>`;
+            if (data.htmlContent) {
+                html += data.htmlContent;
+            } else {
+                if (data.imageURL) { html += `<img src="${data.imageURL}" alt="${data.name}" class="main-image">`; }
+                if (data.description) { html += `<div class="item-description">${data.description.replace(/\\n/g, '<br>')}</div>`; }
+            }
+            html += `</div>`;
+            contentDiv.innerHTML = html;
         }
-        html += `</div>`;
-        contentDiv.innerHTML = html;
     }
 
     // --- 시너지 계산 로직 (공통 사용) ---
@@ -882,9 +932,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     async function fetchAllDataFromFirebase() {
-        const collections = ['pokemon', 'items', 'runeAndChips', 'tips', 'events', 'recommendedDecks'];
-        const promises = collections.map(col => db.collection(col).get());
+        // ▼▼▼ "isPublished"가 true인 데이터만 가져오도록 .where() 조건 추가 ▼▼▼
+        const collections = {
+            pokemon: db.collection('pokemon').where("isPublished", "==", true),
+            items: db.collection('items').where("isPublished", "==", true),
+            runeAndChips: db.collection('runeAndChips').where("isPublished", "==", true),
+            tips: db.collection('tips').where("isPublished", "==", true),
+            events: db.collection('events'), // 이벤트는 항상 모두 공개
+            recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true)
+        };
+        // ▲▲▲ 여기까지 ▲▲▲
+        
+        const promises = Object.values(collections).map(colRef => colRef.get());
         const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, eventsSnapshot, decksSnapshot] = await Promise.all(promises);
+        
         const snapshotToMap = (snapshot) => {
             const dataMap = {};
             snapshot.forEach(doc => { dataMap[doc.id] = { id: doc.id, ...doc.data() }; });
@@ -895,6 +956,7 @@ document.addEventListener('DOMContentLoaded', () => {
             snapshot.forEach(doc => { dataArray.push({ id: doc.id, ...doc.data() }); });
             return dataArray;
         }
+
         DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
         DB.item.lev4 = snapshotToMap(itemsSnapshot);
         DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);

@@ -186,36 +186,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (error) { console.error("포켓몬 목록 로딩 오류: ", error); }
             }
 
-            function populatePokemonForm(data) {
-                pokemonForm.reset();
-                if(skillsContainer) skillsContainer.innerHTML = '';
-                pokemonForm.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-                pokemonForm.querySelector('#pkm-id').value = data.id || '';
-                pokemonForm.querySelector('#pkm-build-concept').value = data.build_concept || '';
-                pokemonForm.querySelector('#pkm-name-ko').value = data.name_ko || '';
-                pokemonForm.querySelector('#pkm-name-en').value = data.name_en || '';
-                pokemonForm.querySelector('#pkm-grade').value = data.grade || '';
-                pokemonForm.querySelector('#pkm-image-url').value = data.imageURL || '';
-                pokemonForm.querySelector('#pkm-face-url').value = data.faceImageURL || '';
-                data.types?.forEach(id => { const cb = pokemonForm.querySelector(`input[name="types"][value="${id}"]`); if(cb) cb.checked = true; });
-                data.recommendedNatures?.forEach(id => { const cb = pokemonForm.querySelector(`input[name="natures"][value="${id}"]`); if(cb) cb.checked = true; });
-                Array.from(itemsSelect.options).forEach(opt => opt.selected = data.recommendedItems?.includes(opt.value));
-                Array.from(runesSelect.options).forEach(opt => opt.selected = data.recommendedRunes?.includes(opt.value));
-                Array.from(chipsSelect.options).forEach(opt => opt.selected = data.recommendedChips?.includes(opt.value));
-                if (data.stats) {
-                    pokemonForm.querySelector('#pkm-stat-hp').value = data.stats.HP || '';
-                    pokemonForm.querySelector('#pkm-stat-speed').value = data.stats.Speed || '';
-                    pokemonForm.querySelector('#pkm-stat-patk').value = data.stats['P.ATK'] || '';
-                    pokemonForm.querySelector('#pkm-stat-pdef').value = data.stats['P.DEF'] || '';
-                    pokemonForm.querySelector('#pkm-stat-spatk').value = data.stats['SP.ATK'] || '';
-                    pokemonForm.querySelector('#pkm-stat-spdef').value = data.stats['SP.DEF'] || '';
-                } else {
-                     statInputs.forEach(input => input.value = '');
-                }
-                updateTotalStat();
-                if(data.skills && data.skills.length > 0) data.skills.forEach(skill => addSkillRow(skill));
-                else addSkillRow();
-            }
+            const pokemonData = {
+                name_ko: pokemonForm.querySelector('#pkm-name-ko').value,
+                name_en: pokemonForm.querySelector('#pkm-name-en').value,
+                grade: pokemonForm.querySelector('#pkm-grade').value,
+                imageURL: pokemonForm.querySelector('#pkm-image-url').value,
+                faceImageURL: pokemonForm.querySelector('#pkm-face-url').value,
+
+                // ▼▼▼ 공개 여부 값을 저장하는 코드 추가 ▼▼▼
+                isPublished: pokemonForm.querySelector('#pkm-is-published').checked,
+                // ▲▲▲ 여기까지 ▲▲▲
+
+                types: Array.from(pokemonForm.querySelectorAll('input[name="types"]:checked')).map(cb => cb.value),
+                stats: {
+                    HP: Number(pokemonForm.querySelector('#pkm-stat-hp').value) || 0,
+                    Speed: Number(pokemonForm.querySelector('#pkm-stat-speed').value) || 0,
+                    'P.ATK': Number(pokemonForm.querySelector('#pkm-stat-patk').value) || 0,
+                    'P.DEF': Number(pokemonForm.querySelector('#pkm-stat-pdef').value) || 0,
+                    'SP.ATK': Number(pokemonForm.querySelector('#pkm-stat-spatk').value) || 0,
+                    'SP.DEF': Number(pokemonForm.querySelector('#pkm-stat-spdef').value) || 0,
+                },
+                skills: Array.from(skillsContainer.querySelectorAll('.skill-entry')).map(entry => ({
+                    name: entry.querySelector('[name^="skill_name"]').value,
+                    type: entry.querySelector('[name^="skill_type"]').value,
+                    description: entry.querySelector('[name^="skill_desc"]').value,
+                    keywords: Array.from(entry.querySelectorAll('.keyword-entry')).map(kwEntry => ({
+                        term: kwEntry.querySelector('[name="keyword_term"]').value,
+                        desc: kwEntry.querySelector('[name="keyword_desc"]').value
+                    }))
+                })),
+                recommendedNatures: Array.from(pokemonForm.querySelectorAll('input[name="natures"]:checked')).map(cb => cb.value),
+                recommendedItems: Array.from(itemsSelect.selectedOptions).map(opt => opt.value),
+                recommendedRunes: Array.from(runesSelect.selectedOptions).map(opt => opt.value),
+                recommendedChips: Array.from(chipsSelect.selectedOptions).map(opt => opt.value)
+            };
             
             function updateTotalStat() {
                 let total = 0;
