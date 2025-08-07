@@ -7,7 +7,25 @@
     <link rel="stylesheet" href="admin.css">
 </head>
 <body>
-    <div class="admin-container">
+    <div id="login-container" class="login-container" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background-color: #f4f6f9;">
+        <div class="login-box" style="background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px;">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #3498db;">관리자 로그인</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">이메일</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">비밀번호</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <p id="login-error-message" style="color: #e74c3c; height: 20px; text-align: center;"></p>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">로그인</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="admin-container" class="admin-container" style="display: none;">
         <aside class="admin-sidebar">
             <h2>관리 메뉴</h2>
             <nav id="admin-nav">
@@ -20,6 +38,7 @@
                     <li><a href="#" class="admin-tab-link" data-tab="deck-management">추천 덱 관리</a></li>
                 </ul>
             </nav>
+            <button id="logout-btn" class="btn btn-danger" style="width: 90%; margin: 20px auto 0;">로그아웃</button>
         </aside>
         <main class="admin-main">
             <div id="pokemon-management" class="admin-tab-content active">
@@ -130,7 +149,6 @@
                                  <select id="pkm-chips" multiple></select>
                             </div>
                         </div>
-                        
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">저장하기</button>
                             <button id="delete-pokemon-btn" type="button" class="btn btn-danger">삭제하기</button>
@@ -138,7 +156,6 @@
                     </form>
                 </section>
             </div>
-
             <div id="item-management" class="admin-tab-content">
                 <header class="admin-header">
                     <h1>아이템 관리</h1>
@@ -185,7 +202,6 @@
                     </form>
                 </section>
             </div>
-
             <div id="rune-chip-management" class="admin-tab-content">
                  <header class="admin-header">
                     <h1>룬&칩 관리</h1>
@@ -231,7 +247,6 @@
                     </form>
                 </section>
             </div>
-
             <div id="tips-management" class="admin-tab-content">
                 <header class="admin-header">
                     <h1>팁 & 노하우 관리</h1>
@@ -317,7 +332,6 @@
                     </form>
                 </section>
             </div>
-
             <div id="deck-management" class="admin-tab-content">
                 <header class="admin-header">
                     <h1>추천 덱 관리</h1>
@@ -343,7 +357,6 @@
                             <label for="deck-description">덱 설명</label>
                             <textarea id="deck-description" rows="3"></textarea>
                         </div>
-            
                         <div class="form-section">
                             <h3>덱 특성</h3>
                             <div class="form-grid">
@@ -365,7 +378,6 @@
                                 </div>
                             </div>
                         </div>
-            
                         <div class="form-section">
                             <h3>덱 구성 (포켓몬 선택)</h3>
                             <div id="deck-composition-selectors">
@@ -389,7 +401,6 @@
                                 </div>
                             </div>
                         </div>
-            
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">저장하기</button>
                             <button id="delete-deck-btn" type="button" class="btn btn-danger">삭제하기</button>
@@ -397,11 +408,12 @@
                     </form>
                 </section>
             </div>
-            </main>
+        </main>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBEPDK4VMVjEshWthL9Kajan-2EKfuLvZ0",
@@ -413,6 +425,7 @@
         };
       firebase.initializeApp(firebaseConfig);
       window.db = firebase.firestore();
+      window.auth = firebase.auth();
     </script>
     
     <script src="data.js"></script> 
