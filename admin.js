@@ -186,40 +186,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (error) { console.error("포켓몬 목록 로딩 오류: ", error); }
             }
 
-            const pokemonData = {
-                name_ko: pokemonForm.querySelector('#pkm-name-ko').value,
-                name_en: pokemonForm.querySelector('#pkm-name-en').value,
-                grade: pokemonForm.querySelector('#pkm-grade').value,
-                imageURL: pokemonForm.querySelector('#pkm-image-url').value,
-                faceImageURL: pokemonForm.querySelector('#pkm-face-url').value,
 
-                // ▼▼▼ 공개 여부 값을 저장하는 코드 추가 ▼▼▼
-                isPublished: pokemonForm.querySelector('#pkm-is-published').checked,
+            function populatePokemonForm(data) {
+                pokemonForm.reset();
+                if(skillsContainer) skillsContainer.innerHTML = '';
+                pokemonForm.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                pokemonForm.querySelector('#pkm-id').value = data.id || '';
+                pokemonForm.querySelector('#pkm-build-concept').value = data.build_concept || '';
+                pokemonForm.querySelector('#pkm-name-ko').value = data.name_ko || '';
+                pokemonForm.querySelector('#pkm-name-en').value = data.name_en || '';
+                pokemonForm.querySelector('#pkm-grade').value = data.grade || '';
+                pokemonForm.querySelector('#pkm-image-url').value = data.imageURL || '';
+                pokemonForm.querySelector('#pkm-face-url').value = data.faceImageURL || '';
+                
+                // ▼▼▼ 공개 여부 체크박스 상태를 설정하는 코드 추가 ▼▼▼
+                pokemonForm.querySelector('#pkm-is-published').checked = data.isPublished === true;
                 // ▲▲▲ 여기까지 ▲▲▲
 
-                types: Array.from(pokemonForm.querySelectorAll('input[name="types"]:checked')).map(cb => cb.value),
-                stats: {
-                    HP: Number(pokemonForm.querySelector('#pkm-stat-hp').value) || 0,
-                    Speed: Number(pokemonForm.querySelector('#pkm-stat-speed').value) || 0,
-                    'P.ATK': Number(pokemonForm.querySelector('#pkm-stat-patk').value) || 0,
-                    'P.DEF': Number(pokemonForm.querySelector('#pkm-stat-pdef').value) || 0,
-                    'SP.ATK': Number(pokemonForm.querySelector('#pkm-stat-spatk').value) || 0,
-                    'SP.DEF': Number(pokemonForm.querySelector('#pkm-stat-spdef').value) || 0,
-                },
-                skills: Array.from(skillsContainer.querySelectorAll('.skill-entry')).map(entry => ({
-                    name: entry.querySelector('[name^="skill_name"]').value,
-                    type: entry.querySelector('[name^="skill_type"]').value,
-                    description: entry.querySelector('[name^="skill_desc"]').value,
-                    keywords: Array.from(entry.querySelectorAll('.keyword-entry')).map(kwEntry => ({
-                        term: kwEntry.querySelector('[name="keyword_term"]').value,
-                        desc: kwEntry.querySelector('[name="keyword_desc"]').value
-                    }))
-                })),
-                recommendedNatures: Array.from(pokemonForm.querySelectorAll('input[name="natures"]:checked')).map(cb => cb.value),
-                recommendedItems: Array.from(itemsSelect.selectedOptions).map(opt => opt.value),
-                recommendedRunes: Array.from(runesSelect.selectedOptions).map(opt => opt.value),
-                recommendedChips: Array.from(chipsSelect.selectedOptions).map(opt => opt.value)
-            };
+                data.types?.forEach(id => { const cb = pokemonForm.querySelector(`input[name="types"][value="${id}"]`); if(cb) cb.checked = true; });
+                data.recommendedNatures?.forEach(id => { const cb = pokemonForm.querySelector(`input[name="natures"][value="${id}"]`); if(cb) cb.checked = true; });
+                Array.from(itemsSelect.options).forEach(opt => opt.selected = data.recommendedItems?.includes(opt.value));
+                Array.from(runesSelect.options).forEach(opt => opt.selected = data.recommendedRunes?.includes(opt.value));
+                Array.from(chipsSelect.options).forEach(opt => opt.selected = data.recommendedChips?.includes(opt.value));
+                if (data.stats) {
+                    pokemonForm.querySelector('#pkm-stat-hp').value = data.stats.HP || '';
+                    pokemonForm.querySelector('#pkm-stat-speed').value = data.stats.Speed || '';
+                    pokemonForm.querySelector('#pkm-stat-patk').value = data.stats['P.ATK'] || '';
+                    pokemonForm.querySelector('#pkm-stat-pdef').value = data.stats['P.DEF'] || '';
+                    pokemonForm.querySelector('#pkm-stat-spatk').value = data.stats['SP.ATK'] || '';
+                    pokemonForm.querySelector('#pkm-stat-spdef').value = data.stats['SP.DEF'] || '';
+                } else {
+                     statInputs.forEach(input => input.value = '');
+                }
+                updateTotalStat();
+                if(data.skills && data.skills.length > 0) data.skills.forEach(skill => addSkillRow(skill));
+                else addSkillRow();
+            }
+
             
             function updateTotalStat() {
                 let total = 0;
@@ -318,13 +321,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pkmId = pokemonForm.querySelector('#pkm-id').value.trim();
                 if (!pkmId) { alert('고유 ID를 입력해주세요.'); return; }
                 
-                const pokemonData = {
+            const pokemonData = {
                     name_ko: pokemonForm.querySelector('#pkm-name-ko').value,
                     name_en: pokemonForm.querySelector('#pkm-name-en').value,
                     grade: pokemonForm.querySelector('#pkm-grade').value,
                     imageURL: pokemonForm.querySelector('#pkm-image-url').value,
                     faceImageURL: pokemonForm.querySelector('#pkm-face-url').value,
                     build_concept: pokemonForm.querySelector('#pkm-build-concept').value,
+                    
+                    // 공개 여부 값을 저장하는 코드 추가
+                    isPublished: pokemonForm.querySelector('#pkm-is-published').checked,
+
                     types: Array.from(pokemonForm.querySelectorAll('input[name="types"]:checked')).map(cb => cb.value),
                     stats: {
                         HP: Number(pokemonForm.querySelector('#pkm-stat-hp').value) || 0,
@@ -347,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     recommendedItems: Array.from(itemsSelect.selectedOptions).map(opt => opt.value),
                     recommendedRunes: Array.from(runesSelect.selectedOptions).map(opt => opt.value),
                     recommendedChips: Array.from(chipsSelect.selectedOptions).map(opt => opt.value)
-                };
+                };    
                 
                 db.collection("pokemon").doc(pkmId).set(pokemonData)
                     .then(() => {
@@ -404,11 +411,17 @@ document.addEventListener('DOMContentLoaded', () => {
                             itemForm.querySelector('#item-grade').value = data.grade || 'Epic';
                             itemForm.querySelector('#item-image-url').value = data.imageURL || '';
                             itemForm.querySelector('#item-description').value = data.description || '';
+                            
+                            // ▼▼▼ 공개 여부 체크박스 상태를 설정하는 코드 추가 ▼▼▼
+                            itemForm.querySelector('#item-is-published').checked = data.isPublished === true;
+                            // ▲▲▲ 여기까지 ▲▲▲
+
                             alert(`'${data.name}' 데이터를 불러왔습니다.`);
                         } else { alert('해당 ID의 아이템 데이터를 찾을 수 없습니다.'); }
                     } catch (error) { alert('데이터를 불러오는 중 오류가 발생했습니다.'); console.error("아이템 데이터 불러오기 오류: ", error); }
                 });
             }
+
             itemForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const itemId = itemForm.querySelector('#item-id').value.trim();
@@ -418,6 +431,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     grade: itemForm.querySelector('#item-grade').value,
                     imageURL: itemForm.querySelector('#item-image-url').value.trim(),
                     description: itemForm.querySelector('#item-description').value.trim(),
+                    
+                    // ▼▼▼ 공개 여부 값을 저장하는 코드 추가 ▼▼▼
+                    isPublished: itemForm.querySelector('#item-is-published').checked,
+                    // ▲▲▲ 여기까지 ▲▲▲
                 };
                 db.collection("items").doc(itemId).set(itemData, { merge: true })
                     .then(() => {
@@ -483,11 +500,17 @@ document.addEventListener('DOMContentLoaded', () => {
                             runeChipForm.querySelector('#rc-type').value = data.type || 'rune';
                             runeChipForm.querySelector('#rc-image-url').value = data.imageURL || '';
                             runeChipForm.querySelector('#rc-description').value = data.description || '';
+
+                            // ▼▼▼ 공개 여부 체크박스 상태를 설정하는 코드 추가 ▼▼▼
+                            runeChipForm.querySelector('#rc-is-published').checked = data.isPublished === true;
+                            // ▲▲▲ 여기까지 ▲▲▲
+
                             alert(`'${data.name}' 데이터를 불러왔습니다.`);
                         } else { alert('해당 ID의 룬/칩 데이터를 찾을 수 없습니다.'); }
                     } catch (error) { alert('데이터를 불러오는 중 오류가 발생했습니다.'); console.error("룬/칩 데이터 불러오기 오류: ", error); }
                 });
             }
+
             runeChipForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const rcId = runeChipForm.querySelector('#rc-id').value.trim();
@@ -497,7 +520,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     type: runeChipForm.querySelector('#rc-type').value,
                     imageURL: runeChipForm.querySelector('#rc-image-url').value.trim(),
                     description: runeChipForm.querySelector('#rc-description').value.trim(),
+
+                    // ▼▼▼ 공개 여부 값을 저장하는 코드 추가 ▼▼▼
+                    isPublished: runeChipForm.querySelector('#rc-is-published').checked,
+                    // ▲▲▲ 여기까지 ▲▲▲
                 };
+
                 db.collection("runeAndChips").doc(rcId).set(runeChipData, { merge: true })
                     .then(() => {
                         alert('룬/칩이 성공적으로 저장되었습니다!');
@@ -563,6 +591,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             tipForm.querySelector('#tip-id').value = data.id || '';
                             tipForm.querySelector('#tip-title').value = data.name || '';
                             tipForm.querySelector('#tip-content').value = data.htmlContent || '';
+                            
+                            // ▼▼▼ 공개 여부 체크박스 상태를 설정하는 코드 추가 ▼▼▼
+                            tipForm.querySelector('#tip-is-published').checked = data.isPublished === true;
+                            // ▲▲▲ 여기까지 ▲▲▲
+
                             alert(`'${data.name}' 데이터를 불러왔습니다.`);
                         } else {
                             alert('해당 ID의 팁 데이터를 찾을 수 없습니다.');
@@ -573,6 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             }
+
             tipForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const tipId = tipForm.querySelector('#tip-id').value.trim();
@@ -585,8 +619,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tipData = {
                     id: tipId,
                     name: tipTitle,
-                    htmlContent: tipContent
+                    htmlContent: tipContent,
+
+                    // ▼▼▼ 공개 여부 값을 저장하는 코드 추가 ▼▼▼
+                    isPublished: tipForm.querySelector('#tip-is-published').checked
+                    // ▲▲▲ 여기까지 ▲▲▲
                 };
+
                 db.collection("tips").doc(tipId).set(tipData)
                     .then(() => {
                         alert('팁이 성공적으로 저장되었습니다!');
@@ -815,6 +854,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         deckForm.querySelector('#deck-id').value = doc.id;
                         deckForm.querySelector('#deck-name').value = data.name || '';
                         deckForm.querySelector('#deck-description').value = data.description || '';
+                        
+                        // ▼▼▼ 공개 여부 체크박스 상태를 설정하는 코드 추가 ▼▼▼
+                        deckForm.querySelector('#deck-is-published').checked = data.isPublished === true;
+                        // ▲▲▲ 여기까지 ▲▲▲
+
                         if (data.composition) {
                             data.composition.forEach(member => {
                                 const selector = `.deck-pokemon-select[data-role="${member.role}"][data-position="${member.position}"]`;
@@ -830,6 +874,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } catch (error) { console.error("덱 데이터 로딩 오류: ", error); alert("덱 데이터 로딩 중 오류가 발생했습니다."); }
             });
+
             deckForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const deckId = deckForm.querySelector('#deck-id').value.trim();
@@ -848,8 +893,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     name: deckForm.querySelector('#deck-name').value.trim(),
                     description: deckForm.querySelector('#deck-description').value.trim(),
                     weather: weatherSelect.value,
-                    composition: composition
+                    composition: composition,
+
+                    // ▼▼▼ 공개 여부 값을 저장하는 코드 추가 ▼▼▼
+                    isPublished: deckForm.querySelector('#deck-is-published').checked
+                    // ▲▲▲ 여기까지 ▲▲▲
                 };
+
                 try {
                     await db.collection("recommendedDecks").doc(deckId).set(deckData);
                     alert('추천 덱이 성공적으로 저장되었습니다!');

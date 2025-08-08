@@ -931,41 +931,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    async function fetchAllDataFromFirebase() {
-        // ▼▼▼ "isPublished"가 true인 데이터만 가져오도록 .where() 조건 추가 ▼▼▼
-        const collections = {
-            pokemon: db.collection('pokemon').where("isPublished", "==", true),
-            items: db.collection('items').where("isPublished", "==", true),
-            runeAndChips: db.collection('runeAndChips').where("isPublished", "==", true),
-            tips: db.collection('tips').where("isPublished", "==", true),
-            events: db.collection('events'), // 이벤트는 항상 모두 공개
-            recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true)
-        };
-        // ▲▲▲ 여기까지 ▲▲▲
-        
-        const promises = Object.values(collections).map(colRef => colRef.get());
-        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, eventsSnapshot, decksSnapshot] = await Promise.all(promises);
-        
-        const snapshotToMap = (snapshot) => {
-            const dataMap = {};
-            snapshot.forEach(doc => { dataMap[doc.id] = { id: doc.id, ...doc.data() }; });
-            return dataMap;
-        };
-        const eventsToArray = (snapshot) => {
-            const dataArray = [];
-            snapshot.forEach(doc => { dataArray.push({ id: doc.id, ...doc.data() }); });
-            return dataArray;
-        }
 
-        DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
-        DB.item.lev4 = snapshotToMap(itemsSnapshot);
-        DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
-        DB.tips.lev3 = snapshotToMap(tipsSnapshot);
-        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name }));
-        DB.calendar.lev2.events = eventsToArray(eventsSnapshot);
-        DB.deck.lev4 = snapshotToMap(decksSnapshot);
-        DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
+    // [수정] script.js
+async function fetchAllDataFromFirebase() {
+    // "isPublished"가 true인 데이터만 가져오도록 모든 컬렉션에 .where() 조건 추가
+    const collections = {
+        pokemon: db.collection('pokemon').where("isPublished", "==", true),
+        items: db.collection('items').where("isPublished", "==", true),
+        runeAndChips: db.collection('runeAndChips').where("isPublished", "==", true),
+        tips: db.collection('tips').where("isPublished", "==", true),
+        events: db.collection('events'), // 이벤트는 항상 모두 공개
+        recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true)
+    };
+    
+    const promises = Object.values(collections).map(colRef => colRef.get());
+    const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, eventsSnapshot, decksSnapshot] = await Promise.all(promises);
+    
+    const snapshotToMap = (snapshot) => {
+        const dataMap = {};
+        snapshot.forEach(doc => { dataMap[doc.id] = { id: doc.id, ...doc.data() }; });
+        return dataMap;
+    };
+    const eventsToArray = (snapshot) => {
+        const dataArray = [];
+        snapshot.forEach(doc => { dataArray.push({ id: doc.id, ...doc.data() }); });
+        return dataArray;
+
     }
+
+    DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
+    DB.item.lev4 = snapshotToMap(itemsSnapshot);
+    DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
+    DB.tips.lev3 = snapshotToMap(tipsSnapshot);
+    DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name }));
+    DB.calendar.lev2.events = eventsToArray(eventsSnapshot);
+    DB.deck.lev4 = snapshotToMap(decksSnapshot);
+    DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
+}
 
     async function initialize() {
     try {
