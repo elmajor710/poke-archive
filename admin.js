@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 탭 전환 로직
     function setupTabSwitching() {
         const adminNav = document.getElementById('admin-nav');
+        if (!adminNav) return;
         adminNav.addEventListener('click', (e) => {
             e.preventDefault();
             const clickedLink = e.target.closest('.admin-tab-link');
@@ -85,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const reloadBtn = document.getElementById('reload-drafts-btn');
                     if(reloadBtn) reloadBtn.click();
                 }
-
             }
         });
     }
@@ -116,7 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         const items = [];
                         snapshot.forEach(doc => {
                             const data = doc.data();
-                            items.push({ id: doc.id, name: data.name_ko || data.name || data.title || doc.id });
+                            const name = data.name_ko || data.name || data.title || doc.id;
+                            if (typeof name === 'string') { // 이름이 문자열일 때만 추가
+                                items.push({ id: doc.id, name: name });
+                            }
                         });
                         items.sort((a,b)=> a.name.localeCompare(b.name, 'ko'));
                         
@@ -167,7 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 범용 관리 핸들러 생성기
     function createManagementHandler(config) {
         const { type, collectionName, idPrefix } = config;
         const panel = document.getElementById(`${type}-management`);
@@ -185,7 +187,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const items = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    items.push({ id: doc.id, name: data.name_ko || data.name || data.title || doc.id });
+                    // [핵심 수정] 이름이 없는 데이터는 목록에 추가하지 않도록 방어 코드 추가
+                    const name = data.name_ko || data.name || data.title || doc.id;
+                    if (typeof name === 'string') {
+                        items.push({ id: doc.id, name: name });
+                    } else {
+                        console.warn(`이름이 없는 데이터를 건너뜁니다: (컬렉션: ${collectionName}, ID: ${doc.id})`);
+                    }
                 });
                 items.sort((a,b) => a.name.localeCompare(b.name, 'ko'));
                 items.forEach(item => {
@@ -203,15 +211,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     form.reset();
                     form.querySelector(`#${idPrefix}-id`).value = doc.id;
                     
-                    // isPublished 필드를 먼저 처리
                     const isPublishedCheckbox = form.querySelector(`#${idPrefix}-is-published`);
                     if (isPublishedCheckbox) {
                         isPublishedCheckbox.checked = data.isPublished === true;
                     }
 
-                    // 나머지 필드들
                     for (const key in data) {
-                        if (key === 'isPublished') continue; // 위에서 처리했으므로 건너뛰기
+                        if (key === 'isPublished') continue;
                         const element = form.querySelector(`[id^="${idPrefix}-${key.replace(/_/g, '-')}"]`);
                         if (element) {
                             if (element.type === 'checkbox') {
@@ -221,7 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         }
                     }
-                     // 특수 케이스 처리 (이름 필드가 여러개인 경우 등)
                     if(form.querySelector(`#${idPrefix}-name-ko`)) form.querySelector(`#${idPrefix}-name-ko`).value = data.name_ko || '';
                     if(form.querySelector(`#${idPrefix}-name-en`)) form.querySelector(`#${idPrefix}-name-en`).value = data.name_en || '';
                     if(form.querySelector(`#${idPrefix}-name`)) form.querySelector(`#${idPrefix}-name`).value = data.name || '';
@@ -246,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (key) {
                     if (input.type === 'checkbox') {
                         data[key] = input.checked;
-                    } else if(input.value) { // 빈 값은 저장하지 않을 수 있음 (선택)
+                    } else { // [핵심 수정] 빈 문자열도 저장되도록 수정
                         data[key] = input.value;
                     }
                 }
