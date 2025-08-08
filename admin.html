@@ -30,7 +30,8 @@
             <h2>관리 메뉴</h2>
             <nav id="admin-nav">
                 <ul>
-                    <li><a href="#" class="admin-tab-link active" data-tab="pokemon-management">포켓몬 관리</a></li>
+                    <li><a href="#" class="admin-tab-link active" data-tab="publish-management"><b>게시물 관리 (신규)</b></a></li>
+                    <li><a href="#" class="admin-tab-link" data-tab="pokemon-management">포켓몬 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="item-management">아이템 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="rune-chip-management">룬&칩 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="tips-management">팁 & 노하우 관리</a></li>
@@ -39,8 +40,26 @@
                 </ul>
             </nav>
             <button id="logout-btn" class="btn btn-danger" style="width: 90%; margin: 20px auto 0;">로그아웃</button>
-        </aside>
+        
+            </aside>
         <main class="admin-main">
+            <div id="publish-management" class="admin-tab-content active">
+                <header class="admin-header">
+                    <h1>게시물 일괄 관리</h1>
+                    <button id="reload-drafts-btn" class="btn">새로고침</button>
+                </header>
+                <section class="content-section">
+                    <h2>초안(비공개) 상태인 데이터 목록</h2>
+                    <p>여기서 '공개'로 전환할 항목들을 선택하고, 하단의 '선택 항목 게시' 버튼을 눌러주세요.</p>
+                    
+                    <div class="publish-actions">
+                        <button id="publish-selected-btn" class="btn btn-primary">선택 항목 게시</button>
+                    </div>
+
+                    <div id="drafts-container">
+                        </div>
+                </section>
+            </div>
             <div id="pokemon-management" class="admin-tab-content active">
                 <header class="admin-header">
                     <h1>포켓몬 관리</h1>
