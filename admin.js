@@ -498,11 +498,17 @@ document.addEventListener('DOMContentLoaded', () => {
                             runeChipForm.querySelector('#rc-type').value = data.type || 'rune';
                             runeChipForm.querySelector('#rc-image-url').value = data.imageURL || '';
                             runeChipForm.querySelector('#rc-description').value = data.description || '';
+
+                            // ▼▼▼ 공개 여부 체크박스 상태를 설정하는 코드 추가 ▼▼▼
+                            runeChipForm.querySelector('#rc-is-published').checked = data.isPublished === true;
+                            // ▲▲▲ 여기까지 ▲▲▲
+
                             alert(`'${data.name}' 데이터를 불러왔습니다.`);
                         } else { alert('해당 ID의 룬/칩 데이터를 찾을 수 없습니다.'); }
                     } catch (error) { alert('데이터를 불러오는 중 오류가 발생했습니다.'); console.error("룬/칩 데이터 불러오기 오류: ", error); }
                 });
             }
+
             runeChipForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const rcId = runeChipForm.querySelector('#rc-id').value.trim();
@@ -512,7 +518,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     type: runeChipForm.querySelector('#rc-type').value,
                     imageURL: runeChipForm.querySelector('#rc-image-url').value.trim(),
                     description: runeChipForm.querySelector('#rc-description').value.trim(),
+
+                    // ▼▼▼ 공개 여부 값을 저장하는 코드 추가 ▼▼▼
+                    isPublished: runeChipForm.querySelector('#rc-is-published').checked,
+                    // ▲▲▲ 여기까지 ▲▲▲
                 };
+
                 db.collection("runeAndChips").doc(rcId).set(runeChipData, { merge: true })
                     .then(() => {
                         alert('룬/칩이 성공적으로 저장되었습니다!');
