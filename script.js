@@ -44,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!expiresAt) return;
             const now = new Date().getTime();
             if (now < parseInt(expiresAt)) {
-                console.warn('광고가 비정상적인 클릭으로 인해 일시적으로 차단되었습니다.');
                 this.hideAds();
             } else {
                 localStorage.removeItem('adBlockExpiresAt');
@@ -58,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
             timestamps.push(now);
             localStorage.setItem('adClickTimestamps', JSON.stringify(timestamps));
             if (timestamps.length >= this.CLICK_LIMIT) {
-                console.error('제한 횟수를 초과하는 클릭이 감지되었습니다. 24시간 동안 광고를 차단합니다.');
                 const tomorrow = new Date();
                 tomorrow.setDate(tomorrow.getDate() + 1);
                 tomorrow.setHours(0, 0, 0, 0);
@@ -73,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 페이지 로직 ---
+    // --- 페이지 전역 변수 ---
     const appContainer = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
     const panels = {
@@ -83,11 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
         lev4: document.getElementById('lev4-panel')
     };
     let activeButtons = {};
-    const isMobile = () => window.innerWidth <= 768;
+    const isMobile = () => window.innerWidth <= 1199;
 
-    // --- [핵심 수정 영역 시작] ---
+    // --- 함수 정의 영역 ---
 
-    // 최종 사이트 초기화 함수
     async function initialize() {
         try {
             await fetchAllDataFromFirebase();
@@ -100,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // 공개된 데이터만 필터링해서 가져오는 함수
     async function fetchAllDataFromFirebase() {
         const collectionsToFetch = {
             pokemon: db.collection('pokemon').where("isPublished", "==", true),
@@ -110,16 +106,13 @@ document.addEventListener('DOMContentLoaded', () => {
             recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true),
             events: db.collection('events')
         };
-
         const promises = Object.values(collectionsToFetch).map(query => query.get());
         const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot] = await Promise.all(promises);
-
         const snapshotToMap = (snapshot) => {
             const dataMap = {};
             snapshot.forEach(doc => { dataMap[doc.id] = { id: doc.id, ...doc.data() }; });
             return dataMap;
         };
-
         DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
         DB.item.lev4 = snapshotToMap(itemsSnapshot);
         DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
@@ -130,75 +123,197 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // 가져온 데이터를 기반으로 메뉴 목록을 재구성하고 정렬하는 함수
     function setupSideMenuData() {
-        // 포켓몬 타입별
         DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         const types = {};
         DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
         Object.values(DB.pokemonType.lev4).forEach(pokemon => {
             if (pokemon.types && Array.isArray(pokemon.types)) {
                 pokemon.types.forEach(typeId => {
-                    if (types[typeId]) {
-                        types[typeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
-                    }
+                    if (types[typeId]) types[typeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
                 });
             }
         });
-        for (const typeId in types) {
-            types[typeId].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-        }
+        Object.values(types).forEach(typeList => typeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
         DB.pokemonType.lev3 = types;
 
-        // 포켓몬 등급별
         const grades = {};
         DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
         Object.values(DB.pokemonType.lev4).forEach(pokemon => {
             if (pokemon && pokemon.grade) {
                 const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id;
-                if (gradeId && grades[gradeId]) {
-                    grades[gradeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
-                }
+                if (gradeId && grades[gradeId]) grades[gradeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
             }
         });
-        for (const gradeId in grades) {
-            grades[gradeId].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-        }
+        Object.values(grades).forEach(gradeList => gradeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
         DB.pokemonGrade.lev3 = grades;
         
-        // 아이템 등급별
         const itemGrades = { god: [], legendary: [], epic: [] };
         Object.values(DB.item.lev4).forEach(item => {
             const gradeKey = item.grade?.toLowerCase();
-            if (itemGrades[gradeKey]) {
-                itemGrades[gradeKey].push({ id: item.id, name: item.name });
-            }
+            if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name });
         });
-        for (const grade in itemGrades) {
-            itemGrades[grade].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-        }
+        Object.values(itemGrades).forEach(g => g.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
         DB.item.lev3 = itemGrades;
         
-        // 룬 & 칩 타입별
         const runeAndChipTypes = { rune: [], chip: [] };
         Object.values(DB.runeAndChip.lev4).forEach(rc => {
-            if(runeAndChipTypes[rc.type]) {
-                runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name });
-            }
+            if(runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name });
         });
         runeAndChipTypes.rune.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         DB.runeAndChip.lev3 = runeAndChipTypes;
 
-        // 팁 & 덱
         DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title }));
         DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
     }
 
-    // --- [핵심 수정 영역 끝] ---
+    function renderSidebar() {
+        const sidebarContent = document.createElement('div');
+        sidebarContent.className = 'panel-content';
+        DB.sidebarMenu.forEach(item => {
+            const button = document.createElement('button');
+            button.className = 'menu-item';
+            button.textContent = item.name;
+            button.dataset.level = 1;
+            button.dataset.id = item.id;
+            sidebarContent.appendChild(button);
+        });
+        if(sidebar) {
+            sidebar.innerHTML = '';
+            sidebar.appendChild(sidebarContent);
+        }
+    }
 
+    function addEventListeners() {
+        document.body.addEventListener('click', (e) => {
+            if (e.target.closest('.ad-container')) adBlockManager.recordClick();
+        });
+        if(appContainer) {
+            appContainer.addEventListener('click', e => {
+                const button = e.target.closest('button');
+                if (!button) return;
+                if (button.classList.contains('back-btn')) handleBackClick(button); 
+                else if (button.classList.contains('main-btn')) handleMainButtonClick();
+                else if (button.dataset.level) handleMenuClick(button); 
+            });
+        }
+    }
 
-    // --- 이하 제이티님의 기존 UI 렌더링 및 이벤트 핸들러 (생략 없음) ---
+    function handleMenuClick(button) {
+        appContainer.classList.add('menu-active');
+        const level = parseInt(button.dataset.level);
+        const id = button.dataset.id;
+        const menuId = button.dataset.menuId || id;
+        const nextLevel = level + 1;
+        const nextData = getNextData(level, id, menuId); 
+        const currentPanel = panels[`lev${level}`] || sidebar;
+        const nextPanel = panels[`lev${nextLevel}`];
+        if (!nextPanel) return;
+        if (isMobile()) currentPanel.classList.add('is-hidden');
+        Object.values(panels).forEach((panel, index) => {
+            if(index > 0 && panel !== nextPanel) panel.classList.remove('visible');
+        });
+        nextPanel.classList.remove('is-hidden');
+        nextPanel.classList.add('visible');
+        setActive(level, button);
+        renderPanelContent(nextLevel, nextData, menuId, id);
+    }
+
+    function handleBackClick(button) {
+        const parentPanel = button.closest('.panel');
+        if (!parentPanel) return;
+        const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
+        const currentPanel = panels[`lev${level}`];
+        const prevPanel = panels[`lev${level - 1}`] || sidebar;
+        currentPanel.classList.remove('visible');
+        if (prevPanel) {
+            if (isMobile()) prevPanel.classList.remove('is-hidden');
+            if(prevPanel !== sidebar) prevPanel.classList.add('visible');
+        }
+        setActive(level - 1, null);
+    }
+    
+    function handleMainButtonClick() {
+        appContainer.classList.remove('menu-active');
+        Object.values(panels).forEach((panel, index) => {
+            if (index > 0) panel.classList.remove('visible', 'is-hidden');
+        });
+        setActive(0, null);
+        if (isMobile() && sidebar) sidebar.classList.remove('is-hidden');
+    }
+
+    function setActive(level, target) {
+        for (let i = level; i <= 4; i++) {
+            if (activeButtons[i]) {
+                activeButtons[i].classList.remove('active');
+                activeButtons[i] = null;
+            }
+        }
+        if (target) {
+            target.classList.add('active');
+            activeButtons[level] = target;
+        }
+    }
+
+    function getNextData(currentLevel, id, menuId) {
+        const nextLevel = currentLevel + 1;
+        if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) return DB.pokemonType.lev4?.[id];
+        if (nextLevel === 2) return DB[menuId]?.lev2;
+        if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
+        if (nextLevel === 4) return DB[menuId]?.lev4?.[id];
+        return null;
+    }
+
+    function renderPanelContent(level, data, menuId, clickedId) {
+        const targetPanel = panels[`lev${level}`];
+        if (!targetPanel) return;
+        const contentDiv = targetPanel.querySelector('.panel-content');
+        if (!contentDiv) return;
+        const panelHeader = targetPanel.querySelector('.panel-header');
+        if(panelHeader.querySelector('.main-btn')) panelHeader.querySelector('.main-btn').remove();
+        contentDiv.innerHTML = '';
+        contentDiv.scrollTop = 0;
+        
+        if (clickedId === 'deckBuilder') {
+            const mainButton = document.createElement('button');
+            mainButton.className = 'main-btn';
+            mainButton.textContent = '메인';
+            panelHeader.appendChild(mainButton);
+            if (isMobile()) {
+                contentDiv.innerHTML = `<div class="pc-only-message"><h3>기능 안내</h3><p>배치툴 기능은 화면이 넓은 PC 환경에 최적화되어 있습니다.<br>PC에서 접속하여 이용해주세요.</p></div>`;
+            } else {
+                renderDeckBuilder(contentDiv);
+            }
+            return; 
+        } else if (!data) {
+            contentDiv.innerHTML = "데이터를 불러오지 못했습니다.";
+        } else {
+            const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
+            const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
+            if (isFinalView) {
+                const mainButton = document.createElement('button');
+                mainButton.className = 'main-btn';
+                mainButton.textContent = '메인';
+                panelHeader.appendChild(mainButton);
+
+                if (menuId === 'deck' && data.composition) renderDeckView(contentDiv, data);
+                else if(menuId === 'calendar') renderCalendarView(contentDiv, data);
+                else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
+                else renderSimpleView(contentDiv, data, menuId); 
+            } else {
+                data.forEach(item => {
+                    const button = document.createElement('button');
+                    button.className = 'list-item';
+                    button.textContent = item.name;
+                    button.dataset.id = item.id;
+                    button.dataset.level = level;
+                    button.dataset.menuId = menuId;
+                    contentDiv.appendChild(button);
+                });
+            }
+        }
+    }
 
     function showModal(title, contentHTML, isWeatherPopup = false, callback) {
         const existingModal = document.querySelector('.modal-overlay');
@@ -223,54 +338,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderPokemonView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
-        const nameKo = data.name_ko || (data.name && data.name.ko) || '이름 없음';
-        const nameEn = data.name_en || (data.name && data.name.en) || '';
+        const nameKo = data.name_ko || '이름 없음';
+        const nameEn = data.name_en || '';
         let commonHTML = `<h2>${nameKo} <span style="font-size:0.8em; color:#666;">${nameEn}</span></h2>`;
         let badgesHTML = '<div class="badge-container">';
         if (data.grade) {
             const gradeClass = `grade-${data.grade.toLowerCase().replace('+', '-plus')}`;
             badgesHTML += `<span class="grade-badge ${gradeClass}">${data.grade}</span>`;
         }
-        if (data.types && Array.isArray(data.types) && data.types.length > 0) {
+        if (data.types && data.types.length > 0) {
             data.types.forEach(typeId => {
                 const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-                if (typeInfo) {
-                    badgesHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
-                }
+                if (typeInfo) badgesHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
             });
         }
         badgesHTML += '</div>';
         commonHTML += badgesHTML;
-        if (data.imageURL) { commonHTML += `<img src="${data.imageURL}" alt="${nameKo}" class="main-image">`; }
+        if (data.imageURL) commonHTML += `<img src="${data.imageURL}" alt="${nameKo}" class="main-image">`;
+        
         let statsHTML = '';
         if (data.stats) {
             const totalStats = Object.values(data.stats).reduce((a, b) => Number(a) + Number(b), 0);
-            statsHTML += `<h4>종족값 (총합: ${totalStats})</h4><table class="stats-table">`;
-            Object.entries(data.stats).forEach(([stat, value]) => { statsHTML += `<tr><td>${stat}</td><td>${value}</td></tr>`; });
-            statsHTML += '</table>';
+            statsHTML += `<h4>종족값 (총합: ${totalStats})</h4><table class="stats-table">${Object.entries(data.stats).map(([stat, value]) => `<tr><td>${stat.toUpperCase()}</td><td>${value}</td></tr>`).join('')}</table>`;
         } else {
             statsHTML = '<h4>기본 정보</h4><p>등록된 종족값 정보가 없습니다.</p>';
         }
+        
         let skillsHTML = '';
         if (data.skills && data.skills.length > 0 && data.skills.some(s => s.name)) {
             skillsHTML += '<h4>스킬</h4><ul class="skill-list">';
             data.skills.forEach((skill, index) => { 
-                if(skill.name) {
-                    skillsHTML += `<li class="skill-item"><span class="skill-name" data-skill-index="${index}">${skill.name}</span><span class="skill-type">${skill.type}</span></li>`; 
-                }
+                if(skill.name) skillsHTML += `<li class="skill-item"><span class="skill-name" data-skill-index="${index}">${skill.name}</span><span class="skill-type">${skill.type}</span></li>`; 
             });
             skillsHTML += '</ul>';
         } else {
             skillsHTML = '<h4>스킬</h4><p>등록된 스킬 정보가 없습니다.</p>';
         }
+
         let buildHTML = '';
         let hasBuildInfo = false;
-        
         if (data.build_concept) {
             buildHTML += `<h4>빌드 콘셉트</h4><p>${data.build_concept}</p>`;
             hasBuildInfo = true;
         }
-
         if (data.recommendedNatures && data.recommendedNatures.length > 0) {
             const natureNames = data.recommendedNatures.map(natureId => DB.definitions.natures.find(n => n.id === natureId)?.name || '').filter(Boolean);
             if(natureNames.length > 0) {
@@ -288,11 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const dbKey = (itemTypeForDB === 'rune' || itemTypeForDB === 'chip') ? 'runeAndChip' : 'item';
                     const itemData = DB[dbKey]?.lev4?.[id];
                     if (itemData) {
-                         buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}">
-                                    ${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}
-                                 </div>`;
-                    } else {
-                        buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}"><span>${id}(정보 없음)</span></div>`;
+                         buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}">${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}</div>`;
                     }
                 });
                 buildHTML += `</div>`;
@@ -301,29 +407,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!hasBuildInfo) {
             buildHTML = '<h4>추천 빌드</h4><p>등록된 추천 빌드 정보가 없습니다.</p>';
         }
+
         const useTabs = isMobile() || menuId === 'pokemonType' || menuId === 'pokemonGrade';
         detailView.className = `pokemon-detail-view ${useTabs ? 'use-tabs' : ''}`;
-        let finalHTML = commonHTML;
         if (useTabs) {
-             finalHTML += `
-                <div class="tab-container">
-                    <nav class="tab-nav">
-                        <button class="tab-button active" data-tab="tab-info">기본 정보</button>
-                        <button class="tab-button" data-tab="tab-skills">스킬</button>
-                        <button class="tab-button" data-tab="tab-build">추천 빌드</button>
-                    </nav>
-                    <div id="tab-info" class="tab-pane active">${statsHTML}</div>
-                    <div id="tab-skills" class="tab-pane">${skillsHTML}</div>
-                    <div id="tab-build" class="tab-pane">${buildHTML}</div>
-                </div>
-            `;
+             detailView.innerHTML = `${commonHTML}<div class="tab-container"><nav class="tab-nav"><button class="tab-button active" data-tab="tab-info">기본 정보</button><button class="tab-button" data-tab="tab-skills">스킬</button><button class="tab-button" data-tab="tab-build">추천 빌드</button></nav><div id="tab-info" class="tab-pane active">${statsHTML}</div><div id="tab-skills" class="tab-pane">${skillsHTML}</div><div id="tab-build" class="tab-pane">${buildHTML}</div></div>`;
         } else {
-            finalHTML += `<div class="info-sections">${statsHTML}${skillsHTML}${buildHTML}</div>`;
+            detailView.innerHTML = `${commonHTML}<div class="info-sections">${statsHTML}${skillsHTML}${buildHTML}</div>`;
         }
-        detailView.innerHTML = finalHTML;
+        
         contentDiv.innerHTML = '';
         contentDiv.appendChild(detailView);
-        contentDiv.querySelectorAll('.skill-name').forEach(el => { 
+
+        detailView.querySelectorAll('.skill-name').forEach(el => { 
             el.addEventListener('click', () => { 
                 const skillIndex = parseInt(el.dataset.skillIndex);
                 const skill = data.skills[skillIndex];
@@ -338,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }); 
         });
-        contentDiv.querySelectorAll('.recommend-item').forEach(el => { 
+        detailView.querySelectorAll('.recommend-item').forEach(el => { 
             el.addEventListener('click', () => { 
                 const itemId = el.dataset.itemId;
                 const itemType = el.dataset.itemType;
@@ -349,13 +445,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }); 
         });
-        contentDiv.querySelectorAll('.tab-button').forEach(button => {
+        detailView.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', () => {
                 if (button.classList.contains('active')) return;
-                contentDiv.querySelector('.tab-button.active').classList.remove('active');
-                contentDiv.querySelector('.tab-pane.active').classList.remove('active');
+                detailView.querySelector('.tab-button.active').classList.remove('active');
+                detailView.querySelector('.tab-pane.active').classList.remove('active');
                 button.classList.add('active');
-                contentDiv.querySelector(`#${button.dataset.tab}`).classList.add('active');
+                detailView.querySelector(`#${button.dataset.tab}`).classList.add('active');
             });
         });
     }
@@ -377,15 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const carryEffectCard = tempContainer.querySelector('.content-card:last-child .card-content');
             const basicAttributesHTML = basicAttributesCard ? basicAttributesCard.innerHTML : '<p>기본 능력치 정보가 없습니다.</p>';
             const carryEffectHTML = carryEffectCard ? carryEffectCard.innerHTML : '<p>소지 효과 정보가 없습니다.</p>';
-            html += `
-                <div class="tab-container">
-                    <nav class="tab-nav">
-                        <button class="tab-button active" data-tab="tab-attributes">기본 능력치</button>
-                        <button class="tab-button" data-tab="tab-effects">소지 효과</button>
-                    </nav>
-                    <div id="tab-attributes" class="tab-pane active">${basicAttributesHTML}</div>
-                    <div id="tab-effects" class="tab-pane">${carryEffectHTML}</div>
-                </div>`;
+            html += `<div class="tab-container"><nav class="tab-nav"><button class="tab-button active" data-tab="tab-attributes">기본 능력치</button><button class="tab-button" data-tab="tab-effects">소지 효과</button></nav><div id="tab-attributes" class="tab-pane active">${basicAttributesHTML}</div><div id="tab-effects" class="tab-pane">${carryEffectHTML}</div></div>`;
             detailView.innerHTML = html;
             contentDiv.innerHTML = '';
             contentDiv.appendChild(detailView);
@@ -434,17 +522,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (totalUniqueTypes >= 6 && pokemonIds.length >= 6) return DB.synergyEffects.find(s => s.id === 'diff6');
         return null;
     }
-
+    
     function renderDeckView(contentDiv, data) {
         const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
         let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
         if (data.description) { html += `<p>${data.description}</p>`; }
         const grid = Array(4).fill(null).map(() => Array(4).fill(null));
         const positionMap = {
-            'assist_4': [1, 0], 'assist_5': [2, 0], 'assist_6': [3, 0],
-            'assist_1': [1, 1], 'assist_2': [2, 1], 'assist_3': [3, 1],
-            'main_4':   [1, 2], 'main_5':   [2, 2], 'main_6':   [3, 2],
-            'main_1':   [1, 3], 'main_2':   [2, 3], 'main_3':   [3, 3]
+            'assist_4': [1, 0], 'assist_5': [2, 0], 'assist_6': [3, 0], 'assist_1': [1, 1], 'assist_2': [2, 1], 'assist_3': [3, 1],
+            'main_4': [1, 2], 'main_5': [2, 2], 'main_6': [3, 2], 'main_1': [1, 3], 'main_2': [2, 3], 'main_3': [3, 3]
         };
         if (data.weather && weatherToEmoji[data.weather]) {
             grid[0][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather, colspan: 2 };
@@ -477,9 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const contentHTML = cell.content.startsWith('<img') ? cell.content : `<span class="header-emoji">${cell.content}</span>`;
                         html += `<td class="header-cell" ${colspan} title="${cell.label}"><div>${contentHTML}</div></td>`;
                         if (cell.colspan > 1) {
-                            for (let k = 1; k < cell.colspan; k++) {
-                                grid[i][j+k] = undefined;
-                            }
+                            for (let k = 1; k < cell.colspan; k++) grid[i][j+k] = undefined;
                         }
                     }
                 } else { 
@@ -507,144 +591,221 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderCalendarView(contentDiv, data) {
-        // ...
+        let currentCalendarDate = new Date();
+        function buildCalendar(year, month) {
+            const calendarView = document.createElement('div');
+            calendarView.className = 'calendar-view';
+            const monthEvents = {};
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const addEvent = (event, eventDate) => {
+                const day = eventDate.getDate();
+                if (!monthEvents[day]) monthEvents[day] = [];
+                const fullEventInfo = { ...event, startDate: new Date(event.date + 'T00:00:00'), endDate: new Date(new Date(event.date + 'T00:00:00').setDate(new Date(event.date + 'T00:00:00').getDate() + (event.duration - 1))) };
+                monthEvents[day].push(fullEventInfo);
+            };
+            (data.events || []).forEach(event => {
+                for (let i = 0; i < (event.duration || 1); i++) {
+                    const eventDate = new Date(event.date + 'T00:00:00');
+                    eventDate.setDate(eventDate.getDate() + i);
+                    if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                        addEvent(event, eventDate);
+                    }
+                }
+            });
+            (data.recurringEvents || []).forEach(re => {
+                 let currentDate = new Date(re.startDate + 'T00:00:00');
+                 while (currentDate.getFullYear() < year + 2) {
+                    if (currentDate.getFullYear() > year || (currentDate.getFullYear() === year && currentDate.getMonth() > month)) break;
+                    for (let i = 0; i < (re.duration || 1); i++) {
+                        const eventDate = new Date(currentDate);
+                        eventDate.setDate(eventDate.getDate() + i);
+                         if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                            addEvent({ ...re, date: currentDate.toISOString().split('T')[0] }, eventDate);
+                        }
+                    }
+                    if (re.interval === '4_weeks') currentDate.setDate(currentDate.getDate() + 28);
+                    else break;
+                }
+            });
+            let html = `<div class="calendar-header"><span class="calendar-title">${year}년 ${month + 1}월</span><div class="calendar-nav"><button id="cal-prev-btn">&lt; 이전</button><button id="cal-today-btn">Today</button><button id="cal-next-btn">다음 &gt;</button></div></div><div class="calendar-legend"><div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div><div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div><div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div></div><table class="calendar-grid"><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody>`;
+            let dateCounter = 1;
+            const startDay = firstDay.getDay();
+            const daysInMonth = lastDay.getDate();
+            for (let i = 0; i < 6; i++) {
+                html += '<tr>';
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < startDay || dateCounter > daysInMonth) {
+                        html += '<td class="day-other-month"></td>';
+                    } else {
+                        const today = new Date();
+                        const isToday = (dateCounter === today.getDate() && month === today.getMonth() && year === today.getFullYear());
+                        const eventsOnDay = monthEvents[dateCounter];
+                        let cellClass = 'day-current-month';
+                        if (isToday) cellClass += ' day-today';
+                        if (eventsOnDay) cellClass += ' has-events';
+                        html += `<td class="${cellClass}" data-day="${dateCounter}"><div class="date-number">${dateCounter}</div>`;
+                        if (eventsOnDay) {
+                            html += `<div class="event-markers">${eventsOnDay.map(event => `<div class="event-marker event-type-${event.type}">${event.title || event.name}</div>`).join('')}</div>`;
+                        }
+                        html += '</td>';
+                        dateCounter++;
+                    }
+                }
+                html += '</tr>';
+                if (dateCounter > daysInMonth) break;
+            }
+            html += `</tbody></table>`;
+            calendarView.innerHTML = html;
+            calendarView.addEventListener('click', (e) => {
+                const target = e.target;
+                if(target.id === 'cal-prev-btn') {
+                    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+                    updateCalendar();
+                } else if (target.id === 'cal-next-btn') {
+                    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+                    updateCalendar();
+                } else if (target.id === 'cal-today-btn') {
+                    currentCalendarDate = new Date();
+                    updateCalendar();
+                } else {
+                    const cell = target.closest('.has-events');
+                    if (cell) {
+                        const day = parseInt(cell.dataset.day);
+                        const events = monthEvents[day];
+                        if(events && events.length > 0) {
+                            const eventContent = events.map(evt => {
+                                const duration = evt.duration || 1;
+                                const startStr = evt.startDate.toISOString().split('T')[0];
+                                const endStr = evt.endDate.toISOString().split('T')[0];
+                                const period = duration > 1 ? `${startStr} ~ ${endStr} (${duration}일간)` : startStr;
+                                return `<h4>${evt.title || evt.name}</h4><p><strong>기간:</strong> ${period}</p><p>${evt.description}</p>`;
+                            }).join('<hr>');
+                            showModal(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')} 이벤트`, eventContent);
+                        }
+                    }
+                }
+            });
+            return calendarView;
+        }
+        function updateCalendar() {
+            contentDiv.innerHTML = '';
+            contentDiv.appendChild(buildCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth()));
+        }
+        updateCalendar();
     }
 
     function renderDeckBuilder(contentDiv) {
-        // ...
-    }
-    
-    function renderPanelContent(level, data, menuId, clickedId) {
-        const targetPanel = panels[`lev${level}`];
-        if (!targetPanel) return;
-        const contentDiv = targetPanel.querySelector('.panel-content');
-        if (!contentDiv) return;
-        const panelHeader = targetPanel.querySelector('.panel-header');
-        const existingMainBtn = panelHeader.querySelector('.main-btn');
-        if (existingMainBtn) existingMainBtn.remove();
-        contentDiv.innerHTML = '';
-        contentDiv.scrollTop = 0;
-        if (clickedId === 'deckBuilder') {
-            const mainButton = document.createElement('button');
-            mainButton.className = 'main-btn';
-            mainButton.textContent = '메인';
-            panelHeader.appendChild(mainButton);
-            if (isMobile()) {
-                contentDiv.innerHTML = `<div class="pc-only-message"><h3>기능 안내</h3><p>배치툴 기능은 PC 환경에 최적화되어 있습니다.</p></div>`;
-            } else {
-                renderDeckBuilder(contentDiv);
-            }
-            return; 
-        }
-        if (!data) {
-            contentDiv.innerHTML = "데이터를 불러오지 못했습니다.";
-            return;
-        }
-        const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
-        const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
-        if (isFinalView) {
-            const mainButton = document.createElement('button');
-            mainButton.className = 'main-btn';
-            mainButton.textContent = '메인';
-            panelHeader.appendChild(mainButton);
-            if (menuId === 'deck' && data.composition) {
-                renderDeckView(contentDiv, data);
-            } else if(menuId === 'calendar') {
-                renderCalendarView(contentDiv, data);
-            } else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
-                renderPokemonView(contentDiv, data, menuId); 
-            } else { 
-                renderSimpleView(contentDiv, data, menuId); 
-            }
-        } else {
-            data.forEach(item => {
-                const button = document.createElement('button');
-                button.className = 'list-item';
-                button.textContent = item.name;
-                button.dataset.id = item.id;
-                button.dataset.level = level;
-                button.dataset.menuId = menuId;
-                contentDiv.appendChild(button);
-            });
-        }
-    }
-    
-    function handleMenuClick(button) {
-        appContainer.classList.add('menu-active');
-        const level = parseInt(button.dataset.level);
-        const id = button.dataset.id;
-        const menuId = button.dataset.menuId || id;
-        const nextLevel = level + 1;
-        const nextData = getNextData(level, id, menuId); 
-        const currentPanel = panels[`lev${level}`] || sidebar;
-        const nextPanel = panels[`lev${nextLevel}`];
-        if (!nextPanel) return;
-        if (isMobile()) {
-            currentPanel.classList.add('is-hidden');
-        }
-        Object.values(panels).forEach((panel, index) => {
-            if(index > 0 && panel !== nextPanel) { panel.classList.remove('visible'); }
+        let html = `<div class="deck-builder-view"><div class="placement-container"><div class="placement-grid"><div class="placement-slot-header" id="weather-icon-container" style="visibility: hidden;">☀️</div><div class="placement-slot-header" id="synergy-icon-container" style="visibility: hidden;"><img src="https://i.imgur.com/g0t51J7.png" alt="타입 시너지"></div><div class="placement-slot-header"></div><div class="placement-slot assist" data-role="assist" data-position="1">어시스트_#1</div><div class="placement-slot main rearguard" data-role="main" data-position="4">후방_#4</div><div class="placement-slot main vanguard" data-role="main" data-position="1">전방_#1</div><div class="placement-slot assist" data-role="assist" data-position="2">어시스트_#2</div><div class="placement-slot main rearguard" data-role="main" data-position="5">후방_#5</div><div class="placement-slot main vanguard" data-role="main" data-position="2">전방_#2</div><div class="placement-slot assist" data-role="assist" data-position="3">어시스트_#3</div><div class="placement-slot main rearguard" data-role="main" data-position="6">후방_#6</div><div class="placement-slot main vanguard" data-role="main" data-position="3">전방_#3</div></div></div><div class="source-container"><h4>포켓몬 목록</h4><div class="source-filter-bar"><select id="grade-filter" class="filter-dropdown"><option value="all">모든 등급</option><option value="SS">SS</option><option value="S+">S+</option><option value="S">S</option></select><select id="type-filter" class="filter-dropdown"><option value="all">모든 타입</option></select></div><div class="source-list"></div></div></div>`;
+        contentDiv.innerHTML = html;
+        const sourceList = contentDiv.querySelector('.source-list');
+        const placementGrid = contentDiv.querySelector('.placement-grid');
+        const weatherIconContainer = contentDiv.querySelector('#weather-icon-container');
+        const synergyIconContainer = contentDiv.querySelector('#synergy-icon-container');
+        const gradeFilter = contentDiv.querySelector('#grade-filter');
+        const typeFilter = contentDiv.querySelector('#type-filter');
+        let placedPokemon = new Map();
+        DB.pokemonType.lev2.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type.id;
+            option.textContent = type.name;
+            typeFilter.appendChild(option);
         });
-        nextPanel.classList.remove('is-hidden');
-        nextPanel.classList.add('visible');
-        setActive(level, button);
-        renderPanelContent(nextLevel, nextData, menuId, id);
-    }
-    
-    function getNextData(currentLevel, id, menuId) {
-        const nextLevel = currentLevel + 1;
-        if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) {
-            return DB.pokemonType.lev4?.[id];
+        function applyFilters() {
+            const selectedGrade = gradeFilter.value;
+            const selectedType = typeFilter.value;
+            let filteredPokemon = Object.entries(DB.pokemonType.lev4).filter(([id, pkm]) => {
+                const gradeMatch = selectedGrade === 'all' || !pkm.grade || pkm.grade === selectedGrade;
+                const typeMatch = selectedType === 'all' || (pkm.types && pkm.types.includes(selectedType));
+                return gradeMatch && typeMatch;
+            });
+            filteredPokemon.sort(([, a], [, b]) => (a.name_ko || a.name).localeCompare(b.name_ko || b.name));
+            renderSourceList(filteredPokemon);
         }
-        if (nextLevel === 2) return DB[menuId]?.lev2;
-        if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
-        if (nextLevel === 4) return DB[menuId]?.lev4?.[id];
-        return null;
-    }
-    
-    function handleBackClick(button) {
-        const parentPanel = button.closest('.panel');
-        if (!parentPanel) return;
-        const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
-        const currentPanel = panels[`lev${level}`];
-        const prevPanel = panels[`lev${level - 1}`] || sidebar;
-        currentPanel.classList.remove('visible');
-        if (prevPanel) {
-            if (isMobile()) { prevPanel.classList.remove('is-hidden'); }
-            if(prevPanel !== sidebar) { prevPanel.classList.add('visible'); }
+        function renderSourceList(pokemonList) {
+            sourceList.innerHTML = '';
+            const grid = document.createElement('div');
+            grid.className = 'source-list-grid';
+            grid.innerHTML = pokemonList.map(([id, pkm]) => `<div class="pokemon-source-icon" draggable="true" data-pokemon-id="${id}"><img src="${pkm.faceImageURL}" alt="${pkm.name_ko || pkm.name}"><span>${pkm.name_ko || pkm.name}</span></div>`).join('');
+            sourceList.appendChild(grid);
         }
-        setActive(level - 1, null);
+        gradeFilter.addEventListener('change', applyFilters);
+        typeFilter.addEventListener('change', applyFilters);
+        let draggedItem = null; 
+        sourceList.addEventListener('dragstart', e => {
+            const target = e.target.closest('.pokemon-source-icon');
+            if (target) {
+                draggedItem = target;
+                e.dataTransfer.setData('text/plain', target.dataset.pokemonId);
+            }
+        });
+        placementGrid.addEventListener('dragover', e => e.preventDefault());
+        placementGrid.addEventListener('drop', e => {
+            e.preventDefault();
+            const targetSlot = e.target.closest('.placement-slot');
+            if (!targetSlot || !draggedItem) return;
+            const sourcePokemonId = draggedItem.classList.contains('placement-slot') ? placedPokemon.get(draggedItem) : draggedItem.dataset.pokemonId;
+            if (!sourcePokemonId) return;
+            const pokemonData = DB.pokemonType.lev4[sourcePokemonId];
+            if (draggedItem.classList.contains('placement-slot')) {
+                const sourceSlot = draggedItem;
+                if (targetSlot === sourceSlot) return; 
+                const targetPokemonId = placedPokemon.get(targetSlot);
+                if (targetPokemonId) { 
+                    const targetPokemonData = DB.pokemonType.lev4[targetPokemonId];
+                    placePokemonInSlot(sourceSlot, targetPokemonId, targetPokemonData);
+                    placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
+                } else { 
+                    placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
+                    clearSlot(sourceSlot);
+                }
+            } else if (draggedItem.classList.contains('pokemon-source-icon')) {
+                if (placedPokemon.has(targetSlot)) {
+                    alert('슬롯이 비어있지 않습니다.');
+                    return;
+                }
+                placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
+            }
+            draggedItem = null;
+            updateTeamEffects();
+        });
+        placementGrid.addEventListener('click', e => {
+            const removeButton = e.target.closest('.remove-pkm-btn');
+            if(removeButton) {
+                const parentSlot = removeButton.closest('.placement-slot');
+                if (parentSlot) {
+                    clearSlot(parentSlot);
+                    updateTeamEffects();
+                }
+            }
+        });
+        function placePokemonInSlot(slot, pokemonId, pokemonData) {
+            slot.innerHTML = `<div class="deck-pokemon-cell" draggable="true"><img src="${pokemonData.faceImageURL}" alt="${pokemonData.name_ko}"/><button class="remove-pkm-btn">×</button></div>`;
+            placedPokemon.set(slot, pokemonId);
+        }
+        function clearSlot(slot) {
+            const { role, position } = slot.dataset;
+            let placeholder = role === 'assist' ? `어시스트_#${position}` : `${slot.classList.contains('vanguard') ? '전방' : '후방'}_#${position}`;
+            slot.innerHTML = placeholder;
+            placedPokemon.delete(slot);
+        }
+        function updateTeamEffects() {
+            const mainPokemonIds = Array.from(placedPokemon.entries()).filter(([,slot]) => slot.dataset.role === 'main').map(([pokemonId]) => pokemonId);
+            const synergy = calculateSynergy(mainPokemonIds);
+            if (synergy) {
+                synergyIconContainer.querySelector('img').src = synergy.imageURL;
+                synergyIconContainer.style.visibility = 'visible';
+            } else {
+                synergyIconContainer.style.visibility = 'hidden';
+            }
+        }
+        applyFilters();
     }
 
-    function handleMainButtonClick() {
-        appContainer.classList.remove('menu-active');
-        Object.values(panels).forEach((panel, index) => {
-            if (index > 0) { 
-                panel.classList.remove('visible', 'is-hidden');
-            }
-        });
-        setActive(0, null);
-        if (isMobile()) {
-            if(sidebar) sidebar.classList.remove('is-hidden');
-        }
-    }
-    
-    function setActive(level, target) {
-        for (let i = level; i <= 4; i++) {
-            if (activeButtons[i]) {
-                activeButtons[i].classList.remove('active');
-                activeButtons[i] = null;
-            }
-        }
-        if (target) {
-            target.classList.add('active');
-            activeButtons[level] = target;
-        }
-    }
 
     // --- 페이지 실행 ---
-    initialize();
     adBlockManager.checkAndApplyBlock();
+    initialize();
     setupAdObservers();
 
     // 모바일 화면 높이 문제 해결을 위한 코드
