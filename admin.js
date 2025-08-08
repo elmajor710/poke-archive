@@ -186,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (error) { console.error("포켓몬 목록 로딩 오류: ", error); }
             }
 
+
             function populatePokemonForm(data) {
                 pokemonForm.reset();
                 if(skillsContainer) skillsContainer.innerHTML = '';
@@ -221,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(data.skills && data.skills.length > 0) data.skills.forEach(skill => addSkillRow(skill));
                 else addSkillRow();
             }
+
             
             function updateTotalStat() {
                 let total = 0;
