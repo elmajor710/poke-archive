@@ -931,6 +931,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+
     async function fetchAllDataFromFirebase() {
         const collections = ['pokemon', 'items', 'runeAndChips', 'tips', 'events', 'recommendedDecks'];
         const promises = collections.map(col => db.collection(col).get());
@@ -953,6 +954,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DB.calendar.lev2.events = eventsToArray(eventsSnapshot);
         DB.deck.lev4 = snapshotToMap(decksSnapshot);
         DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
+
     }
 
     async function initialize() {

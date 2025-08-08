@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 탭 전환 로직
     function setupTabSwitching() {
         const adminNav = document.getElementById('admin-nav');
+
         adminNav.addEventListener('click', (e) => {
             e.preventDefault();
             const clickedLink = e.target.closest('.admin-tab-link');
@@ -90,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(tabId === 'publish-management') {
                     document.getElementById('reload-drafts-btn').click();
                 }
+
             }
         });
     }
