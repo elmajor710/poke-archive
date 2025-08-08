@@ -852,6 +852,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         deckForm.querySelector('#deck-id').value = doc.id;
                         deckForm.querySelector('#deck-name').value = data.name || '';
                         deckForm.querySelector('#deck-description').value = data.description || '';
+                        
+                        // ▼▼▼ 공개 여부 체크박스 상태를 설정하는 코드 추가 ▼▼▼
+                        deckForm.querySelector('#deck-is-published').checked = data.isPublished === true;
+                        // ▲▲▲ 여기까지 ▲▲▲
+
                         if (data.composition) {
                             data.composition.forEach(member => {
                                 const selector = `.deck-pokemon-select[data-role="${member.role}"][data-position="${member.position}"]`;
@@ -867,6 +872,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } catch (error) { console.error("덱 데이터 로딩 오류: ", error); alert("덱 데이터 로딩 중 오류가 발생했습니다."); }
             });
+
             deckForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const deckId = deckForm.querySelector('#deck-id').value.trim();
@@ -885,8 +891,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     name: deckForm.querySelector('#deck-name').value.trim(),
                     description: deckForm.querySelector('#deck-description').value.trim(),
                     weather: weatherSelect.value,
-                    composition: composition
+                    composition: composition,
+
+                    // ▼▼▼ 공개 여부 값을 저장하는 코드 추가 ▼▼▼
+                    isPublished: deckForm.querySelector('#deck-is-published').checked
+                    // ▲▲▲ 여기까지 ▲▲▲
                 };
+
                 try {
                     await db.collection("recommendedDecks").doc(deckId).set(deckData);
                     alert('추천 덱이 성공적으로 저장되었습니다!');
