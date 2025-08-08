@@ -74,3 +74,45 @@ form small { font-size: 12px; color: #777; margin-top: 5px; }
 .admin-tab-content.active {
     display: block; /* active 클래스를 가진 패널만 보여줌 */
 }
+
+/* --- 로그인 컨테이너 스타일 --- */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: var(--admin-light-gray);
+}
+
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-box h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--admin-primary);
+}
+
+.error-message {
+    color: var(--admin-danger);
+    height: 20px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.login-box .btn-primary {
+    width: 100%;
+}
+
+.admin-sidebar #logout-btn {
+    width: 90%;
+    margin: 20px auto 0;
+    display: block;
+}
