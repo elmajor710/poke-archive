@@ -29,17 +29,19 @@
         <aside class="admin-sidebar">
             <h2>관리 메뉴</h2>
             <nav id="admin-nav">
-                <ul>
-                    <li><a href="#" class="admin-tab-link active" data-tab="pokemon-management">포켓몬 관리</a></li>
-                    <li><a href="#" class="admin-tab-link" data-tab="item-management">아이템 관리</a></li>
-                    <li><a href="#" class="admin-tab-link" data-tab="rune-chip-management">룬&칩 관리</a></li>
-                    <li><a href="#" class="admin-tab-link" data-tab="tips-management">팁 & 노하우 관리</a></li>
-                    <li><a href="#" class="admin-tab-link" data-tab="calendar-management">캘린더 관리</a></li>
-                    <li><a href="#" class="admin-tab-link" data-tab="deck-management">추천 덱 관리</a></li>
-                </ul>
-            </nav>
+    <ul>
+        <li><a href="#" class="admin-tab-link active" data-tab="publish-management"><b>게시물 관리 (신규)</b></a></li>
+        <li><a href="#" class="admin-tab-link" data-tab="pokemon-management">포켓몬 관리</a></li>
+        <li><a href="#" class="admin-tab-link" data-tab="item-management">아이템 관리</a></li>
+        <li><a href="#" class="admin-tab-link" data-tab="rune-chip-management">룬&칩 관리</a></li>
+        <li><a href="#" class="admin-tab-link" data-tab="tips-management">팁 & 노하우 관리</a></li>
+        <li><a href="#" class="admin-tab-link" data-tab="calendar-management">캘린더 관리</a></li>
+        <li><a href="#" class="admin-tab-link" data-tab="deck-management">추천 덱 관리</a></li>
+    </ul>
+</nav>
             <button id="logout-btn" class="btn btn-danger" style="width: 90%; margin: 20px auto 0;">로그아웃</button>
-        </aside>
+        
+            </aside>
         <main class="admin-main">
             <div id="pokemon-management" class="admin-tab-content active">
                 <header class="admin-header">
@@ -74,13 +76,6 @@
                                     <option value="S+">S+</option>
                                     <option value="S">S</option>
                                 </select>
-                            </div>
-                            <div class="form-group">
-                                <label>공개 여부</label>
-                                <label style="flex-direction: row; align-items: center; justify-content: flex-start; padding-top: 10px;">
-                                    <input type="checkbox" id="pkm-is-published" name="is_published" style="width: 20px; height: 20px; margin-right: 10px;">
-                                    <span>웹사이트에 즉시 공개</span>
-                                </label>
                             </div>
                             <div class="form-group form-group-span-2">
                                 <label>타입 (다중선택 가능)</label>
@@ -385,37 +380,40 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-section">
-                            <h3>덱 구성 (포켓몬 선택)</h3>
-                            <div id="deck-composition-selectors">
-                                <h4>메인 포켓몬 (6마리)</h4>
-                                <div class="form-grid">
-                                    <div class="form-group"><label>전방 #1</label><select class="deck-pokemon-select" data-role="main" data-position="1"><option value="">선택</option></select></div>
-                                    <div class="form-group"><label>전방 #2</label><select class="deck-pokemon-select" data-role="main" data-position="2"><option value="">선택</option></select></div>
-                                    <div class="form-group"><label>전방 #3</label><select class="deck-pokemon-select" data-role="main" data-position="3"><option value="">선택</option></select></div>
-                                    <div class="form-group"><label>후방 #4</label><select class="deck-pokemon-select" data-role="main" data-position="4"><option value="">선택</option></select></div>
-                                    <div class="form-group"><label>후방 #5</label><select class="deck-pokemon-select" data-role="main" data-position="5"><option value="">선택</option></select></div>
-                                    <div class="form-group"><label>후방 #6</label><select class="deck-pokemon-select" data-role="main" data-position="6"><option value="">선택</option></select></div>
-                                </div>
-                                <h4 style="margin-top: 20px;">어시스트 포켓몬 (6마리)</h4>
-                                <div class="form-grid">
-                                    <div class="form-group"><label>어시스트 #1</label><select class="deck-pokemon-select" data-role="assist" data-position="1"><option value="">선택</option></select></div>
-                                    <div class="form-group"><label>어시스트 #2</label><select class="deck-pokemon-select" data-role="assist" data-position="2"><option value="">선택</option></select></div>
-                                    <div class="form-group"><label>어시스트 #3</label><select class="deck-pokemon-select" data-role="assist" data-position="3"><option value="">선택</option></select></div>
-                                    <div class="form-group"><label>어시스트 #4</label><select class="deck-pokemon-select" data-role="assist" data-position="4"><option value="">선택</option></select></div>
-                                    <div class="form-group"><label>어시스트 #5</label><select class="deck-pokemon-select" data-role="assist" data-position="5"><option value="">선택</option></select></div>
-                                    <div class="form-group"><label>어시스트 #6</label><select class="deck-pokemon-select" data-role="assist" data-position="6"><option value="">선택</option></select></div>
-                                </div>
-                            </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>덱 구성 (포켓몬 선택)</h3>
+                    <div id="deck-composition-selectors">
+                        <h4>메인 포켓몬 (6마리)</h4>
+                        <div class="form-grid">
+                            <div class="form-group"><label>전방 #1</label><select class="deck-pokemon-select" data-role="main" data-position="1"><option value="">선택</option></select></div>
+                            <div class="form-group"><label>전방 #2</label><select class="deck-pokemon-select" data-role="main" data-position="2"><option value="">선택</option></select></div>
+                            <div class="form-group"><label>전방 #3</label><select class="deck-pokemon-select" data-role="main" data-position="3"><option value="">선택</option></select></div>
+                            <div class="form-group"><label>후방 #4</label><select class="deck-pokemon-select" data-role="main" data-position="4"><option value="">선택</option></select></div>
+                            <div class="form-group"><label>후방 #5</label><select class="deck-pokemon-select" data-role="main" data-position="5"><option value="">선택</option></select></div>
+                            <div class="form-group"><label>후방 #6</label><select class="deck-pokemon-select" data-role="main" data-position="6"><option value="">선택</option></select></div>
                         </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">저장하기</button>
-                            <button id="delete-deck-btn" type="button" class="btn btn-danger">삭제하기</button>
+                        <h4 style="margin-top: 20px;">어시스트 포켓몬 (6마리)</h4>
+                        <div class="form-grid">
+                            <div class="form-group"><label>어시스트 #1</label><select class="deck-pokemon-select" data-role="assist" data-position="1"><option value="">선택</option></select></div>
+                            <div class="form-group"><label>어시스트 #2</label><select class="deck-pokemon-select" data-role="assist" data-position="2"><option value="">선택</option></select></div>
+                            <div class="form-group"><label>어시스트 #3</label><select class="deck-pokemon-select" data-role="assist" data-position="3"><option value="">선택</option></select></div>
+                            <div class="form-group"><label>어시스트 #4</label><select class="deck-pokemon-select" data-role="assist" data-position="4"><option value="">선택</option></select></div>
+                            <div class="form-group"><label>어시스트 #5</label><select class="deck-pokemon-select" data-role="assist" data-position="5"><option value="">선택</option></select></div>
+                            <div class="form-group"><label>어시스트 #6</label><select class="deck-pokemon-select" data-role="assist" data-position="6"><option value="">선택</option></select></div>
                         </div>
-                    </form>
-                </section>
-            </div>
-        </main>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">저장하기</button>
+                    <button id="delete-deck-btn" type="button" class="btn btn-danger">삭제하기</button>
+                </div>
+            </form>
+        </section>
+    </div>
+</main>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
