@@ -197,6 +197,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 pokemonForm.querySelector('#pkm-grade').value = data.grade || '';
                 pokemonForm.querySelector('#pkm-image-url').value = data.imageURL || '';
                 pokemonForm.querySelector('#pkm-face-url').value = data.faceImageURL || '';
+                
+                // ▼▼▼ 공개 여부 체크박스 상태를 설정하는 코드 추가 ▼▼▼
+                pokemonForm.querySelector('#pkm-is-published').checked = data.isPublished === true;
+                // ▲▲▲ 여기까지 ▲▲▲
+
                 data.types?.forEach(id => { const cb = pokemonForm.querySelector(`input[name="types"][value="${id}"]`); if(cb) cb.checked = true; });
                 data.recommendedNatures?.forEach(id => { const cb = pokemonForm.querySelector(`input[name="natures"][value="${id}"]`); if(cb) cb.checked = true; });
                 Array.from(itemsSelect.options).forEach(opt => opt.selected = data.recommendedItems?.includes(opt.value));
@@ -314,13 +319,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pkmId = pokemonForm.querySelector('#pkm-id').value.trim();
                 if (!pkmId) { alert('고유 ID를 입력해주세요.'); return; }
                 
-                const pokemonData = {
+            const pokemonData = {
                     name_ko: pokemonForm.querySelector('#pkm-name-ko').value,
                     name_en: pokemonForm.querySelector('#pkm-name-en').value,
                     grade: pokemonForm.querySelector('#pkm-grade').value,
                     imageURL: pokemonForm.querySelector('#pkm-image-url').value,
                     faceImageURL: pokemonForm.querySelector('#pkm-face-url').value,
                     build_concept: pokemonForm.querySelector('#pkm-build-concept').value,
+                    
+                    // 공개 여부 값을 저장하는 코드 추가
+                    isPublished: pokemonForm.querySelector('#pkm-is-published').checked,
+
                     types: Array.from(pokemonForm.querySelectorAll('input[name="types"]:checked')).map(cb => cb.value),
                     stats: {
                         HP: Number(pokemonForm.querySelector('#pkm-stat-hp').value) || 0,
@@ -343,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     recommendedItems: Array.from(itemsSelect.selectedOptions).map(opt => opt.value),
                     recommendedRunes: Array.from(runesSelect.selectedOptions).map(opt => opt.value),
                     recommendedChips: Array.from(chipsSelect.selectedOptions).map(opt => opt.value)
-                };
+                };    
                 
                 db.collection("pokemon").doc(pkmId).set(pokemonData)
                     .then(() => {
