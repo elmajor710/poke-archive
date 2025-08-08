@@ -589,6 +589,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             tipForm.querySelector('#tip-id').value = data.id || '';
                             tipForm.querySelector('#tip-title').value = data.name || '';
                             tipForm.querySelector('#tip-content').value = data.htmlContent || '';
+                            
+                            // ▼▼▼ 공개 여부 체크박스 상태를 설정하는 코드 추가 ▼▼▼
+                            tipForm.querySelector('#tip-is-published').checked = data.isPublished === true;
+                            // ▲▲▲ 여기까지 ▲▲▲
+
                             alert(`'${data.name}' 데이터를 불러왔습니다.`);
                         } else {
                             alert('해당 ID의 팁 데이터를 찾을 수 없습니다.');
@@ -599,6 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             }
+
             tipForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const tipId = tipForm.querySelector('#tip-id').value.trim();
@@ -611,8 +617,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tipData = {
                     id: tipId,
                     name: tipTitle,
-                    htmlContent: tipContent
+                    htmlContent: tipContent,
+
+                    // ▼▼▼ 공개 여부 값을 저장하는 코드 추가 ▼▼▼
+                    isPublished: tipForm.querySelector('#tip-is-published').checked
+                    // ▲▲▲ 여기까지 ▲▲▲
                 };
+
                 db.collection("tips").doc(tipId).set(tipData)
                     .then(() => {
                         alert('팁이 성공적으로 저장되었습니다!');
