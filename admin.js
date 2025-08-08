@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isPanelInitialized = true;
 
         try {
+            console.log("[DEBUG] initializeAdminPanel: 관리자 패널 초기화 시작");
             setupTabSwitching();
             setupPublishManagement();
             setupPokemonManagement();
@@ -58,9 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
             setupRuneChipManagement();
             setupTipsManagement();
             setupDeckManagement();
-            console.log('관리자 패널 초기화 완료');
+            console.log('[DEBUG] initializeAdminPanel: 관리자 패널 초기화 완료');
         } catch (error) {
-            console.error("관리자 패널 초기화 중 심각한 오류 발생:", error);
+            console.error("[DEBUG] initializeAdminPanel: 관리자 패널 초기화 중 심각한 오류 발생:", error);
             alert("관리자 패널 초기화에 실패했습니다. 콘솔을 확인해주세요.");
         }
     }
@@ -116,10 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const items = [];
                         snapshot.forEach(doc => {
                             const data = doc.data();
-                            const name = data.name_ko || data.name || data.title || doc.id;
-                            if (typeof name === 'string') { // 이름이 문자열일 때만 추가
-                                items.push({ id: doc.id, name: name });
-                            }
+                            items.push({ id: doc.id, name: data.name_ko || data.name || data.title || doc.id });
                         });
                         items.sort((a,b)=> a.name.localeCompare(b.name, 'ko'));
                         
@@ -170,10 +168,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // 범용 관리 핸들러 생성기
     function createManagementHandler(config) {
         const { type, collectionName, idPrefix } = config;
         const panel = document.getElementById(`${type}-management`);
-        if (!panel) return;
+        if (!panel) {
+            console.error(`[${type}-DEBUG]: ERROR! 관리 패널을 찾을 수 없습니다. (ID: ${type}-management)`);
+            return;
+        }
 
         const form = panel.querySelector(`#${type}-form`);
         const selectList = panel.querySelector(`#${type}-select-list`);
@@ -181,27 +183,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const deleteBtn = panel.querySelector(`#delete-${type}-btn`);
 
         async function loadList() {
+            console.log(`[${type}-DEBUG]: 1. loadList 함수 시작. 컬렉션 이름: "${collectionName}"`);
             try {
                 const snapshot = await db.collection(collectionName).get();
+                console.log(`[${type}-DEBUG]: 2. Firestore로부터 응답 받음. 가져온 문서 개수: ${snapshot.size}`);
+
+                if (snapshot.empty) {
+                    console.warn(`[${type}-DEBUG]: 3. 경고: Firestore에서 문서를 하나도 가져오지 못했습니다.`);
+                }
+
                 selectList.innerHTML = `<option value="">-- 선택 --</option>`;
                 const items = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    // [핵심 수정] 이름이 없는 데이터는 목록에 추가하지 않도록 방어 코드 추가
                     const name = data.name_ko || data.name || data.title || doc.id;
+                    console.log(`[${type}-DEBUG]: 4. 문서 처리 중 -> ID: ${doc.id}, 이름: ${name}`);
                     if (typeof name === 'string') {
                         items.push({ id: doc.id, name: name });
                     } else {
-                        console.warn(`이름이 없는 데이터를 건너뜁니다: (컬렉션: ${collectionName}, ID: ${doc.id})`);
+                        console.warn(`[${type}-DEBUG]: 4-1. 경고: 이름이 없는 데이터를 발견하여 목록에서 제외합니다. ID: ${doc.id}`);
                     }
                 });
+
+                console.log(`[${type}-DEBUG]: 5. 목록에 추가할 최종 아이템 개수: ${items.length}`);
                 items.sort((a,b) => a.name.localeCompare(b.name, 'ko'));
+                
                 items.forEach(item => {
                     selectList.innerHTML += `<option value="${item.id}">${item.name}</option>`;
                 });
-            } catch(e) { console.error(`${type} 목록 로딩 오류:`, e); }
+                console.log(`[${type}-DEBUG]: 6. 드롭다운 메뉴 생성을 완료했습니다.`);
+            } catch(e) { 
+                console.error(`[${type}-DEBUG]: 7. 치명적 오류! 목록 로딩 중 에러가 발생했습니다:`, e);
+            }
         }
-
+        
         loadBtn.addEventListener('click', async () => {
             if (!selectList.value) return alert('불러올 항목을 선택해주세요.');
             try {
@@ -251,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (key) {
                     if (input.type === 'checkbox') {
                         data[key] = input.checked;
-                    } else { // [핵심 수정] 빈 문자열도 저장되도록 수정
+                    } else {
                         data[key] = input.value;
                     }
                 }
