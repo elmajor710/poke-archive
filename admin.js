@@ -22,42 +22,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 로그인 폼 제출 이벤트 ---
+    // --- 로그인/로그아웃 이벤트 리스너 ---
     if (loginForm) {
         loginForm.addEventListener('submit', e => {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             loginErrorMessage.textContent = '';
-
             auth.signInWithEmailAndPassword(email, password)
-                .then(userCredential => {
-                    console.log('로그인 성공:', userCredential.user);
-                })
-                .catch(error => {
-                    console.error('로그인 오류:', error);
-                    loginErrorMessage.textContent = '이메일 또는 비밀번호가 잘못되었습니다.';
-                });
+                .catch(error => loginErrorMessage.textContent = '이메일 또는 비밀번호가 잘못되었습니다.');
         });
     }
-
-    // --- 로그아웃 버튼 클릭 이벤트 ---
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            auth.signOut().then(() => {
-                console.log('로그아웃 성공');
-            }).catch(error => {
-                console.error('로그아웃 오류:', error);
-            });
-        });
+        logoutBtn.addEventListener('click', () => auth.signOut());
     }
 
+    // --- 관리자 패널 로직 ---
     let isPanelInitialized = false;
     async function initializeAdminPanel() {
         if (isPanelInitialized) return; 
 
-        // 여기에 기존 admin.js의 모든 코드가 들어갑니다.
-        // 데이터 초기화부터 각 패널별 이벤트 리스너까지 모두 포함됩니다.
         try {
             await initializeAdminData();
             setupTabSwitching();
@@ -67,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setupTipsManagement();
             setupCalendarManagement();
             setupDeckManagement();
+            setupPublishManagement(); // ▼▼▼ 게시물 관리 기능 초기화 추가 ▼▼▼
             isPanelInitialized = true; 
             console.log('관리자 패널 초기화 완료');
         } catch (error) {
@@ -76,8 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function initializeAdminData() {
-        // 이 함수는 DB 객체에서 데이터를 불러와 채우는 역할을 합니다.
-        // (기존 코드와 동일)
         const collections = ['pokemon', 'items', 'runeAndChips', 'tips', 'events', 'recommendedDecks'];
         const promises = collections.map(col => db.collection(col).get());
         const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, eventsSnapshot, decksSnapshot] = await Promise.all(promises);
@@ -86,33 +69,93 @@ document.addEventListener('DOMContentLoaded', () => {
             snapshot.forEach(doc => { dataMap[doc.id] = { id: doc.id, ...doc.data() }; });
             return dataMap;
         };
-        const eventsToArray = (snapshot) => {
-            const dataArray = [];
-            snapshot.forEach(doc => { dataArray.push({ id: doc.id, ...doc.data() }); });
-            return dataArray;
-        }
         DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
         DB.item.lev4 = snapshotToMap(itemsSnapshot);
         DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
         DB.tips.lev3 = snapshotToMap(tipsSnapshot);
-        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name }));
-        DB.calendar.lev2.events = eventsToArray(eventsSnapshot);
         DB.deck.lev4 = snapshotToMap(decksSnapshot);
-        DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
-        const itemGrades = { god: [], legendary: [], epic: [] };
-        Object.entries(DB.item.lev4).forEach(([itemId, item]) => {
-            const gradeKey = item.grade?.toLowerCase();
-            if (itemGrades[gradeKey]) { itemGrades[gradeKey].push({ id: itemId, name: item.name }); }
-        });
-        DB.item.lev3 = itemGrades;
-        const runeAndChipTypes = { rune: [], chip: [] };
-        Object.entries(DB.runeAndChip.lev4).forEach(([rcId, rc]) => {
-            if(rc.type && runeAndChipTypes[rc.type]) {
-                runeAndChipTypes[rc.type].push({ id: rcId, name: rc.name });
+    }
+
+    // --- ▼▼▼ 게시물 관리 기능 (신규 추가) ▼▼▼ ---
+    function setupPublishManagement() {
+        const draftsContainer = document.getElementById('drafts-container');
+        const publishSelectedBtn = document.getElementById('publish-selected-btn');
+        const reloadDraftsBtn = document.getElementById('reload-drafts-btn');
+
+        const collectionNames = {
+            pokemon: "포켓몬",
+            items: "아이템",
+            runeAndChips: "룬&칩",
+            tips: "팁&노하우",
+            recommendedDecks: "추천 덱"
+        };
+        
+        async function loadDrafts() {
+            draftsContainer.innerHTML = '<h3>초안 데이터를 불러오는 중...</h3>';
+            let allDraftsHTML = '';
+            
+            for (const col of Object.keys(collectionNames)) {
+                try {
+                    const snapshot = await db.collection(col).where("isPublished", "==", false).get();
+                    if (!snapshot.empty) {
+                        let categoryHTML = `<div class="draft-category"><h3>${collectionNames[col]}</h3><div class="draft-list">`;
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            categoryHTML += `
+                                <label class="draft-item">
+                                    <input type="checkbox" class="draft-checkbox" data-collection="${col}" data-id="${doc.id}">
+                                    <span class="draft-item-name">${data.name || data.name_ko || data.title || doc.id}</span>
+                                    <span class="draft-item-id">${doc.id}</span>
+                                </label>
+                            `;
+                        });
+                        categoryHTML += `</div></div>`;
+                        allDraftsHTML += categoryHTML;
+                    }
+                } catch (e) {
+                    console.error(`${col} 컬렉션 초안 로딩 오류:`, e);
+                }
+            }
+
+            draftsContainer.innerHTML = allDraftsHTML || '<p>비공개 상태인 데이터가 없습니다.</p>';
+        }
+
+        publishSelectedBtn.addEventListener('click', async () => {
+            const selectedItems = draftsContainer.querySelectorAll('.draft-checkbox:checked');
+            if (selectedItems.length === 0) {
+                return alert('게시할 항목을 선택해주세요.');
+            }
+            if (!confirm(`선택한 ${selectedItems.length}개의 항목을 웹사이트에 공개하시겠습니까?`)) {
+                return;
+            }
+
+            const batch = db.batch();
+            selectedItems.forEach(item => {
+                const { collection, id } = item.dataset;
+                const docRef = db.collection(collection).doc(id);
+                batch.update(docRef, { isPublished: true });
+            });
+
+            try {
+                await batch.commit();
+                alert('선택한 항목이 성공적으로 공개 처리되었습니다.');
+                loadDrafts(); // 목록 새로고침
+            } catch (error) {
+                alert('공개 처리 중 오류가 발생했습니다. 콘솔을 확인해주세요.');
+                console.error('일괄 공개 오류:', error);
             }
         });
-        DB.runeAndChip.lev3 = runeAndChipTypes;
+
+        reloadDraftsBtn.addEventListener('click', loadDrafts);
+        
+        // 페이지가 처음 보일 때 초안 목록을 불러옵니다.
+        const publishTabLink = document.querySelector('a[data-tab="publish-management"]');
+        if (publishTabLink.classList.contains('active')) {
+             loadDrafts();
+        }
+        publishTabLink.addEventListener('click', loadDrafts);
     }
+    // --- ▲▲▲ 게시물 관리 기능 (신규 추가) ▲▲▲ ---
 
     function setupTabSwitching() {
         const adminNav = document.getElementById('admin-nav');
