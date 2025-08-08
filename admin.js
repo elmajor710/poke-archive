@@ -409,11 +409,17 @@ document.addEventListener('DOMContentLoaded', () => {
                             itemForm.querySelector('#item-grade').value = data.grade || 'Epic';
                             itemForm.querySelector('#item-image-url').value = data.imageURL || '';
                             itemForm.querySelector('#item-description').value = data.description || '';
+                            
+                            // ▼▼▼ 공개 여부 체크박스 상태를 설정하는 코드 추가 ▼▼▼
+                            itemForm.querySelector('#item-is-published').checked = data.isPublished === true;
+                            // ▲▲▲ 여기까지 ▲▲▲
+
                             alert(`'${data.name}' 데이터를 불러왔습니다.`);
                         } else { alert('해당 ID의 아이템 데이터를 찾을 수 없습니다.'); }
                     } catch (error) { alert('데이터를 불러오는 중 오류가 발생했습니다.'); console.error("아이템 데이터 불러오기 오류: ", error); }
                 });
             }
+
             itemForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const itemId = itemForm.querySelector('#item-id').value.trim();
@@ -423,6 +429,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     grade: itemForm.querySelector('#item-grade').value,
                     imageURL: itemForm.querySelector('#item-image-url').value.trim(),
                     description: itemForm.querySelector('#item-description').value.trim(),
+                    
+                    // ▼▼▼ 공개 여부 값을 저장하는 코드 추가 ▼▼▼
+                    isPublished: itemForm.querySelector('#item-is-published').checked,
+                    // ▲▲▲ 여기까지 ▲▲▲
                 };
                 db.collection("items").doc(itemId).set(itemData, { merge: true })
                     .then(() => {
