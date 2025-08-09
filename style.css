@@ -278,11 +278,11 @@ header h1 {
 .pokemon-detail-view:not(.use-tabs) .info-sections { display: block; }
 .pokemon-detail-view.use-tabs .info-sections { display: none; }
 .tab-nav { border-bottom: 1px solid var(--border-color); margin: 20px 0; }
-/* 기존 .tab-button 내용을 찾아서 아래 코드로 교체하세요. */
+/* style.css 파일에서 .tab-button을 찾아 아래 내용으로 수정해주세요. */
 .tab-button {
-    flex: 1; /* 이 속성이 탭의 너비를 균등하게 만듭니다. */
+    flex: 1;
     padding: 12px 5px;
-    text-align: center;
+    text-align: center; /* 이 줄을 추가하면 텍스트가 가운데로 정렬됩니다. */
     background: none;
     border: none;
     font-size: 1em;
