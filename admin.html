@@ -43,20 +43,13 @@
         </aside>
         
         <main class="admin-main">
-            <div id="publish-management" class="admin-tab-content active">
-                <header class="admin-header">
-                    <h1>게시물 일괄 관리</h1>
-                    <button id="reload-drafts-btn" class="btn">새로고침</button>
-                </header>
-                <section class="content-section">
-                    <h2>초안(비공개) 데이터 목록</h2>
-                    <p>여기서 '공개'로 전환할 항목들을 선택하고, 하단의 '선택 항목 게시' 버튼을 눌러주세요.</p>
-                    <div class="form-actions" style="justify-content: flex-start; padding: 15px 0;">
-                        <button id="publish-selected-btn" class="btn btn-primary">선택 항목 게시</button>
-                    </div>
-                    <div id="drafts-container"></div>
-                </section>
-            </div>
+            <div class="form-actions" style="display: flex; align-items: center; gap: 20px; justify-content: flex-start; padding: 15px 0;">
+    <button id="publish-selected-btn" class="btn btn-primary">선택 항목 게시</button>
+    <label style="cursor: pointer; display: flex; align-items: center;">
+        <input type="checkbox" id="select-all-drafts" style="margin-right: 8px; width: 16px; height: 16px;">
+        전체 선택
+    </label>
+</div>
 
             <div id="pokemon-management" class="admin-tab-content">
                 <header class="admin-header">

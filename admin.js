@@ -111,59 +111,83 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function setupPublishManagement() {
-        const panel = document.getElementById('publish-management');
-        if (!panel) return;
-        const draftsContainer = panel.querySelector('#drafts-container');
-        const publishBtn = panel.querySelector('#publish-selected-btn');
-        const reloadBtn = panel.querySelector('#reload-drafts-btn');
-        const collectionNames = {
-            pokemon: "포켓몬", items: "아이템", runeAndChips: "룬&칩",
-            tips: "팁&노하우", recommendedDecks: "추천 덱"
-        };
-        async function loadDrafts() {
-            if(!draftsContainer) return;
-            draftsContainer.innerHTML = '<h4><br>🔄 초안 데이터를 불러오는 중...</h4>';
-            let allDraftsHTML = '';
-            for (const col of Object.keys(collectionNames)) {
-                try {
-                    const snapshot = await db.collection(col).where("isPublished", "==", false).get();
-                    if (!snapshot.empty) {
-                        let categoryHTML = `<div class="draft-category"><h3>${collectionNames[col]}</h3><div class="draft-list">`;
-                        const items = [];
-                        snapshot.forEach(doc => {
-                            const data = doc.data();
-                            items.push({ id: doc.id, name: data.name_ko || data.name || data.title || doc.id });
-                        });
-                        items.sort((a,b)=> (a.name || '').localeCompare(b.name || '', 'ko'));
-                        items.forEach(item => {
-                             categoryHTML += `<label class="draft-item"><input type="checkbox" class="draft-checkbox" data-collection="${col}" data-id="${item.id}"><span class="draft-item-name">${item.name}</span><span class="draft-item-id">${item.id}</span></label>`;
-                        });
-                        categoryHTML += `</div></div>`;
-                        allDraftsHTML += categoryHTML;
-                    }
-                } catch (e) { console.error(`'${col}' 컬렉션 초안 로딩 오류:`, e); }
-            }
-            draftsContainer.innerHTML = allDraftsHTML || '<h4><br>✔️ 비공개 상태인 데이터가 없습니다.</h4>';
-        }
-        publishBtn.addEventListener('click', async () => {
-            const selectedItems = draftsContainer.querySelectorAll('.draft-checkbox:checked');
-            if (selectedItems.length === 0) return alert('게시할 항목을 선택해주세요.');
-            if (!confirm(`선택한 ${selectedItems.length}개의 항목을 공개하시겠습니까?`)) return;
-            const batch = db.batch();
-            selectedItems.forEach(item => {
-                const { collection, id } = item.dataset;
-                batch.update(db.collection(collection).doc(id), { isPublished: true });
-            });
+    // admin.js 파일의 기존 setupPublishManagement 함수를 아래 코드로 교체해주세요
+
+function setupPublishManagement() {
+    const panel = document.getElementById('publish-management');
+    if (!panel) return;
+    const draftsContainer = panel.querySelector('#drafts-container');
+    const publishBtn = panel.querySelector('#publish-selected-btn');
+    const reloadBtn = panel.querySelector('#reload-drafts-btn');
+    const selectAllCheckbox = panel.querySelector('#select-all-drafts'); // 새로 추가된 체크박스
+
+    const collectionNames = {
+        pokemon: "포켓몬", items: "아이템", runeAndChips: "룬&칩",
+        tips: "팁&노하우", recommendedDecks: "추천 덱"
+    };
+    
+    async function loadDrafts() {
+        if(!draftsContainer) return;
+        draftsContainer.innerHTML = '<h4><br>🔄 초안 데이터를 불러오는 중...</h4>';
+        // ... (기존 loadDrafts 함수 내용은 그대로 유지)
+        let allDraftsHTML = '';
+        for (const col of Object.keys(collectionNames)) {
             try {
-                await batch.commit();
-                alert('성공적으로 공개 처리되었습니다.');
-                loadDrafts();
-            } catch (error) { console.error('일괄 공개 오류:', error); }
-        });
-        reloadBtn.addEventListener('click', loadDrafts);
-        if (panel.classList.contains('active')) loadDrafts();
+                const snapshot = await db.collection(col).where("isPublished", "==", false).get();
+                if (!snapshot.empty) {
+                    let categoryHTML = `<div class="draft-category"><h3>${collectionNames[col]}</h3><div class="draft-list">`;
+                    const items = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        items.push({ id: doc.id, name: data.name_ko || data.name || data.title || doc.id });
+                    });
+                    items.sort((a,b)=> (a.name || '').localeCompare(b.name || '', 'ko'));
+                    items.forEach(item => {
+                         categoryHTML += `<label class="draft-item"><input type="checkbox" class="draft-checkbox" data-collection="${col}" data-id="${item.id}"><span class="draft-item-name">${item.name}</span><span class="draft-item-id">${item.id}</span></label>`;
+                    });
+                    categoryHTML += `</div></div>`;
+                    allDraftsHTML += categoryHTML;
+                }
+            } catch (e) { console.error(`'${col}' 컬렉션 초안 로딩 오류:`, e); }
+        }
+        draftsContainer.innerHTML = allDraftsHTML || '<h4><br>✔️ 비공개 상태인 데이터가 없습니다.</h4>';
     }
+
+    publishBtn.addEventListener('click', async () => {
+        const selectedItems = draftsContainer.querySelectorAll('.draft-checkbox:checked');
+        if (selectedItems.length === 0) return alert('게시할 항목을 선택해주세요.');
+        if (!confirm(`선택한 ${selectedItems.length}개의 항목을 공개하시겠습니까?`)) return;
+        const batch = db.batch();
+        selectedItems.forEach(item => {
+            const { collection, id } = item.dataset;
+            batch.update(db.collection(collection).doc(id), { isPublished: true });
+        });
+        try {
+            await batch.commit();
+            alert('성공적으로 공개 처리되었습니다.');
+            loadDrafts();
+            selectAllCheckbox.checked = false; // 게시 완료 후 전체 선택 체크박스 해제
+        } catch (error) { console.error('일괄 공개 오류:', error); }
+    });
+
+    reloadBtn.addEventListener('click', () => {
+        loadDrafts();
+        selectAllCheckbox.checked = false; // 새로고침 시 전체 선택 체크박스 해제
+    });
+    
+    // ▼▼▼ [핵심 추가] '전체 선택' 체크박스 기능 ▼▼▼
+    selectAllCheckbox.addEventListener('change', (e) => {
+        const isChecked = e.target.checked;
+        const allDraftCheckboxes = draftsContainer.querySelectorAll('.draft-checkbox');
+        
+        allDraftCheckboxes.forEach(checkbox => {
+            checkbox.checked = isChecked;
+        });
+    });
+    // ▲▲▲ [핵심 추가] '전체 선택' 체크박스 기능 ▲▲▲
+    
+    if (panel.classList.contains('active')) loadDrafts();
+}
 
     function setupPokemonManagement() {
         const form = document.getElementById('pokemon-form');
