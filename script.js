@@ -434,17 +434,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }); 
         });
-        detailView.querySelectorAll('.recommend-item').forEach(el => { 
-            el.addEventListener('click', () => { 
+        // 기존 detailView.querySelectorAll('.recommend-item').forEach(...) 부분을 찾아서 아래 코드로 전체 교체하세요.
+
+        detailView.querySelectorAll('.recommend-item').forEach(el => {
+            el.addEventListener('click', () => {
                 const itemId = el.dataset.itemId;
                 const itemType = el.dataset.itemType;
                 const dbKey = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
                 const itemData = DB[dbKey]?.lev4?.[itemId];
-                if (itemData) { 
-                    showModal(itemData.name, `<p>${itemData.description || '상세 정보가 없습니다.'}</p>`); 
+
+                if (itemData) {
+                    // 1. 팝업창에 내용을 그릴 임시 div를 메모리에 만듭니다.
+                    const tempContentDiv = document.createElement('div');
+                    
+                    // 2. renderSimpleView를 호출하여 임시 div에 아이템의 상세 내용을 그립니다.
+                    //    (이 함수는 우리가 탭 기능을 만든 바로 그 함수입니다.)
+                    const menuId = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
+                    renderSimpleView(tempContentDiv, itemData, menuId);
+
+                    // 3. 임시 div에 그려진 내용을 HTML 통째로 가져옵니다.
+                    const modalContentHTML = tempContentDiv.innerHTML;
+                    
+                    // 4. 완성된 HTML로 팝업창을 띄웁니다.
+                    showModal(itemData.name, modalContentHTML);
                 }
-            }); 
+            });
         });
+
         detailView.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', () => {
                 if (button.classList.contains('active')) return;
