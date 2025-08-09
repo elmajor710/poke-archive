@@ -457,47 +457,68 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderSimpleView(contentDiv, data, menuId) {
-        const isTabTarget = (menuId === 'item' || menuId === 'runeAndChip') && data.description && data.description.includes('content-card-list');
-        if (isTabTarget) {
-            const detailView = document.createElement('div');
-            detailView.className = 'simple-detail-view use-tabs';
-            let html = `<h2>${data.name}</h2>`;
-            if (data.grade) {
-                const gradeClass = `grade-${data.grade.toLowerCase()}`;
-                html += `<div class="badge-container"><span class="grade-badge ${gradeClass}">${data.grade}</span></div>`;
-            }
-            if (data.imageURL) { html += `<img src="${data.imageURL}" alt="${data.name}" class="main-image">`; }
-            const tempContainer = document.createElement('div');
-            tempContainer.innerHTML = data.description;
-            const basicAttributesCard = tempContainer.querySelector('.content-card:first-child .card-content');
-            const carryEffectCard = tempContainer.querySelector('.content-card:last-child .card-content');
-            const basicAttributesHTML = basicAttributesCard ? basicAttributesCard.innerHTML : '<p>기본 능력치 정보가 없습니다.</p>';
-            const carryEffectHTML = carryEffectCard ? carryEffectCard.innerHTML : '<p>소지 효과 정보가 없습니다.</p>';
-            html += `<div class="tab-container"><nav class="tab-nav"><button class="tab-button active" data-tab="tab-attributes">기본 능력치</button><button class="tab-button" data-tab="tab-effects">소지 효과</button></nav><div id="tab-attributes" class="tab-pane active">${basicAttributesHTML}</div><div id="tab-effects" class="tab-pane">${carryEffectHTML}</div></div>`;
-            detailView.innerHTML = html;
-            contentDiv.innerHTML = '';
-            contentDiv.appendChild(detailView);
-            detailView.querySelectorAll('.tab-button').forEach(button => {
-                button.addEventListener('click', () => {
-                    if (button.classList.contains('active')) return;
-                    detailView.querySelector('.tab-button.active').classList.remove('active');
-                    detailView.querySelector('.tab-pane.active').classList.remove('active');
-                    button.classList.add('active');
-                    detailView.querySelector(`#${button.dataset.tab}`).classList.add('active');
-                });
-            });
-        } else {
-            let html = `<div class="simple-detail-view"><h2>${data.name || data.title}</h2>`;
-            if (data.htmlContent) {
-                html += data.htmlContent;
-            } else {
-                if (data.imageURL) { html += `<img src="${data.imageURL}" alt="${data.name}" class="main-image">`; }
-                if (data.description) { html += `<div class="item-description">${data.description.replace(/\\n/g, '<br>')}</div>`; }
-            }
-            html += `</div>`;
-            contentDiv.innerHTML = html;
-        }
+    const detailView = document.createElement('div');
+    detailView.className = 'simple-detail-view';
+
+    let html = `<h2>${data.name || data.title}</h2>`;
+    if (data.grade) {
+        const gradeClass = `grade-${data.grade.toLowerCase()}`;
+        html += `<div class="badge-container"><span class="grade-badge ${gradeClass}">${data.grade}</span></div>`;
     }
+    if (data.imageURL) {
+        html += `<img src="${data.imageURL}" alt="${data.name}" class="main-image">`;
+    }
+
+    const description = data.description || data.htmlContent || '';
+    
+    // 탭 이름과 구분자 설정
+    let tabNames = [];
+    let separator = '';
+    if (menuId === 'item') {
+        tabNames = ['기본 능력치', '소지 효과'];
+        separator = '[소지 효과]';
+    } else if (menuId === 'runeAndChip') {
+        tabNames = ['세트 효과 1', '세트 효과 2'];
+        separator = '[세트 효과]'; // 룬&칩의 구분자는 '[세트 효과]'로 지정
+    }
+
+    // 구분자가 있고, 설명 내용이 있을 경우 탭으로 분리
+    if (tabNames.length > 0 && description.includes(separator)) {
+        const parts = description.split(separator);
+        const tab1Content = parts[0].trim();
+        const tab2Content = parts[1].trim().replace(/\[(.*?)\]/g, '<h4>$1</h4>').replace(/\n/g, '<br>');
+
+        html += `
+            <div class="tab-container">
+                <nav class="tab-nav">
+                    <button class="tab-button active" data-tab="tab-1">${tabNames[0]}</button>
+                    <button class="tab-button" data-tab="tab-2">${tabNames[1]}</button>
+                </nav>
+                <div id="tab-1" class="tab-pane active item-description">${tab1Content.replace(/\n/g, '<br>')}</div>
+                <div id="tab-2" class="tab-pane item-description">${tab2Content}</div>
+            </div>`;
+        detailView.innerHTML = html;
+        
+        // 탭 전환 이벤트 리스너 추가
+        detailView.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                if (button.classList.contains('active')) return;
+                detailView.querySelector('.tab-button.active').classList.remove('active');
+                detailView.querySelector('.tab-pane.active').classList.remove('active');
+                button.classList.add('active');
+                detailView.querySelector(`#${button.dataset.tab}`).classList.add('active');
+            });
+        });
+
+    } else {
+        // 구분자가 없을 경우 기존 방식대로 전체 내용을 표시
+        html += `<div class="item-description">${description.replace(/\\n/g, '<br>')}</div>`;
+        detailView.innerHTML = html;
+    }
+    
+    contentDiv.innerHTML = '';
+    contentDiv.appendChild(detailView);
+}
 
     function calculateSynergy(pokemonIds) {
         if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
