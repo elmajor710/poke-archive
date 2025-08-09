@@ -762,23 +762,75 @@ header h1 {
 
 /* style.css 파일 맨 아래에 이 코드를 추가하세요 */
 
-.announcement-banner {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    font-size: 14px;
-    font-weight: 500;
-    flex-shrink: 0;
+#main-placeholder {
+    position: relative; /* 자식 요소를 겹치게 하기 위한 기준점 */
 }
 
-.announcement-content {
+.main-overlay {
+    position: absolute; /* 부모(#main-placeholder) 위에 겹치도록 설정 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* 반투명한 어두운 배경 */
     display: flex;
-    align-items: center;
     justify-content: center;
-    gap: 10px;
+    align-items: center;
+    padding: 20px;
 }
 
-.announcement-title {
-    font-weight: bold;
+.notice-popular-wrapper {
+    display: flex;
+    gap: 1px; /* 두 컬럼 사이의 얇은 선 */
+    background-color: #dee2e6; /* 구분선 색상 */
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden; /* 둥근 모서리 적용 */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 700px;
+}
+
+.notice-container,
+.popular-container {
+    flex: 1; /* 너비를 1:1로 분할 */
+    padding: 20px;
+    background-color: white;
+}
+
+.notice-container h3,
+.popular-container h3 {
+    margin: 0 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f1f1f1;
+    font-size: 1.1em;
+    text-align: center;
+}
+
+.notice-container ul,
+.popular-container ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.95em;
+}
+
+.notice-container li,
+.popular-container li {
+    padding: 8px 5px;
+    border-bottom: 1px solid #f8f9fa;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.notice-container li:last-child,
+.popular-container li:last-child {
+    border-bottom: none;
+}
+
+.notice-container li:hover,
+.popular-container li:hover {
+    background-color: #f8f9fa;
 }
