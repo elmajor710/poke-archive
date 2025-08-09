@@ -30,7 +30,7 @@
             <h2>관리 메뉴</h2>
             <nav id="admin-nav">
                 <ul>
-                    <li><a href="#" class="admin-tab-link active" data-tab="publish-management"><b>게시물 관리</b></a></li>
+                    <li><a href="#" class="admin-tab-link active" data-tab="publish-management">게시물 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="pokemon-management">포켓몬 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="item-management">아이템 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="rune-chip-management">룬&칩 관리</a></li>
@@ -54,11 +54,9 @@
                     <div class="form-actions" style="justify-content: flex-start; padding: 15px 0;">
                         <button id="publish-selected-btn" class="btn btn-primary">선택 항목 게시</button>
                     </div>
-                    <div id="drafts-container">
-                        </div>
+                    <div id="drafts-container"></div>
                 </section>
             </div>
-
 
             <div id="pokemon-management" class="admin-tab-content">
                 <header class="admin-header">
@@ -80,7 +78,6 @@
                                 <label>공개 여부</label>
                                 <label class="checkbox-wrapper"><input type="checkbox" id="pkm-is-published"><span>웹사이트에 즉시 공개</span></label>
                             </div>
-
                         </div>
                         <div class="form-group form-group-span-2"><label>타입 (다중선택 가능)</label><div id="pkm-types-container" class="checkbox-group"></div></div>
                         <div class="form-group form-group-span-2"><label for="pkm-image-url">전체 이미지 URL</label><input type="text" id="pkm-image-url"></div>
@@ -132,7 +129,7 @@
                         <div class="form-grid">
                             <div class="form-group"><label for="item-id">고유 ID</label><input type="text" id="item-id"></div>
                             <div class="form-group"><label for="item-name">이름 (한글/영문)</label><input type="text" id="item-name"></div>
-                            <div class="form-group"><label for="item-grade">등급</label><select id="item-grade"><option value="God">God</option><option value="Legendary">Legendary</option><option value="Epic">Epic</option></select></div>
+                            <div class="form-group"><label for="item-grade">등급</label><select id="item-grade"><option value="God">빨강(God)</option><option value="Legendary">주황(Legendary)</option><option value="Epic">보라(Epic)</option></select></div>
                             <div class="form-group"><label for="item-image-url">이미지 URL</label><input type="text" id="item-image-url"></div>
                             <div class="form-group">
                                 <label>공개 여부</label>
@@ -193,11 +190,11 @@
                             <div class="form-group"><label for="tip-id">고유 ID</label><input type="text" id="tip-id"></div>
                             <div class="form-group"><label for="tip-title">글 제목</label><input type="text" id="tip-title"></div>
                         </div>
-                        <div class="form-group" style="margin-top: 20px;">
+                         <div class="form-group" style="margin-top:20px;">
                             <label>공개 여부</label>
                             <label class="checkbox-wrapper"><input type="checkbox" id="tip-is-published"><span>웹사이트에 즉시 공개</span></label>
                         </div>
-                        <div class="form-group form-group-span-2" style="margin-top: 20px;"><label for="tip-content">내용 (HTML)</label><textarea id="tip-content" rows="15"></textarea></div>
+                        <div class="form-group form-group-span-2" style="margin-top:20px;"><label for="tip-content">내용 (HTML)</label><textarea id="tip-content" rows="15"></textarea></div>
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">저장하기</button>
                             <button id="delete-tip-btn" type="button" class="btn btn-danger">삭제하기</button>
@@ -206,8 +203,35 @@
                 </section>
             </div>
 
+            <div id="calendar-management" class="admin-tab-content">
+                <header class="admin-header">
+                    <h1>캘린더 이벤트 관리</h1>
+                    <div>
+                        <select id="event-select-list" style="padding: 10px;"><option value="">-- 이벤트 선택 --</option></select>
+                        <button id="load-event-btn" type="button" class="btn btn-primary">불러오기</button>
+                    </div>
+                </header>
+                <section class="content-section">
+                    <h2>이벤트 추가/수정</h2>
+                    <form id="calendar-form">
+                        <div class="form-group"><label for="event-id">고유 ID</label><div style="display: flex; gap: 10px;"><input type="text" id="event-id"><button type="button" id="generate-event-id-btn" class="btn">ID 자동생성</button></div></div>
+                        <div class="form-grid">
+                            <div class="form-group"><label for="event-title">이벤트 제목</label><input type="text" id="event-title"></div>
+                            <div class="form-group"><label for="event-type">이벤트 종류</label><select id="event-type"><option value="ranking">랭킹뽑기</option><option value="limited">한정뽑기</option><option value="luckycat">복냥이</option></select></div>
+                            <div class="form-group"><label for="event-start-date">시작 날짜</label><input type="date" id="event-start-date"></div>
+                            <div class="form-group"><label for="event-end-date">종료 날짜</label><input type="date" id="event-end-date"></div>
+                        </div>
+                        <div class="form-group form-group-span-2" style="margin-top: 20px;"><label for="event-description">상세 내용</label><textarea id="event-description" rows="5"></textarea></div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">저장하기</button>
+                            <button id="delete-event-btn" type="button" class="btn btn-danger">삭제하기</button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
             <div id="deck-management" class="admin-tab-content">
-                 <header class="admin-header">
+                <header class="admin-header">
                     <h1>추천 덱 관리</h1>
                     <div>
                         <select id="deck-select-list"><option value="">-- 추천 덱 선택 --</option></select>
@@ -225,8 +249,8 @@
                         <div class="form-section">
                             <h3>덱 특성</h3>
                             <div class="form-grid">
-                                <div class="form-group"><label for="deck-weather">날씨 효과</label><select id="deck-weather"><option value="">없음</option><option value="매우맑음">매우맑음</option><option value="맑음">맑음</option><option value="눈폭풍">눈폭풍</option><option value="비">비</option></select></div>
-                                <div class="form-group"><label>타입 시너지</label><div id="deck-synergy-display"></div></div>
+                                <div class="form-group"><label for="deck-weather">날씨 효과</label><select id="deck-weather"><option value="">없음</option><option value="매우맑음">매우맑음 (☀️)</option><option value="맑음">맑음 (🌤️)</option><option value="눈폭풍">눈폭풍 (❄️)</option><option value="비">비 (🌧️)</option></select></div>
+                                <div class="form-group"><label>타입 시너지</label><div id="deck-synergy-display" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9; min-height: 42px;"></div></div>
                                 <div class="form-group">
                                     <label>공개 여부</label>
                                     <label class="checkbox-wrapper"><input type="checkbox" id="deck-is-published"><span>웹사이트에 즉시 공개</span></label>
@@ -236,7 +260,7 @@
                         <div class="form-section">
                             <h3>덱 구성 (포켓몬 선택)</h3>
                             <div id="deck-composition-selectors">
-                                <h4>메인 포켓몬</h4>
+                                <h4>메인 포켓몬 (6마리)</h4>
                                 <div class="form-grid">
                                     <div class="form-group"><label>전방 #1</label><select class="deck-pokemon-select" data-role="main" data-position="1"><option value="">선택</option></select></div>
                                     <div class="form-group"><label>전방 #2</label><select class="deck-pokemon-select" data-role="main" data-position="2"><option value="">선택</option></select></div>
@@ -245,7 +269,7 @@
                                     <div class="form-group"><label>후방 #5</label><select class="deck-pokemon-select" data-role="main" data-position="5"><option value="">선택</option></select></div>
                                     <div class="form-group"><label>후방 #6</label><select class="deck-pokemon-select" data-role="main" data-position="6"><option value="">선택</option></select></div>
                                 </div>
-                                <h4 style="margin-top: 20px;">어시스트 포켓몬</h4>
+                                <h4 style="margin-top: 20px;">어시스트 포켓몬 (6마리)</h4>
                                 <div class="form-grid">
                                     <div class="form-group"><label>어시스트 #1</label><select class="deck-pokemon-select" data-role="assist" data-position="1"><option value="">선택</option></select></div>
                                     <div class="form-group"><label>어시스트 #2</label><select class="deck-pokemon-select" data-role="assist" data-position="2"><option value="">선택</option></select></div>
@@ -259,33 +283,6 @@
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">저장하기</button>
                             <button id="delete-deck-btn" type="button" class="btn btn-danger">삭제하기</button>
-                        </div>
-                    </form>
-                </section>
-            </div>
-            
-            <div id="calendar-management" class="admin-tab-content">
-                <header class="admin-header">
-                    <h1>캘린더 이벤트 관리</h1>
-                    <div>
-                        <select id="event-select-list"><option value="">-- 이벤트 선택 --</option></select>
-                        <button id="load-event-btn" type="button" class="btn btn-primary">불러오기</button>
-                    </div>
-                </header>
-                <section class="content-section">
-                    <h2>이벤트 추가/수정</h2>
-                    <form id="calendar-form">
-                         <div class="form-group"><label for="event-id">고유 ID</label><input type="text" id="event-id"><button type="button" id="generate-event-id-btn" class="btn">ID 자동생성</button></div>
-                         <div class="form-grid">
-                            <div class="form-group"><label for="event-title">이벤트 제목</label><input type="text" id="event-title"></div>
-                            <div class="form-group"><label for="event-type">이벤트 종류</label><select id="event-type"><option value="ranking">랭킹뽑기</option><option value="limited">한정뽑기</option><option value="luckycat">복냥이</option></select></div>
-                            <div class="form-group"><label for="event-start-date">시작 날짜</label><input type="date" id="event-start-date"></div>
-                            <div class="form-group"><label for="event-end-date">종료 날짜</label><input type="date" id="event-end-date"></div>
-                         </div>
-                        <div class="form-group form-group-span-2"><label for="event-description">상세 내용</label><textarea id="event-description" rows="5"></textarea></div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">저장하기</button>
-                            <button id="delete-event-btn" type="button" class="btn btn-danger">삭제하기</button>
                         </div>
                     </form>
                 </section>
