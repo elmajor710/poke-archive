@@ -167,6 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title }));
         DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
+
+        // ▼▼▼ 아래 한 줄을 추가하세요 ▼▼▼
+    DB.announcements = { lev2: Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.title })) };
     }
 
     function renderSidebar() {
@@ -928,18 +931,28 @@ async function populateMainOverlay() {
             });
             noticeList.innerHTML = listHtml;
 
-            // [핵심 추가] 공지사항 목록에 클릭 이벤트 추가
-            noticeList.addEventListener('click', (e) => {
-                const targetLi = e.target.closest('li');
-                if (targetLi && targetLi.dataset.id) {
-                    const noticeId = targetLi.dataset.id;
-                    const noticeData = notices[noticeId];
-                    if (noticeData) {
-                        // 기존에 만들어둔 팝업창(모달) 함수를 재사용
-                        showModal(noticeData.title, noticeData.content);
-                    }
+            // script.js의 populateMainOverlay 함수 안, 기존 noticeList.addEventListener 부분을 교체
+
+noticeList.addEventListener('click', (e) => {
+    const targetLi = e.target.closest('li');
+    if (targetLi && targetLi.dataset.id) {
+        const noticeId = targetLi.dataset.id;
+
+        // 기존 팝업(showModal) 대신, 페이지 이동을 시뮬레이션합니다.
+        const sidebarMenuButton = sidebar.querySelector('button[data-id="announcements"]');
+        if (sidebarMenuButton) {
+            sidebarMenuButton.click(); // 1. 사이드바의 '공지사항' 메뉴를 클릭
+
+            // 2. 잠시 후, lev2 패널에서 해당 공지사항을 찾아 클릭
+            setTimeout(() => {
+                const noticeItemButton = panels.lev2.querySelector(`button[data-id="${noticeId}"]`);
+                if (noticeItemButton) {
+                    noticeItemButton.click();
                 }
-            });
+            }, 50); // 패널이 열릴 시간을 줍니다.
+        }
+    }
+});
 
         } else {
             noticeList.innerHTML = '<li>등록된 공지사항이 없습니다.</li>';
