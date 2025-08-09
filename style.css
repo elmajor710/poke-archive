@@ -191,7 +191,14 @@ header h1 {
 .skill-type { font-size: 0.8em; color: #fff; background: #6c757d; padding: 2px 6px; border-radius: 10px; flex-shrink: 0; }
 .recommend-list { display: flex; flex-wrap: wrap; gap: 10px; }
 .recommend-item { display: flex; align-items: center; gap: 8px; background: #f8f9fa; padding: 5px 10px; border-radius: 5px; cursor: pointer; border: 1px solid #eee; flex-shrink: 0; }
-.recommend-item img { width: 32px; height: 32px; }
+/* 기존 .recommend-item img 내용을 찾아서 아래 코드로 교체하세요. */
+.recommend-item img {
+    /* 아래 width와 height 값을 조절하여 크기를 변경할 수 있습니다. */
+    /* 기존 32px에서 약 1.5배인 48px로 키웠습니다. 5배는 레이아웃이 깨질 수 있습니다. */
+    width: 48px; 
+    height: 48px;
+}
+
 .deck-grid-table { width: 100%; max-width: 600px; border-collapse: collapse; margin: 20px auto; table-layout: fixed; }
 .deck-grid-table th, .deck-grid-table td { border: 1px solid var(--border-color); text-align: center; padding: 8px; vertical-align: middle; }
 .deck-grid-table th { background-color: #f8f9fa; font-weight: bold; height: auto; }
@@ -271,7 +278,21 @@ header h1 {
 .pokemon-detail-view:not(.use-tabs) .info-sections { display: block; }
 .pokemon-detail-view.use-tabs .info-sections { display: none; }
 .tab-nav { border-bottom: 1px solid var(--border-color); margin: 20px 0; }
-.tab-button { flex: 1; padding: 12px 5px; text-align: center; background: none; border: none; font-size: 1em; font-weight: 600; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: color 0.2s, border-color 0.2s; }
+/* 기존 .tab-button 내용을 찾아서 아래 코드로 교체하세요. */
+.tab-button {
+    flex: 1; /* 이 속성이 탭의 너비를 균등하게 만듭니다. */
+    padding: 12px 5px;
+    text-align: center;
+    background: none;
+    border: none;
+    font-size: 1em;
+    font-weight: 600;
+    color: #888;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+}
+
 .tab-button.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
 .tab-pane { display: none; }
 .tab-pane.active { display: block; }
