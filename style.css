@@ -82,18 +82,12 @@ header h1 {
     display: none; /* 모바일에선 기본적으로 숨김 */
 }
 
-/* --- 메인 레이아웃 --- */
-#page-body {
-    display: flex;
-    flex-grow: 1;
-    overflow: hidden;
-}
+/* 기존 #page-body, #app-container 등 레이아웃 CSS를 아래 코드로 교체 */
 
-#app-container {
+/* --- 메인 레이아웃 --- */
+#main-container {
     display: flex;
-    width: 100%;
     flex-grow: 1;
-    position: relative;
     overflow: hidden;
 }
 
@@ -104,15 +98,45 @@ header h1 {
     overflow-y: auto;
     flex-shrink: 0;
     background-color: #fff;
-    transition: transform var(--slide-duration) ease-in-out;
     z-index: 10;
+}
+
+#content-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden; /* 자식 요소의 스크롤을 독립적으로 제어 */
+}
+
+#ad-container-top {
+    width: 100%;
+    min-height: 100px;
+    max-height: 250px;
+    flex-shrink: 0;
+    display: block;
+}
+
+.notice-popular-section {
+    padding: 20px;
+    background-color: #f8f9fa;
+    flex-shrink: 0;
 }
 
 #content-area {
     flex-grow: 1;
     position: relative;
-    overflow: hidden;
+    overflow-y: auto; /* 이제 이 영역만 스크롤됩니다 */
     background-color: #e9ecef;
+}
+
+#main-placeholder {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    padding: 20px;
 }
 
 /* --- 초기화면 Placeholder --- */
