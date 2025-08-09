@@ -104,7 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 items.push({ id: doc.id, name: name });
                             }
                         });
-                        items.sort((a,b)=> (a.name || '').localeCompare(b.name || '', 'ko'));
+                        items.sort((a, b) => {
+    const nameA = a.name || ''; // 이름이 없으면 빈 문자열로 처리
+    const nameB = b.name || ''; // 이름이 없으면 빈 문자열로 처리
+    return nameA.localeCompare(nameB, 'ko');
+});
                         items.forEach(item => {
                              categoryHTML += `<label class="draft-item"><input type="checkbox" class="draft-checkbox" data-collection="${col}" data-id="${item.id}"><span class="draft-item-name">${item.name}</span><span class="draft-item-id">${item.id}</span></label>`;
                         });
