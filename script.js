@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setupSideMenuData();
             renderSidebar();
             addEventListeners();
-            loadLatestAnnouncement(); // <-- 이 줄을 추가하세요
+            populateMainOverlay();   // <-- 이 줄을 새로 추가!
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
@@ -898,3 +898,45 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("최신 공지사항 로딩 오류:", error);
         }
     }
+
+    // script.js 파일 맨 아래, }); 앞에 이 함수 전체를 추가하세요
+
+async function populateMainOverlay() {
+    const noticeList = document.getElementById('notice-list');
+    const popularList = document.getElementById('popular-list');
+
+    if (!noticeList || !popularList) return;
+
+    // 1. 공지사항 불러오기
+    try {
+        const snapshot = await db.collection("announcements")
+            .where("isPublished", "==", true)
+            .orderBy("timestamp", "desc")
+            .limit(5) // 최대 5개까지 표시
+            .get();
+
+        if (!snapshot.empty) {
+            let listHtml = '';
+            snapshot.forEach(doc => {
+                const notice = doc.data();
+                // 나중에 공지사항 클릭 이벤트를 위해 data-id 추가
+                listHtml += `<li data-id="${doc.id}">${notice.title}</li>`;
+            });
+            noticeList.innerHTML = listHtml;
+        } else {
+            noticeList.innerHTML = '<li>등록된 공지사항이 없습니다.</li>';
+        }
+    } catch (error) {
+        console.error("공지사항 목록 로딩 오류:", error);
+        noticeList.innerHTML = '<li>목록을 불러올 수 없습니다.</li>';
+    }
+
+    // 2. 인기글 불러오기 (지금은 임시 텍스트만 채워넣습니다)
+    popularList.innerHTML = `
+        <li>인기글 1위 (개발 예정)</li>
+        <li>인기글 2위 (개발 예정)</li>
+        <li>인기글 3위 (개발 예정)</li>
+        <li>인기글 4위 (개발 예정)</li>
+        <li>인기글 5위 (개발 예정)</li>
+    `;
+}
