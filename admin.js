@@ -60,10 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const clickedLink = e.target.closest('.admin-tab-link');
             if (!clickedLink || clickedLink.classList.contains('active')) return;
-
             adminNav.querySelector('.admin-tab-link.active')?.classList.remove('active');
             document.querySelector('.admin-tab-content.active')?.classList.remove('active');
-
             clickedLink.classList.add('active');
             const tabId = clickedLink.dataset.tab;
             const targetContent = document.getElementById(tabId);
@@ -104,11 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 items.push({ id: doc.id, name: name });
                             }
                         });
-                        items.sort((a, b) => {
-    const nameA = a.name || ''; // 이름이 없으면 빈 문자열로 처리
-    const nameB = b.name || ''; // 이름이 없으면 빈 문자열로 처리
-    return nameA.localeCompare(nameB, 'ko');
-});
+                        items.sort((a,b)=> (a.name || '').localeCompare(b.name || '', 'ko'));
                         items.forEach(item => {
                              categoryHTML += `<label class="draft-item"><input type="checkbox" class="draft-checkbox" data-collection="${col}" data-id="${item.id}"><span class="draft-item-name">${item.name}</span><span class="draft-item-id">${item.id}</span></label>`;
                         });
@@ -161,10 +155,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
                 
-                // [오류 수정] 이름이 없는 경우에도 안전하게 정렬
+                // [오류 수정] 이름이 없는 경우(null, undefined)에도 안전하게 정렬
                 items.sort((a, b) => {
-                    const nameA = a.name || '';
-                    const nameB = b.name || '';
+                    const nameA = a.name || ''; // 이름이 없으면 빈 문자열로 처리
+                    const nameB = b.name || ''; // 이름이 없으면 빈 문자열로 처리
                     return nameA.localeCompare(nameB, 'ko');
                 });
                 
@@ -224,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteBtn.addEventListener('click', async () => {
             const id = form.querySelector(`#${idPrefix}-id`).value.trim();
             if (!id) return;
-if (confirm(`'${id}' 데이터를 정말로 삭제하시겠습니까?`)) {
+            if (confirm(`'${id}' 데이터를 정말로 삭제하시겠습니까?`)) {
                 await db.collection(collectionName).doc(id).delete();
                 alert('삭제되었습니다.');
                 form.reset();
@@ -236,9 +230,9 @@ if (confirm(`'${id}' 데이터를 정말로 삭제하시겠습니까?`)) {
     }
     
     // [오류 수정] HTML ID와 일치하도록 type 이름 변경
-function setupPokemonManagement() { createManagementHandler({ type: 'pokemon', collectionName: 'pokemon', idPrefix: 'pkm' }); }
-function setupItemManagement() { createManagementHandler({ type: 'item', collectionName: 'items', idPrefix: 'item' }); }
-function setupRuneChipManagement() { createManagementHandler({ type: 'rune-chip', collectionName: 'runeAndChips', idPrefix: 'rc' }); }
-function setupTipsManagement() { createManagementHandler({ type: 'tips', collectionName: 'tips', idPrefix: 'tip' }); }
-function setupDeckManagement() { createManagementHandler({ type: 'deck', collectionName: 'recommendedDecks', idPrefix: 'deck' }); }
+    function setupPokemonManagement() { createManagementHandler({ type: 'pokemon', collectionName: 'pokemon', idPrefix: 'pkm' }); }
+    function setupItemManagement() { createManagementHandler({ type: 'item', collectionName: 'items', idPrefix: 'item' }); }
+    function setupRuneChipManagement() { createManagementHandler({ type: 'rune-chip', collectionName: 'runeAndChips', idPrefix: 'rc' }); }
+    function setupTipsManagement() { createManagementHandler({ type: 'tips', collectionName: 'tips', idPrefix: 'tip' }); }
+    function setupDeckManagement() { createManagementHandler({ type: 'deck', collectionName: 'recommendedDecks', idPrefix: 'deck' }); }
 });
