@@ -315,12 +315,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button type="button" class="btn btn-danger btn-small remove-skill-btn">-</button>
                 </div>
                 <textarea class="skill-desc" placeholder="기본 스킬 설명" name="skill_desc_${skillCount}">${skillData.description || ''}</textarea>
-                <div class="skill-keywords-header">키워드 설명 <button type="button" class="btn btn-small add-keyword">+</button></div>
+                <div class="skill-keywords-header">
+                    키워드 설명 <button type="button" class="btn btn-small add-keyword">+</button>
+                </div>
                 <div class="keywords-container"></div>`;
             skillsContainer.appendChild(skillEntry);
             const keywordsContainer = skillEntry.querySelector('.keywords-container');
             skillData.keywords?.forEach(kw => addKeywordRow(keywordsContainer, kw));
         }
+
         function addKeywordRow(container, keywordData = {}) {
             const keywordEntry = document.createElement('div');
             keywordEntry.className = 'keyword-entry';
