@@ -277,25 +277,44 @@ header h1 {
 .pokemon-detail-view:not(.use-tabs) .tab-nav { display: none; }
 .pokemon-detail-view:not(.use-tabs) .info-sections { display: block; }
 .pokemon-detail-view.use-tabs .info-sections { display: none; }
-.tab-nav { border-bottom: 1px solid var(--border-color); margin: 20px 0; }
-/* style.css 파일에서 .tab-button을 찾아 아래 내용으로 수정해주세요. */
-.tab-button {
-    flex: 1;
-    padding: 12px 5px;
-    text-align: center; /* 이 줄을 추가하면 텍스트가 가운데로 정렬됩니다. */
-    background: none;
-    border: none;
-    font-size: 1em;
-    font-weight: 600;
-    color: #888;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: color 0.2s, border-color 0.2s;
+/* style.css 파일의 기존 탭 관련 CSS를 모두 지우고 아래 코드로 교체하세요. */
+
+.tab-nav {
+    display: flex;
+    border: 1px solid #dee2e6; /* 전체 컨테이너 테두리 */
+    border-radius: 8px;       /* 둥근 모서리 */
+    overflow: hidden;         /* 모서리 밖으로 나가는 내용 숨김 */
+    margin: 20px 0;
 }
 
-.tab-button.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
-.tab-pane { display: none; }
-.tab-pane.active { display: block; }
+.tab-button {
+    flex: 1;                  /* 탭 너비를 균등하게 분할 */
+    padding: 12px 5px;
+    text-align: center;       /* 텍스트 가운데 정렬 */
+    background-color: #ffffff;/* 기본 배경색 (흰색) */
+    border: none;
+    border-right: 1px solid #dee2e6; /* 버튼 사이 구분선 */
+    font-size: 1em;
+    font-weight: 600;
+    color: #495057;           /* 기본 글자색 */
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.tab-nav .tab-button:last-child {
+    border-right: none;       /* 마지막 버튼의 오른쪽 구분선 제거 */
+}
+
+.tab-button.active {
+    background-color: #ffebe6; /* 활성화된 탭 배경색 (주황 계열) */
+    color: #d9534f;           /* 활성화된 탭 글자색 */
+    font-weight: bold;
+}
+
+/* 탭 아래 내용의 불필요한 상단 여백 제거 */
+.tab-pane {
+    padding-top: 0;
+}
 
 /* --- 미디어 쿼리 --- */
 @media (max-width: 1199px) { /* 모바일 & 태블릿 */
