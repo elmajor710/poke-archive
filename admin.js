@@ -232,9 +232,9 @@ if (confirm(`'${id}' 데이터를 정말로 삭제하시겠습니까?`)) {
     }
     
     // [오류 수정] HTML ID와 일치하도록 type 이름 변경
-    function setupPokemonManagement() { createManagementHandler({ type: 'pokemon', collectionName: 'pokemon', idPrefix: 'pkm' }); }
-    function setupItemManagement() { createManagementHandler({ type: 'item', collectionName: 'items', idPrefix: 'item' }); }
-    function setupRuneChipManagement() { createManagementHandler({ type: 'rune-chip', collectionName: 'runeAndChips', idPrefix: 'rc' }); }
-    function setupTipsManagement() { createManagementHandler({ type: 'tips', collectionName: 'tips', idPrefix: 'tip' }); }
-    function setupDeckManagement() { createManagementHandler({ type: 'deck', collectionName: 'recommendedDecks', idPrefix: 'deck' }); }
+function setupPokemonManagement() { createManagementHandler({ type: 'pokemon', collectionName: 'pokemon', idPrefix: 'pkm' }); }
+function setupItemManagement() { createManagementHandler({ type: 'item', collectionName: 'items', idPrefix: 'item' }); }
+function setupRuneChipManagement() { createManagementHandler({ type: 'rune-chip', collectionName: 'runeAndChips', idPrefix: 'rc' }); }
+function setupTipsManagement() { createManagementHandler({ type: 'tips', collectionName: 'tips', idPrefix: 'tip' }); }
+function setupDeckManagement() { createManagementHandler({ type: 'deck', collectionName: 'recommendedDecks', idPrefix: 'deck' }); }
 });
