@@ -712,3 +712,31 @@ header h1 {
     margin-bottom: -5px; 
   }
 }
+
+/* style.css 파일 맨 아래에 이 코드를 추가하세요 */
+
+.tab-container {
+    margin-top: 20px;
+}
+
+/* 탭 네비게이션과 버튼 스타일은 이전에 추가한 것을 재사용하므로, 
+   .tab-pane 스타일만 추가하거나 확인합니다. */
+.tab-pane {
+    display: none;
+    padding-top: 20px;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+.tab-pane h4 {
+    color: var(--primary-color);
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    font-size: 1.1em;
+}
+
+.tab-pane h4:first-child {
+    margin-top: 0;
+}
