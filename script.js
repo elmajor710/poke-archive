@@ -84,13 +84,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const isMobile = () => window.innerWidth <= 1199;
 
     // --- 함수 정의 영역 ---
+
     async function initialize() {
         try {
             await fetchAllDataFromFirebase();
             setupSideMenuData();
             renderSidebar();
             addEventListeners();
-            populateMainOverlay();
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
@@ -104,18 +104,15 @@ document.addEventListener('DOMContentLoaded', () => {
             runeAndChips: db.collection('runeAndChips').where("isPublished", "==", true),
             tips: db.collection('tips').where("isPublished", "==", true),
             recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true),
-            events: db.collection('events'),
-            announcements: db.collection('announcements').where("isPublished", "==", true)
+            events: db.collection('events')
         };
         const promises = Object.values(collectionsToFetch).map(query => query.get());
-        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot, announcementsSnapshot] = await Promise.all(promises);
-        
+        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot] = await Promise.all(promises);
         const snapshotToMap = (snapshot) => {
             const dataMap = {};
             snapshot.forEach(doc => { dataMap[doc.id] = { id: doc.id, ...doc.data() }; });
             return dataMap;
         };
-
         DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
         DB.item.lev4 = snapshotToMap(itemsSnapshot);
         DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
@@ -124,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(DB.calendar && DB.calendar.lev2) {
             DB.calendar.lev2.events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         }
-        DB.announcements = { lev3: snapshotToMap(announcementsSnapshot) };
     }
     
     function setupSideMenuData() {
@@ -170,40 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title }));
         DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
-
-        if (DB.announcements && DB.announcements.lev3) {
-            DB.announcements.lev2 = Object.values(DB.announcements.lev3).map(data => ({ id: data.id, name: data.title }));
-        }
-    }
-
-    async function populateMainOverlay() {
-        const noticeList = document.getElementById('notice-list');
-        const popularList = document.getElementById('popular-list');
-        if (!noticeList || !popularList) return;
-
-        const announcements = Object.values(DB.announcements.lev3 || {}).sort((a,b) => b.timestamp.toMillis() - a.timestamp.toMillis()).slice(0, 5);
-        if (announcements.length > 0) {
-            noticeList.innerHTML = announcements.map(notice => `<li data-id="${notice.id}" style="cursor: pointer;">${notice.title}</li>`).join('');
-        } else {
-            noticeList.innerHTML = '<li>등록된 공지사항이 없습니다.</li>';
-        }
-
-        noticeList.addEventListener('click', (e) => {
-            const targetLi = e.target.closest('li');
-            if (targetLi && targetLi.dataset.id) {
-                const noticeId = targetLi.dataset.id;
-                const sidebarMenuButton = sidebar.querySelector('button[data-id="announcements"]');
-                if (sidebarMenuButton) {
-                    sidebarMenuButton.click();
-                    setTimeout(() => {
-                        const noticeItemButton = panels.lev2.querySelector(`button[data-id="${noticeId}"]`);
-                        if (noticeItemButton) noticeItemButton.click();
-                    }, 50);
-                }
-            }
-        });
-        
-        popularList.innerHTML = `<li>인기글 1위 (개발 예정)</li><li>인기글 2위 (개발 예정)</li><li>인기글 3위 (개발 예정)</li>`;
     }
 
     function renderSidebar() {
@@ -295,12 +257,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getNextData(currentLevel, id, menuId) {
-        if (!DB[menuId]) return null;
         const nextLevel = currentLevel + 1;
         if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) return DB.pokemonType.lev4?.[id];
-        if (nextLevel === 2) return DB[menuId].lev2;
-        if (nextLevel === 3) return DB[menuId].lev3?.[id];
-        if (nextLevel === 4) return DB[menuId].lev4?.[id];
+        if (nextLevel === 2) return DB[menuId]?.lev2;
+        if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
+        if (nextLevel === 4) return DB[menuId]?.lev4?.[id];
         return null;
     }
 
@@ -335,11 +296,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 mainButton.className = 'main-btn';
                 mainButton.textContent = '메인';
                 panelHeader.appendChild(mainButton);
-                
-                if (menuId === 'announcements' || menuId === 'tips') {
-                    renderSimpleView(contentDiv, data, menuId);
-                }
-                else if (menuId === 'deck' && data.composition) renderDeckView(contentDiv, data);
+
+                if (menuId === 'deck' && data.composition) renderDeckView(contentDiv, data);
                 else if(menuId === 'calendar') renderCalendarView(contentDiv, data);
                 else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
                 else renderSimpleView(contentDiv, data, menuId); 
@@ -358,31 +316,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showModal(title, content, isWeatherPopup = false, callback) {
-        const existingModal = document.querySelector('.modal-overlay');
-        if (existingModal) existingModal.remove();
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'modal-overlay';
-        let modalClass = 'modal-content';
-        if (isWeatherPopup) modalClass += ' weather-popup';
-        modalOverlay.innerHTML = `<div class="${modalClass}"><div class="modal-header"><h2>${title}</h2><button class="modal-close-btn">&times;</button></div><div class="modal-body"></div></div>`;
-        const modalBody = modalOverlay.querySelector('.modal-body');
-        if (typeof content === 'string') {
-            modalBody.innerHTML = content;
-        } else if (content instanceof HTMLElement) {
-            modalBody.appendChild(content);
-        }
-        document.body.appendChild(modalOverlay);
-        modalOverlay.addEventListener('click', (e) => {
-            const target = e.target;
-            const weatherOption = target.closest('.weather-option');
-            if (target.matches('.modal-overlay, .modal-close-btn')) {
-                modalOverlay.remove();
-            } else if (isWeatherPopup && weatherOption && callback) {
-                callback(weatherOption.dataset.weatherName);
-                modalOverlay.remove();
-            }
-        });
+    const existingModal = document.querySelector('.modal-overlay');
+    if (existingModal) existingModal.remove();
+
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    
+    let modalClass = 'modal-content';
+    if (isWeatherPopup) modalClass += ' weather-popup';
+
+    modalOverlay.innerHTML = `
+        <div class="${modalClass}">
+            <div class="modal-header">
+                <h2>${title}</h2>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body"></div>
+        </div>`;
+
+    const modalBody = modalOverlay.querySelector('.modal-body');
+
+    // [핵심 수정] content가 HTML 문자열인지, 살아있는 Element인지 확인하고 처리
+    if (typeof content === 'string') {
+        modalBody.innerHTML = content; // 문자열이면 그대로 넣기
+    } else if (content instanceof HTMLElement) {
+        modalBody.appendChild(content); // Element이면 자식으로 추가
     }
+
+    document.body.appendChild(modalOverlay);
+
+    modalOverlay.addEventListener('click', (e) => {
+        const target = e.target;
+        const weatherOption = target.closest('.weather-option');
+        if (target.matches('.modal-overlay, .modal-close-btn')) {
+            modalOverlay.remove();
+        } else if (isWeatherPopup && weatherOption && callback) {
+            callback(weatherOption.dataset.weatherName);
+            modalOverlay.remove();
+        }
+    });
+}
 
     function renderPokemonView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
@@ -403,6 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
         badgesHTML += '</div>';
         commonHTML += badgesHTML;
         if (data.imageURL) commonHTML += `<img src="${data.imageURL}" alt="${nameKo}" class="main-image">`;
+        
         let statsHTML = '';
         if (data.stats) {
             const totalStats = Object.values(data.stats).reduce((a, b) => Number(a) + Number(b), 0);
@@ -410,6 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             statsHTML = '<h4>기본 정보</h4><p>등록된 종족값 정보가 없습니다.</p>';
         }
+        
         let skillsHTML = '';
         if (data.skills && data.skills.length > 0 && data.skills.some(s => s.name)) {
             skillsHTML += '<h4>스킬</h4><ul class="skill-list">';
@@ -420,6 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             skillsHTML = '<h4>스킬</h4><p>등록된 스킬 정보가 없습니다.</p>';
         }
+
         let buildHTML = '';
         let hasBuildInfo = false;
         if (data.build_concept) {
@@ -452,6 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!hasBuildInfo) {
             buildHTML = '<h4>추천 빌드</h4><p>등록된 추천 빌드 정보가 없습니다.</p>';
         }
+
         const useTabs = isMobile() || menuId === 'pokemonType' || menuId === 'pokemonGrade';
         detailView.className = `pokemon-detail-view ${useTabs ? 'use-tabs' : ''}`;
         if (useTabs) {
@@ -459,8 +436,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             detailView.innerHTML = `${commonHTML}<div class="info-sections">${statsHTML}${skillsHTML}${buildHTML}</div>`;
         }
+        
         contentDiv.innerHTML = '';
         contentDiv.appendChild(detailView);
+
         detailView.querySelectorAll('.skill-name').forEach(el => { 
             el.addEventListener('click', () => { 
                 const skillIndex = parseInt(el.dataset.skillIndex);
@@ -482,14 +461,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 const itemType = el.dataset.itemType;
                 const dbKey = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
                 const itemData = DB[dbKey]?.lev4?.[itemId];
+
                 if (itemData) {
+                    // 1. 임시 div(살아있는 Element)를 메모리에 만듭니다.
                     const tempContentDiv = document.createElement('div');
+                    
+                    // 2. renderSimpleView를 호출하여 임시 div에 아이템의 상세 내용을 그립니다.
+                    //    이제 tempContentDiv 안에는 탭 기능이 살아있는 버튼들이 들어있습니다.
                     const menuId = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
                     renderSimpleView(tempContentDiv, itemData, menuId);
+
+                    // 3. 업그레이드된 showModal 함수에 '살아있는' tempContentDiv를 통째로 전달합니다.
                     showModal(itemData.name, tempContentDiv);
                 }
             });
         });
+
         detailView.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', () => {
                 if (button.classList.contains('active')) return;
@@ -502,52 +489,68 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderSimpleView(contentDiv, data, menuId) {
-        const detailView = document.createElement('div');
-        detailView.className = 'simple-detail-view';
-        let html = `<h2>${data.name || data.title}</h2>`;
-        if (data.grade) {
-            const gradeClass = `grade-${data.grade.toLowerCase()}`;
-            html += `<div class="badge-container"><span class="grade-badge ${gradeClass}">${data.grade}</span></div>`;
-        }
-        if (data.imageURL) {
-            html += `<img src="${data.imageURL}" alt="${data.name}" class="main-image">`;
-        }
-        const description = data.description || data.htmlContent || '';
-        let tabNames = [];
-        let separator = '';
-        if (menuId === 'item') {
-            tabNames = ['기본 능력치', '소지 효과'];
-            separator = '[소지 효과]';
-        } else if (menuId === 'runeAndChip') {
-            tabNames = ['세트 효과 1', '세트 효과 2'];
-            separator = '[세트 효과]';
-        }
-        if (tabNames.length > 0 && description.includes(separator)) {
-            const parts = description.split(separator);
-            const tab1Content = parts[0].trim().replace(/\n/g, '<br>');
-            const tab2Content = parts[1].trim().replace(/\[(.*?)\]/g, '<h4>$1</h4>').replace(/\n/g, '<br>');
-            html += `<div class="tab-container"><nav class="tab-nav"><button class="tab-button active" data-tab="tab-1">${tabNames[0]}</button><button class="tab-button" data-tab="tab-2">${tabNames[1]}</button></nav><div id="tab-1" class="tab-pane active item-description">${tab1Content}</div><div id="tab-2" class="tab-pane item-description">${tab2Content}</div></div>`;
-            detailView.innerHTML = html;
-            detailView.querySelectorAll('.tab-button').forEach(button => {
-                button.addEventListener('click', () => {
-                    if (button.classList.contains('active')) return;
-                    detailView.querySelector('.tab-button.active').classList.remove('active');
-                    detailView.querySelector('.tab-pane.active').classList.remove('active');
-                    button.classList.add('active');
-                    detailView.querySelector(`#${button.dataset.tab}`).classList.add('active');
-                });
-            });
-        } else {
-            if(menuId === 'announcements' || menuId === 'tips') {
-                 html += data.content || data.htmlContent || '<p>내용이 없습니다.</p>';
-            } else {
-                 html += `<div class="item-description">${description.replace(/\\n/g, '<br>')}</div>`;
-            }
-            detailView.innerHTML = html;
-        }
-        contentDiv.innerHTML = '';
-        contentDiv.appendChild(detailView);
+    const detailView = document.createElement('div');
+    detailView.className = 'simple-detail-view';
+
+    let html = `<h2>${data.name || data.title}</h2>`;
+    if (data.grade) {
+        const gradeClass = `grade-${data.grade.toLowerCase()}`;
+        html += `<div class="badge-container"><span class="grade-badge ${gradeClass}">${data.grade}</span></div>`;
     }
+    if (data.imageURL) {
+        html += `<img src="${data.imageURL}" alt="${data.name}" class="main-image">`;
+    }
+
+    const description = data.description || data.htmlContent || '';
+    
+    // 탭 이름과 구분자 설정
+    let tabNames = [];
+    let separator = '';
+    if (menuId === 'item') {
+        tabNames = ['기본 능력치', '소지 효과'];
+        separator = '[소지 효과]';
+    } else if (menuId === 'runeAndChip') {
+        tabNames = ['세트 효과 1', '세트 효과 2'];
+        separator = '[세트 효과]'; // 룬&칩의 구분자는 '[세트 효과]'로 지정
+    }
+
+    // 구분자가 있고, 설명 내용이 있을 경우 탭으로 분리
+    if (tabNames.length > 0 && description.includes(separator)) {
+        const parts = description.split(separator);
+        const tab1Content = parts[0].trim();
+        const tab2Content = parts[1].trim().replace(/\[(.*?)\]/g, '<h4>$1</h4>').replace(/\n/g, '<br>');
+
+        html += `
+            <div class="tab-container">
+                <nav class="tab-nav">
+                    <button class="tab-button active" data-tab="tab-1">${tabNames[0]}</button>
+                    <button class="tab-button" data-tab="tab-2">${tabNames[1]}</button>
+                </nav>
+                <div id="tab-1" class="tab-pane active item-description">${tab1Content.replace(/\n/g, '<br>')}</div>
+                <div id="tab-2" class="tab-pane item-description">${tab2Content}</div>
+            </div>`;
+        detailView.innerHTML = html;
+        
+        // 탭 전환 이벤트 리스너 추가
+        detailView.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                if (button.classList.contains('active')) return;
+                detailView.querySelector('.tab-button.active').classList.remove('active');
+                detailView.querySelector('.tab-pane.active').classList.remove('active');
+                button.classList.add('active');
+                detailView.querySelector(`#${button.dataset.tab}`).classList.add('active');
+            });
+        });
+
+    } else {
+        // 구분자가 없을 경우 기존 방식대로 전체 내용을 표시
+        html += `<div class="item-description">${description.replace(/\\n/g, '<br>')}</div>`;
+        detailView.innerHTML = html;
+    }
+    
+    contentDiv.innerHTML = '';
+    contentDiv.appendChild(detailView);
+}
 
     function calculateSynergy(pokemonIds) {
         if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
