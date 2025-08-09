@@ -901,6 +901,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // script.js 파일 맨 아래, }); 앞에 이 함수 전체를 추가하세요
 
+// 기존 populateMainOverlay 함수를 찾아 아래 코드로 교체하세요
+
 async function populateMainOverlay() {
     const noticeList = document.getElementById('notice-list');
     const popularList = document.getElementById('popular-list');
@@ -912,17 +914,33 @@ async function populateMainOverlay() {
         const snapshot = await db.collection("announcements")
             .where("isPublished", "==", true)
             .orderBy("timestamp", "desc")
-            .limit(5) // 최대 5개까지 표시
+            .limit(5)
             .get();
 
         if (!snapshot.empty) {
             let listHtml = '';
+            // [수정] 클릭 시 상세보기를 위해 전체 데이터를 메모리에 저장
+            const notices = {};
             snapshot.forEach(doc => {
                 const notice = doc.data();
-                // 나중에 공지사항 클릭 이벤트를 위해 data-id 추가
-                listHtml += `<li data-id="${doc.id}">${notice.title}</li>`;
+                notices[doc.id] = notice; // ID를 키로 하여 공지 데이터 저장
+                listHtml += `<li data-id="${doc.id}" style="cursor: pointer;">${notice.title}</li>`;
             });
             noticeList.innerHTML = listHtml;
+
+            // [핵심 추가] 공지사항 목록에 클릭 이벤트 추가
+            noticeList.addEventListener('click', (e) => {
+                const targetLi = e.target.closest('li');
+                if (targetLi && targetLi.dataset.id) {
+                    const noticeId = targetLi.dataset.id;
+                    const noticeData = notices[noticeId];
+                    if (noticeData) {
+                        // 기존에 만들어둔 팝업창(모달) 함수를 재사용
+                        showModal(noticeData.title, noticeData.content);
+                    }
+                }
+            });
+
         } else {
             noticeList.innerHTML = '<li>등록된 공지사항이 없습니다.</li>';
         }
