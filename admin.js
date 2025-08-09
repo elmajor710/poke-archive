@@ -183,12 +183,16 @@ document.addEventListener('DOMContentLoaded', () => {
         function populateSubDropdowns() {
             typesContainer.innerHTML = DB.pokemonType.lev2.map(type => `<label><input type="checkbox" name="types" value="${type.id}"> ${type.name}</label>`).join('');
             naturesContainer.innerHTML = DB.definitions.natures.map(nature => `<label><input type="checkbox" name="natures" value="${nature.id}"> ${nature.name}</label>`).join('');
-            const allItems = Object.values(DB.item.lev3).flat().sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-            itemsSelect.innerHTML = allItems.map(itemRef => `<option value="${itemRef.id}">${itemRef.name}</option>`).join('');
-            const allRunes = DB.runeAndChip.lev3.rune.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-            runesSelect.innerHTML = allRunes.map(runeRef => `<option value="${runeRef.id}">${runeRef.name}</option>`).join('');
-            const allChips = DB.runeAndChip.lev3.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-            chipsSelect.innerHTML = allChips.map(chipRef => `<option value="${chipRef.id}">${chipRef.name}</option>`).join('');
+            
+            // [핵심 수정] 드롭다운에 이름과 ID를 함께 표시하도록 변경
+            const allItems = Object.values(DB.item.lev4).sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ko'));
+            itemsSelect.innerHTML = allItems.map(item => `<option value="${item.id}">${item.name} (${item.id})</option>`).join('');
+
+            const allRunes = Object.values(DB.runeAndChip.lev4).filter(rc => rc.type === 'rune').sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ko'));
+            runesSelect.innerHTML = allRunes.map(rune => `<option value="${rune.id}">${rune.name} (${rune.id})</option>`).join('');
+
+            const allChips = Object.values(DB.runeAndChip.lev4).filter(rc => rc.type === 'chip').sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ko'));
+            chipsSelect.innerHTML = allChips.map(chip => `<option value="${chip.id}">${chip.name} (${chip.id})</option>`).join('');
         }
 
         function loadPokemonList() {
