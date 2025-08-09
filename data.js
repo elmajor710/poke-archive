@@ -33,7 +33,6 @@ const DB = {
         { id: 'deck', name: '덱 구성', levels: 4 },
         { id: 'calendar', name: '캘린더', levels: 2 },
         { id: 'tips', name: '팁&노하우', levels: 3 },
-        { id: 'announcements', name: '공지사항', levels: 3 },
     ],
     // data.js 파일의 pokemonType 부분을 아래와 같이 수정합니다.
 pokemonType: {
