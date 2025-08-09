@@ -315,26 +315,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function showModal(title, contentHTML, isWeatherPopup = false, callback) {
-        const existingModal = document.querySelector('.modal-overlay');
-        if (existingModal) existingModal.remove();
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'modal-overlay';
-        let modalClass = 'modal-content';
-        if (isWeatherPopup) modalClass += ' weather-popup';
-        modalOverlay.innerHTML = `<div class="${modalClass}"><div class="modal-header"><h2>${title}</h2><button class="modal-close-btn">&times;</button></div><div class="modal-body">${contentHTML}</div></div>`;
-        document.body.appendChild(modalOverlay);
-        modalOverlay.addEventListener('click', (e) => {
-            const target = e.target;
-            const weatherOption = target.closest('.weather-option');
-            if (target.matches('.modal-overlay, .modal-close-btn')) {
-                modalOverlay.remove();
-            } else if (isWeatherPopup && weatherOption && callback) {
-                callback(weatherOption.dataset.weatherName);
-                modalOverlay.remove();
-            }
-        });
+    function showModal(title, content, isWeatherPopup = false, callback) {
+    const existingModal = document.querySelector('.modal-overlay');
+    if (existingModal) existingModal.remove();
+
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    
+    let modalClass = 'modal-content';
+    if (isWeatherPopup) modalClass += ' weather-popup';
+
+    modalOverlay.innerHTML = `
+        <div class="${modalClass}">
+            <div class="modal-header">
+                <h2>${title}</h2>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body"></div>
+        </div>`;
+
+    const modalBody = modalOverlay.querySelector('.modal-body');
+
+    // [핵심 수정] content가 HTML 문자열인지, 살아있는 Element인지 확인하고 처리
+    if (typeof content === 'string') {
+        modalBody.innerHTML = content; // 문자열이면 그대로 넣기
+    } else if (content instanceof HTMLElement) {
+        modalBody.appendChild(content); // Element이면 자식으로 추가
     }
+
+    document.body.appendChild(modalOverlay);
+
+    modalOverlay.addEventListener('click', (e) => {
+        const target = e.target;
+        const weatherOption = target.closest('.weather-option');
+        if (target.matches('.modal-overlay, .modal-close-btn')) {
+            modalOverlay.remove();
+        } else if (isWeatherPopup && weatherOption && callback) {
+            callback(weatherOption.dataset.weatherName);
+            modalOverlay.remove();
+        }
+    });
+}
 
     function renderPokemonView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
@@ -434,8 +455,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }); 
         });
-        // 기존 detailView.querySelectorAll('.recommend-item').forEach(...) 부분을 찾아서 아래 코드로 전체 교체하세요.
-
         detailView.querySelectorAll('.recommend-item').forEach(el => {
             el.addEventListener('click', () => {
                 const itemId = el.dataset.itemId;
@@ -444,19 +463,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const itemData = DB[dbKey]?.lev4?.[itemId];
 
                 if (itemData) {
-                    // 1. 팝업창에 내용을 그릴 임시 div를 메모리에 만듭니다.
+                    // 1. 임시 div(살아있는 Element)를 메모리에 만듭니다.
                     const tempContentDiv = document.createElement('div');
                     
                     // 2. renderSimpleView를 호출하여 임시 div에 아이템의 상세 내용을 그립니다.
-                    //    (이 함수는 우리가 탭 기능을 만든 바로 그 함수입니다.)
+                    //    이제 tempContentDiv 안에는 탭 기능이 살아있는 버튼들이 들어있습니다.
                     const menuId = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
                     renderSimpleView(tempContentDiv, itemData, menuId);
 
-                    // 3. 임시 div에 그려진 내용을 HTML 통째로 가져옵니다.
-                    const modalContentHTML = tempContentDiv.innerHTML;
-                    
-                    // 4. 완성된 HTML로 팝업창을 띄웁니다.
-                    showModal(itemData.name, modalContentHTML);
+                    // 3. 업그레이드된 showModal 함수에 '살아있는' tempContentDiv를 통째로 전달합니다.
+                    showModal(itemData.name, tempContentDiv);
                 }
             });
         });
