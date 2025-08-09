@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setupItemManagement();
             setupRuneChipManagement();
             setupTipsManagement();
+            setupAnnouncementManagement(); // <-- 이 줄을 추가하세요
             setupCalendarManagement();
             setupDeckManagement();
             
@@ -752,4 +753,80 @@ function setupPublishManagement() {
         loadDecksList();
         updateSynergyDisplay();
     }
+    // admin.js 파일 맨 아래에 이 함수 전체를 추가하세요
+
+function setupAnnouncementManagement() {
+    const panel = document.getElementById('announcement-management');
+    if (!panel) return;
+
+    const form = panel.querySelector('#announcement-form');
+    const selectList = panel.querySelector('#announcement-select-list');
+    const loadBtn = panel.querySelector('#load-announcement-btn');
+    const deleteBtn = panel.querySelector('#delete-announcement-btn');
+    const generateIdBtn = panel.querySelector('#generate-announcement-id-btn');
+
+    async function loadList() {
+        try {
+            const snapshot = await db.collection("announcements").orderBy("timestamp", "desc").get();
+            selectList.innerHTML = '<option value="">-- 공지사항 선택 --</option>';
+            snapshot.forEach(doc => {
+                selectList.innerHTML += `<option value="${doc.id}">${doc.data().title || doc.id}</option>`;
+            });
+        } catch(e) { console.error("공지사항 목록 로딩 오류:", e); }
+    }
+
+    generateIdBtn.addEventListener('click', () => {
+        form.querySelector('#announcement-id').value = db.collection("announcements").doc().id;
+    });
+
+    loadBtn.addEventListener('click', async () => {
+        const selectedId = selectList.value;
+        if (!selectedId) return alert('불러올 공지사항을 선택해주세요.');
+        try {
+            const doc = await db.collection("announcements").doc(selectedId).get();
+            if (doc.exists) {
+                const data = doc.data();
+                form.querySelector('#announcement-id').value = doc.id;
+                form.querySelector('#announcement-title').value = data.title || '';
+                form.querySelector('#announcement-content').value = data.content || '';
+                form.querySelector('#announcement-is-published').checked = data.isPublished === true;
+            }
+        } catch(e) { console.error("공지사항 로딩 오류:", e); }
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = form.querySelector('#announcement-id').value.trim();
+        if (!id) return alert('고유 ID를 입력하거나 생성해주세요.');
+
+        const data = {
+            title: form.querySelector('#announcement-title').value,
+            content: form.querySelector('#announcement-content').value,
+            isPublished: form.querySelector('#announcement-is-published').checked,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        try {
+            await db.collection("announcements").doc(id).set(data, { merge: true });
+            alert('공지사항이 저장되었습니다.');
+            form.reset();
+            loadList();
+        } catch(e) { console.error("공지사항 저장 오류:", e); }
+    });
+
+    deleteBtn.addEventListener('click', async () => {
+        const id = form.querySelector('#announcement-id').value.trim();
+        if (!id) return alert('삭제할 공지사항이 없습니다.');
+        if (confirm(`'${id}' 공지사항을 정말 삭제하시겠습니까?`)) {
+            try {
+                await db.collection("announcements").doc(id).delete();
+                alert('공지사항이 삭제되었습니다.');
+                form.reset();
+                loadList();
+            } catch(e) { console.error("공지사항 삭제 오류:", e); }
+        }
+    });
+
+    loadList();
+}
 });
