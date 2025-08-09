@@ -759,3 +759,26 @@ header h1 {
 .tab-pane h4:first-child {
     margin-top: 0;
 }
+
+/* style.css 파일 맨 아래에 이 코드를 추가하세요 */
+
+.announcement-banner {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.announcement-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.announcement-title {
+    font-weight: bold;
+}
