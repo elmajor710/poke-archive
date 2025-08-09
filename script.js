@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setupSideMenuData();
             renderSidebar();
             addEventListeners();
+            loadLatestAnnouncement(); // <-- 이 줄을 추가하세요
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
@@ -869,3 +870,31 @@ document.addEventListener('DOMContentLoaded', () => {
     setScreenHeight();
     window.addEventListener('resize', setScreenHeight);
 });
+
+// script.js 파일 맨 아래, }); 앞에 추가하세요
+
+    async function loadLatestAnnouncement() {
+        const banner = document.getElementById('announcement-banner');
+        if (!banner) return;
+
+        try {
+            const querySnapshot = await db.collection("announcements")
+                .where("isPublished", "==", true)
+                .orderBy("timestamp", "desc")
+                .limit(1)
+                .get();
+
+            if (!querySnapshot.empty) {
+                const latestAnn = querySnapshot.docs[0].data();
+                banner.innerHTML = `
+                    <div class="announcement-content">
+                        <span class="announcement-title">📢 [공지]</span>
+                        <span class="announcement-text">${latestAnn.title}</span>
+                    </div>
+                `;
+                banner.style.display = 'block'; // 공지사항이 있을 때만 보이도록 처리
+            }
+        } catch (error) {
+            console.error("최신 공지사항 로딩 오류:", error);
+        }
+    }
