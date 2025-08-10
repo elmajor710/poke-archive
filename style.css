@@ -354,3 +354,81 @@ header h1 {
         display: none; 
     }
 }
+
+/* ... 기존 스타일 ... */
+
+/* --- 신규 메인 레이아웃 --- */
+#main-container {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+#content-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+/* ... #sidebar, #content-area 등 기존 레이아웃 스타일 ... */
+
+/* --- 공지사항/인기글 섹션 --- */
+.notice-popular-section {
+    padding: 20px;
+    background-color: #f8f9fa;
+    flex-shrink: 0;
+}
+
+/* ▼▼▼ [신규] 모바일 전용 버튼 스타일 ▼▼▼ */
+.mobile-notice-buttons {
+    display: none; /* PC에서는 숨김 */
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    background-color: #f8f9fa;
+}
+.mobile-notice-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1em;
+    font-weight: bold;
+    border: 1px solid var(--border-color);
+    background-color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.new-badge {
+    margin-left: 8px;
+    font-size: 0.7em;
+    color: white;
+    background-color: #e53935;
+    padding: 3px 6px;
+    border-radius: 10px;
+}
+
+/* --- 미디어 쿼리 --- */
+@media (max-width: 1199px) { /* 모바일 & 태블릿 */
+    /* ... 기존 모바일 스타일 ... */
+
+    /* [신규] PC용 공지/인기글 섹션은 모바일에서 숨김 */
+    .notice-popular-section {
+        display: none;
+    }
+    /* [신규] 모바일용 공지/인기글 버튼은 모바일에서 보임 */
+    .mobile-notice-buttons {
+        display: flex;
+    }
+}
+
+@media (min-width: 1200px) { /* PC */
+    /* ... 기존 PC 스타일 ... */
+
+    /* [신규] 모바일용 공지/인기글 버튼은 PC에서 숨김 */
+    .mobile-notice-buttons {
+        display: none;
+    }
+}
