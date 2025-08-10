@@ -123,10 +123,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    function setupSideMenuData() {
-        DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-        const types = {};
-        DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
+    // 이 함수 전체를 복사해서 기존의 setupSideMenuData 함수와 교체해주세요.
+function setupSideMenuData() {
+    // 1. lev2 메뉴 정렬 (기존과 동일)
+    DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+
+    // 2. 타입별 포켓몬 분류
+    const types = {};
+    DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
+    // [수정사항] DB.pokemonType.lev4 데이터가 있을 때만 아래 코드를 실행하도록 안전장치를 추가합니다.
+    if (DB.pokemonType.lev4) { 
         Object.values(DB.pokemonType.lev4).forEach(pokemon => {
             if (pokemon.types && Array.isArray(pokemon.types)) {
                 pokemon.types.forEach(typeId => {
@@ -134,39 +140,53 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
-        Object.values(types).forEach(typeList => typeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
-        DB.pokemonType.lev3 = types;
+    }
+    Object.values(types).forEach(typeList => typeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
+    DB.pokemonType.lev3 = types;
 
-        const grades = {};
-        DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
+    // 3. 등급별 포켓몬 분류
+    const grades = {};
+    DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
+    // [수정사항] 마찬가지로 데이터가 있을 때만 실행하도록 안전장치를 추가합니다.
+    if (DB.pokemonType.lev4) {
         Object.values(DB.pokemonType.lev4).forEach(pokemon => {
             if (pokemon && pokemon.grade) {
                 const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id;
                 if (gradeId && grades[gradeId]) grades[gradeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
             }
         });
-        Object.values(grades).forEach(gradeList => gradeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
-        DB.pokemonGrade.lev3 = grades;
-        
-        const itemGrades = { god: [], legendary: [], epic: [] };
+    }
+    Object.values(grades).forEach(gradeList => gradeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
+    DB.pokemonGrade.lev3 = grades;
+    
+    // 4. 아이템 등급별 분류
+    const itemGrades = { god: [], legendary: [], epic: [] };
+    // [수정사항] 데이터 존재 여부 확인
+    if (DB.item.lev4) {
         Object.values(DB.item.lev4).forEach(item => {
             const gradeKey = item.grade?.toLowerCase();
             if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name });
         });
-        Object.values(itemGrades).forEach(g => g.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
-        DB.item.lev3 = itemGrades;
-        
-        const runeAndChipTypes = { rune: [], chip: [] };
-        Object.values(DB.runeAndChip.lev4).forEach(rc => {
-            if(runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name });
-        });
-        runeAndChipTypes.rune.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-        runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-        DB.runeAndChip.lev3 = runeAndChipTypes;
-
-        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title }));
-        DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
     }
+    Object.values(itemGrades).forEach(g => g.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
+    DB.item.lev3 = itemGrades;
+    
+    // 5. 룬 & 칩 타입별 분류
+    const runeAndChipTypes = { rune: [], chip: [] };
+    // [수정사항] 데이터 존재 여부 확인
+    if (DB.runeAndChip.lev4) {
+        Object.values(DB.runeAndChip.lev4).forEach(rc => {
+            if(rc.type && runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name });
+        });
+    }
+    runeAndChipTypes.rune.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+    runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+    DB.runeAndChip.lev3 = runeAndChipTypes;
+
+    // 6. 팁 & 추천 덱 데이터 가공
+    DB.tips.lev2 = DB.tips.lev3 ? Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title })) : [];
+    DB.deck.lev3.recommended = DB.deck.lev4 ? Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name })) : [];
+}
 
     function renderSidebar() {
         const sidebarContent = document.createElement('div');
