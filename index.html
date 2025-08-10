@@ -5,13 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="naver-site-verification" content="908d0a7edce7566fbfed81ef4581af850ae6b606" />
     <title>Nirvana's Poke-Archive</title>
-
-    <meta property="og:title" content="Nirvana's Poke-Archive">
-    <meta property="og:description" content="포켓몬 육성 정보 아카이브">
-    <meta property="og:image" content="https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/taecho-three.jpg">
-    <meta property="og:url" content="https://pokedex.elmajor710.com">
     <link rel="icon" href="data:;base64,iVBORw0KGgo="> 
-    <link rel="stylesheet" href="style.css?v=1.23">
+    <link rel="stylesheet" href="style.css?v=1.25">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -19,16 +14,31 @@
         <h1>Nirvana's Poke-Archive</h1>
     </header>
 
-    <div id="ad-container-top" class="ad-container">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-2125965839205311"
-         data-ad-slot="6920735136"
-         data-ad-format="horizontal"></ins> </div>
-    
-    <div id="page-body">
-        <div id="app-container">
-            <aside id="sidebar"></aside>
+    <div id="main-container" id="app-container">
+        <aside id="sidebar"></aside>
+
+        <div id="content-wrapper">
+            <div id="ad-container-top" class="ad-container">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-2125965839205311"
+                     data-ad-slot="6920735136"
+                     data-ad-format="horizontal"></ins>
+            </div>
+
+            <section class="notice-popular-section">
+                <div class="notice-popular-wrapper">
+                    <div class="notice-container">
+                        <h3>📢 공지사항</h3>
+                        <ul id="notice-list"></ul>
+                    </div>
+                    <div class="popular-container">
+                        <h3>🔥 인기글</h3>
+                        <ul id="popular-list"></ul>
+                    </div>
+                </div>
+            </section>
+
             <main id="content-area">
                 <div id="main-placeholder">
                     <img src="https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/taecho-three.jpg" alt="Welcome to the Poke-Archive">
@@ -40,39 +50,33 @@
                 <section id="lev4-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
             </main>
         </div>
+
         <div id="ad-container-right" class="ad-container">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-2125965839205311"
-         data-ad-slot="2027161792"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-</div>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-2125965839205311"
+                 data-ad-slot="2027161792"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        </div>
     </div>
     
-    <div id="admin-panel" style="display: none; padding: 20px;">
-        <h2>운영자 모드 (개발 예정)</h2>
-    </div>
-
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
     <script>
-      // Firebase 초기화
         const firebaseConfig = {
-        apiKey: "AIzaSyBEPDK4VMVjEshWthL9Kajan-2EKfuLvZ0",
-        authDomain: "poke-archive-d8e29.firebaseapp.com",
-        projectId: "poke-archive-d8e29",
-        storageBucket: "poke-archive-d8e29.firebasestorage.app",
-        messagingSenderId: "1012379289991",
-        appId: "1:1012379289991:web:5c33d4ac7536672d956b22"
+            apiKey: "AIzaSyBEPDK4VMVjEshWthL9Kajan-2EKfuLvZ0",
+            authDomain: "poke-archive-d8e29.firebaseapp.com",
+            projectId: "poke-archive-d8e29",
+            storageBucket: "poke-archive-d8e29.firebasestorage.app",
+            messagingSenderId: "1012379289991",
+            appId: "1:1012379289991:web:5c33d4ac7536672d956b22"
         };
       firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
+      window.db = firebase.firestore();
     </script>
     
-    <script src="data.js?v=1.18"></script> 
-    <script src="script.js?v=1.24"></script>
-
+    <script src="data.js"></script> 
+    <script src="script.js"></script>
 </body>
 </html>

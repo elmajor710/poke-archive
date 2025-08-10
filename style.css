@@ -1,11 +1,10 @@
 :root {
     --sidebar-width: 240px;
-    --right-ad-width: 240px; /* PC 우측 광고 너비 */
+    --right-ad-width: 240px;
     --primary-color: #007bff;
     --active-color: #e6f7ff;
     --border-color: #dee2e6;
     --slide-duration: 0.35s;
-    /* ... (기타 색상 변수들은 그대로 유지) ... */
     --grade-ss-color: #ff8a80;
     --grade-s-plus-color: #ffb74d;
     --grade-s-color: #fff176;
@@ -16,8 +15,6 @@
     --event-ranking-color: #ff9800;
     --event-limited-color: #2196f3;
     --event-luckycat-color: #4caf50;
-    --main-pastel: #ffe0b2;
-    --assist-pastel: #c8e6c9;
 }
 
 *, *::before, *::after {
@@ -29,8 +26,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     display: flex;
     flex-direction: column;
-    /* height: 100vh; 이 줄을 아래 코드로 변경 */
-    height: calc(var(--vh, 1vh) * 100);
+    height: 100vh;
     overflow: hidden;
     background-color: #f8f9fa;
 }
@@ -49,7 +45,6 @@ header h1 {
     font-size: 1.5em;
 }
 
-/* 광고 컨테이너 공통 스타일 수정 */
 .ad-container {
     overflow: hidden;
     display: flex;
@@ -57,43 +52,24 @@ header h1 {
     justify-content: center;
     background-color: #f1f1f1;
     color: #cccccc;
-    font-size: 14px;
-    font-weight: bold;
-    /* --- [추가] 모든 광고 컨테이너에 최소 높이 보장 --- */
-    min-height: 100px; 
+    min-height: 100px;
 }
 
-/* 기존 PC 및 기본 스타일 (그대로 유지) */
 #ad-container-top {
     width: 100%;
-    min-height: 250px; 
-    max-height: 300px;
+    min-height: 100px; 
+    max-height: 250px;
     flex-shrink: 0;
-    display: block;
-}
-
-/* 광고 자체를 가운데 정렬하기 위한 코드 (그대로 유지) */
-#ad-container-top > .adsbygoogle {
-    display: block;
-    margin: 0 auto;
 }
 
 #ad-container-right {
-    display: none; /* 모바일에선 기본적으로 숨김 */
+    display: none;
 }
 
-/* --- 메인 레이아웃 --- */
-#page-body {
+/* --- 신규 메인 레이아웃 --- */
+#main-container {
     display: flex;
     flex-grow: 1;
-    overflow: hidden;
-}
-
-#app-container {
-    display: flex;
-    width: 100%;
-    flex-grow: 1;
-    position: relative;
     overflow: hidden;
 }
 
@@ -104,24 +80,56 @@ header h1 {
     overflow-y: auto;
     flex-shrink: 0;
     background-color: #fff;
-    transition: transform var(--slide-duration) ease-in-out;
     z-index: 10;
+    transition: transform var(--slide-duration) ease-in-out;
+}
+
+#content-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.notice-popular-section {
+    padding: 20px;
+    background-color: #f8f9fa;
+    flex-shrink: 0;
 }
 
 #content-area {
     flex-grow: 1;
     position: relative;
-    overflow: hidden;
     background-color: #e9ecef;
+    overflow-y: auto; /* 컨텐츠가 길어질 경우 여기만 스크롤 됨 */
 }
 
-/* --- 초기화면 Placeholder --- */
 #main-placeholder {
-    display: none; /* 모바일에서는 숨김 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    padding: 20px;
 }
 
-/* (이하 기존 스타일은 그대로 유지) */
-/* 이 부분을 통째로 복사해서 교체해주세요 */
+#main-placeholder img { 
+    max-width: 80%; 
+    max-height: 60%; 
+    border-radius: 12px; 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15); 
+    margin-bottom: 25px; 
+}
+
+#main-placeholder p { 
+    font-size: 1.2em; 
+    font-weight: 500; 
+    color: #495057; 
+}
+
+
+/* --- 패널 스타일 (슬라이드 애니메이션) --- */
 .panel {
     position: absolute;
     top: 0;
@@ -134,12 +142,14 @@ header h1 {
     transform: translateX(100%);
     transition: transform var(--slide-duration) ease-in-out;
     visibility: hidden;
-    z-index: 1;
-    /* [추가] flex 아이템의 높이 계산 오류를 방지합니다. */
+    z-index: 5;
     min-height: 0;
 }
 
-.panel.visible { transform: translateX(0); visibility: visible; z-index: 5; }
+.panel.visible { 
+    transform: translateX(0); 
+    visibility: visible; 
+}
 #lev3-panel.visible { z-index: 6; }
 #lev4-panel.visible { z-index: 7; }
 
@@ -156,22 +166,103 @@ header h1 {
     padding: 10px; 
     overflow-y: auto; 
     flex-grow: 1; 
-    /* [추가] iOS 기기에서 더 부드러운 스크롤을 제공합니다. */
     -webkit-overflow-scrolling: touch;
 }
-.back-btn, .main-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border-color); background-color: #f8f9fa; cursor: pointer; }
-.main-btn { padding: 5px 12px; border-radius: 5px; background-color: #6c757d; color: white; border: 1px solid #6c757d; cursor: pointer; }
-.menu-item, .list-item { display: block; width: 100%; text-align: left; padding: 12px; margin-bottom: 5px; border: 1px solid #eee; background: #f9f9f9; border-radius: 6px; font-size: 16px; cursor: pointer; }
-.menu-item.active, .list-item.active { background-color: var(--active-color); border-left: 4px solid var(--primary-color); font-weight: 600; }
-.item-description { white-space: pre-wrap; line-height: 1.7; background-color: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 14px; color: #333; }
+
+.back-btn, .main-btn { 
+    padding: 5px 12px; 
+    border-radius: 5px; 
+    border: 1px solid var(--border-color); 
+    background-color: #f8f9fa; 
+    cursor: pointer; 
+}
+
+.main-btn { 
+    background-color: #6c757d; 
+    color: white; 
+    border-color: #6c757d; 
+}
+
+.menu-item, .list-item { 
+    display: block; 
+    width: 100%; 
+    text-align: left; 
+    padding: 12px; 
+    margin-bottom: 5px; 
+    border: 1px solid #eee; 
+    background: #f9f9f9; 
+    border-radius: 6px; 
+    font-size: 16px; 
+    cursor: pointer; 
+}
+
+.menu-item.active, .list-item.active { 
+    background-color: var(--active-color); 
+    border-left: 4px solid var(--primary-color); 
+    font-weight: 600; 
+}
+
+/* --- 공지사항/인기글 섹션 --- */
+.notice-popular-wrapper {
+    display: flex;
+    gap: 1px;
+    background-color: #dee2e6;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.notice-container,
+.popular-container {
+    flex: 1;
+    padding: 20px;
+    background-color: white;
+}
+
+.notice-container h3,
+.popular-container h3 {
+    margin: 0 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f1f1f1;
+    font-size: 1.1em;
+    text-align: center;
+}
+
+.notice-container ul,
+.popular-container ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.95em;
+}
+
+.notice-container li,
+.popular-container li {
+    padding: 8px 5px;
+    border-bottom: 1px solid #f8f9fa;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.notice-container li:hover,
+.popular-container li:hover {
+    background-color: #f8f9fa;
+}
+.notice-container li:last-child,
+.popular-container li:last-child {
+    border-bottom: none;
+}
+
+/* --- 상세 페이지 스타일 --- */
+.item-description { white-space: pre-wrap; line-height: 1.7; background-color: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 14px; color: #333;}
 .stats-table { border-collapse: collapse; margin: 10px 0; width: 100%; max-width: 500px;  }
 .stats-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
 .stats-table td:first-child { font-weight: 600; color: #555; padding-right: 20px; }
-/* style.css 파일에서 이 부분을 찾아서 height 속성을 추가하세요. */
-.pokemon-detail-view, .simple-detail-view, .deck-detail-view {
-    padding: 10px;
-    height: fit-content; /* <<-- 모든 문제의 원인을 해결하는 코드입니다. */
-}
+.pokemon-detail-view, .simple-detail-view, .deck-detail-view { padding: 10px; height: fit-content; }
 .pokemon-detail-view h2, .simple-detail-view h2, .deck-detail-view h2 { font-size: 2em; margin-bottom: 10px; }
 .pokemon-detail-view .main-image, .simple-detail-view .main-image { max-width: 200px; display: block; margin: 20px auto; }
 .pokemon-detail-view h4, .simple-detail-view h4, .deck-detail-view h4, .deck-builder-view h4, h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
@@ -191,24 +282,7 @@ header h1 {
 .skill-type { font-size: 0.8em; color: #fff; background: #6c757d; padding: 2px 6px; border-radius: 10px; flex-shrink: 0; }
 .recommend-list { display: flex; flex-wrap: wrap; gap: 10px; }
 .recommend-item { display: flex; align-items: center; gap: 8px; background: #f8f9fa; padding: 5px 10px; border-radius: 5px; cursor: pointer; border: 1px solid #eee; flex-shrink: 0; }
-/* 기존 .recommend-item img 내용을 찾아서 아래 코드로 교체하세요. */
-.recommend-item img {
-    /* 아래 width와 height 값을 조절하여 크기를 변경할 수 있습니다. */
-    /* 기존 32px에서 약 1.5배인 48px로 키웠습니다. 5배는 레이아웃이 깨질 수 있습니다. */
-    width: 48px; 
-    height: 48px;
-}
-
-.deck-grid-table { width: 100%; max-width: 600px; border-collapse: collapse; margin: 20px auto; table-layout: fixed; }
-.deck-grid-table th, .deck-grid-table td { border: 1px solid var(--border-color); text-align: center; padding: 8px; vertical-align: middle; }
-.deck-grid-table th { background-color: #f8f9fa; font-weight: bold; height: auto; }
-.deck-grid-table td {
-    height: 90px; /* 칸이 늘어났으니 높이를 약간 줄여서 보기 좋게 조절 */
-}
-.deck-pokemon-cell { cursor: pointer; }
-.deck-pokemon-cell img { width: 64px; height: 64px; display: block; margin: 0 auto 5px; object-fit: contain; }
-.deck-pokemon-cell .position-number { font-weight: bold; font-size: 0.9em; color: #555; display: block; }
-.deck-composition-container { display: none !important; }
+.recommend-item img { width: 48px; height: 48px; }
 .content-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.95em; }
 .content-table th, .content-table td { border: 1px solid var(--border-color); padding: 8px 10px; text-align: left; }
 .content-table th { background-color: #f8f9fa; font-weight: 600; }
@@ -217,13 +291,13 @@ header h1 {
 .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
 .modal-header h2 { margin: 0; font-size: 1.3em; }
 .modal-close-btn { font-size: 24px; font-weight: bold; cursor: pointer; border: none; background: none; }
-.calendar-view { padding: 10px; }
+.calendar-view, .deck-builder-view { padding: 10px; }
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
 .calendar-title { font-size: 1.5em; font-weight: bold; }
 .calendar-nav { display: flex; gap: 5px; }
 .calendar-nav button { padding: 8px 12px; border: 1px solid var(--border-color); background-color: #fff; border-radius: 5px; cursor: pointer; }
-.calendar-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; padding-left: 5px; }
-.legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.9em; }
+.calendar-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; padding-left: 5px; font-size: 0.9em; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
 .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
 .event-type-ranking { background-color: var(--event-ranking-color); }
 .event-type-limited { background-color: var(--event-limited-color); }
@@ -234,528 +308,49 @@ header h1 {
 .calendar-grid td.has-events { cursor: pointer; background-color: #f8f9fa; }
 .calendar-grid td.has-events:hover { background-color: #e9ecef; }
 .day-other-month { background-color: #f8f9fa; }
-.day-other-month .date-number { color: #ccc; }
 .date-number { font-weight: 500; font-size: 0.9em; }
 .day-today .date-number { background-color: var(--primary-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; }
 .event-markers { margin-top: 5px; display: flex; flex-direction: column; gap: 3px; }
 .event-marker { font-size: 0.8em; padding: 2px 4px; border-radius: 4px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.deck-builder-view { display: flex; flex-direction: row; gap: 20px; height: 100%; }
-.placement-container { flex: 0 0 320px; }
-.placement-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.placement-slot, .placement-slot-header { aspect-ratio: 1 / 1; border: 2px dashed var(--border-color); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 0.9em; color: #6c757d; font-weight: bold; user-select: none; }
-.placement-slot-header { border-style: solid; border-color: #f0f0f0; }
-.placement-slot.main.vanguard { background-color: #ffcdd2; }
-.placement-slot.main.rearguard { background-color: var(--main-pastel); }
-.placement-slot.assist { background-color: var(--assist-pastel); }
-.source-container { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.source-filter-bar { padding: 10px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.filter-dropdown { padding: 8px 12px; font-size: 0.9em; border: 1px solid var(--border-color); border-radius: 6px; background-color: #fff; }
-.source-list { flex-grow: 1; overflow-y: auto; padding: 10px 5px; background-color: #f0f2f5; border-radius: 6px; }
-.source-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; align-content: start; }
-.pokemon-source-icon { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: grab; text-align: center; flex-shrink: 0; }
-.pokemon-source-icon img { width: 64px; height: 64px; background-color: white; border: 1px solid #ddd; border-radius: 8px; padding: 2px; }
-.pokemon-source-icon span { font-size: 12px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-.placement-slot .deck-pokemon-cell { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; cursor: grab; }
-.placement-slot .remove-pkm-btn { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border-radius: 50%; border: 1px solid #c0392b; background-color: #e74c3c; color: white; font-weight: bold; font-size: 14px; line-height: 18px; text-align: center; cursor: pointer; opacity: 0; transition: opacity 0.2s; z-index: 10; }
-.placement-slot:hover .remove-pkm-btn { opacity: 1; }
-#weather-icon-container, #synergy-icon-container { font-size: 1.8em; visibility: hidden; cursor: pointer; }
-#synergy-icon-container img { width: 50%; height: 50%; object-fit: contain; }
-.weather-popup .weather-option { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #eee; transition: background-color 0.2s; }
-.weather-popup .weather-option:hover { background-color: #f8f9fa; }
-.weather-popup .weather-option:last-child { border-bottom: none; }
-.weather-popup .weather-desc { font-size: 0.9em; color: #666; margin-top: 5px; line-height: 1.4; }
-.synergy-table { width: 100%; border-collapse: collapse; }
-.synergy-table td { padding: 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
-.synergy-table td:first-child { width: 60px; text-align: center; }
-.synergy-table img { width: 50px; height: 50px; object-fit: contain; }
-.synergy-table tr.current-synergy { background-color: var(--active-color); font-weight: bold; }
-.pc-only-message { padding: 40px 20px; text-align: center; color: #555; background-color: #f8f9fa; border-radius: 8px; margin: auto; }
-.pc-only-message h3 { font-size: 1.5em; margin-top: 0; margin-bottom: 10px; color: #333; }
-.pokemon-detail-view.use-tabs .tab-nav { display: flex; }
-.pokemon-detail-view.use-tabs .tab-pane { display: none; }
-.pokemon-detail-view.use-tabs .tab-pane.active { display: block; }
-.pokemon-detail-view:not(.use-tabs) .tab-nav { display: none; }
-.pokemon-detail-view:not(.use-tabs) .info-sections { display: block; }
-.pokemon-detail-view.use-tabs .info-sections { display: none; }
-/* style.css 파일의 기존 탭 관련 CSS를 모두 지우고 아래 코드로 교체하세요. */
-
-.tab-nav {
-    display: flex;
-    border: 1px solid #dee2e6; /* 전체 컨테이너 테두리 */
-    border-radius: 8px;       /* 둥근 모서리 */
-    overflow: hidden;         /* 모서리 밖으로 나가는 내용 숨김 */
-    margin: 20px 0;
-}
-
-.tab-button {
-    flex: 1;                  /* 탭 너비를 균등하게 분할 */
-    padding: 12px 5px;
-    text-align: center;       /* 텍스트 가운데 정렬 */
-    background-color: #ffffff;/* 기본 배경색 (흰색) */
-    border: none;
-    border-right: 1px solid #dee2e6; /* 버튼 사이 구분선 */
-    font-size: 1em;
-    font-weight: 600;
-    color: #495057;           /* 기본 글자색 */
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.tab-nav .tab-button:last-child {
-    border-right: none;       /* 마지막 버튼의 오른쪽 구분선 제거 */
-}
-
-.tab-button.active {
-    background-color: #ffebe6; /* 활성화된 탭 배경색 (주황 계열) */
-    color: #d9534f;           /* 활성화된 탭 글자색 */
-    font-weight: bold;
-}
-
-/* 탭 아래 내용의 불필요한 상단 여백 제거 */
-.tab-pane {
-    padding-top: 0;
-}
+.tab-nav { display: flex; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; margin: 20px 0; }
+.tab-button { flex: 1; padding: 12px 5px; text-align: center; background-color: #ffffff; border: none; border-right: 1px solid #dee2e6; font-size: 1em; font-weight: 600; color: #495057; cursor: pointer; transition: background-color 0.2s; }
+.tab-nav .tab-button:last-child { border-right: none; }
+.tab-button.active { background-color: #ffebe6; color: #d9534f; font-weight: bold; }
+.tab-pane { display: none; padding: 20px 5px 0 5px; }
+.tab-pane.active { display: block; }
+.tab-pane h4 { color: var(--primary-color); margin-top: 1.5em; margin-bottom: 0.5em; }
 
 /* --- 미디어 쿼리 --- */
-@media (max-width: 1199px) { /* 모바일 & 태블릿 */
+@media (max-width: 1199px) {
     #sidebar, .panel { 
         position: absolute; 
         width: 100%; 
+        height: 100%;
+    }
+    #sidebar {
+        transform: translateX(-100%);
+    }
+    #app-container.menu-active #sidebar {
+        transform: translateX(0);
     }
     #sidebar.is-hidden, .panel.is-hidden { 
         transform: translateX(-100%); 
         z-index: 1; 
     }
-}
-
-/* --- [추가] 모바일 화면(가로 768px 이하)에서만 적용될 스타일 --- */
-@media (max-width: 768px) {
-    #ad-container-top {
-        height: 50px !important;
-        min-height: 50px !important;
-        overflow: hidden !important; /* [최종 추가] 넘치는 광고 내용을 숨깁니다 */
+    #content-wrapper {
+        position: absolute;
+        width: 100%;
+        height: 100%;
     }
 }
 
-@media (min-width: 1200px) { /* PC */
-    #app-container {
-        flex-grow: 1;
-        min-width: 0;
-    }
+@media (min-width: 1200px) {
     #ad-container-right {
         display: block;
         width: var(--right-ad-width);
         flex-shrink: 0;
     }
-    #main-placeholder {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-        text-align: center;
-        padding: 20px;
+    #app-container.menu-active #main-placeholder { 
+        display: none; 
     }
-    #main-placeholder img { max-width: 80%; max-height: 60%; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); margin-bottom: 25px; }
-    #main-placeholder p { font-size: 1.2em; font-weight: 500; color: #495057; }
-    #app-container.menu-active #main-placeholder { display: none; }
-}
-
-/* --- 무효 트래픽 방지용 스타일 --- */
-.ad-container.hidden {
-    display: none !important;
-}
-
-/* 최종: 그룹형 2단 카드 스타일 (테이블 혼합) */
-
-.content-card-list {
-  width: 100%;
-}
-
-.content-card {
-  display: flex;
-  background-color: #f0f5fa;
-  border: 1px solid #cdd8e3;
-  border-radius: 12px;
-  margin-bottom: 15px;
-  width: 100%;
-  overflow: hidden;
-}
-
-.card-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px; /* 카드 전체의 상하 크기 줄일 수 있음 */
-  font-size: 14px;
-  color: #d90000;
-  font-weight: bold;
-  flex-basis: 120px;
-  flex-shrink: 0;
-  text-align: center;
-}
-
-/* 변경 후 */
-.content-card {
-  display: grid;
-  grid-template-columns: 120px 1fr; /* 좌측 120px, 우측 나머지 */
-  background-color: #f0f5fa;
-  border: 1px solid #cdd8e3;
-  border-radius: 12px;
-  margin-bottom: 15px;
-  width: 100%;
-  overflow: hidden;
-}
-
-/* '기본 능력치' 리스트 스타일 */
-.stat-list-disc {
-  list-style-type: disc;
-  padding-left: 20px;
-  margin: 0;
-  font-size: 14px;
-  color: #333;
-  line-height: 1.8;
-}
-
-/* '소지 효과' 테이블 스타일 */
-.effect-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  line-height: 1.8;
-}
-
-.effect-subtitle-cell {
-  width: 100px; /* 소제목 너비 고정 */
-  padding-right: 10px;
-  padding-bottom: 10px; /* 각 효과 사이의 세로 간격 */
-  vertical-align: top;
-  font-weight: bold;
-  color: #007bff;
-}
-.effect-text-cell {
-  padding-bottom: 10px; /* 각 효과 사이의 세로 간격 */
-  vertical-align: top;
-  color: #333;
-}
-.effect-table tr:last-child td {
-  padding-bottom: 0; /* 마지막 효과는 아래쪽 간격 없음 */
-}
-
-
-.with-subtitle {
-  display: grid;
-  /* 1열은 서브타이틀만큼, 2열은 나머지 */
-  grid-template-columns: max-content 1fr;
-  column-gap: 12px;
-  row-gap: 8px;
-}
-
-/* 서브타이틀은 무조건 1열, 줄바꿈 금지 */
-.sub-title {
-  grid-column: 1;
-  white-space: nowrap;
-  margin: 0;
-  padding: 0;
-  font-size: 14px;
-  font-weight: bold;
-  color: #007bff;
-}
-
-/* 본문은 무조건 2열 */
-.body-text {
-  grid-column: 2;
-  margin: 0;
-  padding: 0;
-  font-size: 14px;
-  line-height: 1.6;
-  color: #333;
-}
-
-
-/* 모바일 반응형 (선택 사항) */
-@media (max-width: 600px) {
-  .content-card {
-    grid-template-columns: 100px 1fr;
-  }
-  .card-title {
-    padding: 8px 10px;
-    font-size: 13px;
-  }
-  .sub-title,
-  .body-text {
-    font-size: 13px;
-  }
-}
-
-/* --- 추천 덱 4x4 그리드 스타일 (진짜 최종 수정본) --- */
-/* --- 추천 덱 4x4 그리드 스타일 (진짜 최종 수정본) --- */
-.four-by-four-table {
-    width: 100%;
-    max-width: 400px;
-    border-collapse: separate;
-    border-spacing: 5px;
-    margin: 20px auto;
-    table-layout: fixed;
-}
-
-.four-by-four-table td {
-    border: 1px solid #ddd;
-    background-color: #f9f9f9;
-    text-align: center;
-    vertical-align: top;
-    width: 25%;
-    height: 0;
-    padding-bottom: 25%; /* 정사각형 비율 유지 */
-    position: relative;
-    border-radius: 8px;
-}
-
-/* 이제 td의 직계 자식(새로 만든 div 또는 .deck-pokemon-cell)이 
-   부모(td)를 꽉 채우는 flex 상자가 되어 내용물을 완벽하게 중앙 정렬합니다. */
-.four-by-four-table td > * {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 5px;
-}
-
-.four-by-four-table .deck-pokemon-cell {
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.four-by-four-table .deck-pokemon-cell:hover {
-    background-color: #e9ecef;
-}
-
-.four-by-four-table .deck-pokemon-cell img {
-    width: 65%;
-    height: 65%;
-    object-fit: contain;
-    margin-bottom: 4px;
-}
-
-.four-by-four-table .deck-pokemon-cell .pkm-name {
-    font-size: 11px;
-    font-weight: bold;
-    color: #333;
-    line-height: 1.2;
-}
-
-/* header-cell은 이제 자식으로 둔 div를 중앙정렬합니다. */
-.four-by-four-table .header-cell {
-    background-color: #e9f5ff;
-}
-
-.four-by-four-table .header-cell .header-emoji {
-    font-size: 2.5em;
-}
-
-.four-by-four-table .header-cell img {
-    width: 70%;
-    height: 70%;
-    object-fit: contain;
-    object-position: center; /* 이미지 자체의 여백 문제를 해결 */
-}
-
-.four-by-four-table .empty-cell {
-    background-color: #f0f0f0;
-    border-style: dashed;
-}
-
-/* =============================================== */
-/* 새로운 info-card 스타일을 content-card에 맞추는 코드 */
-/* =============================================== */
-
-/* 카드 전체 레이아웃 (content-card와 동일하게) */
-.info-card-item {
-  display: grid;
-  grid-template-columns: 120px 1fr; /* 좌측 제목 120px, 우측 내용 나머지 */
-  background-color: #f8f9fa; /* 배경색 살짝 변경 */
-  border: 1px solid #e0e6ec; /* 테두리 색 살짝 변경 */
-  border-radius: 12px;
-  margin-bottom: 15px;
-  width: 100%;
-  overflow: hidden;
-}
-
-/* 카드 제목 부분 (card-title과 동일하게) */
-.info-card-label {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 15px 10px;
-  font-size: 14px;
-  color: #d90000;
-  font-weight: bold;
-  text-align: center;
-  border-right: 1px solid #e0e6ec; /* 오른쪽 구분선 추가 */
-}
-
-/* 카드 내용 부분 (card-content와 동일하게) */
-.info-card-value {
-  padding: 15px 20px;
-}
-
-/* --- '기본 능력치' 목록 스타일 --- */
-
-/* stat-list의 기본 스타일 초기화 */
-.stat-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.stat-list li {
-  font-size: 14px;
-  color: #333;
-  line-height: 1.8;
-}
-
-/* li 앞에 • 기호를 추가하여 stat-list-disc와 같아 보이게 함 */
-.stat-list li::before {
-  content: "•";
-  margin-right: 8px;
-  color: #555;
-}
-
-/* span 태그들이 한 줄로 보이도록 처리 */
-.stat-list li .label,
-.stat-list li .value {
-  display: inline;
-}
-
-/* --- '소지 효과' 목록 스타일 --- */
-
-.effect-item {
-  display: grid;
-  grid-template-columns: max-content 1fr; /* 소제목 크기만큼, 나머지는 내용 */
-  gap: 8px 12px; /* 세로, 가로 간격 */
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-/* 마지막 effect-item을 제외하고 아래쪽에 여백 추가 */
-.effect-item:not(:last-child) {
-  margin-bottom: 15px;
-}
-
-.effect-subtitle {
-  grid-column: 1;
-  font-weight: bold;
-  color: #007bff;
-  white-space: nowrap; /* 줄바꿈 방지 */
-}
-
-.effect-description {
-  grid-column: 2;
-  color: #333;
-  word-break: break-all; /* <-- 이 줄 추가 */
-}
-
-/* --- 공통 value 스타일 --- */
-
-/* 강조하고 싶은 값에 대한 스타일 (선택사항) */
-.value {
-  color: #c92a2a;
-  font-weight: 600;
-}
-
-/* =============================================== */
-/* 소지 효과 카드 내부의 2단 분리 스타일 (추가) */
-/* =============================================== */
-
-.effect-grid {
-  display: grid;
-  /* 1열: 소제목 크기만큼, 2열: 나머지 전체 */
-  grid-template-columns: max-content 1fr;
-  align-items: start; /* 각 행의 높이가 달라도 위쪽을 기준으로 정렬 */
-  row-gap: 18px; /* 각 효과 사이의 세로 간격 */
-  column-gap: 15px; /* 소제목과 설명 사이의 가로 간격 */
-}
-
-.effect-subtitle {
-  font-weight: bold;
-  font-size: 14px;
-  color: #007bff;
-  white-space: nowrap; /* 소제목이 길어도 줄바꿈 방지 */
-}
-
-.effect-description {
-  font-size: 14px;
-  line-height: 1.7;
-  color: #333;
-  word-break: break-all; /* <-- 이 줄 추가 */
-}
-
-/* =============================================== */
-/* 모바일 화면 가독성 개선을 위한 반응형 코드 (추가) */
-/* =============================================== */
-
-@media (max-width: 768px) {
-  /* 외부 카드 레이아웃 (예: '소지 효과' 제목 부분) */
-  .content-card,
-  .info-card-item {
-    grid-template-columns: 1fr; /* 2단 -> 1단으로 변경 */
-    gap: 0;
-  }
-
-  .card-title,
-  .info-card-label {
-    border-right: none; /* 우측 구분선 제거 */
-    border-bottom: 1px solid #e0e6ec; /* 아래쪽 구분선 추가 */
-    padding: 12px 15px;
-    justify-content: flex-start; /* 제목 왼쪽 정렬 */
-  }
-  
-  .card-content,
-  .info-card-value {
-    padding: 15px;
-  }
-
-  /* 내부 2단 레이아웃 (예: '[기본 효과]' 소제목 부분) */
-  .effect-grid {
-    grid-template-columns: 1fr; /* 2단 -> 1단으로 변경 */
-    row-gap: 15px;
-  }
-  
-  .effect-subtitle {
-    /* 소제목 아래에 설명이 오므로, 약간의 여백 추가 */
-    margin-bottom: -5px; 
-  }
-}
-
-/* style.css 파일 맨 아래에 이 코드를 추가하세요 */
-
-.tab-container {
-    margin-top: 20px;
-}
-
-/* 탭 네비게이션과 버튼 스타일은 이전에 추가한 것을 재사용하므로, 
-   .tab-pane 스타일만 추가하거나 확인합니다. */
-.tab-pane {
-    display: none;
-    padding-top: 20px;
-}
-
-.tab-pane.active {
-    display: block;
-}
-
-.tab-pane h4 {
-    color: var(--primary-color);
-    margin-top: 1.5em;
-    margin-bottom: 0.5em;
-    font-size: 1.1em;
-}
-
-.tab-pane h4:first-child {
-    margin-top: 0;
 }
