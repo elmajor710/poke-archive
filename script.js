@@ -2,257 +2,154 @@ document.addEventListener('DOMContentLoaded', () => {
     // Firebase 객체 확인
     if (!window.db) {
         console.error("Firebase 'db' 객체를 찾을 수 없습니다.");
+        alert("사이트 로딩에 실패했습니다. 잠시 후 다시 시도해주세요.");
         return;
     }
 
-    // 전역 변수 선언
-    const appContainer = document.getElementById('app-container'); // ID 변경에 따라 수정
+    // --- DOM 요소 ---
+    const homeButton = document.getElementById('home-button');
+    const menuToggleBtn = document.getElementById('menu-toggle');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const mainContainer = document.getElementById('main-container');
     const sidebar = document.getElementById('sidebar');
-    const mainPlaceholder = document.getElementById('main-placeholder');
-    const noticePopularSection = document.querySelector('.notice-popular-section');
+    const noticeList = document.getElementById('notice-list');
+    const popularList = document.getElementById('popular-list');
     const mobileNoticeButtons = document.querySelector('.mobile-notice-buttons');
     const panels = {
-        lev1: sidebar,
         lev2: document.getElementById('lev2-panel'),
         lev3: document.getElementById('lev3-panel'),
         lev4: document.getElementById('lev4-panel')
     };
-    let activeButtons = {};
+
+    // --- 상태 변수 ---
+    let state = {
+        activeLevel: 0, // 0: initial, 2: lev2, 3: lev3, 4: lev4
+        history: [], // { level, menuId, clickedId }
+        activeButtons: {}
+    };
     const isMobile = () => window.innerWidth <= 1199;
 
-    // --- 메인 실행 함수 ---
+    // --- 초기화 ---
     async function initialize() {
         try {
             await fetchAllDataFromFirebase();
             setupSideMenuData();
             renderSidebar();
+            await populateInitialContent();
             addEventListeners();
-            populateMainOverlay();
+            updateView();
+            (adsbygoogle = window.adsbygoogle || []).push({});
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
-            document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다.";
+            document.body.innerHTML = "<h4>사이트 초기화 중 오류가 발생했습니다.</h4>";
         }
     }
 
-    // --- 데이터 로딩 및 준비 ---
-    async function fetchAllDataFromFirebase() { /* ... 이전과 동일, 변경 없음 ... */ }
-    function setupSideMenuData() { /* ... 이전과 동일, 변경 없음 ... */ }
-    
-    async function populateMainOverlay() {
-        const noticeList = document.getElementById('notice-list');
-        const popularList = document.getElementById('popular-list');
-        if (!noticeList || !popularList) return;
+    // --- 데이터 로딩 및 가공 ---
+    async function fetchAllDataFromFirebase() {
+        console.log("Firestore에서 데이터 로딩 시작...");
+        const collections = ['pokemon', 'items', 'runeAndChips', 'tips', 'events', 'recommendedDecks', 'announcements'];
+        const promises = collections.map(col => db.collection(col).where("isPublished", "==", true).get());
+        const [
+            pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot,
+            eventsSnapshot, decksSnapshot, announcementsSnapshot
+        ] = await Promise.all(promises);
 
-        // 공지사항 로딩 및 클릭 이벤트
-        const announcements = Object.values(DB.announcements.lev3 || {}).sort((a,b) => b.timestamp.toMillis() - a.timestamp.toMillis()).slice(0, 5);
-        if (announcements.length > 0) {
-            noticeList.innerHTML = announcements.map(notice => `<li data-id="${notice.id}" style="cursor: pointer;">${notice.title}</li>`).join('');
-        } else {
-            noticeList.innerHTML = '<li>등록된 공지사항이 없습니다.</li>';
-        }
-
-        const clickHandler = (id) => {
-            const sidebarMenuButton = sidebar.querySelector(`button[data-id="${id}"]`);
-            if (sidebarMenuButton) sidebarMenuButton.click();
+        const snapshotToMap = (snapshot) => {
+            const dataMap = {};
+            snapshot.forEach(doc => { dataMap[doc.id] = { id: doc.id, ...doc.data() }; });
+            return dataMap;
         };
 
-        noticeList.addEventListener('click', (e) => {
-            const targetLi = e.target.closest('li');
-            if (targetLi && targetLi.dataset.id) {
-                const noticeId = targetLi.dataset.id;
-                const sidebarMenuButton = sidebar.querySelector('button[data-id="announcements"]');
-                if (sidebarMenuButton) {
-                    sidebarMenuButton.click();
-                    setTimeout(() => {
-                        const noticeItemButton = panels.lev2.querySelector(`button[data-id="${noticeId}"]`);
-                        if (noticeItemButton) noticeItemButton.click();
-                    }, 50);
-                }
-            }
-        });
-        
-        mobileNoticeButtons.addEventListener('click', (e) => {
-            const targetBtn = e.target.closest('button');
-            if(targetBtn && targetBtn.dataset.targetMenu) {
-                if(targetBtn.dataset.targetMenu === 'announcements') {
-                     clickHandler('announcements');
-                }
-                // 인기글 버튼 기능은 나중에 추가
-            }
-        });
-
-        popularList.innerHTML = `<li>인기글 1위 (개발 예정)</li>`;
+        DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
+        DB.item.lev4 = snapshotToMap(itemsSnapshot);
+        DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
+        DB.tips.lev3 = snapshotToMap(tipsSnapshot);
+        DB.deck.lev4 = snapshotToMap(decksSnapshot);
+        DB.announcements.lev3 = snapshotToMap(announcementsSnapshot);
+        DB.calendar.lev2.events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        console.log("Firestore 데이터 로딩 완료.");
     }
 
+    function setupSideMenuData() {
+        // 포켓몬 등급별 그룹화
+        const grades = { ss: [], sPlus: [], s: [] };
+        Object.values(DB.pokemonType.lev4).forEach(pkm => {
+            if (pkm.grade === 'SS') grades.ss.push({ id: pkm.id, name: pkm.name_ko });
+            else if (pkm.grade === 'S+') grades.sPlus.push({ id: pkm.id, name: pkm.name_ko });
+            else if (pkm.grade === 'S') grades.s.push({ id: pkm.id, name: pkm.name_ko });
+        });
+        DB.pokemonGrade.lev3 = grades;
+
+        // 아이템 등급별 그룹화
+        const itemGrades = { god: [], legendary: [], epic: [] };
+        Object.values(DB.item.lev4).forEach(item => {
+            const gradeKey = item.grade?.toLowerCase();
+            if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name });
+        });
+        DB.item.lev3 = itemGrades;
+
+        // 룬/칩 타입별 그룹화
+        const runeAndChipTypes = { rune: [], chip: [] };
+        Object.values(DB.runeAndChip.lev4).forEach(rc => {
+            if(rc.type && runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name });
+        });
+        DB.runeAndChip.lev3 = runeAndChipTypes;
+
+        // 팁, 추천덱, 공지사항 목록 생성
+        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title }));
+        DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
+        DB.announcements.lev2 = Object.values(DB.announcements.lev3).map(data => ({ id: data.id, name: data.title }));
+    }
+
+    // --- 렌더링 함수 ---
     function renderSidebar() {
-        if (!sidebar) return;
-        const sidebarContent = document.createElement('div');
+        sidebar.innerHTML = '';
         DB.sidebarMenu.forEach(item => {
             const button = document.createElement('button');
             button.className = 'menu-item';
             button.textContent = item.name;
             button.dataset.level = 1;
             button.dataset.id = item.id;
-            sidebarContent.appendChild(button);
+            sidebar.appendChild(button);
         });
-        sidebar.innerHTML = '';
-        sidebar.appendChild(sidebarContent);
     }
 
-    function renderNoticeAndPopular() {
-        const noticeList = document.getElementById('notice-list');
-        const popularList = document.getElementById('popular-list');
+    async function populateInitialContent() {
+        // 공지사항 로딩
+        const announcements = Object.values(DB.announcements.lev3 || {})
+            .sort((a,b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0))
+            .slice(0, 5);
 
-        if (noticeList && DB.announcements?.lev2) {
-            const announcements = Object.values(DB.announcements.lev2);
-            noticeList.innerHTML = announcements.length > 0
-                ? announcements.map(item => `<li>${item.name}</li>`).join('')
-                : '<li>등록된 공지가 없습니다.</li>';
+        if (announcements.length > 0) {
+            noticeList.innerHTML = announcements.map(notice => `<li data-menu-id="announcements" data-id="${notice.id}">${notice.title}</li>`).join('');
+        } else {
+            noticeList.innerHTML = '<li>등록된 공지사항이 없습니다.</li>';
         }
 
-        if (popularList) {
-            popularList.innerHTML = '<li>인기글 1위 (개발 예정)</li><li>인기글 2위 (개발 예정)</li><li>인기글 3위 (개발 예정)</li><li>인기글 4위 (개발 예정)</li><li>인기글 5위 (개발 예정)</li>';
-        }
+        // 인기글 (임시)
+        popularList.innerHTML = `<li>인기글 데이터 준비중입니다.</li>`;
     }
 
-    function addEventListeners() {
-        if(appContainer) {
-            appContainer.addEventListener('click', e => {
-                const button = e.target.closest('button');
-                if (!button) return;
-                if (button.classList.contains('back-btn')) handleBackClick(button); 
-                else if (button.classList.contains('main-btn')) handleMainButtonClick();
-                else if (button.dataset.level) handleMenuClick(button); 
-            });
-        }
-    }
-
-    // [핵심 수정] 메뉴 클릭 시 공지/인기글 섹션 숨기기
-    function handleMenuClick(button) {
-        appContainer.classList.add('menu-active');
-        mainPlaceholder.style.display = 'none';
-        noticePopularSection.style.display = 'none';
-        mobileNoticeButtons.style.display = 'none';
-        
-        const level = parseInt(button.dataset.level);
-        const id = button.dataset.id;
-        const menuId = button.dataset.menuId || id;
-        const nextLevel = level + 1;
-        const nextData = getNextData(level, id, menuId); 
-        const currentPanel = panels[`lev${level}`] || sidebar;
-        const nextPanel = panels[`lev${nextLevel}`];
-        if (!nextPanel) return;
-
-        if (isMobile()) currentPanel.classList.add('is-hidden');
-        
-        Object.values(panels).forEach((panel, index) => {
-            if(index > 0 && panel !== nextPanel) panel.classList.remove('visible');
-        });
-        nextPanel.classList.remove('is-hidden');
-        nextPanel.classList.add('visible');
-
-        setActive(level, button);
-        renderPanelContent(nextLevel, nextData, menuId, id);
-    }
-
-    function handleBackClick(button) {
-        const parentPanel = button.closest('.panel');
-        if (!parentPanel) return;
-
-        const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
-        const currentPanel = panels[`lev${level}`];
-        const prevPanel = panels[`lev${level - 1}`] || sidebar;
-        
-        currentPanel.classList.remove('visible');
-        
-        if (prevPanel) {
-            if (isMobile()) {
-                prevPanel.classList.remove('is-hidden');
-            }
-            if (level - 1 < 2 && !isMobile()) {
-                document.getElementById('main-placeholder').style.display = 'flex';
-            }
-        }
-        setActive(level - 1, null);
-    }
-    
-    // [핵심 수정] 메인 버튼 클릭 시 공지/인기글 섹션 다시 보이기
-    function handleMainButtonClick() {
-        appContainer.classList.remove('menu-active');
-        mainPlaceholder.style.display = 'flex';
-        noticePopularSection.style.display = 'block';
-        mobileNoticeButtons.style.display = 'flex';
-
-        Object.values(panels).forEach((panel, index) => {
-            if (index > 0) panel.classList.remove('visible', 'is-hidden');
-        });
-        setActive(0, null);
-        if (isMobile() && sidebar) sidebar.classList.remove('is-hidden');
-    }
-
-    function setActive(level, target) {
-        for (let i = level; i <= 4; i++) {
-            if (activeButtons[i]) {
-                activeButtons[i].classList.remove('active');
-                activeButtons[i] = null;
-            }
-        }
-        if (target) {
-            target.classList.add('active');
-            activeButtons[level] = target;
-        }
-    }
-
-    function getNextData(currentLevel, id, menuId) {
-        const nextLevel = currentLevel + 1;
-        if (nextLevel === 2) return DB[menuId]?.lev2;
-        if (nextLevel === 3) {
-            const data = DB[menuId]?.lev3?.[id];
-            return Array.isArray(data) ? data : (data ? Object.values(data) : []);
-        }
-        if (nextLevel === 4) return DB[menuId]?.lev4?.[id];
-        return null;
-    }
-
-    function renderPanelContent(level, data, menuId, clickedId, isFinalView) {
-        const targetPanel = panels[`lev${level}`] || panels.lev4;
-        if (!targetPanel) return;
-
+    function renderPanelContent(level, menuId, clickedId) {
+        const nextData = getNextData(level - 1, menuId, clickedId);
+        const targetPanel = panels[`lev${level}`];
         const contentDiv = targetPanel.querySelector('.panel-content');
-        if (!contentDiv) return;
-
-        const panelHeader = targetPanel.querySelector('.panel-header');
-        if (panelHeader.querySelector('.main-btn')) panelHeader.querySelector('.main-btn').remove();
-
         contentDiv.innerHTML = '';
         contentDiv.scrollTop = 0;
-        
-        if (clickedId === 'builder') {
-            if (isMobile()) {
-                contentDiv.innerHTML = `<div class="pc-only-message"><h3>기능 안내</h3><p>배치툴 기능은 화면이 넓은 PC 환경에 최적화되어 있습니다.<br>PC에서 접속하여 이용해주세요.</p></div>`;
-            } else {
-                renderDeckBuilder(contentDiv);
-            }
-            return; 
-        } 
-        
-        if (!data) {
-            contentDiv.innerHTML = "데이터를 불러오지 못했습니다.";
-            return;
-        }
-        
-        if (isFinalView) {
-            const mainButton = document.createElement('button');
-            mainButton.className = 'main-btn';
-            mainButton.textContent = '메인';
-            panelHeader.appendChild(mainButton);
 
-            if (menuId === 'deck' && data.composition) renderDeckView(contentDiv, data);
-            else if (menuId === 'calendar') renderCalendarView(contentDiv, data);
-            else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
-            else renderSimpleView(contentDiv, data, menuId); 
+        const maxLevel = DB.sidebarMenu.find(m => m.id === menuId)?.levels || 4;
+        const isFinalView = level >= maxLevel;
+
+        if (isFinalView) {
+            const finalData = DB[menuId]?.lev4?.[clickedId] || DB[menuId]?.lev3?.[clickedId] || nextData;
+            if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, finalData);
+            else if (menuId === 'deck') renderDeckView(contentDiv, finalData);
+            else if (menuId === 'calendar') renderCalendarView(contentDiv, DB.calendar.lev2);
+            else renderSimpleView(contentDiv, finalData, menuId);
         } else {
-            const items = Array.isArray(data) ? data : (data ? Object.values(data) : []);
+            const items = Array.isArray(nextData) ? nextData : (nextData ? Object.values(nextData) : []);
+            items.sort((a,b) => (a.name || '').localeCompare(b.name || ''));
             items.forEach(item => {
                 const button = document.createElement('button');
                 button.className = 'list-item';
@@ -265,40 +162,119 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function showModal(title, content) {
-        const existingModal = document.querySelector('.modal-overlay');
-        if (existingModal) existingModal.remove();
+    function updateView() {
+        mainContainer.dataset.activeLevel = state.activeLevel;
 
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'modal-overlay';
-        
-        modalOverlay.innerHTML = `
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>${title}</h2>
-                    <button class="modal-close-btn">&times;</button>
-                </div>
-                <div class="modal-body"></div>
-            </div>`;
-
-        const modalBody = modalOverlay.querySelector('.modal-body');
-
-        if (typeof content === 'string') {
-            modalBody.innerHTML = content;
-        } else if (content instanceof HTMLElement) {
-            modalBody.appendChild(content);
+        // 활성 버튼 스타일 업데이트
+        document.querySelectorAll('.menu-item.active, .list-item.active').forEach(b => b.classList.remove('active'));
+        if (state.activeLevel > 0 && state.history.length > 0) {
+            const lastState = state.history[state.history.length - 1];
+            const btn = findButton(lastState.level, lastState.clickedId);
+            if (btn) btn.classList.add('active');
         }
+    }
 
-        document.body.appendChild(modalOverlay);
+    // --- 이벤트 핸들러 ---
+    function addEventListeners() {
+        // 헤더 로고 클릭 (홈으로)
+        homeButton.addEventListener('click', () => {
+            state.activeLevel = 0;
+            state.history = [];
+            updateView();
+        });
 
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target.matches('.modal-overlay, .modal-close-btn')) {
-                modalOverlay.remove();
+        // 모바일 메뉴 토글
+        menuToggleBtn.addEventListener('click', () => document.body.classList.toggle('sidebar-visible'));
+        sidebarOverlay.addEventListener('click', () => document.body.classList.remove('sidebar-visible'));
+
+        // 컨텐츠 영역 클릭 위임
+        mainContainer.addEventListener('click', e => {
+            const button = e.target.closest('button[data-level], button.back-btn');
+            const noticeItem = e.target.closest('#notice-list li');
+
+            if (button) {
+                if (button.classList.contains('back-btn')) handleBackClick();
+                else if (button.dataset.level) handleMenuClick(button);
+            } else if (noticeItem) {
+                handleNoticeClick(noticeItem);
+            }
+        });
+
+        // 모바일 공지/인기글 버튼
+        mobileNoticeButtons.addEventListener('click', (e) => {
+            const btn = e.target.closest('.mobile-notice-btn');
+            if (!btn) return;
+            const targetMenu = btn.dataset.targetMenu;
+            if (targetMenu === 'announcements') {
+                const sidebarBtn = sidebar.querySelector(`button[data-id="announcements"]`);
+                if (sidebarBtn) handleMenuClick(sidebarBtn);
             }
         });
     }
 
-    function renderPokemonView(contentDiv, data, menuId) {
+    function handleMenuClick(button) {
+        const level = parseInt(button.dataset.level);
+        const id = button.dataset.id;
+        const menuId = button.dataset.menuId || id;
+        const nextLevel = level + 1;
+
+        state.history.push({ level, menuId, clickedId: id });
+        state.activeLevel = nextLevel;
+
+        renderPanelContent(nextLevel, menuId, id);
+        updateView();
+
+        if (isMobile()) {
+            document.body.classList.remove('sidebar-visible');
+        }
+    }
+
+    function handleNoticeClick(listItem) {
+        const menuId = listItem.dataset.menuId;
+        const noticeId = listItem.dataset.id;
+
+        const sidebarBtn = sidebar.querySelector(`button[data-id="${menuId}"]`);
+        if (sidebarBtn) {
+            // 1단계 메뉴 클릭
+            handleMenuClick(sidebarBtn);
+            // 2단계(공지사항 목록) 렌더링 후 특정 공지사항 클릭
+            setTimeout(() => {
+                const noticeBtn = panels.lev2.querySelector(`button[data-id="${noticeId}"]`);
+                if (noticeBtn) handleMenuClick(noticeBtn);
+            }, 50); // DOM 렌더링 시간 확보
+        }
+    }
+
+    function handleBackClick() {
+        if (state.history.length === 0) return;
+        state.history.pop();
+        const prevState = state.history[state.history.length - 1];
+        state.activeLevel = prevState ? prevState.level + 1 : 0;
+        updateView();
+    }
+
+    // --- 헬퍼 함수 ---
+    function getNextData(currentLevel, menuId, clickedId) {
+        if (currentLevel === 1) return DB[menuId]?.lev2;
+        if (currentLevel === 2) return DB[menuId]?.lev3?.[clickedId];
+        if (currentLevel === 3) return DB[menuId]?.lev4?.[clickedId];
+        return null;
+    }
+
+    function findButton(level, id) {
+        if (level === 1) return sidebar.querySelector(`button[data-id="${id}"]`);
+        const panel = panels[`lev${level}`];
+        return panel ? panel.querySelector(`button[data-id="${id}"]`) : null;
+    }
+
+    // --- 상세 뷰 렌더링 (기존 함수 재사용 및 일부 수정) ---
+    function renderPokemonView(contentDiv, data) {
+        if (!data) {
+            contentDiv.innerHTML = "<h4>데이터를 찾을 수 없습니다.</h4>";
+            return;
+        }
+        // ... (기존 renderPokemonView 함수 내용은 여기에 붙여넣기)
+        // ... 단, showModal 호출 부분은 그대로 사용
         const detailView = document.createElement('div');
         const nameKo = data.name_ko || '이름 없음';
         const nameEn = data.name_en || '';
@@ -381,9 +357,13 @@ document.addEventListener('DOMContentLoaded', () => {
         contentDiv.innerHTML = '';
         contentDiv.appendChild(detailView);
 
-        detailView.querySelectorAll('.skill-name').forEach(el => { 
-            el.addEventListener('click', () => { 
-                const skillIndex = parseInt(el.dataset.skillIndex);
+        detailView.addEventListener('click', e => {
+            const skillNameEl = e.target.closest('.skill-name');
+            const recommendItemEl = e.target.closest('.recommend-item');
+            const tabButtonEl = e.target.closest('.tab-button');
+
+            if (skillNameEl) {
+                const skillIndex = parseInt(skillNameEl.dataset.skillIndex);
                 const skill = data.skills[skillIndex];
                 if (skill) {
                     let skillDetailContent = `<p>${skill.description || ''}</p>`;
@@ -392,38 +372,35 @@ document.addEventListener('DOMContentLoaded', () => {
                         skill.keywords.forEach(kw => { skillDetailContent += `<li><strong>${kw.term}:</strong> ${kw.desc}</li>`; });
                         skillDetailContent += '</ul>';
                     }
-                    showModal(skill.name, skillDetailContent); 
+                    showModal(skill.name, skillDetailContent);
                 }
-            }); 
-        });
-        detailView.querySelectorAll('.recommend-item').forEach(el => {
-            el.addEventListener('click', () => {
-                const itemId = el.dataset.itemId;
-                const itemType = el.dataset.itemType;
+            } else if (recommendItemEl) {
+                const itemId = recommendItemEl.dataset.itemId;
+                const itemType = recommendItemEl.dataset.itemType;
                 const dbKey = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
                 const itemData = DB[dbKey]?.lev4?.[itemId];
 
                 if (itemData) {
                     const tempContentDiv = document.createElement('div');
-                    const menuIdForSimpleView = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
-                    renderSimpleView(tempContentDiv, itemData, menuIdForSimpleView);
+                    renderSimpleView(tempContentDiv, itemData, dbKey);
                     showModal(itemData.name, tempContentDiv);
                 }
-            });
-        });
-
-        detailView.querySelectorAll('.tab-button').forEach(button => {
-            button.addEventListener('click', () => {
-                if (button.classList.contains('active')) return;
+            } else if (tabButtonEl) {
+                if (tabButtonEl.classList.contains('active')) return;
                 detailView.querySelector('.tab-button.active').classList.remove('active');
                 detailView.querySelector('.tab-pane.active').classList.remove('active');
-                button.classList.add('active');
-                detailView.querySelector(`#${button.dataset.tab}`).classList.add('active');
-            });
+                tabButtonEl.classList.add('active');
+                detailView.querySelector(`#${tabButtonEl.dataset.tab}`).classList.add('active');
+            }
         });
     }
 
     function renderSimpleView(contentDiv, data, menuId) {
+        if (!data) {
+            contentDiv.innerHTML = "<h4>데이터를 찾을 수 없습니다.</h4>";
+            return;
+        }
+        // ... (기존 renderSimpleView 함수 내용과 동일)
         const detailView = document.createElement('div');
         detailView.className = 'simple-detail-view';
 
@@ -483,31 +460,12 @@ document.addEventListener('DOMContentLoaded', () => {
         contentDiv.appendChild(detailView);
     }
 
-    function calculateSynergy(pokemonIds) {
-        if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
-        const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
-        if (mainPokemon.some(pkm => !pkm)) return null;
-        const typePokemonCount = {};
-        mainPokemon.forEach(pkm => {
-            if (pkm?.types) {
-                pkm.types.forEach(type => {
-                    typePokemonCount[type] = (typePokemonCount[type] || 0) + 1;
-                });
-            }
-        });
-        const counts = Object.values(typePokemonCount).sort((a, b) => b - a);
-        const totalUniqueTypes = Object.keys(typePokemonCount).length;
-        if (counts.length > 0 && counts[0] >= 6) return DB.synergyEffects.find(s => s.id === 'same6');
-        if (counts.length >= 2 && counts[0] >= 3 && counts[1] >= 3) return DB.synergyEffects.find(s => s.id === 'same3x2');
-        if (counts.length >= 2 && counts[0] >= 4 && counts[1] >= 2) return DB.synergyEffects.find(s => s.id === 'same4_2');
-        const totalPairs = counts.reduce((sum, c) => sum + Math.floor(c / 2), 0);
-        if (totalPairs >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
-        if (counts.length > 0 && counts[0] >= 3) return DB.synergyEffects.find(s => s.id === 'same3');
-        if (totalUniqueTypes >= 6 && pokemonIds.length >= 6) return DB.synergyEffects.find(s => s.id === 'diff6');
-        return null;
-    }
-    
     function renderDeckView(contentDiv, data) {
+        if (!data) {
+            contentDiv.innerHTML = "<h4>데이터를 찾을 수 없습니다.</h4>";
+            return;
+        }
+        // ... (기존 renderDeckView 함수 내용과 동일)
         const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
         let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
         if (data.description) { html += `<p>${data.description}</p>`; }
@@ -575,6 +533,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderCalendarView(contentDiv, data) {
+         if (!data) {
+            contentDiv.innerHTML = "<h4>데이터를 찾을 수 없습니다.</h4>";
+            return;
+        }
+        // ... (기존 renderCalendarView 함수 내용과 동일)
         let currentCalendarDate = new Date();
         function buildCalendar(year, month) {
             const calendarView = document.createElement('div');
@@ -663,127 +626,63 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCalendar();
     }
 
-    function renderDeckBuilder(contentDiv) {
-        let html = `<div class="deck-builder-view"><div class="placement-container"><div class="placement-grid"><div class="placement-slot-header" id="weather-icon-container" style="visibility: hidden;">☀️</div><div class="placement-slot-header" id="synergy-icon-container" style="visibility: hidden;"><img src="https://i.imgur.com/g0t51J7.png" alt="타입 시너지"></div><div class="placement-slot-header"></div><div class="placement-slot assist" data-role="assist" data-position="1">어시스트_#1</div><div class="placement-slot main rearguard" data-role="main" data-position="4">후방_#4</div><div class="placement-slot main vanguard" data-role="main" data-position="1">전방_#1</div><div class="placement-slot assist" data-role="assist" data-position="2">어시스트_#2</div><div class="placement-slot main rearguard" data-role="main" data-position="5">후방_#5</div><div class="placement-slot main vanguard" data-role="main" data-position="2">전방_#2</div><div class="placement-slot assist" data-role="assist" data-position="3">어시스트_#3</div><div class="placement-slot main rearguard" data-role="main" data-position="6">후방_#6</div><div class="placement-slot main vanguard" data-role="main" data-position="3">전방_#3</div></div></div><div class="source-container"><h4>포켓몬 목록</h4><div class="source-filter-bar"><select id="grade-filter" class="filter-dropdown"><option value="all">모든 등급</option><option value="SS">SS</option><option value="S+">S+</option><option value="S">S</option></select><select id="type-filter" class="filter-dropdown"><option value="all">모든 타입</option></select></div><div class="source-list"></div></div></div>`;
-        contentDiv.innerHTML = html;
-        const sourceList = contentDiv.querySelector('.source-list');
-        const placementGrid = contentDiv.querySelector('.placement-grid');
-        const synergyIconContainer = contentDiv.querySelector('#synergy-icon-container');
-        const gradeFilter = contentDiv.querySelector('#grade-filter');
-        const typeFilter = contentDiv.querySelector('#type-filter');
-        let placedPokemon = new Map();
-        
-        DB.pokemonType.lev2.forEach(type => {
-            const option = document.createElement('option');
-            option.value = type.id;
-            option.textContent = type.name;
-            typeFilter.appendChild(option);
-        });
-        
-        function applyFilters() {
-            const selectedGrade = gradeFilter.value;
-            const selectedType = typeFilter.value;
-            let filteredPokemon = Object.entries(DB.pokemonType.lev4).filter(([id, pkm]) => {
-                const gradeMatch = selectedGrade === 'all' || pkm.grade === selectedGrade;
-                const typeMatch = selectedType === 'all' || pkm.types?.includes(selectedType);
-                return gradeMatch && typeMatch;
-            });
-            filteredPokemon.sort(([, a], [, b]) => (a.name_ko || a.name).localeCompare(b.name_ko || b.name));
-            renderSourceList(filteredPokemon);
-        }
-
-        function renderSourceList(pokemonList) {
-            sourceList.innerHTML = '';
-            const grid = document.createElement('div');
-            grid.className = 'source-list-grid';
-            grid.innerHTML = pokemonList.map(([id, pkm]) => `<div class="pokemon-source-icon" draggable="true" data-pokemon-id="${id}"><img src="${pkm.faceImageURL}" alt="${pkm.name_ko || pkm.name}"><span>${pkm.name_ko || pkm.name}</span></div>`).join('');
-            sourceList.appendChild(grid);
-        }
-
-        gradeFilter.addEventListener('change', applyFilters);
-        typeFilter.addEventListener('change', applyFilters);
-        
-        let draggedItem = null; 
-        
-        sourceList.addEventListener('dragstart', e => {
-            const target = e.target.closest('.pokemon-source-icon');
-            if (target) {
-                draggedItem = target;
-                e.dataTransfer.setData('text/plain', target.dataset.pokemonId);
+    function calculateSynergy(pokemonIds) {
+        if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
+        const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
+        if (mainPokemon.some(pkm => !pkm)) return null;
+        const typePokemonCount = {};
+        mainPokemon.forEach(pkm => {
+            if (pkm?.types) {
+                pkm.types.forEach(type => {
+                    typePokemonCount[type] = (typePokemonCount[type] || 0) + 1;
+                });
             }
         });
+        const counts = Object.values(typePokemonCount).sort((a, b) => b - a);
+        const totalUniqueTypes = Object.keys(typePokemonCount).length;
+        if (counts.length > 0 && counts[0] >= 6) return DB.synergyEffects.find(s => s.id === 'same6');
+        if (counts.length >= 2 && counts[0] >= 3 && counts[1] >= 3) return DB.synergyEffects.find(s => s.id === 'same3x2');
+        if (counts.length >= 2 && counts[0] >= 4 && counts[1] >= 2) return DB.synergyEffects.find(s => s.id === 'same4_2');
+        const totalPairs = counts.reduce((sum, c) => sum + Math.floor(c / 2), 0);
+        if (totalPairs >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
+        if (counts.length > 0 && counts[0] >= 3) return DB.synergyEffects.find(s => s.id === 'same3');
+        if (totalUniqueTypes >= 6 && pokemonIds.length >= 6) return DB.synergyEffects.find(s => s.id === 'diff6');
+        return null;
+    }
+
+    function showModal(title, content) {
+        const existingModal = document.querySelector('.modal-overlay');
+        if (existingModal) existingModal.remove();
+
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'modal-overlay';
         
-        placementGrid.addEventListener('dragover', e => e.preventDefault());
-        
-        placementGrid.addEventListener('drop', e => {
-            e.preventDefault();
-            const targetSlot = e.target.closest('.placement-slot');
-            if (!targetSlot || !draggedItem) return;
-            const sourcePokemonId = draggedItem.dataset.pokemonId;
-            if (!sourcePokemonId) return;
-            
-            if (placedPokemon.has(targetSlot)) {
-                alert('슬롯이 비어있지 않습니다. 기존 포켓몬을 먼저 제거해주세요.');
-                return;
-            }
-            placePokemonInSlot(targetSlot, sourcePokemonId, DB.pokemonType.lev4[sourcePokemonId]);
-            draggedItem = null;
-            updateTeamEffects();
-        });
+        modalOverlay.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>${title}</h2>
+                    <button class="modal-close-btn">&times;</button>
+                </div>
+                <div class="modal-body"></div>
+            </div>`;
 
-        placementGrid.addEventListener('click', e => {
-            const removeButton = e.target.closest('.remove-pkm-btn');
-            if(removeButton) {
-                const parentSlot = removeButton.closest('.placement-slot');
-                if (parentSlot) {
-                    clearSlot(parentSlot);
-                    updateTeamEffects();
-                }
+        const modalBody = modalOverlay.querySelector('.modal-body');
+
+        if (typeof content === 'string') {
+            modalBody.innerHTML = content;
+        } else if (content instanceof HTMLElement) {
+            modalBody.appendChild(content);
+        }
+
+        document.body.appendChild(modalOverlay);
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target.matches('.modal-overlay, .modal-close-btn')) {
+                modalOverlay.remove();
             }
         });
-
-        function placePokemonInSlot(slot, pokemonId, pokemonData) {
-            slot.innerHTML = `<div class="deck-pokemon-cell" draggable="true"><img src="${pokemonData.faceImageURL}" alt="${pokemonData.name_ko}"/><button class="remove-pkm-btn">×</button></div>`;
-            placedPokemon.set(slot, pokemonId);
-        }
-
-        function clearSlot(slot) {
-            const { role, position } = slot.dataset;
-            let placeholderText;
-            if (role === 'assist') {
-                placeholderText = `어시스트_#${position}`;
-            } else {
-                 placeholderText = `${slot.classList.contains('vanguard') ? '전방' : '후방'}_#${position}`;
-            }
-            slot.innerHTML = placeholderText;
-            placedPokemon.delete(slot);
-        }
-
-        function updateTeamEffects() {
-            const mainPokemonIds = Array.from(placedPokemon.entries())
-                .filter(([slot,]) => slot.dataset.role === 'main')
-                .map(([, pokemonId]) => pokemonId);
-            
-            const synergy = calculateSynergy(mainPokemonIds);
-            if (synergy) {
-                synergyIconContainer.querySelector('img').src = synergy.imageURL;
-                synergyIconContainer.style.visibility = 'visible';
-            } else {
-                synergyIconContainer.style.visibility = 'hidden';
-            }
-        }
-        applyFilters();
     }
 
     // --- 페이지 실행 ---
-    adBlockManager.checkAndApplyBlock();
     initialize();
-    setupAdObservers();
-
-    function setScreenHeight() {
-      let vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-    }
-    setScreenHeight();
-    window.addEventListener('resize', setScreenHeight);
 });
