@@ -30,6 +30,7 @@ body {
     background-color: #f8f9fa;
 }
 
+/* [신규] 헤더 스타일 */
 header {
     background-color: var(--primary-color);
     color: white;
@@ -45,6 +46,7 @@ header h1 { margin: 0; font-size: 1.4em; cursor: pointer; }
 .menu-toggle-btn { display: none; font-size: 24px; background: none; border: none; color: white; cursor: pointer; }
 .header-placeholder { width: 24px; }
 
+/* [신규] 메인 레이아웃 구조 */
 #page-body { display: flex; flex-grow: 1; overflow: hidden; height: calc(100vh - var(--header-height)); }
 #app-container { display: flex; width: 100%; flex-grow: 1; position: relative; overflow: hidden; }
 #sidebar { width: var(--sidebar-width); border-right: 1px solid var(--border-color); padding: 10px; overflow-y: auto; flex-shrink: 0; background-color: #fff; transition: transform var(--slide-duration) ease-in-out; }
@@ -54,6 +56,7 @@ header h1 { margin: 0; font-size: 1.4em; cursor: pointer; }
 #ad-container-top { width: 100%; min-height: 90px; max-height: 150px; flex-shrink: 0; }
 #ad-container-right { display: none; }
 
+/* [신규] 프런트 UI 스타일 */
 #initial-content { padding: 20px; }
 #main-placeholder { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px 0; }
 #main-placeholder img { max-width: 90%; max-height: 400px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-bottom: 25px; object-fit: contain; }
@@ -67,21 +70,59 @@ header h1 { margin: 0; font-size: 1.4em; cursor: pointer; }
 .notice-container li:last-child, .popular-container li:last-child { border-bottom: none; }
 .mobile-notice-buttons { display: none; }
 
-.panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: none; flex-direction: column; z-index: 10; transform: translateX(100%); transition: transform var(--slide-duration) ease-in-out; visibility: hidden;}
-.panel.visible { transform: translateX(0); visibility: visible; display: flex; }
+/* 기존 패널 스타일 (운영 코드 기반) */
+.panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: flex; flex-direction: column; transform: translateX(100%); transition: transform var(--slide-duration) ease-in-out; visibility: hidden; z-index: 1; }
+.panel.visible { transform: translateX(0); visibility: visible; z-index: 5; }
+#lev3-panel.visible { z-index: 6; }
+#lev4-panel.visible { z-index: 7; }
 .panel-header { padding: 10px 15px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
 .back-btn, .main-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border-color); background-color: #f8f9fa; cursor: pointer; font-size: 1em; }
 .main-btn { background-color: #6c757d; color: white; border-color: #6c757d; }
 .panel-content { padding: 10px; overflow-y: auto; flex-grow: 1; -webkit-overflow-scrolling: touch; }
 
+/* 메뉴 선택 시 초기화면 숨기기 */
 #app-container.menu-active #initial-content { display: none; }
 
+/* (이하 기존 운영 코드의 모든 스타일은 그대로 유지) */
 .menu-item, .list-item { display: block; width: 100%; text-align: left; padding: 12px; margin-bottom: 5px; border: 1px solid #eee; background: #f9f9f9; border-radius: 6px; font-size: 16px; cursor: pointer; }
 .menu-item.active, .list-item.active { background-color: var(--active-color); border-left: 4px solid var(--primary-color); font-weight: 600; padding-left: 9px; }
-.menu-item:hover, .list-item:hover { background-color: #f1f1f1; }
+.pokemon-detail-view, .simple-detail-view, .deck-detail-view, .deck-builder-view, .calendar-view { padding: 10px; }
+h2 { font-size: 2em; margin-bottom: 10px; }
+.main-image { max-width: 200px; display: block; margin: 20px auto; }
+h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
+.badge-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; align-items: center; }
+.type-badge, .grade-badge { color: white; padding: 4px 12px; border-radius: 15px; font-size: 0.9em; font-weight: 600; }
+.grade-badge.grade-ss { background-color: var(--grade-ss-color); }
+.grade-badge.grade-s-plus { background-color: var(--grade-s-plus-color); }
+.grade-badge.grade-s { background-color: var(--grade-s-color); color: var(--grade-s-text-color); }
+.grade-badge.grade-god { background-color: var(--item-god-color); }
+.grade-badge.grade-legendary { background-color: var(--item-legendary-color); }
+.grade-badge.grade-epic { background-color: var(--item-epic-color); }
+.skill-list, .recommend-list { list-style: none; padding: 0; }
+.skill-list { display: flex; flex-direction: column; gap: 8px; }
+.skill-item { background: #f8f9fa; border-radius: 5px; padding: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.skill-name { font-weight: bold; cursor: pointer; color: #0056b3; }
+.skill-type { font-size: 0.8em; color: #fff; background: #6c757d; padding: 2px 6px; border-radius: 10px; flex-shrink: 0; }
+.recommend-list { display: flex; flex-wrap: wrap; gap: 10px; }
+.recommend-item { display: flex; align-items: center; gap: 8px; background: #f8f9fa; padding: 5px; border-radius: 5px; cursor: pointer; border: 1px solid #eee; }
+.recommend-item img { width: 48px; height: 48px; }
+.tab-nav { display: flex; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; margin: 20px 0; }
+.tab-button { flex: 1; padding: 12px 5px; text-align: center; background-color: #fff; border: none; border-right: 1px solid var(--border-color); font-size: 1em; font-weight: 600; color: #495057; cursor: pointer; }
+.tab-nav .tab-button:last-child { border-right: none; }
+.tab-button.active { background-color: var(--active-color); color: var(--primary-color); }
+.tab-pane { display: none; padding: 10px 5px 0 5px; }
+.tab-pane.active { display: block; }
+.item-description { white-space: pre-wrap; line-height: 1.7; background-color: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 14px; color: #333;}
+.stats-table { border-collapse: collapse; margin: 10px 0; width: 100%; max-width: 500px;  }
+.stats-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
+.stats-table td:first-child { font-weight: 600; color: #555; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
+.modal-content { background: white; padding: 20px; border-radius: 8px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+.modal-header h2 { margin: 0; font-size: 1.3em; }
+.modal-close-btn { font-size: 24px; font-weight: bold; cursor: pointer; border: none; background: none; }
 
-/* (이하 기존 스타일은 그대로 유지) */
-
+/* [신규] 반응형 스타일 */
 @media (max-width: 1199px) {
     .menu-toggle-btn { display: block; }
     .header-placeholder { display: none; }
