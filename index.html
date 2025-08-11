@@ -5,8 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="naver-site-verification" content="908d0a7edce7566fbfed81ef4581af850ae6b606" />
     <title>Nirvana's Poke-Archive</title>
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
+    <meta property="og:title" content="Nirvana's Poke-Archive">
+    <meta property="og:description" content="포켓몬 육성 정보 아카이브">
+    <meta property="og:image" content="https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/taecho-three.jpg">
+    <meta property="og:url" content="https://pokedex.elmajor710.com">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo="> 
     <link rel="stylesheet" href="style.css">
+    <!-- [수정] 손상되었던 애드센스 스크립트 태그를 복원했습니다. -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -17,61 +23,42 @@
         <!-- 모바일용 메뉴 토글 버튼 -->
         <button id="menu-toggle" class="menu-toggle-btn">☰</button>
         <!-- 제목을 클릭하면 홈으로 이동 -->
-        <h1 id="home-button">Nirvana's Poke-Archive</h1>
+        <h1>Nirvana's Poke-Archive</h1>
         <!-- 헤더 공간을 채우기 위한 빈 div -->
         <div class="header-placeholder"></div>
     </header>
-
-    <div id="main-container">
-        <aside id="sidebar"></aside>
-
-        <div id="content-wrapper">
-            <div id="ad-container-top" class="ad-container">
-                <!-- 구글 애드센스 -->
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-2125965839205311"
-                     data-ad-slot="6920735136"
-                     data-ad-format="horizontal"></ins>
-            </div>
-
+    
+    <div id="page-body">
+        <div id="app-container">
+            <aside id="sidebar"></aside>
             <main id="content-area">
-                <!-- 초기 화면 컨텐츠 (공지사항, 인기글, 메인 이미지) -->
                 <div id="initial-content">
-                    <!-- 모바일 전용 공지/인기글 버튼 -->
                     <section class="mobile-notice-buttons">
                         <button class="mobile-notice-btn" data-target-menu="announcements">📢 공지사항</button>
                         <button class="mobile-notice-btn" data-target-menu="popular">🔥 인기글</button>
                     </section>
-                    <!-- PC용 공지/인기글 섹션 -->
                     <section class="notice-popular-section">
-                        <div class="notice-popular-wrapper">
-                            <div class="notice-container">
-                                <h3>📢 공지사항</h3>
-                                <ul id="notice-list"></ul>
-                            </div>
-                            <div class="popular-container">
-                                <h3>🔥 인기글</h3>
-                                <ul id="popular-list"></ul>
-                            </div>
+                        <div class="notice-container">
+                            <h3>📢 공지사항</h3>
+                            <ul id="notice-list"></ul>
+                        </div>
+                        <div class="popular-container">
+                            <h3>🔥 인기글</h3>
+                            <ul id="popular-list"></ul>
                         </div>
                     </section>
-                    <!-- 메인 환영 이미지 -->
                     <div id="main-placeholder">
                         <img src="https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/taecho-three.jpg" alt="Welcome to the Poke-Archive">
                         <p>좌측 메뉴에서 궁금한 정보를 선택해주세요!</p>
                     </div>
                 </div>
-
-                <!-- 각 레벨별 컨텐츠를 표시할 패널 -->
+                
                 <section id="lev2-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
                 <section id="lev3-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
                 <section id="lev4-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
             </main>
         </div>
-
         <div id="ad-container-right" class="ad-container">
-            <!-- 구글 애드센스 -->
             <ins class="adsbygoogle"
                  style="display:block"
                  data-ad-client="ca-pub-2125965839205311"
@@ -80,12 +67,10 @@
                  data-full-width-responsive="true"></ins>
         </div>
     </div>
-
-    <!-- Firebase 라이브러리 -->
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script>
-        // Firebase 설정
         const firebaseConfig = {
             apiKey: "AIzaSyBEPDK4VMVjEshWthL9Kajan-2EKfuLvZ0",
             authDomain: "poke-archive-d8e29.firebaseapp.com",
@@ -94,12 +79,11 @@
             messagingSenderId: "1012379289991",
             appId: "1:1012379289991:web:5c33d4ac7536672d956b22"
         };
-      firebase.initializeApp(firebaseConfig);
-      window.db = firebase.firestore();
+      // [수정] firebase.initializeApp() 호출을 script.js로 이동하여 실행 순서 보장
+      window.firebaseConfig = firebaseConfig;
     </script>
-
-    <!-- 데이터 및 스크립트 파일 -->
-    <script src="data.js"></script>
+    
+    <script src="data.js"></script> 
     <script src="script.js"></script>
 </body>
 </html>
