@@ -38,7 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
             await populateInitialContent();
             addEventListeners();
             updateView();
-            (adsbygoogle = window.adsbygoogle || []).push({});
+    // 애드센스 코드가 실패하더라도 사이트 전체가 멈추지 않도록 수정
+    try {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (e) {
+        console.error("AdSense 로딩에 실패했거나 애드블록에 의해 차단되었습니다.", e);
+    }
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "<h4>사이트 초기화 중 오류가 발생했습니다.</h4>";
