@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 2차 개발 적용');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 2차 개발 v3 적용');
 
     // --- 광고 설정 및 무효 트래픽 방지 로직 ---
     function setupAdObservers() {
@@ -109,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
             tips: db.collection('tips').where("isPublished", "==", true),
             recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true),
             events: db.collection('events'),
-            // [2차 개발] '공지사항'은 data.js에서 관리하므로 Firebase fetch 목록에서 제외
         };
         const promises = Object.values(collectionsToFetch).map(query => query.get());
         const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot] = await Promise.all(promises);
@@ -132,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function setupSideMenuData() {
-        // [2차 개발] '공지사항' 날짜순 정렬
         DB.notice.lev2.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
@@ -169,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const runeAndChipTypes = { rune: [], chip: [] };
         Object.values(DB.runeAndChip.lev4).forEach(rc => {
-            if(runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name });
+            if(rc.type && runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name });
         });
         runeAndChipTypes.rune.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
@@ -198,10 +196,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // [2차 개발] PC 메인화면에 공지사항 목록 렌더링
     function renderMainNoticeList() {
         if (!mainNoticeList) return;
-        const noticesToShow = DB.notice.lev2.slice(0, 5); // 최신 5개만 표시
+        const noticesToShow = DB.notice.lev2.slice(0, 5);
         mainNoticeList.innerHTML = noticesToShow.map(notice => 
             `<li><a href="#" data-menu-id="notice" data-item-id="${notice.id}">${notice.name}</a></li>`
         ).join('');
@@ -212,7 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target.closest('.ad-container')) adBlockManager.recordClick();
         });
 
-        // [2차 개발] 이벤트 리스너 통합 및 모바일 메뉴 로직 추가
         document.body.addEventListener('click', e => {
             const button = e.target.closest('button');
             if (button) {
@@ -222,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     handleBackClick(button); 
                 } else if (button.classList.contains('main-btn')) {
                     handleMainButtonClick();
-                } else if (button.classList.contains('main-action-btn')) { // 모바일 메인 버튼
+                } else if (button.classList.contains('main-action-btn')) {
                     if (button.dataset.menuId === 'popular') {
                         alert('인기글 기능은 준비중입니다.');
                         return;
@@ -234,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // PC 메인화면의 공지사항 링크 클릭
             const noticeLink = e.target.closest('#main-notice-list a');
             if (noticeLink) {
                 e.preventDefault();
@@ -254,8 +249,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleMenuClick(button) {
-        if (isMobile()) sidebar.classList.remove('visible'); // 메뉴 클릭 시 사이드바 닫기
-        mainPlaceholder.style.display = 'none'; // 메인 컨텐츠 숨기기
+        if (isMobile()) sidebar.classList.remove('visible');
+        mainPlaceholder.style.display = 'none';
         appContainer.classList.add('menu-active');
 
         const level = parseInt(button.dataset.level);
@@ -344,7 +339,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!contentDiv) return;
         const panelHeader = targetPanel.querySelector('.panel-header');
         
-        // 기존 메인 버튼 제거
         const existingMainBtn = panelHeader.querySelector('.main-btn');
         if (existingMainBtn) existingMainBtn.remove();
 
@@ -568,7 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tabNames = ['기본 능력치', '소지 효과'];
             separator = '[소지 효과]';
         } else if (menuId === 'runeAndChip') {
-            tabNames = ['세트 효과 1', '세트 효과 2']; // [요청사항] 룬&칩 탭 이름 고정
+            tabNames = ['세트 효과 1', '세트 효과 2'];
             separator = '[세트 효과]';
         }
 
@@ -599,7 +593,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
         } else {
-            // HTML 콘텐츠(팁, 공지사항) 또는 탭 없는 아이템/룬칩
             html += `<div class="item-description">${description.replace(/\\n/g, '<br>').replace(/\n/g, '<br>')}</div>`;
             detailView.innerHTML = html;
         }
@@ -636,19 +629,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
         let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
         if (data.description) { html += `<p>${data.description}</p>`; }
+        
+        // 4x4 그리드 구조를 테이블로 생성
+        html += `<h4>덱 배치</h4><table class="placement-grid-4x4" style="margin: 20px auto;">`;
+        
         const grid = Array(4).fill(null).map(() => Array(4).fill(null));
+
+        // 포켓몬 위치 매핑 (이미지와 동일하게)
         const positionMap = {
-            'assist_4': [1, 0], 'assist_5': [2, 0], 'assist_6': [3, 0], 'assist_1': [1, 1], 'assist_2': [2, 1], 'assist_3': [3, 1],
-            'main_4': [1, 2], 'main_5': [2, 2], 'main_6': [3, 2], 'main_1': [1, 3], 'main_2': [2, 3], 'main_3': [3, 3]
+            'assist_4': [1, 0], 'assist_1': [1, 1], 'main_4': [1, 2], 'main_1': [1, 3],
+            'assist_5': [2, 0], 'assist_2': [2, 1], 'main_5': [2, 2], 'main_2': [2, 3],
+            'assist_6': [3, 0], 'assist_3': [3, 1], 'main_6': [3, 2], 'main_3': [3, 3]
         };
+
+        // 헤더 정보 채우기
         if (data.weather && weatherToEmoji[data.weather]) {
-            grid[0][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather, colspan: 2 };
+            grid[0][0] = { type: 'header', content: `날씨: ${data.weather} ${weatherToEmoji[data.weather]}`, colspan: 2 };
         }
         const mainPokemonIds = data.composition.filter(m => m.role === 'main').map(m => m.pokemonId);
         const synergy = calculateSynergy(mainPokemonIds);
         if (synergy) {
-             grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}">`, label: synergy.name, colspan: 2 };
+             grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}" style="height: 30px; vertical-align: middle; margin-right: 5px;"> ${synergy.name}`, colspan: 2 };
         }
+
+        // 포켓몬 정보 채우기
         data.composition.forEach(member => { 
             const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
             if (!pkmData) return; 
@@ -658,45 +662,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 grid[row][col] = { type: 'pokemon', role: member.role, ...pkmData };
             }
         });
-        html += `<h4>덱 배치</h4><table class="deck-grid-table four-by-four-table"><tbody>`;
+
+        // HTML 테이블 생성
         for (let i = 0; i < 4; i++) {
-            html += '<tr>'; 
+            html += '<tr>';
             for (let j = 0; j < 4; j++) {
-                if (grid[i][j] === undefined) continue;
-                const cell = grid[i][j]; 
+                if (grid[i][j] === undefined) continue; // colspan으로 병합된 셀은 건너뛰기
+                const cell = grid[i][j];
                 if (cell) {
                     if (cell.type === 'pokemon') {
-                        html += `<td class="role-${cell.role}"><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"></div></td>`;
+                        html += `<td class="placement-slot ${cell.role === 'main' ? 'main' : 'assist'} placed"><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span>${cell.name_ko}</span></div></td>`;
                     } else if (cell.type === 'header') {
-                        const colspan = cell.colspan ? `colspan="${cell.colspan}"` : '';
-                        const contentHTML = cell.content.startsWith('<img') ? cell.content : `<span class="header-emoji">${cell.content}</span>`;
-                        html += `<td class="header-cell" ${colspan} title="${cell.label}"><div>${contentHTML}</div></td>`;
+                        html += `<td class="placement-slot-header" colspan="${cell.colspan || 1}">${cell.content}</td>`;
                         if (cell.colspan > 1) {
                             for (let k = 1; k < cell.colspan; k++) grid[i][j+k] = undefined;
                         }
                     }
-                } else { 
-                    html += '<td class="empty-cell"></td>';
-                } 
-            } 
-            html += '</tr>'; 
-        }
-        html += `</tbody></table></div>`;
-        contentDiv.innerHTML = html;
-        contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
-            cell.addEventListener('click', () => {
-                const pokemonId = cell.dataset.pokemonId;
-                const pkmData = DB.pokemonType.lev4[pokemonId];
-                if (pkmData) {
-                    let typesHTML = (pkmData.types || []).map(typeId => {
-                        const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-                        return typeInfo ? `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>` : '';
-                    }).join(' ');
-                    const modalContent = `<div class="badge-container"><span class="grade-badge grade-${pkmData.grade.toLowerCase().replace('+', '-plus')}">${pkmData.grade}</span>${typesHTML}</div>`;
-                    showModal(pkmData.name_ko, modalContent);
+                } else {
+                    // 빈 셀
+                    html += `<td class="placement-slot"></td>`;
                 }
-            });
-        });
+            }
+            html += '</tr>';
+        }
+        
+        html += `</table></div>`;
+        contentDiv.innerHTML = html;
     }
 
     function renderCalendarView(contentDiv, data) {
@@ -805,16 +796,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderDeckBuilder(contentDiv) {
-        let html = `<div class="deck-builder-view"><div class="placement-container"><div class="placement-grid"><div class="placement-slot-header" id="weather-icon-container" style="visibility: hidden;">☀️</div><div class="placement-slot-header" id="synergy-icon-container" style="visibility: hidden;"><img src="https://i.imgur.com/g0t51J7.png" alt="타입 시너지"></div><div class="placement-slot-header"></div><div class="placement-slot assist" data-role="assist" data-position="1">어시스트_#1</div><div class="placement-slot main rearguard" data-role="main" data-position="4">후방_#4</div><div class="placement-slot main vanguard" data-role="main" data-position="1">전방_#1</div><div class="placement-slot assist" data-role="assist" data-position="2">어시스트_#2</div><div class="placement-slot main rearguard" data-role="main" data-position="5">후방_#5</div><div class="placement-slot main vanguard" data-role="main" data-position="2">전방_#2</div><div class="placement-slot assist" data-role="assist" data-position="3">어시스트_#3</div><div class="placement-slot main rearguard" data-role="main" data-position="6">후방_#6</div><div class="placement-slot main vanguard" data-role="main" data-position="3">전방_#3</div></div></div><div class="source-container"><h4>포켓몬 목록</h4><div class="source-filter-bar"><select id="grade-filter" class="filter-dropdown"><option value="all">모든 등급</option><option value="SS">SS</option><option value="S+">S+</option><option value="S">S</option></select><select id="type-filter" class="filter-dropdown"><option value="all">모든 타입</option></select></div><div class="source-list"></div></div></div>`;
+        let html = `
+            <div class="deck-builder-view">
+                <div class="placement-container">
+                    <div class="placement-grid-4x4">
+                        <div class="placement-slot-header" id="weather-slot">날씨 효과</div>
+                        <div class="placement-slot-header" id="synergy-slot">타입 시너지 효과</div>
+                        
+                        <div class="placement-slot assist" data-role="assist" data-position="4">어시스트_#4</div>
+                        <div class="placement-slot assist" data-role="assist" data-position="1">어시스트_#1</div>
+                        <div class="placement-slot main rearguard" data-role="main" data-position="4">메인_#4</div>
+                        <div class="placement-slot main vanguard" data-role="main" data-position="1">메인_#1</div>
+
+                        <div class="placement-slot assist" data-role="assist" data-position="5">어시스트_#5</div>
+                        <div class="placement-slot assist" data-role="assist" data-position="2">어시스트_#2</div>
+                        <div class="placement-slot main rearguard" data-role="main" data-position="5">메인_#5</div>
+                        <div class="placement-slot main vanguard" data-role="main" data-position="2">메인_#2</div>
+
+                        <div class="placement-slot assist" data-role="assist" data-position="6">어시스트_#6</div>
+                        <div class="placement-slot assist" data-role="assist" data-position="3">어시스트_#3</div>
+                        <div class="placement-slot main rearguard" data-role="main" data-position="6">메인_#6</div>
+                        <div class="placement-slot main vanguard" data-role="main" data-position="3">메인_#3</div>
+                    </div>
+                </div>
+                <div class="source-container">
+                    <h4>포켓몬 목록</h4>
+                    <div class="source-filter-bar">
+                        <select id="grade-filter" class="filter-dropdown"><option value="all">모든 등급</option><option value="SS">SS</option><option value="S+">S+</option><option value="S">S</option></select>
+                        <select id="type-filter" class="filter-dropdown"><option value="all">모든 타입</option></select>
+                    </div>
+                    <div class="source-list"></div>
+                </div>
+            </div>`;
         contentDiv.innerHTML = html;
         const sourceList = contentDiv.querySelector('.source-list');
-        const placementGrid = contentDiv.querySelector('.placement-grid');
-        const weatherIconContainer = contentDiv.querySelector('#weather-icon-container');
-        const synergyIconContainer = contentDiv.querySelector('#synergy-icon-container');
+        const placementGrid = contentDiv.querySelector('.placement-grid-4x4');
         const gradeFilter = contentDiv.querySelector('#grade-filter');
         const typeFilter = contentDiv.querySelector('#type-filter');
         
-        // [2차 개발] Map<Element, string> -> slot Element를 key로, pokemonId를 value로 저장
         let placedPokemon = new Map(); 
         
         DB.pokemonType.lev2.forEach(type => {
@@ -830,8 +849,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const placedIds = new Set(Array.from(placedPokemon.values()));
 
             let filteredPokemon = Object.entries(DB.pokemonType.lev4).filter(([id, pkm]) => {
-                const isPlaced = placedIds.has(id);
-                if (isPlaced) return false; // 이미 배치된 포켓몬은 목록에서 제외
+                if (placedIds.has(id)) return false;
 
                 const gradeMatch = selectedGrade === 'all' || !pkm.grade || pkm.grade === selectedGrade;
                 const typeMatch = selectedType === 'all' || (pkm.types && pkm.types.includes(selectedType));
@@ -880,37 +898,40 @@ document.addEventListener('DOMContentLoaded', () => {
             const pokemonData = DB.pokemonType.lev4[sourcePokemonId];
             if (!pokemonData) return;
 
-            if (draggedItem.classList.contains('placement-slot')) { // 슬롯 간 이동
+            if (draggedItem.classList.contains('placement-slot')) {
                 const sourceSlot = draggedItem;
                 if (targetSlot === sourceSlot) return; 
 
                 const targetPokemonId = placedPokemon.get(targetSlot);
                 
-                if (targetPokemonId) { // 목표 슬롯에 포켓몬이 있는 경우 (교체)
+                if (targetPokemonId) {
                     const targetPokemonData = DB.pokemonType.lev4[targetPokemonId];
                     placePokemonInSlot(sourceSlot, targetPokemonId, targetPokemonData);
-                } else { // 목표 슬롯이 비어있는 경우
+                } else {
                     clearSlot(sourceSlot);
                 }
                 placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
 
-            } else { // 목록에서 슬롯으로 배치
-                // [2차 개발] 이미 배치된 포켓몬인지 Set을 통해 확인
+            } else {
                 const isAlreadyPlaced = new Set(Array.from(placedPokemon.values())).has(sourcePokemonId);
                 if (isAlreadyPlaced) {
                     alert("이미 배치된 포켓몬입니다.");
                     return;
                 }
                 if (placedPokemon.has(targetSlot)) {
-                    alert('슬롯이 비어있습니다. 다른 포켓몬과 교체하려면 슬롯을 드래그하세요.');
-                    return;
+                     const existingPokemonId = placedPokemon.get(targetSlot);
+                     const sourceSlotOfExisting = [...placedPokemon.entries()].find(([,pkmId]) => pkmId === sourcePokemonId)?.[0];
+                     if(sourceSlotOfExisting) clearSlot(sourceSlotOfExisting);
+                     
+                     clearSlot(targetSlot);
+                     applyFilters();
                 }
                 placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
             }
 
             draggedItem = null;
             updateTeamEffects();
-            applyFilters(); // 배치 후 목록 새로고침
+            applyFilters();
         });
 
         placementGrid.addEventListener('click', e => {
@@ -920,34 +941,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (parentSlot) {
                     clearSlot(parentSlot);
                     updateTeamEffects();
-                    applyFilters(); // 제거 후 목록 새로고침
+                    applyFilters();
                 }
             }
         });
 
         function placePokemonInSlot(slot, pokemonId, pokemonData) {
-            slot.innerHTML = `<div class="deck-pokemon-cell" draggable="true"><img src="${pokemonData.faceImageURL}" alt="${pokemonData.name_ko}"/><button class="remove-pkm-btn">×</button></div>`;
+            slot.innerHTML = `<div class="deck-pokemon-cell" draggable="true"><img src="${pokemonData.faceImageURL}" alt="${pokemonData.name_ko}"/><button class="remove-pkm-btn">×</button><span>${pokemonData.name_ko}</span></div>`;
+            slot.classList.add('placed');
             placedPokemon.set(slot, pokemonId);
         }
 
         function clearSlot(slot) {
             const { role, position } = slot.dataset;
-            let placeholder = role === 'assist' ? `어시스트_#${position}` : `${slot.classList.contains('vanguard') ? '전방' : '후방'}_#${position}`;
+            let placeholder = role === 'assist' ? `어시스트_#${position}` : `메인_#${position}`;
             slot.innerHTML = placeholder;
+            slot.classList.remove('placed');
             placedPokemon.delete(slot);
         }
 
         function updateTeamEffects() {
+            const synergySlot = placementGrid.querySelector('#synergy-slot');
             const mainPokemonIds = Array.from(placedPokemon.entries())
                 .filter(([slot,]) => slot.dataset.role === 'main')
                 .map(([, pokemonId]) => pokemonId);
             const synergy = calculateSynergy(mainPokemonIds);
             if (synergy) {
-                synergyIconContainer.querySelector('img').src = synergy.imageURL;
-                synergyIconContainer.title = synergy.name;
-                synergyIconContainer.style.visibility = 'visible';
+                synergySlot.innerHTML = `<img src="${synergy.imageURL}" alt="${synergy.name}" title="${synergy.name}" style="height: 50%; object-fit: contain;">`;
+                synergySlot.title = synergy.name;
             } else {
-                synergyIconContainer.style.visibility = 'hidden';
+                synergySlot.innerHTML = '타입 시너지 효과';
+                synergySlot.title = '';
             }
         }
         applyFilters();
