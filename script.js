@@ -1,12 +1,8 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Firebase 객체 확인
-    if (!window.db) {
-        console.error("Firebase 'db' 객체를 찾을 수 없습니다.");
-        return;
-    }
+// Nirvana's Poke-Archive를 위한 최종 script.js 전체 코드 (모든 오류 수정 및 기능 통합)
 
-    // 전역 변수 선언
-    const appContainer = document.getElementById('app-container'); // ID 변경에 따라 수정
+document.addEventListener('DOMContentLoaded', () => {
+    // --- 전역 변수 선언 ---
+    const appContainer = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
     const mainPlaceholder = document.getElementById('main-placeholder');
     const noticePopularSection = document.querySelector('.notice-popular-section');
