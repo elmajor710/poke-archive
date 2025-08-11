@@ -718,29 +718,39 @@ document.addEventListener('DOMContentLoaded', () => {
         contentDiv.innerHTML = html;
     }
 
-    function renderCalendarView(contentDiv, data) {
+        function renderCalendarView(contentDiv, data) {
         let currentCalendarDate = new Date();
+
         function buildCalendar(year, month) {
             const calendarView = document.createElement('div');
             calendarView.className = 'calendar-view';
             const monthEvents = {};
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);
+
             const addEvent = (event, eventDate) => {
                 const day = eventDate.getDate();
                 if (!monthEvents[day]) monthEvents[day] = [];
-                const fullEventInfo = { ...event, startDate: new Date(event.date + 'T00:00:00'), endDate: new Date(new Date(event.date + 'T00:00:00').setDate(new Date(event.date + 'T00:00:00').getDate() + (event.duration - 1))) };
-                monthEvents[day].push(fullEventInfo);
+                // Firestore Timestamp를 JS Date로 변환하여 저장
+                const startDate = event.startDate.toDate ? event.startDate.toDate() : new Date(event.startDate);
+                const endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + (event.duration - 1));
+
+                monthEvents[day].push({ ...event, startDate, endDate });
             };
+
             (data.events || []).forEach(event => {
+                if (!event.startDate) return;
+                const startDate = event.startDate.toDate ? event.startDate.toDate() : new Date(event.startDate);
                 for (let i = 0; i < (event.duration || 1); i++) {
-                    const eventDate = new Date(event.date + 'T00:00:00');
+                    const eventDate = new Date(startDate);
                     eventDate.setDate(eventDate.getDate() + i);
                     if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
-                        addEvent(event, eventDate);
+                        addEvent({...event, date: startDate.toISOString().split('T')[0]}, eventDate);
                     }
                 }
             });
+
             (data.recurringEvents || []).forEach(re => {
                  let currentDate = new Date(re.startDate + 'T00:00:00');
                  while (currentDate.getFullYear() < year + 2) {
@@ -749,13 +759,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         const eventDate = new Date(currentDate);
                         eventDate.setDate(eventDate.getDate() + i);
                          if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
-                            addEvent({ ...re, date: currentDate.toISOString().split('T')[0] }, eventDate);
+                            addEvent({ ...re, date: currentDate.toISOString().split('T')[0], startDate: currentDate }, eventDate);
                         }
                     }
                     if (re.interval === '4_weeks') currentDate.setDate(currentDate.getDate() + 28);
                     else break;
                 }
             });
+
             let html = `<div class="calendar-header"><span class="calendar-title">${year}년 ${month + 1}월</span><div class="calendar-nav"><button id="cal-prev-btn">&lt; 이전</button><button id="cal-today-btn">Today</button><button id="cal-next-btn">다음 &gt;</button></div></div><div class="calendar-legend"><div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div><div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div><div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div></div><table class="calendar-grid"><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody>`;
             let dateCounter = 1;
             const startDay = firstDay.getDay();
@@ -816,12 +827,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             return calendarView;
         }
+
         function updateCalendar() {
             contentDiv.innerHTML = '';
             contentDiv.appendChild(buildCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth()));
         }
+
         updateCalendar();
     }
+
 
     function renderDeckBuilder(contentDiv) {
         let html = `
