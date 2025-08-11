@@ -14,6 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.innerHTML = "<h4>사이트 로딩에 실패했습니다. Firebase 라이브러리를 불러올 수 없습니다.</h4>";
         return;
     }
+    
+    // DB 객체 존재 여부 확인
+    if (typeof DB === 'undefined') {
+        console.error("DB 객체를 찾을 수 없습니다. data.js 파일이 정상적으로 로드되었는지 확인해주세요.");
+        document.body.innerHTML = "<h4>사이트 초기화 중 오류가 발생했습니다. (데이터 파일 로드 실패)</h4>";
+        return;
+    }
 
     // --- 전역 변수 ---
     const appContainer = document.getElementById('app-container');
