@@ -1,12 +1,82 @@
-// Nirvana's Poke-Archive를 위한 최종 script.js 전체 코드 (모든 오류 수정 및 기능 통합)
-
 document.addEventListener('DOMContentLoaded', () => {
-    // --- 전역 변수 선언 ---
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 2차 개발 적용');
+
+    // --- 광고 설정 및 무효 트래픽 방지 로직 ---
+    function setupAdObservers() {
+        const adContainers = document.querySelectorAll('.ad-container');
+        if (adContainers.length === 0) return;
+        const adObserver = new ResizeObserver(entries => {
+            for (const entry of entries) {
+                if (entry.contentRect.width > 0) {
+                    const targetContainer = entry.target;
+                    try {
+                        (window.adsbygoogle = window.adsbygoogle || []).push({});
+                        const styleWatcher = new MutationObserver((mutations) => {
+                            for (const mutation of mutations) {
+                                if (mutation.attributeName === 'style') {
+                                    if (window.innerWidth <= 768) {
+                                        const currentHeight = targetContainer.style.height;
+                                        if (currentHeight !== '50px') {
+                                            targetContainer.style.setProperty('height', '50px', 'important');
+                                            targetContainer.style.setProperty('min-height', '50px', 'important');
+                                        }
+                                    }
+                                    styleWatcher.disconnect();
+                                }
+                            }
+                        });
+                        styleWatcher.observe(targetContainer, { attributes: true });
+                    } catch (e) {
+                        console.error(`'${targetContainer.id}' 광고 요청 중 오류 발생:`, e);
+                    }
+                    adObserver.unobserve(targetContainer);
+                }
+            }
+        });
+        adContainers.forEach(container => adObserver.observe(container));
+    }
+
+    const adBlockManager = {
+        CLICK_LIMIT: 3,
+        TIME_WINDOW: 5 * 60 * 1000,
+        checkAndApplyBlock: function() {
+            const expiresAt = localStorage.getItem('adBlockExpiresAt');
+            if (!expiresAt) return;
+            const now = new Date().getTime();
+            if (now < parseInt(expiresAt)) {
+                this.hideAds();
+            } else {
+                localStorage.removeItem('adBlockExpiresAt');
+                localStorage.removeItem('adClickTimestamps');
+            }
+        },
+        recordClick: function() {
+            let timestamps = JSON.parse(localStorage.getItem('adClickTimestamps')) || [];
+            const now = new Date().getTime();
+            timestamps = timestamps.filter(ts => (now - ts) < this.TIME_WINDOW);
+            timestamps.push(now);
+            localStorage.setItem('adClickTimestamps', JSON.stringify(timestamps));
+            if (timestamps.length >= this.CLICK_LIMIT) {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(0, 0, 0, 0);
+                localStorage.setItem('adBlockExpiresAt', tomorrow.getTime());
+                this.hideAds();
+            }
+        },
+        hideAds: function() {
+            document.querySelectorAll('.ad-container').forEach(container => {
+                container.classList.add('hidden');
+            });
+        }
+    };
+
+    // --- 페이지 전역 변수 ---
     const appContainer = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const mainPlaceholder = document.getElementById('main-placeholder');
-    const noticePopularSection = document.querySelector('.notice-popular-section');
-    const mobileNoticeButtons = document.querySelector('.mobile-notice-buttons');
+    const mainNoticeList = document.getElementById('main-notice-list');
     const panels = {
         lev1: sidebar,
         lev2: document.getElementById('lev2-panel'),
@@ -16,73 +86,104 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeButtons = {};
     const isMobile = () => window.innerWidth <= 1199;
 
-    // --- 메인 실행 함수 ---
+    // --- 함수 정의 영역 ---
+
     async function initialize() {
         try {
             await fetchAllDataFromFirebase();
             setupSideMenuData();
             renderSidebar();
+            renderMainNoticeList();
             addEventListeners();
-            populateMainOverlay();
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
-            document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다.";
+            document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
         }
     }
-
-    // --- 데이터 로딩 및 준비 ---
-    async function fetchAllDataFromFirebase() { /* ... 이전과 동일, 변경 없음 ... */ }
-    function setupSideMenuData() { /* ... 이전과 동일, 변경 없음 ... */ }
     
-    async function populateMainOverlay() {
-        const noticeList = document.getElementById('notice-list');
-        const popularList = document.getElementById('popular-list');
-        if (!noticeList || !popularList) return;
-
-        // 공지사항 로딩 및 클릭 이벤트
-        const announcements = Object.values(DB.announcements.lev3 || {}).sort((a,b) => b.timestamp.toMillis() - a.timestamp.toMillis()).slice(0, 5);
-        if (announcements.length > 0) {
-            noticeList.innerHTML = announcements.map(notice => `<li data-id="${notice.id}" style="cursor: pointer;">${notice.title}</li>`).join('');
-        } else {
-            noticeList.innerHTML = '<li>등록된 공지사항이 없습니다.</li>';
-        }
-
-        const clickHandler = (id) => {
-            const sidebarMenuButton = sidebar.querySelector(`button[data-id="${id}"]`);
-            if (sidebarMenuButton) sidebarMenuButton.click();
+    async function fetchAllDataFromFirebase() {
+        const collectionsToFetch = {
+            pokemon: db.collection('pokemon').where("isPublished", "==", true),
+            items: db.collection('items').where("isPublished", "==", true),
+            runeAndChips: db.collection('runeAndChips').where("isPublished", "==", true),
+            tips: db.collection('tips').where("isPublished", "==", true),
+            recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true),
+            events: db.collection('events'),
+            // [2차 개발] '공지사항'은 data.js에서 관리하므로 Firebase fetch 목록에서 제외
+        };
+        const promises = Object.values(collectionsToFetch).map(query => query.get());
+        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot] = await Promise.all(promises);
+        
+        const snapshotToMap = (snapshot) => {
+            const dataMap = {};
+            snapshot.forEach(doc => { dataMap[doc.id] = { id: doc.id, ...doc.data() }; });
+            return dataMap;
         };
 
-        noticeList.addEventListener('click', (e) => {
-            const targetLi = e.target.closest('li');
-            if (targetLi && targetLi.dataset.id) {
-                const noticeId = targetLi.dataset.id;
-                const sidebarMenuButton = sidebar.querySelector('button[data-id="announcements"]');
-                if (sidebarMenuButton) {
-                    sidebarMenuButton.click();
-                    setTimeout(() => {
-                        const noticeItemButton = panels.lev2.querySelector(`button[data-id="${noticeId}"]`);
-                        if (noticeItemButton) noticeItemButton.click();
-                    }, 50);
-                }
-            }
-        });
+        DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
+        DB.item.lev4 = snapshotToMap(itemsSnapshot);
+        DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
+        DB.tips.lev3 = snapshotToMap(tipsSnapshot);
+        DB.deck.lev4 = snapshotToMap(decksSnapshot);
         
-        mobileNoticeButtons.addEventListener('click', (e) => {
-            const targetBtn = e.target.closest('button');
-            if(targetBtn && targetBtn.dataset.targetMenu) {
-                if(targetBtn.dataset.targetMenu === 'announcements') {
-                     clickHandler('announcements');
-                }
-                // 인기글 버튼 기능은 나중에 추가
+        if(DB.calendar && DB.calendar.lev2) {
+            DB.calendar.lev2.events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        }
+    }
+    
+    function setupSideMenuData() {
+        // [2차 개발] '공지사항' 날짜순 정렬
+        DB.notice.lev2.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+        const types = {};
+        DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
+        Object.values(DB.pokemonType.lev4).forEach(pokemon => {
+            if (pokemon.types && Array.isArray(pokemon.types)) {
+                pokemon.types.forEach(typeId => {
+                    if (types[typeId]) types[typeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
+                });
             }
         });
+        Object.values(types).forEach(typeList => typeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
+        DB.pokemonType.lev3 = types;
 
-        popularList.innerHTML = `<li>인기글 1위 (개발 예정)</li>`;
+        const grades = {};
+        DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
+        Object.values(DB.pokemonType.lev4).forEach(pokemon => {
+            if (pokemon && pokemon.grade) {
+                const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id;
+                if (gradeId && grades[gradeId]) grades[gradeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
+            }
+        });
+        Object.values(grades).forEach(gradeList => gradeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
+        DB.pokemonGrade.lev3 = grades;
+        
+        const itemGrades = { god: [], legendary: [], epic: [] };
+        Object.values(DB.item.lev4).forEach(item => {
+            const gradeKey = item.grade?.toLowerCase();
+            if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name });
+        });
+        Object.values(itemGrades).forEach(g => g.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
+        DB.item.lev3 = itemGrades;
+        
+        const runeAndChipTypes = { rune: [], chip: [] };
+        Object.values(DB.runeAndChip.lev4).forEach(rc => {
+            if(runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name });
+        });
+        runeAndChipTypes.rune.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+        runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+        DB.runeAndChip.lev3 = runeAndChipTypes;
+
+        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title }));
+        
+        DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
+        DB.deck.lev3.builder = [{ id: 'deckBuilder', name: '배치툴' }];
     }
 
     function renderSidebar() {
-        if (!sidebar) return;
         const sidebarContent = document.createElement('div');
+        sidebarContent.className = 'panel-content';
         DB.sidebarMenu.forEach(item => {
             const button = document.createElement('button');
             button.className = 'menu-item';
@@ -91,45 +192,72 @@ document.addEventListener('DOMContentLoaded', () => {
             button.dataset.id = item.id;
             sidebarContent.appendChild(button);
         });
-        sidebar.innerHTML = '';
-        sidebar.appendChild(sidebarContent);
+        if(sidebar) {
+            sidebar.innerHTML = '';
+            sidebar.appendChild(sidebarContent);
+        }
     }
 
-    function renderNoticeAndPopular() {
-        const noticeList = document.getElementById('notice-list');
-        const popularList = document.getElementById('popular-list');
-
-        if (noticeList && DB.announcements?.lev2) {
-            const announcements = Object.values(DB.announcements.lev2);
-            noticeList.innerHTML = announcements.length > 0
-                ? announcements.map(item => `<li>${item.name}</li>`).join('')
-                : '<li>등록된 공지가 없습니다.</li>';
-        }
-
-        if (popularList) {
-            popularList.innerHTML = '<li>인기글 1위 (개발 예정)</li><li>인기글 2위 (개발 예정)</li><li>인기글 3위 (개발 예정)</li><li>인기글 4위 (개발 예정)</li><li>인기글 5위 (개발 예정)</li>';
-        }
+    // [2차 개발] PC 메인화면에 공지사항 목록 렌더링
+    function renderMainNoticeList() {
+        if (!mainNoticeList) return;
+        const noticesToShow = DB.notice.lev2.slice(0, 5); // 최신 5개만 표시
+        mainNoticeList.innerHTML = noticesToShow.map(notice => 
+            `<li><a href="#" data-menu-id="notice" data-item-id="${notice.id}">${notice.name}</a></li>`
+        ).join('');
     }
 
     function addEventListeners() {
-        if(appContainer) {
-            appContainer.addEventListener('click', e => {
-                const button = e.target.closest('button');
-                if (!button) return;
-                if (button.classList.contains('back-btn')) handleBackClick(button); 
-                else if (button.classList.contains('main-btn')) handleMainButtonClick();
-                else if (button.dataset.level) handleMenuClick(button); 
-            });
-        }
+        document.body.addEventListener('click', (e) => {
+            if (e.target.closest('.ad-container')) adBlockManager.recordClick();
+        });
+
+        // [2차 개발] 이벤트 리스너 통합 및 모바일 메뉴 로직 추가
+        document.body.addEventListener('click', e => {
+            const button = e.target.closest('button');
+            if (button) {
+                if (button.id === 'mobile-menu-btn') {
+                    sidebar.classList.toggle('visible');
+                } else if (button.classList.contains('back-btn')) {
+                    handleBackClick(button); 
+                } else if (button.classList.contains('main-btn')) {
+                    handleMainButtonClick();
+                } else if (button.classList.contains('main-action-btn')) { // 모바일 메인 버튼
+                    if (button.dataset.menuId === 'popular') {
+                        alert('인기글 기능은 준비중입니다.');
+                        return;
+                    }
+                    const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="${button.dataset.menuId}"]`);
+                    if(targetMenuItem) handleMenuClick(targetMenuItem);
+                } else if (button.dataset.level) {
+                    handleMenuClick(button); 
+                }
+            }
+
+            // PC 메인화면의 공지사항 링크 클릭
+            const noticeLink = e.target.closest('#main-notice-list a');
+            if (noticeLink) {
+                e.preventDefault();
+                const menuId = noticeLink.dataset.menuId;
+                const itemId = noticeLink.dataset.itemId;
+
+                const lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
+                if (lev1_btn) {
+                    handleMenuClick(lev1_btn);
+                    setTimeout(() => {
+                        const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="${itemId}"]`);
+                        if (lev2_btn) handleMenuClick(lev2_btn);
+                    }, 50); 
+                }
+            }
+        });
     }
 
-    // [핵심 수정] 메뉴 클릭 시 공지/인기글 섹션 숨기기
     function handleMenuClick(button) {
+        if (isMobile()) sidebar.classList.remove('visible'); // 메뉴 클릭 시 사이드바 닫기
+        mainPlaceholder.style.display = 'none'; // 메인 컨텐츠 숨기기
         appContainer.classList.add('menu-active');
-        mainPlaceholder.style.display = 'none';
-        noticePopularSection.style.display = 'none';
-        mobileNoticeButtons.style.display = 'none';
-        
+
         const level = parseInt(button.dataset.level);
         const id = button.dataset.id;
         const menuId = button.dataset.menuId || id;
@@ -137,6 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextData = getNextData(level, id, menuId); 
         const currentPanel = panels[`lev${level}`] || sidebar;
         const nextPanel = panels[`lev${nextLevel}`];
+
         if (!nextPanel) return;
 
         if (isMobile()) currentPanel.classList.add('is-hidden');
@@ -144,9 +273,10 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.values(panels).forEach((panel, index) => {
             if(index > 0 && panel !== nextPanel) panel.classList.remove('visible');
         });
+
         nextPanel.classList.remove('is-hidden');
         nextPanel.classList.add('visible');
-
+        
         setActive(level, button);
         renderPanelContent(nextLevel, nextData, menuId, id);
     }
@@ -158,32 +288,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
         const currentPanel = panels[`lev${level}`];
         const prevPanel = panels[`lev${level - 1}`] || sidebar;
-        
+
         currentPanel.classList.remove('visible');
-        
+
         if (prevPanel) {
-            if (isMobile()) {
-                prevPanel.classList.remove('is-hidden');
-            }
-            if (level - 1 < 2 && !isMobile()) {
-                document.getElementById('main-placeholder').style.display = 'flex';
-            }
+            if (isMobile()) prevPanel.classList.remove('is-hidden');
+            if(prevPanel !== sidebar) prevPanel.classList.add('visible');
         }
-        setActive(level - 1, null);
+        
+        if (level === 2) {
+            handleMainButtonClick();
+        } else {
+            setActive(level - 1, null);
+        }
     }
     
-    // [핵심 수정] 메인 버튼 클릭 시 공지/인기글 섹션 다시 보이기
     function handleMainButtonClick() {
-        appContainer.classList.remove('menu-active');
         mainPlaceholder.style.display = 'flex';
-        noticePopularSection.style.display = 'block';
-        mobileNoticeButtons.style.display = 'flex';
-
+        appContainer.classList.remove('menu-active');
         Object.values(panels).forEach((panel, index) => {
             if (index > 0) panel.classList.remove('visible', 'is-hidden');
         });
         setActive(0, null);
-        if (isMobile() && sidebar) sidebar.classList.remove('is-hidden');
+        if (isMobile()) {
+            sidebar.classList.remove('visible', 'is-hidden');
+        }
     }
 
     function setActive(level, target) {
@@ -201,63 +330,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getNextData(currentLevel, id, menuId) {
         const nextLevel = currentLevel + 1;
+        if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) return DB.pokemonType.lev4?.[id];
         if (nextLevel === 2) return DB[menuId]?.lev2;
-        if (nextLevel === 3) {
-            const data = DB[menuId]?.lev3?.[id];
-            return Array.isArray(data) ? data : (data ? Object.values(data) : []);
-        }
+        if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
         if (nextLevel === 4) return DB[menuId]?.lev4?.[id];
         return null;
     }
 
-    function renderPanelContent(level, data, menuId, clickedId, isFinalView) {
-        const targetPanel = panels[`lev${level}`] || panels.lev4;
+    function renderPanelContent(level, data, menuId, clickedId) {
+        const targetPanel = panels[`lev${level}`];
         if (!targetPanel) return;
-
         const contentDiv = targetPanel.querySelector('.panel-content');
         if (!contentDiv) return;
-
         const panelHeader = targetPanel.querySelector('.panel-header');
-        if (panelHeader.querySelector('.main-btn')) panelHeader.querySelector('.main-btn').remove();
+        
+        // 기존 메인 버튼 제거
+        const existingMainBtn = panelHeader.querySelector('.main-btn');
+        if (existingMainBtn) existingMainBtn.remove();
 
         contentDiv.innerHTML = '';
         contentDiv.scrollTop = 0;
         
-        if (clickedId === 'builder') {
+        if (clickedId === 'deckBuilder') {
+            const mainButton = document.createElement('button');
+            mainButton.className = 'main-btn';
+            mainButton.textContent = '메인';
+            panelHeader.appendChild(mainButton);
             if (isMobile()) {
                 contentDiv.innerHTML = `<div class="pc-only-message"><h3>기능 안내</h3><p>배치툴 기능은 화면이 넓은 PC 환경에 최적화되어 있습니다.<br>PC에서 접속하여 이용해주세요.</p></div>`;
             } else {
                 renderDeckBuilder(contentDiv);
             }
             return; 
-        } 
-        
-        if (!data) {
+        } else if (!data) {
             contentDiv.innerHTML = "데이터를 불러오지 못했습니다.";
-            return;
-        }
-        
-        if (isFinalView) {
-            const mainButton = document.createElement('button');
-            mainButton.className = 'main-btn';
-            mainButton.textContent = '메인';
-            panelHeader.appendChild(mainButton);
-
-            if (menuId === 'deck' && data.composition) renderDeckView(contentDiv, data);
-            else if (menuId === 'calendar') renderCalendarView(contentDiv, data);
-            else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
-            else renderSimpleView(contentDiv, data, menuId); 
         } else {
-            const items = Array.isArray(data) ? data : (data ? Object.values(data) : []);
-            items.forEach(item => {
-                const button = document.createElement('button');
-                button.className = 'list-item';
-                button.textContent = item.name;
-                button.dataset.id = item.id;
-                button.dataset.level = level;
-                button.dataset.menuId = menuId;
-                contentDiv.appendChild(button);
-            });
+            const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
+            const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
+            if (isFinalView) {
+                const mainButton = document.createElement('button');
+                mainButton.className = 'main-btn';
+                mainButton.textContent = '메인';
+                panelHeader.appendChild(mainButton);
+
+                if (menuId === 'deck' && data.composition) renderDeckView(contentDiv, data);
+                else if(menuId === 'calendar') renderCalendarView(contentDiv, data);
+                else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
+                else renderSimpleView(contentDiv, data, menuId); 
+            } else {
+                data.forEach(item => {
+                    const button = document.createElement('button');
+                    button.className = 'list-item';
+                    button.textContent = item.name;
+                    button.dataset.id = item.id;
+                    button.dataset.level = level;
+                    button.dataset.menuId = menuId;
+                    contentDiv.appendChild(button);
+                });
+            }
         }
     }
 
@@ -352,11 +482,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 hasBuildInfo = true;
                 buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
                 data[type].forEach(id => {
-                    const itemTypeForDB = type.replace('recommended', '').toLowerCase().replace('s', '');
-                    const dbKey = (itemTypeForDB === 'rune' || itemTypeForDB === 'chip') ? 'runeAndChip' : 'item';
+                    const dbKey = (type === 'recommendedRunes' || type === 'recommendedChips') ? 'runeAndChip' : 'item';
                     const itemData = DB[dbKey]?.lev4?.[id];
                     if (itemData) {
-                         buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}">${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}</div>`;
+                         buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${dbKey}">${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}</div>`;
                     }
                 });
                 buildHTML += `</div>`;
@@ -366,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
             buildHTML = '<h4>추천 빌드</h4><p>등록된 추천 빌드 정보가 없습니다.</p>';
         }
 
-        const useTabs = isMobile();
+        const useTabs = isMobile() || menuId === 'pokemonType' || menuId === 'pokemonGrade';
         detailView.className = `pokemon-detail-view ${useTabs ? 'use-tabs' : ''}`;
         if (useTabs) {
              detailView.innerHTML = `${commonHTML}<div class="tab-container"><nav class="tab-nav"><button class="tab-button active" data-tab="tab-info">기본 정보</button><button class="tab-button" data-tab="tab-skills">스킬</button><button class="tab-button" data-tab="tab-build">추천 빌드</button></nav><div id="tab-info" class="tab-pane active">${statsHTML}</div><div id="tab-skills" class="tab-pane">${skillsHTML}</div><div id="tab-build" class="tab-pane">${buildHTML}</div></div>`;
@@ -395,14 +524,12 @@ document.addEventListener('DOMContentLoaded', () => {
         detailView.querySelectorAll('.recommend-item').forEach(el => {
             el.addEventListener('click', () => {
                 const itemId = el.dataset.itemId;
-                const itemType = el.dataset.itemType;
-                const dbKey = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
+                const dbKey = el.dataset.itemType;
                 const itemData = DB[dbKey]?.lev4?.[itemId];
 
                 if (itemData) {
                     const tempContentDiv = document.createElement('div');
-                    const menuIdForSimpleView = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
-                    renderSimpleView(tempContentDiv, itemData, menuIdForSimpleView);
+                    renderSimpleView(tempContentDiv, itemData, dbKey);
                     showModal(itemData.name, tempContentDiv);
                 }
             });
@@ -436,11 +563,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let tabNames = [];
         let separator = '';
+
         if (menuId === 'item') {
             tabNames = ['기본 능력치', '소지 효과'];
             separator = '[소지 효과]';
         } else if (menuId === 'runeAndChip') {
-            tabNames = ['세트 효과 1', '세트 효과 2'];
+            tabNames = ['세트 효과 1', '세트 효과 2']; // [요청사항] 룬&칩 탭 이름 고정
             separator = '[세트 효과]';
         }
 
@@ -471,7 +599,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
         } else {
-            html += `<div class="item-description">${description.replace(/\\n/g, '<br>')}</div>`;
+            // HTML 콘텐츠(팁, 공지사항) 또는 탭 없는 아이템/룬칩
+            html += `<div class="item-description">${description.replace(/\\n/g, '<br>').replace(/\n/g, '<br>')}</div>`;
             detailView.innerHTML = html;
         }
         
@@ -485,7 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mainPokemon.some(pkm => !pkm)) return null;
         const typePokemonCount = {};
         mainPokemon.forEach(pkm => {
-            if (pkm?.types) {
+            if (pkm && pkm.types) {
                 pkm.types.forEach(type => {
                     typePokemonCount[type] = (typePokemonCount[type] || 0) + 1;
                 });
@@ -578,21 +707,36 @@ document.addEventListener('DOMContentLoaded', () => {
             const monthEvents = {};
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);
-            
+            const addEvent = (event, eventDate) => {
+                const day = eventDate.getDate();
+                if (!monthEvents[day]) monthEvents[day] = [];
+                const fullEventInfo = { ...event, startDate: new Date(event.date + 'T00:00:00'), endDate: new Date(new Date(event.date + 'T00:00:00').setDate(new Date(event.date + 'T00:00:00').getDate() + (event.duration - 1))) };
+                monthEvents[day].push(fullEventInfo);
+            };
             (data.events || []).forEach(event => {
-                if (!event.startDate) return;
-                const eventStartDate = event.startDate.toDate();
                 for (let i = 0; i < (event.duration || 1); i++) {
-                    const currentEventDate = new Date(eventStartDate);
-                    currentEventDate.setDate(currentEventDate.getDate() + i);
-                    if (currentEventDate.getFullYear() === year && currentEventDate.getMonth() === month) {
-                        const day = currentEventDate.getDate();
-                        if (!monthEvents[day]) monthEvents[day] = [];
-                        monthEvents[day].push({ ...event, date: currentEventDate });
+                    const eventDate = new Date(event.date + 'T00:00:00');
+                    eventDate.setDate(eventDate.getDate() + i);
+                    if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                        addEvent(event, eventDate);
                     }
                 }
             });
-
+            (data.recurringEvents || []).forEach(re => {
+                 let currentDate = new Date(re.startDate + 'T00:00:00');
+                 while (currentDate.getFullYear() < year + 2) {
+                    if (currentDate.getFullYear() > year || (currentDate.getFullYear() === year && currentDate.getMonth() > month)) break;
+                    for (let i = 0; i < (re.duration || 1); i++) {
+                        const eventDate = new Date(currentDate);
+                        eventDate.setDate(eventDate.getDate() + i);
+                         if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                            addEvent({ ...re, date: currentDate.toISOString().split('T')[0] }, eventDate);
+                        }
+                    }
+                    if (re.interval === '4_weeks') currentDate.setDate(currentDate.getDate() + 28);
+                    else break;
+                }
+            });
             let html = `<div class="calendar-header"><span class="calendar-title">${year}년 ${month + 1}월</span><div class="calendar-nav"><button id="cal-prev-btn">&lt; 이전</button><button id="cal-today-btn">Today</button><button id="cal-next-btn">다음 &gt;</button></div></div><div class="calendar-legend"><div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div><div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div><div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div></div><table class="calendar-grid"><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody>`;
             let dateCounter = 1;
             const startDay = firstDay.getDay();
@@ -640,9 +784,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         const events = monthEvents[day];
                         if(events && events.length > 0) {
                             const eventContent = events.map(evt => {
-                                const startStr = evt.startDate.toDate().toISOString().split('T')[0];
-                                const endStr = evt.endDate.toDate().toISOString().split('T')[0];
-                                const period = (evt.duration || 1) > 1 ? `${startStr} ~ ${endStr}` : startStr;
+                                const duration = evt.duration || 1;
+                                const startStr = evt.startDate.toISOString().split('T')[0];
+                                const endStr = evt.endDate.toISOString().split('T')[0];
+                                const period = duration > 1 ? `${startStr} ~ ${endStr} (${duration}일간)` : startStr;
                                 return `<h4>${evt.title || evt.name}</h4><p><strong>기간:</strong> ${period}</p><p>${evt.description}</p>`;
                             }).join('<hr>');
                             showModal(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')} 이벤트`, eventContent);
@@ -664,10 +809,13 @@ document.addEventListener('DOMContentLoaded', () => {
         contentDiv.innerHTML = html;
         const sourceList = contentDiv.querySelector('.source-list');
         const placementGrid = contentDiv.querySelector('.placement-grid');
+        const weatherIconContainer = contentDiv.querySelector('#weather-icon-container');
         const synergyIconContainer = contentDiv.querySelector('#synergy-icon-container');
         const gradeFilter = contentDiv.querySelector('#grade-filter');
         const typeFilter = contentDiv.querySelector('#type-filter');
-        let placedPokemon = new Map();
+        
+        // [2차 개발] Map<Element, string> -> slot Element를 key로, pokemonId를 value로 저장
+        let placedPokemon = new Map(); 
         
         DB.pokemonType.lev2.forEach(type => {
             const option = document.createElement('option');
@@ -679,15 +827,20 @@ document.addEventListener('DOMContentLoaded', () => {
         function applyFilters() {
             const selectedGrade = gradeFilter.value;
             const selectedType = typeFilter.value;
+            const placedIds = new Set(Array.from(placedPokemon.values()));
+
             let filteredPokemon = Object.entries(DB.pokemonType.lev4).filter(([id, pkm]) => {
-                const gradeMatch = selectedGrade === 'all' || pkm.grade === selectedGrade;
-                const typeMatch = selectedType === 'all' || pkm.types?.includes(selectedType);
+                const isPlaced = placedIds.has(id);
+                if (isPlaced) return false; // 이미 배치된 포켓몬은 목록에서 제외
+
+                const gradeMatch = selectedGrade === 'all' || !pkm.grade || pkm.grade === selectedGrade;
+                const typeMatch = selectedType === 'all' || (pkm.types && pkm.types.includes(selectedType));
                 return gradeMatch && typeMatch;
             });
-            filteredPokemon.sort(([, a], [, b]) => (a.name_ko || a.name).localeCompare(b.name_ko || b.name));
+            filteredPokemon.sort(([, a], [, b]) => (a.name_ko || a.name).localeCompare(b.name_ko || b.name, 'ko'));
             renderSourceList(filteredPokemon);
         }
-
+        
         function renderSourceList(pokemonList) {
             sourceList.innerHTML = '';
             const grid = document.createElement('div');
@@ -700,7 +853,6 @@ document.addEventListener('DOMContentLoaded', () => {
         typeFilter.addEventListener('change', applyFilters);
         
         let draggedItem = null; 
-        
         sourceList.addEventListener('dragstart', e => {
             const target = e.target.closest('.pokemon-source-icon');
             if (target) {
@@ -708,23 +860,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.dataTransfer.setData('text/plain', target.dataset.pokemonId);
             }
         });
-        
+
+        placementGrid.addEventListener('dragstart', e => {
+            const target = e.target.closest('.placement-slot');
+             if(target && placedPokemon.has(target)) {
+                 draggedItem = target;
+                 e.dataTransfer.setData('text/plain', placedPokemon.get(target));
+             }
+        });
+
         placementGrid.addEventListener('dragover', e => e.preventDefault());
         
         placementGrid.addEventListener('drop', e => {
             e.preventDefault();
             const targetSlot = e.target.closest('.placement-slot');
             if (!targetSlot || !draggedItem) return;
-            const sourcePokemonId = draggedItem.dataset.pokemonId;
-            if (!sourcePokemonId) return;
-            
-            if (placedPokemon.has(targetSlot)) {
-                alert('슬롯이 비어있지 않습니다. 기존 포켓몬을 먼저 제거해주세요.');
-                return;
+
+            const sourcePokemonId = e.dataTransfer.getData('text/plain');
+            const pokemonData = DB.pokemonType.lev4[sourcePokemonId];
+            if (!pokemonData) return;
+
+            if (draggedItem.classList.contains('placement-slot')) { // 슬롯 간 이동
+                const sourceSlot = draggedItem;
+                if (targetSlot === sourceSlot) return; 
+
+                const targetPokemonId = placedPokemon.get(targetSlot);
+                
+                if (targetPokemonId) { // 목표 슬롯에 포켓몬이 있는 경우 (교체)
+                    const targetPokemonData = DB.pokemonType.lev4[targetPokemonId];
+                    placePokemonInSlot(sourceSlot, targetPokemonId, targetPokemonData);
+                } else { // 목표 슬롯이 비어있는 경우
+                    clearSlot(sourceSlot);
+                }
+                placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
+
+            } else { // 목록에서 슬롯으로 배치
+                // [2차 개발] 이미 배치된 포켓몬인지 Set을 통해 확인
+                const isAlreadyPlaced = new Set(Array.from(placedPokemon.values())).has(sourcePokemonId);
+                if (isAlreadyPlaced) {
+                    alert("이미 배치된 포켓몬입니다.");
+                    return;
+                }
+                if (placedPokemon.has(targetSlot)) {
+                    alert('슬롯이 비어있습니다. 다른 포켓몬과 교체하려면 슬롯을 드래그하세요.');
+                    return;
+                }
+                placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
             }
-            placePokemonInSlot(targetSlot, sourcePokemonId, DB.pokemonType.lev4[sourcePokemonId]);
+
             draggedItem = null;
             updateTeamEffects();
+            applyFilters(); // 배치 후 목록 새로고침
         });
 
         placementGrid.addEventListener('click', e => {
@@ -734,6 +920,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (parentSlot) {
                     clearSlot(parentSlot);
                     updateTeamEffects();
+                    applyFilters(); // 제거 후 목록 새로고침
                 }
             }
         });
@@ -745,13 +932,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function clearSlot(slot) {
             const { role, position } = slot.dataset;
-            let placeholderText;
-            if (role === 'assist') {
-                placeholderText = `어시스트_#${position}`;
-            } else {
-                 placeholderText = `${slot.classList.contains('vanguard') ? '전방' : '후방'}_#${position}`;
-            }
-            slot.innerHTML = placeholderText;
+            let placeholder = role === 'assist' ? `어시스트_#${position}` : `${slot.classList.contains('vanguard') ? '전방' : '후방'}_#${position}`;
+            slot.innerHTML = placeholder;
             placedPokemon.delete(slot);
         }
 
@@ -759,10 +941,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const mainPokemonIds = Array.from(placedPokemon.entries())
                 .filter(([slot,]) => slot.dataset.role === 'main')
                 .map(([, pokemonId]) => pokemonId);
-            
             const synergy = calculateSynergy(mainPokemonIds);
             if (synergy) {
                 synergyIconContainer.querySelector('img').src = synergy.imageURL;
+                synergyIconContainer.title = synergy.name;
                 synergyIconContainer.style.visibility = 'visible';
             } else {
                 synergyIconContainer.style.visibility = 'hidden';
@@ -770,6 +952,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         applyFilters();
     }
+
 
     // --- 페이지 실행 ---
     adBlockManager.checkAndApplyBlock();
