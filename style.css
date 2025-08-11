@@ -298,7 +298,6 @@ header h1 {
 .modal-header h2 { margin: 0; font-size: 1.3em; }
 .modal-close-btn { font-size: 24px; font-weight: bold; cursor: pointer; border: none; background: none; }
 
-/* ▼▼▼ [캘린더 복구] 캘린더 관련 스타일 ▼▼▼ */
 .calendar-view { padding: 10px; }
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
 .calendar-title { font-size: 1.5em; font-weight: bold; }
@@ -321,7 +320,6 @@ header h1 {
 .day-today .date-number { background-color: var(--primary-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; }
 .event-markers { margin-top: 5px; display: flex; flex-direction: column; gap: 3px; }
 .event-marker { font-size: 0.8em; padding: 2px 4px; border-radius: 4px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* ▲▲▲ [캘린더 복구] 캘린더 관련 스타일 ▲▲▲ */
 
 .source-container { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .source-filter-bar { padding: 10px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -473,7 +471,6 @@ header h1 {
     margin-bottom: 15px;
 }
 
-
 /* --- 미디어 쿼리 --- */
 @media (max-width: 1199px) {
     .mobile-only { display: block; }
@@ -529,3 +526,84 @@ header h1 {
 .ad-container.hidden {
     display: none !important;
 }
+
+/* ▼▼▼ [추가] 팁&노하우 게시물 가독성 스타일 ▼▼▼ */
+.simple-detail-view .item-description {
+    line-height: 1.8;
+    font-size: 16px;
+    color: #333;
+    background-color: #fff;
+    padding: 10px;
+}
+
+.simple-detail-view .item-description h3,
+.simple-detail-view .item-description h4,
+.simple-detail-view .item-description h5 {
+    margin-top: 2em;
+    margin-bottom: 0.8em;
+    color: #111;
+    line-height: 1.4;
+}
+
+.simple-detail-view .item-description h3 {
+    font-size: 1.6em;
+    padding-bottom: 0.5em;
+    border-bottom: 2px solid #f0f0f0;
+}
+.simple-detail-view .item-description h4 {
+    font-size: 1.3em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid #e0e0e0;
+}
+.simple-detail-view .item-description h5 {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.simple-detail-view .item-description h3:first-child,
+.simple-detail-view .item-description h4:first-child {
+    margin-top: 0;
+}
+
+.simple-detail-view .item-description p {
+    margin-bottom: 1.2em;
+}
+
+.simple-detail-view .item-description table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    border: 1px solid var(--border-color);
+    font-size: 0.95em;
+}
+
+.simple-detail-view .item-description th,
+.simple-detail-view .item-description td {
+    border: 1px solid var(--border-color);
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.simple-detail-view .item-description th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.simple-detail-view .item-description ul,
+.simple-detail-view .item-description ol {
+    padding-left: 25px;
+    margin-bottom: 1.2em;
+}
+
+.simple-detail-view .item-description li {
+    margin-bottom: 0.6em;
+}
+
+.simple-detail-view .item-description img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 20px 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+/* ▲▲▲ [추가] 팁&노하우 게시물 가독성 스타일 ▲▲▲ */

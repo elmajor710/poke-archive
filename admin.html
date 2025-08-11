@@ -29,10 +29,8 @@
                     <li><a href="#" class="admin-tab-link" data-tab="item-management">아이템 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="rune-chip-management">룬&칩 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="tips-management">팁 & 노하우 관리</a></li>
-                    <li><a href="#" class="admin-tab-link" data-tab="announcement-management">공지사항 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="calendar-management">캘린더 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="deck-management">추천 덱 관리</a></li>
-                
                 </ul>
             </nav>
             <button id="logout-btn" class="btn btn-danger">로그아웃</button>
@@ -186,10 +184,18 @@
                 <section class="content-section">
                     <h2>팁 추가/수정</h2>
                     <form id="tip-form">
+                        <!-- ▼▼▼ [수정] ID 입력란에 자동생성 버튼 추가 ▼▼▼ -->
                         <div class="form-grid">
-                            <div class="form-group"><label for="tip-id">고유 ID</label><input type="text" id="tip-id"></div>
+                            <div class="form-group">
+                                <label for="tip-id">고유 ID</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" id="tip-id">
+                                    <button type="button" id="generate-tip-id-btn" class="btn">ID 자동생성</button>
+                                </div>
+                            </div>
                             <div class="form-group"><label for="tip-title">글 제목</label><input type="text" id="tip-title"></div>
                         </div>
+                        <!-- ▲▲▲ [수정] ID 입력란에 자동생성 버튼 추가 ▲▲▲ -->
                          <div class="form-group" style="margin-top:20px;">
                             <label>공개 여부</label>
                             <label class="checkbox-wrapper"><input type="checkbox" id="tip-is-published"><span>웹사이트에 즉시 공개</span></label>
@@ -202,43 +208,6 @@
                     </form>
                 </section>
             </div>
-            <div id="announcement-management" class="admin-tab-content">
-    <header class="admin-header">
-        <h1>공지사항 관리</h1>
-        <div>
-            <select id="announcement-select-list"><option value="">-- 공지사항 선택 --</option></select>
-            <button id="load-announcement-btn" type="button" class="btn btn-primary">불러오기</button>
-        </div>
-    </header>
-    <section class="content-section">
-        <h2>공지사항 추가/수정</h2>
-        <form id="announcement-form">
-            <div class="form-group">
-                <label for="announcement-id">고유 ID (자동생성 권장)</label>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="announcement-id">
-                    <button type="button" id="generate-announcement-id-btn" class="btn">ID 자동생성</button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="announcement-title">글 제목</label>
-                <input type="text" id="announcement-title">
-            </div>
-            <div class="form-group">
-                <label>공개 여부</label>
-                <label class="checkbox-wrapper"><input type="checkbox" id="announcement-is-published"><span>웹사이트에 즉시 공개</span></label>
-            </div>
-            <div class="form-group form-group-span-2" style="margin-top:20px;">
-                <label for="announcement-content">내용 (HTML 가능)</label>
-                <textarea id="announcement-content" rows="10"></textarea>
-            </div>
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">저장하기</button>
-                <button id="delete-announcement-btn" type="button" class="btn btn-danger">삭제하기</button>
-            </div>
-        </form>
-    </section>
-</div>
 
             <div id="calendar-management" class="admin-tab-content">
                 <header class="admin-header">

@@ -49,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setupItemManagement();
             setupRuneChipManagement();
             setupTipsManagement();
-            setupAnnouncementManagement(); // <-- 이 줄을 추가하세요
             setupCalendarManagement();
             setupDeckManagement();
             
@@ -112,83 +111,78 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // admin.js 파일의 기존 setupPublishManagement 함수를 아래 코드로 교체해주세요
+    function setupPublishManagement() {
+        const panel = document.getElementById('publish-management');
+        if (!panel) return;
+        const draftsContainer = panel.querySelector('#drafts-container');
+        const publishBtn = panel.querySelector('#publish-selected-btn');
+        const reloadBtn = panel.querySelector('#reload-drafts-btn');
+        const selectAllCheckbox = panel.querySelector('#select-all-drafts');
 
-function setupPublishManagement() {
-    const panel = document.getElementById('publish-management');
-    if (!panel) return;
-    const draftsContainer = panel.querySelector('#drafts-container');
-    const publishBtn = panel.querySelector('#publish-selected-btn');
-    const reloadBtn = panel.querySelector('#reload-drafts-btn');
-    const selectAllCheckbox = panel.querySelector('#select-all-drafts'); // 새로 추가된 체크박스
-
-    const collectionNames = {
-        pokemon: "포켓몬", items: "아이템", runeAndChips: "룬&칩",
-        tips: "팁&노하우", recommendedDecks: "추천 덱"
-    };
-    
-    async function loadDrafts() {
-        if(!draftsContainer) return;
-        draftsContainer.innerHTML = '<h4><br>🔄 초안 데이터를 불러오는 중...</h4>';
-        // ... (기존 loadDrafts 함수 내용은 그대로 유지)
-        let allDraftsHTML = '';
-        for (const col of Object.keys(collectionNames)) {
-            try {
-                const snapshot = await db.collection(col).where("isPublished", "==", false).get();
-                if (!snapshot.empty) {
-                    let categoryHTML = `<div class="draft-category"><h3>${collectionNames[col]}</h3><div class="draft-list">`;
-                    const items = [];
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        items.push({ id: doc.id, name: data.name_ko || data.name || data.title || doc.id });
-                    });
-                    items.sort((a,b)=> (a.name || '').localeCompare(b.name || '', 'ko'));
-                    items.forEach(item => {
-                         categoryHTML += `<label class="draft-item"><input type="checkbox" class="draft-checkbox" data-collection="${col}" data-id="${item.id}"><span class="draft-item-name">${item.name}</span><span class="draft-item-id">${item.id}</span></label>`;
-                    });
-                    categoryHTML += `</div></div>`;
-                    allDraftsHTML += categoryHTML;
-                }
-            } catch (e) { console.error(`'${col}' 컬렉션 초안 로딩 오류:`, e); }
-        }
-        draftsContainer.innerHTML = allDraftsHTML || '<h4><br>✔️ 비공개 상태인 데이터가 없습니다.</h4>';
-    }
-
-    publishBtn.addEventListener('click', async () => {
-        const selectedItems = draftsContainer.querySelectorAll('.draft-checkbox:checked');
-        if (selectedItems.length === 0) return alert('게시할 항목을 선택해주세요.');
-        if (!confirm(`선택한 ${selectedItems.length}개의 항목을 공개하시겠습니까?`)) return;
-        const batch = db.batch();
-        selectedItems.forEach(item => {
-            const { collection, id } = item.dataset;
-            batch.update(db.collection(collection).doc(id), { isPublished: true });
-        });
-        try {
-            await batch.commit();
-            alert('성공적으로 공개 처리되었습니다.');
-            loadDrafts();
-            selectAllCheckbox.checked = false; // 게시 완료 후 전체 선택 체크박스 해제
-        } catch (error) { console.error('일괄 공개 오류:', error); }
-    });
-
-    reloadBtn.addEventListener('click', () => {
-        loadDrafts();
-        selectAllCheckbox.checked = false; // 새로고침 시 전체 선택 체크박스 해제
-    });
-    
-    // ▼▼▼ [핵심 추가] '전체 선택' 체크박스 기능 ▼▼▼
-    selectAllCheckbox.addEventListener('change', (e) => {
-        const isChecked = e.target.checked;
-        const allDraftCheckboxes = draftsContainer.querySelectorAll('.draft-checkbox');
+        const collectionNames = {
+            pokemon: "포켓몬", items: "아이템", runeAndChips: "룬&칩",
+            tips: "팁&노하우", recommendedDecks: "추천 덱"
+        };
         
-        allDraftCheckboxes.forEach(checkbox => {
-            checkbox.checked = isChecked;
+        async function loadDrafts() {
+            if(!draftsContainer) return;
+            draftsContainer.innerHTML = '<h4><br>🔄 초안 데이터를 불러오는 중...</h4>';
+            let allDraftsHTML = '';
+            for (const col of Object.keys(collectionNames)) {
+                try {
+                    const snapshot = await db.collection(col).where("isPublished", "==", false).get();
+                    if (!snapshot.empty) {
+                        let categoryHTML = `<div class="draft-category"><h3>${collectionNames[col]}</h3><div class="draft-list">`;
+                        const items = [];
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            items.push({ id: doc.id, name: data.name_ko || data.name || data.title || doc.id });
+                        });
+                        items.sort((a,b)=> (a.name || '').localeCompare(b.name || '', 'ko'));
+                        items.forEach(item => {
+                             categoryHTML += `<label class="draft-item"><input type="checkbox" class="draft-checkbox" data-collection="${col}" data-id="${item.id}"><span class="draft-item-name">${item.name}</span><span class="draft-item-id">${item.id}</span></label>`;
+                        });
+                        categoryHTML += `</div></div>`;
+                        allDraftsHTML += categoryHTML;
+                    }
+                } catch (e) { console.error(`'${col}' 컬렉션 초안 로딩 오류:`, e); }
+            }
+            draftsContainer.innerHTML = allDraftsHTML || '<h4><br>✔️ 비공개 상태인 데이터가 없습니다.</h4>';
+        }
+
+        publishBtn.addEventListener('click', async () => {
+            const selectedItems = draftsContainer.querySelectorAll('.draft-checkbox:checked');
+            if (selectedItems.length === 0) return alert('게시할 항목을 선택해주세요.');
+            if (!confirm(`선택한 ${selectedItems.length}개의 항목을 공개하시겠습니까?`)) return;
+            const batch = db.batch();
+            selectedItems.forEach(item => {
+                const { collection, id } = item.dataset;
+                batch.update(db.collection(collection).doc(id), { isPublished: true });
+            });
+            try {
+                await batch.commit();
+                alert('성공적으로 공개 처리되었습니다.');
+                loadDrafts();
+                selectAllCheckbox.checked = false;
+            } catch (error) { console.error('일괄 공개 오류:', error); }
         });
-    });
-    // ▲▲▲ [핵심 추가] '전체 선택' 체크박스 기능 ▲▲▲
-    
-    if (panel.classList.contains('active')) loadDrafts();
-}
+
+        reloadBtn.addEventListener('click', () => {
+            loadDrafts();
+            selectAllCheckbox.checked = false;
+        });
+        
+        selectAllCheckbox.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            const allDraftCheckboxes = draftsContainer.querySelectorAll('.draft-checkbox');
+            
+            allDraftCheckboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+        });
+        
+        if (panel.classList.contains('active')) loadDrafts();
+    }
 
     function setupPokemonManagement() {
         const form = document.getElementById('pokemon-form');
@@ -209,7 +203,6 @@ function setupPublishManagement() {
             typesContainer.innerHTML = DB.pokemonType.lev2.map(type => `<label><input type="checkbox" name="types" value="${type.id}"> ${type.name}</label>`).join('');
             naturesContainer.innerHTML = DB.definitions.natures.map(nature => `<label><input type="checkbox" name="natures" value="${nature.id}"> ${nature.name}</label>`).join('');
             
-            // [핵심 수정] 드롭다운에 이름과 ID를 함께 표시하도록 변경
             const allItems = Object.values(DB.item.lev4).sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ko'));
             itemsSelect.innerHTML = allItems.map(item => `<option value="${item.id}">${item.name} (${item.id})</option>`).join('');
 
@@ -499,6 +492,8 @@ function setupPublishManagement() {
         const selectList = document.getElementById('tip-select-list');
         const loadBtn = document.getElementById('load-tip-btn');
         const deleteBtn = document.getElementById('delete-tip-btn');
+        // ▼▼▼ [수정] ID 자동생성 버튼 요소 가져오기 ▼▼▼
+        const generateIdBtn = document.getElementById('generate-tip-id-btn');
         
         function loadTipsList() {
             const items = Object.values(DB.tips.lev3);
@@ -518,10 +513,26 @@ function setupPublishManagement() {
             form.querySelector('#tip-is-published').checked = data.isPublished === true;
         });
         
+        // ▼▼▼ [수정] ID 자동생성 버튼 이벤트 리스너 추가 ▼▼▼
+        generateIdBtn.addEventListener('click', () => {
+            const title = form.querySelector('#tip-title').value.trim().toLowerCase()
+                .replace(/\s+/g, '-') // 공백을 하이픈으로
+                .replace(/[^a-z0-9-]/g, ''); // 영문, 숫자, 하이픈 외 제거
+            const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            const randomStr = Math.random().toString(36).substr(2, 5);
+            
+            // 제목이 있으면 제목 기반 ID, 없으면 랜덤 ID 생성
+            const newId = title ? `tip-${title.substring(0, 20)}-${randomStr}` : `tip-${date}-${randomStr}`;
+            form.querySelector('#tip-id').value = newId;
+        });
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const tipId = form.querySelector('#tip-id').value.trim();
-            if (!tipId) return;
+            if (!tipId) {
+                alert('고유 ID를 입력하거나 자동생성 버튼을 눌러주세요.');
+                return;
+            }
             const tipData = {
                 name: form.querySelector('#tip-title').value,
                 title: form.querySelector('#tip-title').value,
@@ -558,7 +569,6 @@ function setupPublishManagement() {
         const generateIdBtn = document.getElementById('generate-event-id-btn');
         
         async function loadEventsList() {
-            // 캘린더는 DB 객체를 사용하지 않고 직접 Firestore에서 가져옵니다.
             const snapshot = await db.collection("events").orderBy("startDate", "desc").get();
             selectList.innerHTML = '<option value="">-- 이벤트 선택 --</option>';
             snapshot.forEach(doc => {
@@ -753,80 +763,4 @@ function setupPublishManagement() {
         loadDecksList();
         updateSynergyDisplay();
     }
-    // admin.js 파일 맨 아래에 이 함수 전체를 추가하세요
-
-function setupAnnouncementManagement() {
-    const panel = document.getElementById('announcement-management');
-    if (!panel) return;
-
-    const form = panel.querySelector('#announcement-form');
-    const selectList = panel.querySelector('#announcement-select-list');
-    const loadBtn = panel.querySelector('#load-announcement-btn');
-    const deleteBtn = panel.querySelector('#delete-announcement-btn');
-    const generateIdBtn = panel.querySelector('#generate-announcement-id-btn');
-
-    async function loadList() {
-        try {
-            const snapshot = await db.collection("announcements").orderBy("timestamp", "desc").get();
-            selectList.innerHTML = '<option value="">-- 공지사항 선택 --</option>';
-            snapshot.forEach(doc => {
-                selectList.innerHTML += `<option value="${doc.id}">${doc.data().title || doc.id}</option>`;
-            });
-        } catch(e) { console.error("공지사항 목록 로딩 오류:", e); }
-    }
-
-    generateIdBtn.addEventListener('click', () => {
-        form.querySelector('#announcement-id').value = db.collection("announcements").doc().id;
-    });
-
-    loadBtn.addEventListener('click', async () => {
-        const selectedId = selectList.value;
-        if (!selectedId) return alert('불러올 공지사항을 선택해주세요.');
-        try {
-            const doc = await db.collection("announcements").doc(selectedId).get();
-            if (doc.exists) {
-                const data = doc.data();
-                form.querySelector('#announcement-id').value = doc.id;
-                form.querySelector('#announcement-title').value = data.title || '';
-                form.querySelector('#announcement-content').value = data.content || '';
-                form.querySelector('#announcement-is-published').checked = data.isPublished === true;
-            }
-        } catch(e) { console.error("공지사항 로딩 오류:", e); }
-    });
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = form.querySelector('#announcement-id').value.trim();
-        if (!id) return alert('고유 ID를 입력하거나 생성해주세요.');
-
-        const data = {
-            title: form.querySelector('#announcement-title').value,
-            content: form.querySelector('#announcement-content').value,
-            isPublished: form.querySelector('#announcement-is-published').checked,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        try {
-            await db.collection("announcements").doc(id).set(data, { merge: true });
-            alert('공지사항이 저장되었습니다.');
-            form.reset();
-            loadList();
-        } catch(e) { console.error("공지사항 저장 오류:", e); }
-    });
-
-    deleteBtn.addEventListener('click', async () => {
-        const id = form.querySelector('#announcement-id').value.trim();
-        if (!id) return alert('삭제할 공지사항이 없습니다.');
-        if (confirm(`'${id}' 공지사항을 정말 삭제하시겠습니까?`)) {
-            try {
-                await db.collection("announcements").doc(id).delete();
-                alert('공지사항이 삭제되었습니다.');
-                form.reset();
-                loadList();
-            } catch(e) { console.error("공지사항 삭제 오류:", e); }
-        }
-    });
-
-    loadList();
-}
 });
