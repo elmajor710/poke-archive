@@ -1,11 +1,10 @@
 :root {
     --sidebar-width: 240px;
-    --right-ad-width: 240px;
-    --header-height: 50px;
+    --right-ad-width: 240px; /* PC 우측 광고 너비 */
     --primary-color: #007bff;
     --active-color: #e6f7ff;
     --border-color: #dee2e6;
-    --slide-duration: 0.3s;
+    --slide-duration: 0.35s;
     --grade-ss-color: #ff8a80;
     --grade-s-plus-color: #ffb74d;
     --grade-s-color: #fff176;
@@ -16,16 +15,20 @@
     --event-ranking-color: #ff9800;
     --event-limited-color: #2196f3;
     --event-luckycat-color: #4caf50;
+    --main-pastel: #ffe0b2;
+    --assist-pastel: #c8e6c9;
 }
 
-*, *::before, *::after { box-sizing: border-box; }
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
     overflow: hidden;
     background-color: #f8f9fa;
 }
@@ -33,57 +36,251 @@ body {
 header {
     background-color: var(--primary-color);
     color: white;
-    padding: 0 15px;
-    height: var(--header-height);
+    display: flex; /* [2차 개발] 햄버거 버튼을 위해 flex로 변경 */
+    align-items: center;
+    justify-content: center; /* h1을 가운데 정렬 */
+    padding: 10px;
     flex-shrink: 0;
-    z-index: 1002;
+    z-index: 20;
+    position: relative; /* 자식 요소의 absolute 위치 기준 */
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+/* ▼▼▼ [2차 개발] 모바일 햄버거 메뉴 버튼 추가 ▼▼▼ */
+#mobile-menu-btn {
+    position: absolute;
+    left: 10px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+/* ▲▲▲ [2차 개발] 모바일 햄버거 메뉴 버튼 추가 ▲▲▲ */
+
+
+/* 광고 컨테이너 공통 스타일 수정 */
+.ad-container {
+    overflow: hidden;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    background-color: #f1f1f1;
+    color: #cccccc;
+    font-size: 14px;
+    font-weight: bold;
+    min-height: 100px; 
 }
-header h1 { margin: 0; font-size: 1.4em; cursor: pointer; }
-.menu-toggle-btn { display: none; font-size: 24px; background: none; border: none; color: white; cursor: pointer; }
-.header-placeholder { width: 24px; }
 
-#page-body { display: flex; flex-grow: 1; overflow: hidden; height: calc(100vh - var(--header-height)); }
-#app-container { display: flex; width: 100%; flex-grow: 1; position: relative; overflow: hidden; }
-#sidebar { width: var(--sidebar-width); border-right: 1px solid var(--border-color); padding: 10px; overflow-y: auto; flex-shrink: 0; background-color: #fff; transition: transform var(--slide-duration) ease-in-out; }
-#content-area { flex-grow: 1; position: relative; background-color: #fff; overflow-y: auto; }
+#ad-container-top {
+    width: 100%;
+    min-height: 250px; 
+    max-height: 300px;
+    flex-shrink: 0;
+    display: block;
+}
 
-.ad-container { overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #f1f1f1; color: #cccccc; }
-#ad-container-top { width: 100%; min-height: 90px; max-height: 150px; flex-shrink: 0; }
-#ad-container-right { display: none; }
+#ad-container-top > .adsbygoogle {
+    display: block;
+    margin: 0 auto;
+}
 
-#initial-content { padding: 20px; }
-#main-placeholder { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px 0; }
-#main-placeholder img { max-width: 90%; max-height: 400px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-bottom: 25px; object-fit: contain; }
-#main-placeholder p { font-size: 1.2em; font-weight: 500; color: #495057; }
-.notice-popular-section { width: 100%; max-width: 800px; margin: 0 auto 20px auto; display: flex; gap: 20px; }
-.notice-container, .popular-container { flex: 1; padding: 20px; background-color: white; border: 1px solid var(--border-color); border-radius: 8px; }
-.notice-container h3, .popular-container h3 { margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 1px solid #f1f1f1; font-size: 1.1em; text-align: center; }
-.notice-container ul, .popular-container ul { list-style: none; padding: 0; margin: 0; }
-.notice-container li, .popular-container li { padding: 8px 5px; border-bottom: 1px solid #f8f9fa; cursor: pointer; }
-.notice-container li:hover { background-color: #f8f9fa; }
-.notice-container li:last-child, .popular-container li:last-child { border-bottom: none; }
-.mobile-notice-buttons { display: none; }
+#ad-container-right {
+    display: none; /* 모바일에선 기본적으로 숨김 */
+}
 
-.panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: flex; flex-direction: column; transform: translateX(100%); transition: transform var(--slide-duration) ease-in-out; visibility: hidden; z-index: 1; }
+/* --- 메인 레이아웃 --- */
+#page-body {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+#app-container {
+    display: flex;
+    width: 100%;
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+#sidebar {
+    width: var(--sidebar-width);
+    border-right: 1px solid var(--border-color);
+    padding: 10px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    background-color: #fff;
+    transition: transform var(--slide-duration) ease-in-out;
+    z-index: 10;
+}
+
+#content-area {
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+    background-color: #fff; /* [2차 개발] 배경색 변경 */
+    display: flex; /* [2차 개발] flex로 변경 */
+    flex-direction: column; /* [2차 개발] flex 방향 설정 */
+}
+
+/* ▼▼▼ [2차 개발] 메인 화면 스타일 ▼▼▼ */
+#main-placeholder {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.mobile-main-buttons {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.main-action-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: #fff;
+    transition: background-color 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.main-action-btn:hover {
+    background-color: #f8f9fa;
+}
+
+.main-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 30px;
+}
+
+.main-content-box {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #fff;
+}
+
+.main-content-box h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.main-content-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.main-content-box li {
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.main-content-box a {
+    text-decoration: none;
+    color: #0056b3;
+    cursor: pointer;
+}
+.main-content-box a:hover {
+    text-decoration: underline;
+}
+
+.main-welcome-area {
+    text-align: center;
+}
+
+.main-welcome-area img {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+}
+
+.main-welcome-area p {
+    font-size: 1.2em;
+    font-weight: 500;
+    color: #495057;
+}
+
+.pc-only { display: none; }
+.mobile-only { display: block; }
+/* ▲▲▲ [2차 개발] 메인 화면 스타일 ▲▲▲ */
+
+.panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform var(--slide-duration) ease-in-out;
+    visibility: hidden;
+    z-index: 1;
+    min-height: 0;
+}
+
 .panel.visible { transform: translateX(0); visibility: visible; z-index: 5; }
 #lev3-panel.visible { z-index: 6; }
 #lev4-panel.visible { z-index: 7; }
-.panel-header { padding: 10px 15px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
-.back-btn, .main-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border-color); background-color: #f8f9fa; cursor: pointer; font-size: 1em; }
-.main-btn { background-color: #6c757d; color: white; border-color: #6c757d; }
-.panel-content { padding: 10px; overflow-y: auto; flex-grow: 1; -webkit-overflow-scrolling: touch; }
 
-#app-container.menu-active #initial-content { display: none; }
+.panel-header { 
+    padding: 10px 15px; 
+    border-bottom: 1px solid var(--border-color); 
+    flex-shrink: 0; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
 
+.panel-content { 
+    padding: 10px; 
+    overflow-y: auto; 
+    flex-grow: 1; 
+    -webkit-overflow-scrolling: touch;
+}
+.back-btn, .main-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border-color); background-color: #f8f9fa; cursor: pointer; }
+.main-btn { padding: 5px 12px; border-radius: 5px; background-color: #6c757d; color: white; border: 1px solid #6c757d; cursor: pointer; }
 .menu-item, .list-item { display: block; width: 100%; text-align: left; padding: 12px; margin-bottom: 5px; border: 1px solid #eee; background: #f9f9f9; border-radius: 6px; font-size: 16px; cursor: pointer; }
-.menu-item.active, .list-item.active { background-color: var(--active-color); border-left: 4px solid var(--primary-color); font-weight: 600; padding-left: 9px; }
-.pokemon-detail-view, .simple-detail-view, .deck-detail-view, .deck-builder-view, .calendar-view { padding: 10px; }
-h2 { font-size: 2em; margin-bottom: 10px; }
-.main-image { max-width: 200px; display: block; margin: 20px auto; }
-h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
+.menu-item.active, .list-item.active { background-color: var(--active-color); border-left: 4px solid var(--primary-color); font-weight: 600; }
+.item-description { white-space: pre-wrap; line-height: 1.7; background-color: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 14px; color: #333; }
+.stats-table { border-collapse: collapse; margin: 10px 0; width: 100%; max-width: 500px;  }
+.stats-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
+.stats-table td:first-child { font-weight: 600; color: #555; padding-right: 20px; }
+.pokemon-detail-view, .simple-detail-view, .deck-detail-view {
+    padding: 10px;
+    height: fit-content;
+}
+.pokemon-detail-view h2, .simple-detail-view h2, .deck-detail-view h2 { font-size: 2em; margin-bottom: 10px; }
+.pokemon-detail-view .main-image, .simple-detail-view .main-image { max-width: 200px; display: block; margin: 20px auto; }
+.pokemon-detail-view h4, .simple-detail-view h4, .deck-detail-view h4, .deck-builder-view h4, h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
+.deck-detail-view h5 { margin-top: 15px; margin-bottom: 10px; font-size: 1.1em; }
 .badge-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; align-items: center; }
 .type-badge, .grade-badge { color: white; padding: 4px 12px; border-radius: 15px; font-size: 0.9em; font-weight: 600; }
 .grade-badge.grade-ss { background-color: var(--grade-ss-color); }
@@ -94,42 +291,193 @@ h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
 .grade-badge.grade-epic { background-color: var(--item-epic-color); }
 .skill-list, .recommend-list { list-style: none; padding: 0; }
 .skill-list { display: flex; flex-direction: column; gap: 8px; }
-.skill-item { background: #f8f9fa; border-radius: 5px; padding: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.skill-item { background: #f8f9fa; border-radius: 5px; padding: 10px; display: flex; justify-content: flex-start; align-items: center; gap: 10px; }
 .skill-name { font-weight: bold; cursor: pointer; color: #0056b3; }
 .skill-type { font-size: 0.8em; color: #fff; background: #6c757d; padding: 2px 6px; border-radius: 10px; flex-shrink: 0; }
 .recommend-list { display: flex; flex-wrap: wrap; gap: 10px; }
-.recommend-item { display: flex; align-items: center; gap: 8px; background: #f8f9fa; padding: 5px; border-radius: 5px; cursor: pointer; border: 1px solid #eee; }
-.recommend-item img { width: 48px; height: 48px; }
-.tab-nav { display: flex; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; margin: 20px 0; }
-.tab-button { flex: 1; padding: 12px 5px; text-align: center; background-color: #fff; border: none; border-right: 1px solid var(--border-color); font-size: 1em; font-weight: 600; color: #495057; cursor: pointer; }
-.tab-nav .tab-button:last-child { border-right: none; }
-.tab-button.active { background-color: var(--active-color); color: var(--primary-color); }
-.tab-pane { display: none; padding: 10px 5px 0 5px; }
-.tab-pane.active { display: block; }
-.item-description { white-space: pre-wrap; line-height: 1.7; background-color: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 14px; color: #333;}
-.stats-table { border-collapse: collapse; margin: 10px 0; width: 100%; max-width: 500px;  }
-.stats-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
-.stats-table td:first-child { font-weight: 600; color: #555; }
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
+.recommend-item { display: flex; align-items: center; gap: 8px; background: #f8f9fa; padding: 5px 10px; border-radius: 5px; cursor: pointer; border: 1px solid #eee; flex-shrink: 0; }
+.recommend-item img {
+    width: 48px; 
+    height: 48px;
+}
+.deck-grid-table { width: 100%; max-width: 600px; border-collapse: collapse; margin: 20px auto; table-layout: fixed; }
+.deck-grid-table th, .deck-grid-table td { border: 1px solid var(--border-color); text-align: center; padding: 8px; vertical-align: middle; }
+.deck-grid-table th { background-color: #f8f9fa; font-weight: bold; height: auto; }
+.deck-grid-table td {
+    height: 90px;
+}
+.deck-pokemon-cell { cursor: pointer; }
+.deck-pokemon-cell img { width: 64px; height: 64px; display: block; margin: 0 auto 5px; object-fit: contain; }
+.deck-pokemon-cell .position-number { font-weight: bold; font-size: 0.9em; color: #555; display: block; }
+.deck-composition-container { display: none !important; }
+.content-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.95em; }
+.content-table th, .content-table td { border: 1px solid var(--border-color); padding: 8px 10px; text-align: left; }
+.content-table th { background-color: #f8f9fa; font-weight: 600; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
 .modal-content { background: white; padding: 20px; border-radius: 8px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
 .modal-header h2 { margin: 0; font-size: 1.3em; }
 .modal-close-btn { font-size: 24px; font-weight: bold; cursor: pointer; border: none; background: none; }
-
-@media (max-width: 1199px) {
-    .menu-toggle-btn { display: block; }
-    .header-placeholder { display: none; }
-    #sidebar { position: fixed; top: 0; left: 0; height: 100vh; z-index: 1001; transform: translateX(-100%); border-right: 1px solid var(--border-color); padding-top: calc(var(--header-height) + 10px); }
-    body.sidebar-visible #sidebar { transform: translateX(0); }
-    #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; display: none; }
-    body.sidebar-visible #sidebar-overlay { display: block; }
-    .notice-popular-section { display: none; }
-    .mobile-notice-buttons { display: flex; flex-direction: column; gap: 10px; padding: 15px; margin-bottom: 15px; }
-    .mobile-notice-btn { display: flex; justify-content: center; align-items: center; width: 100%; padding: 15px; font-size: 1.1em; font-weight: bold; border: 1px solid var(--border-color); background-color: white; border-radius: 8px; cursor: pointer; }
-    #initial-content { padding: 0; }
-    .panel { width: 100%; }
+.calendar-view { padding: 10px; }
+.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+.calendar-title { font-size: 1.5em; font-weight: bold; }
+.calendar-nav { display: flex; gap: 5px; }
+.calendar-nav button { padding: 8px 12px; border: 1px solid var(--border-color); background-color: #fff; border-radius: 5px; cursor: pointer; }
+.calendar-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; padding-left: 5px; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.9em; }
+.legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+.event-type-ranking { background-color: var(--event-ranking-color); }
+.event-type-limited { background-color: var(--event-limited-color); }
+.event-type-luckycat { background-color: var(--event-luckycat-color); }
+.calendar-grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.calendar-grid th { text-align: center; padding-bottom: 10px; font-weight: 600; color: #666; font-size: 0.9em; }
+.calendar-grid td { border: 1px solid var(--border-color); vertical-align: top; padding: 4px; height: 100px; }
+.calendar-grid td.has-events { cursor: pointer; background-color: #f8f9fa; }
+.calendar-grid td.has-events:hover { background-color: #e9ecef; }
+.day-other-month { background-color: #f8f9fa; }
+.day-other-month .date-number { color: #ccc; }
+.date-number { font-weight: 500; font-size: 0.9em; }
+.day-today .date-number { background-color: var(--primary-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; }
+.event-markers { margin-top: 5px; display: flex; flex-direction: column; gap: 3px; }
+.event-marker { font-size: 0.8em; padding: 2px 4px; border-radius: 4px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.deck-builder-view { display: flex; flex-direction: row; gap: 20px; height: 100%; }
+.placement-container { flex: 0 0 320px; }
+.placement-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.placement-slot, .placement-slot-header { aspect-ratio: 1 / 1; border: 2px dashed var(--border-color); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 0.9em; color: #6c757d; font-weight: bold; user-select: none; }
+.placement-slot-header { border-style: solid; border-color: #f0f0f0; }
+.placement-slot.main.vanguard { background-color: #ffcdd2; }
+.placement-slot.main.rearguard { background-color: var(--main-pastel); }
+.placement-slot.assist { background-color: var(--assist-pastel); }
+.source-container { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.source-filter-bar { padding: 10px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.filter-dropdown { padding: 8px 12px; font-size: 0.9em; border: 1px solid var(--border-color); border-radius: 6px; background-color: #fff; }
+.source-list { flex-grow: 1; overflow-y: auto; padding: 10px 5px; background-color: #f0f2f5; border-radius: 6px; }
+.source-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; align-content: start; }
+.pokemon-source-icon { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: grab; text-align: center; flex-shrink: 0; }
+.pokemon-source-icon img { width: 64px; height: 64px; background-color: white; border: 1px solid #ddd; border-radius: 8px; padding: 2px; }
+.pokemon-source-icon span { font-size: 12px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+.placement-slot .deck-pokemon-cell { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; cursor: grab; }
+.placement-slot .remove-pkm-btn { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border-radius: 50%; border: 1px solid #c0392b; background-color: #e74c3c; color: white; font-weight: bold; font-size: 14px; line-height: 18px; text-align: center; cursor: pointer; opacity: 0; transition: opacity 0.2s; z-index: 10; }
+.placement-slot:hover .remove-pkm-btn { opacity: 1; }
+#weather-icon-container, #synergy-icon-container { font-size: 1.8em; visibility: hidden; cursor: pointer; }
+#synergy-icon-container img { width: 50%; height: 50%; object-fit: contain; }
+.weather-popup .weather-option { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #eee; transition: background-color 0.2s; }
+.weather-popup .weather-option:hover { background-color: #f8f9fa; }
+.weather-popup .weather-option:last-child { border-bottom: none; }
+.weather-popup .weather-desc { font-size: 0.9em; color: #666; margin-top: 5px; line-height: 1.4; }
+.synergy-table { width: 100%; border-collapse: collapse; }
+.synergy-table td { padding: 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
+.synergy-table td:first-child { width: 60px; text-align: center; }
+.synergy-table img { width: 50px; height: 50px; object-fit: contain; }
+.synergy-table tr.current-synergy { background-color: var(--active-color); font-weight: bold; }
+.pc-only-message { padding: 40px 20px; text-align: center; color: #555; background-color: #f8f9fa; border-radius: 8px; margin: auto; }
+.pc-only-message h3 { font-size: 1.5em; margin-top: 0; margin-bottom: 10px; color: #333; }
+.pokemon-detail-view.use-tabs .tab-nav { display: flex; }
+.pokemon-detail-view.use-tabs .tab-pane { display: none; }
+.pokemon-detail-view.use-tabs .tab-pane.active { display: block; }
+.pokemon-detail-view:not(.use-tabs) .tab-nav { display: none; }
+.pokemon-detail-view:not(.use-tabs) .info-sections { display: block; }
+.pokemon-detail-view.use-tabs .info-sections { display: none; }
+.tab-container {
+    margin-top: 20px;
+}
+.tab-nav {
+    display: flex;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+.tab-button {
+    flex: 1;
+    padding: 12px 5px;
+    text-align: center;
+    background-color: #ffffff;
+    border: none;
+    border-right: 1px solid #dee2e6;
+    font-size: 1em;
+    font-weight: 600;
+    color: #495057;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.tab-nav .tab-button:last-child {
+    border-right: none;
+}
+.tab-button.active {
+    background-color: #ffebe6;
+    color: #d9534f;
+    font-weight: bold;
+}
+.tab-pane {
+    display: none;
+    padding-top: 20px;
+}
+.tab-pane.active {
+    display: block;
+}
+.tab-pane h4 {
+    color: var(--primary-color);
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    font-size: 1.1em;
 }
 
-@media (min-width: 1200px) {
-    #ad-container-right { display: flex; width: var(--right-ad-width); flex-shrink: 0; }
+.tab-pane h4:first-child {
+    margin-top: 0;
+}
+
+/* --- 미디어 쿼리 --- */
+@media (max-width: 1199px) { /* 모바일 & 태블릿 */
+    .mobile-only { display: block; }
+    .pc-only { display: none; }
+    
+    #sidebar, .panel { 
+        position: absolute; 
+        width: 100%; 
+    }
+    #sidebar.is-hidden, .panel.is-hidden { 
+        transform: translateX(-100%); 
+        z-index: 1; 
+    }
+    /* [2차 개발] 모바일에서는 사이드바가 햄버거 메뉴로 토글되도록 초기 상태를 숨김 */
+    #sidebar {
+        transform: translateX(-100%);
+        z-index: 15;
+    }
+    #sidebar.visible {
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 768px) {
+    #ad-container-top {
+        height: 50px !important;
+        min-height: 50px !important;
+        overflow: hidden !important;
+    }
+}
+
+@media (min-width: 1200px) { /* PC */
+    .mobile-only { display: none; }
+    .pc-only { display: grid; } /* [2차 개발] PC용 메인 화면은 grid로 */
+
+    #app-container {
+        flex-grow: 1;
+        min-width: 0;
+    }
+    #ad-container-right {
+        display: block;
+        width: var(--right-ad-width);
+        flex-shrink: 0;
+    }
+    #sidebar {
+        transform: translateX(0); /* [2차 개발] PC에서는 사이드바 항상 보임 */
+    }
+    #app-container.menu-active #main-placeholder { display: none; }
+}
+
+/* --- 무효 트래픽 방지용 스타일 --- */
+.ad-container.hidden {
+    display: none !important;
 }

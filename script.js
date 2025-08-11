@@ -1,36 +1,82 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Firebase 초기화
-    if (window.firebase && window.firebaseConfig) {
-        try {
-            firebase.initializeApp(window.firebaseConfig);
-            window.db = firebase.firestore();
-        } catch (e) {
-            console.error("Firebase 초기화 실패:", e);
-            document.body.innerHTML = "<h4>사이트 로딩에 실패했습니다. Firebase 설정에 문제가 있습니다.</h4>";
-            return;
-        }
-    } else {
-        console.error("Firebase 라이브러리 또는 설정이 로드되지 않았습니다.");
-        document.body.innerHTML = "<h4>사이트 로딩에 실패했습니다. Firebase 라이브러리를 불러올 수 없습니다.</h4>";
-        return;
-    }
-    
-    // DB 객체 존재 여부 확인
-    if (typeof DB === 'undefined') {
-        console.error("DB 객체를 찾을 수 없습니다. data.js 파일이 정상적으로 로드되었는지 확인해주세요.");
-        document.body.innerHTML = "<h4>사이트 초기화 중 오류가 발생했습니다. (데이터 파일 로드 실패)</h4>";
-        return;
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 2차 개발 적용');
+
+    // --- 광고 설정 및 무효 트래픽 방지 로직 ---
+    function setupAdObservers() {
+        const adContainers = document.querySelectorAll('.ad-container');
+        if (adContainers.length === 0) return;
+        const adObserver = new ResizeObserver(entries => {
+            for (const entry of entries) {
+                if (entry.contentRect.width > 0) {
+                    const targetContainer = entry.target;
+                    try {
+                        (window.adsbygoogle = window.adsbygoogle || []).push({});
+                        const styleWatcher = new MutationObserver((mutations) => {
+                            for (const mutation of mutations) {
+                                if (mutation.attributeName === 'style') {
+                                    if (window.innerWidth <= 768) {
+                                        const currentHeight = targetContainer.style.height;
+                                        if (currentHeight !== '50px') {
+                                            targetContainer.style.setProperty('height', '50px', 'important');
+                                            targetContainer.style.setProperty('min-height', '50px', 'important');
+                                        }
+                                    }
+                                    styleWatcher.disconnect();
+                                }
+                            }
+                        });
+                        styleWatcher.observe(targetContainer, { attributes: true });
+                    } catch (e) {
+                        console.error(`'${targetContainer.id}' 광고 요청 중 오류 발생:`, e);
+                    }
+                    adObserver.unobserve(targetContainer);
+                }
+            }
+        });
+        adContainers.forEach(container => adObserver.observe(container));
     }
 
-    // --- 전역 변수 ---
+    const adBlockManager = {
+        CLICK_LIMIT: 3,
+        TIME_WINDOW: 5 * 60 * 1000,
+        checkAndApplyBlock: function() {
+            const expiresAt = localStorage.getItem('adBlockExpiresAt');
+            if (!expiresAt) return;
+            const now = new Date().getTime();
+            if (now < parseInt(expiresAt)) {
+                this.hideAds();
+            } else {
+                localStorage.removeItem('adBlockExpiresAt');
+                localStorage.removeItem('adClickTimestamps');
+            }
+        },
+        recordClick: function() {
+            let timestamps = JSON.parse(localStorage.getItem('adClickTimestamps')) || [];
+            const now = new Date().getTime();
+            timestamps = timestamps.filter(ts => (now - ts) < this.TIME_WINDOW);
+            timestamps.push(now);
+            localStorage.setItem('adClickTimestamps', JSON.stringify(timestamps));
+            if (timestamps.length >= this.CLICK_LIMIT) {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(0, 0, 0, 0);
+                localStorage.setItem('adBlockExpiresAt', tomorrow.getTime());
+                this.hideAds();
+            }
+        },
+        hideAds: function() {
+            document.querySelectorAll('.ad-container').forEach(container => {
+                container.classList.add('hidden');
+            });
+        }
+    };
+
+    // --- 페이지 전역 변수 ---
     const appContainer = document.getElementById('app-container');
-    const homeButton = document.getElementById('home-button');
-    const menuToggleBtn = document.getElementById('menu-toggle');
-    const sidebarOverlay = document.getElementById('sidebar-overlay');
     const sidebar = document.getElementById('sidebar');
-    const initialContent = document.getElementById('initial-content');
-    const noticeList = document.getElementById('notice-list');
-    const popularList = document.getElementById('popular-list');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mainPlaceholder = document.getElementById('main-placeholder');
+    const mainNoticeList = document.getElementById('main-notice-list');
     const panels = {
         lev1: sidebar,
         lev2: document.getElementById('lev2-panel'),
@@ -40,22 +86,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeButtons = {};
     const isMobile = () => window.innerWidth <= 1199;
 
-    // --- 메인 실행 ---
+    // --- 함수 정의 영역 ---
+
     async function initialize() {
         try {
             await fetchAllDataFromFirebase();
             setupSideMenuData();
             renderSidebar();
+            renderMainNoticeList();
             addEventListeners();
-            populateInitialContent();
-            setupAdObservers();
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
-            document.body.innerHTML = "<h4>사이트 초기화 중 오류가 발생했습니다.</h4>";
+            document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
         }
     }
-
-    // --- 데이터 로딩 및 준비 ---
+    
     async function fetchAllDataFromFirebase() {
         const collectionsToFetch = {
             pokemon: db.collection('pokemon').where("isPublished", "==", true),
@@ -64,27 +109,32 @@ document.addEventListener('DOMContentLoaded', () => {
             tips: db.collection('tips').where("isPublished", "==", true),
             recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true),
             events: db.collection('events'),
-            announcements: db.collection('announcements').where("isPublished", "==", true)
+            // [2차 개발] '공지사항'은 data.js에서 관리하므로 Firebase fetch 목록에서 제외
         };
         const promises = Object.values(collectionsToFetch).map(query => query.get());
-        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot, announcementsSnapshot] = await Promise.all(promises);
+        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot] = await Promise.all(promises);
+        
         const snapshotToMap = (snapshot) => {
             const dataMap = {};
             snapshot.forEach(doc => { dataMap[doc.id] = { id: doc.id, ...doc.data() }; });
             return dataMap;
         };
+
         DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
         DB.item.lev4 = snapshotToMap(itemsSnapshot);
         DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
         DB.tips.lev3 = snapshotToMap(tipsSnapshot);
         DB.deck.lev4 = snapshotToMap(decksSnapshot);
-        DB.announcements.lev3 = snapshotToMap(announcementsSnapshot);
+        
         if(DB.calendar && DB.calendar.lev2) {
             DB.calendar.lev2.events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         }
     }
     
     function setupSideMenuData() {
+        // [2차 개발] '공지사항' 날짜순 정렬
+        DB.notice.lev2.sort((a, b) => new Date(b.date) - new Date(a.date));
+
         DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         const types = {};
         DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
@@ -119,18 +169,18 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const runeAndChipTypes = { rune: [], chip: [] };
         Object.values(DB.runeAndChip.lev4).forEach(rc => {
-            if(rc.type && runeAndChipTypes[rc.type]) rcTypes[rc.type].push({ id: rc.id, name: rc.name });
+            if(runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name });
         });
         runeAndChipTypes.rune.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         DB.runeAndChip.lev3 = runeAndChipTypes;
 
         DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title }));
+        
         DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
-        DB.announcements.lev2 = Object.values(DB.announcements.lev3).map(data => ({ id: data.id, name: data.title, timestamp: data.timestamp }));
+        DB.deck.lev3.builder = [{ id: 'deckBuilder', name: '배치툴' }];
     }
 
-    // --- 렌더링 함수 ---
     function renderSidebar() {
         const sidebarContent = document.createElement('div');
         sidebarContent.className = 'panel-content';
@@ -148,10 +198,143 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function populateInitialContent() {
-        const announcements = Object.values(DB.announcements.lev3 || {}).sort((a,b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0)).slice(0, 5);
-        noticeList.innerHTML = announcements.length > 0 ? announcements.map(n => `<li data-menu-id="announcements" data-id="${n.id}">${n.title}</li>`).join('') : '<li>등록된 공지사항이 없습니다.</li>';
-        popularList.innerHTML = `<li>인기글 데이터 준비중입니다.</li>`;
+    // [2차 개발] PC 메인화면에 공지사항 목록 렌더링
+    function renderMainNoticeList() {
+        if (!mainNoticeList) return;
+        const noticesToShow = DB.notice.lev2.slice(0, 5); // 최신 5개만 표시
+        mainNoticeList.innerHTML = noticesToShow.map(notice => 
+            `<li><a href="#" data-menu-id="notice" data-item-id="${notice.id}">${notice.name}</a></li>`
+        ).join('');
+    }
+
+    function addEventListeners() {
+        document.body.addEventListener('click', (e) => {
+            if (e.target.closest('.ad-container')) adBlockManager.recordClick();
+        });
+
+        // [2차 개발] 이벤트 리스너 통합 및 모바일 메뉴 로직 추가
+        document.body.addEventListener('click', e => {
+            const button = e.target.closest('button');
+            if (button) {
+                if (button.id === 'mobile-menu-btn') {
+                    sidebar.classList.toggle('visible');
+                } else if (button.classList.contains('back-btn')) {
+                    handleBackClick(button); 
+                } else if (button.classList.contains('main-btn')) {
+                    handleMainButtonClick();
+                } else if (button.classList.contains('main-action-btn')) { // 모바일 메인 버튼
+                    if (button.dataset.menuId === 'popular') {
+                        alert('인기글 기능은 준비중입니다.');
+                        return;
+                    }
+                    const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="${button.dataset.menuId}"]`);
+                    if(targetMenuItem) handleMenuClick(targetMenuItem);
+                } else if (button.dataset.level) {
+                    handleMenuClick(button); 
+                }
+            }
+
+            // PC 메인화면의 공지사항 링크 클릭
+            const noticeLink = e.target.closest('#main-notice-list a');
+            if (noticeLink) {
+                e.preventDefault();
+                const menuId = noticeLink.dataset.menuId;
+                const itemId = noticeLink.dataset.itemId;
+
+                const lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
+                if (lev1_btn) {
+                    handleMenuClick(lev1_btn);
+                    setTimeout(() => {
+                        const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="${itemId}"]`);
+                        if (lev2_btn) handleMenuClick(lev2_btn);
+                    }, 50); 
+                }
+            }
+        });
+    }
+
+    function handleMenuClick(button) {
+        if (isMobile()) sidebar.classList.remove('visible'); // 메뉴 클릭 시 사이드바 닫기
+        mainPlaceholder.style.display = 'none'; // 메인 컨텐츠 숨기기
+        appContainer.classList.add('menu-active');
+
+        const level = parseInt(button.dataset.level);
+        const id = button.dataset.id;
+        const menuId = button.dataset.menuId || id;
+        const nextLevel = level + 1;
+        const nextData = getNextData(level, id, menuId); 
+        const currentPanel = panels[`lev${level}`] || sidebar;
+        const nextPanel = panels[`lev${nextLevel}`];
+
+        if (!nextPanel) return;
+
+        if (isMobile()) currentPanel.classList.add('is-hidden');
+        
+        Object.values(panels).forEach((panel, index) => {
+            if(index > 0 && panel !== nextPanel) panel.classList.remove('visible');
+        });
+
+        nextPanel.classList.remove('is-hidden');
+        nextPanel.classList.add('visible');
+        
+        setActive(level, button);
+        renderPanelContent(nextLevel, nextData, menuId, id);
+    }
+
+    function handleBackClick(button) {
+        const parentPanel = button.closest('.panel');
+        if (!parentPanel) return;
+
+        const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
+        const currentPanel = panels[`lev${level}`];
+        const prevPanel = panels[`lev${level - 1}`] || sidebar;
+
+        currentPanel.classList.remove('visible');
+
+        if (prevPanel) {
+            if (isMobile()) prevPanel.classList.remove('is-hidden');
+            if(prevPanel !== sidebar) prevPanel.classList.add('visible');
+        }
+        
+        if (level === 2) {
+            handleMainButtonClick();
+        } else {
+            setActive(level - 1, null);
+        }
+    }
+    
+    function handleMainButtonClick() {
+        mainPlaceholder.style.display = 'flex';
+        appContainer.classList.remove('menu-active');
+        Object.values(panels).forEach((panel, index) => {
+            if (index > 0) panel.classList.remove('visible', 'is-hidden');
+        });
+        setActive(0, null);
+        if (isMobile()) {
+            sidebar.classList.remove('visible', 'is-hidden');
+        }
+    }
+
+    function setActive(level, target) {
+        for (let i = level; i <= 4; i++) {
+            if (activeButtons[i]) {
+                activeButtons[i].classList.remove('active');
+                activeButtons[i] = null;
+            }
+        }
+        if (target) {
+            target.classList.add('active');
+            activeButtons[level] = target;
+        }
+    }
+
+    function getNextData(currentLevel, id, menuId) {
+        const nextLevel = currentLevel + 1;
+        if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) return DB.pokemonType.lev4?.[id];
+        if (nextLevel === 2) return DB[menuId]?.lev2;
+        if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
+        if (nextLevel === 4) return DB[menuId]?.lev4?.[id];
+        return null;
     }
 
     function renderPanelContent(level, data, menuId, clickedId) {
@@ -160,11 +343,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentDiv = targetPanel.querySelector('.panel-content');
         if (!contentDiv) return;
         const panelHeader = targetPanel.querySelector('.panel-header');
-        if(panelHeader.querySelector('.main-btn')) panelHeader.querySelector('.main-btn').remove();
+        
+        // 기존 메인 버튼 제거
+        const existingMainBtn = panelHeader.querySelector('.main-btn');
+        if (existingMainBtn) existingMainBtn.remove();
+
         contentDiv.innerHTML = '';
         contentDiv.scrollTop = 0;
         
-        if (clickedId === 'builder') {
+        if (clickedId === 'deckBuilder') {
             const mainButton = document.createElement('button');
             mainButton.className = 'main-btn';
             mainButton.textContent = '메인';
@@ -204,111 +391,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 이벤트 핸들러 및 상태 관리 ---
-    function addEventListeners() {
-        homeButton.addEventListener('click', handleMainButtonClick);
-        menuToggleBtn.addEventListener('click', () => document.body.classList.toggle('sidebar-visible'));
-        sidebarOverlay.addEventListener('click', () => document.body.classList.remove('sidebar-visible'));
+    function showModal(title, content) {
+        const existingModal = document.querySelector('.modal-overlay');
+        if (existingModal) existingModal.remove();
 
-        appContainer.addEventListener('click', e => {
-            const button = e.target.closest('button');
-            if (!button) return;
-            if (button.classList.contains('back-btn')) handleBackClick(button); 
-            else if (button.classList.contains('main-btn')) handleMainButtonClick();
-            else if (button.dataset.level) handleMenuClick(button); 
-        });
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'modal-overlay';
+        
+        modalOverlay.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>${title}</h2>
+                    <button class="modal-close-btn">&times;</button>
+                </div>
+                <div class="modal-body"></div>
+            </div>`;
 
-        initialContent.addEventListener('click', e => {
-            const noticeItem = e.target.closest('#notice-list li');
-            if (noticeItem) {
-                const sidebarBtn = sidebar.querySelector(`button[data-id="announcements"]`);
-                if (sidebarBtn) handleMenuClick(sidebarBtn);
-                setTimeout(() => {
-                    const noticeBtn = panels.lev2.querySelector(`button[data-id="${noticeItem.dataset.id}"]`);
-                    if (noticeBtn) handleMenuClick(noticeBtn);
-                }, 50);
+        const modalBody = modalOverlay.querySelector('.modal-body');
+
+        if (typeof content === 'string') {
+            modalBody.innerHTML = content;
+        } else if (content instanceof HTMLElement) {
+            modalBody.appendChild(content);
+        }
+
+        document.body.appendChild(modalOverlay);
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target.matches('.modal-overlay, .modal-close-btn')) {
+                modalOverlay.remove();
             }
-            const mobileBtn = e.target.closest('.mobile-notice-btn');
-            if (mobileBtn) {
-                const sidebarBtn = sidebar.querySelector(`button[data-id="${mobileBtn.dataset.targetMenu}"]`);
-                if(sidebarBtn) handleMenuClick(sidebarBtn);
-            }
         });
     }
 
-    function handleMenuClick(button) {
-        appContainer.classList.add('menu-active');
-        const level = parseInt(button.dataset.level);
-        const id = button.dataset.id;
-        const menuId = button.dataset.menuId || id;
-        const nextLevel = level + 1;
-        const nextData = getNextData(level, id, menuId); 
-        const currentPanel = panels[`lev${level}`] || sidebar;
-        const nextPanel = panels[`lev${nextLevel}`];
-        if (!nextPanel) return;
-        if (isMobile()) currentPanel.classList.add('is-hidden');
-        Object.values(panels).forEach((panel, index) => {
-            if(index > 0 && panel !== nextPanel) panel.classList.remove('visible');
-        });
-        nextPanel.classList.remove('is-hidden');
-        nextPanel.classList.add('visible');
-        setActive(level, button);
-        renderPanelContent(nextLevel, nextData, menuId, id);
-        if (isMobile()) document.body.classList.remove('sidebar-visible');
-    }
-
-    function handleBackClick(button) {
-        const parentPanel = button.closest('.panel');
-        if (!parentPanel) return;
-        const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
-        const currentPanel = panels[`lev${level}`];
-        const prevPanel = panels[`lev${level - 1}`] || sidebar;
-        currentPanel.classList.remove('visible');
-        if (prevPanel) {
-            if (isMobile()) prevPanel.classList.remove('is-hidden');
-            if(prevPanel !== sidebar) prevPanel.classList.add('visible');
-        }
-        if(level === 2) {
-            appContainer.classList.remove('menu-active');
-        }
-        setActive(level - 1, null);
-    }
-    
-    function handleMainButtonClick() {
-        appContainer.classList.remove('menu-active');
-        Object.values(panels).forEach((panel, index) => {
-            if (index > 0) panel.classList.remove('visible', 'is-hidden');
-        });
-        setActive(0, null);
-        if (isMobile() && sidebar) sidebar.classList.remove('is-hidden');
-    }
-
-    function setActive(level, target) {
-        for (let i = level; i <= 4; i++) {
-            if (activeButtons[i]) {
-                activeButtons[i].classList.remove('active');
-                activeButtons[i] = null;
-            }
-        }
-        if (target) {
-            target.classList.add('active');
-            activeButtons[level] = target;
-        }
-    }
-
-    function getNextData(currentLevel, id, menuId) {
-        const nextLevel = currentLevel + 1;
-        if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) return DB.pokemonType.lev4?.[id];
-        if (nextLevel === 2) return DB[menuId]?.lev2;
-        if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
-        if (nextLevel === 4) return DB[menuId]?.lev4?.[id];
-        return null;
-    }
-
-    // --- 상세 뷰 렌더링 함수들 ---
     function renderPokemonView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
-        detailView.className = 'pokemon-detail-view';
         const nameKo = data.name_ko || '이름 없음';
         const nameEn = data.name_en || '';
         let commonHTML = `<h2>${nameKo} <span style="font-size:0.8em; color:#666;">${nameEn}</span></h2>`;
@@ -365,11 +482,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 hasBuildInfo = true;
                 buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
                 data[type].forEach(id => {
-                    const itemTypeForDB = type.replace('recommended', '').toLowerCase().replace('s', '');
-                    const dbKey = (itemTypeForDB === 'rune' || itemTypeForDB === 'chip') ? 'runeAndChip' : 'item';
+                    const dbKey = (type === 'recommendedRunes' || type === 'recommendedChips') ? 'runeAndChip' : 'item';
                     const itemData = DB[dbKey]?.lev4?.[id];
                     if (itemData) {
-                         buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}">${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}</div>`;
+                         buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${dbKey}">${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}</div>`;
                     }
                 });
                 buildHTML += `</div>`;
@@ -408,14 +524,12 @@ document.addEventListener('DOMContentLoaded', () => {
         detailView.querySelectorAll('.recommend-item').forEach(el => {
             el.addEventListener('click', () => {
                 const itemId = el.dataset.itemId;
-                const itemType = el.dataset.itemType;
-                const dbKey = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
+                const dbKey = el.dataset.itemType;
                 const itemData = DB[dbKey]?.lev4?.[itemId];
 
                 if (itemData) {
                     const tempContentDiv = document.createElement('div');
-                    const menuId = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
-                    renderSimpleView(tempContentDiv, itemData, menuId);
+                    renderSimpleView(tempContentDiv, itemData, dbKey);
                     showModal(itemData.name, tempContentDiv);
                 }
             });
@@ -449,18 +563,19 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let tabNames = [];
         let separator = '';
+
         if (menuId === 'item') {
             tabNames = ['기본 능력치', '소지 효과'];
             separator = '[소지 효과]';
         } else if (menuId === 'runeAndChip') {
-            tabNames = ['세트 효과 1', '세트 효과 2'];
+            tabNames = ['세트 효과 1', '세트 효과 2']; // [요청사항] 룬&칩 탭 이름 고정
             separator = '[세트 효과]';
         }
 
         if (tabNames.length > 0 && description.includes(separator)) {
             const parts = description.split(separator);
-            const tab1Content = parts[0].trim();
-            const tab2Content = parts[1].trim().replace(/\[(.*?)\]/g, '<h4>$1</h4>').replace(/\n/g, '<br>');
+            const tab1Content = parts[0].trim().replace(/\n/g, '<br>');
+            const tab2Content = parts.slice(1).join(separator).trim().replace(/\[(.*?)\]/g, '<h4>$1</h4>').replace(/\n/g, '<br>');
 
             html += `
                 <div class="tab-container">
@@ -468,7 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button class="tab-button active" data-tab="tab-1">${tabNames[0]}</button>
                         <button class="tab-button" data-tab="tab-2">${tabNames[1]}</button>
                     </nav>
-                    <div id="tab-1" class="tab-pane active item-description">${tab1Content.replace(/\n/g, '<br>')}</div>
+                    <div id="tab-1" class="tab-pane active item-description">${tab1Content}</div>
                     <div id="tab-2" class="tab-pane item-description">${tab2Content}</div>
                 </div>`;
             detailView.innerHTML = html;
@@ -484,7 +599,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
         } else {
-            html += `<div class="item-description">${description.replace(/\\n/g, '<br>')}</div>`;
+            // HTML 콘텐츠(팁, 공지사항) 또는 탭 없는 아이템/룬칩
+            html += `<div class="item-description">${description.replace(/\\n/g, '<br>').replace(/\n/g, '<br>')}</div>`;
             detailView.innerHTML = html;
         }
         
@@ -492,6 +608,30 @@ document.addEventListener('DOMContentLoaded', () => {
         contentDiv.appendChild(detailView);
     }
 
+    function calculateSynergy(pokemonIds) {
+        if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
+        const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
+        if (mainPokemon.some(pkm => !pkm)) return null;
+        const typePokemonCount = {};
+        mainPokemon.forEach(pkm => {
+            if (pkm && pkm.types) {
+                pkm.types.forEach(type => {
+                    typePokemonCount[type] = (typePokemonCount[type] || 0) + 1;
+                });
+            }
+        });
+        const counts = Object.values(typePokemonCount).sort((a, b) => b - a);
+        const totalUniqueTypes = Object.keys(typePokemonCount).length;
+        if (counts.length > 0 && counts[0] >= 6) return DB.synergyEffects.find(s => s.id === 'same6');
+        if (counts.length >= 2 && counts[0] >= 3 && counts[1] >= 3) return DB.synergyEffects.find(s => s.id === 'same3x2');
+        if (counts.length >= 2 && counts[0] >= 4 && counts[1] >= 2) return DB.synergyEffects.find(s => s.id === 'same4_2');
+        const totalPairs = counts.reduce((sum, c) => sum + Math.floor(c / 2), 0);
+        if (totalPairs >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
+        if (counts.length > 0 && counts[0] >= 3) return DB.synergyEffects.find(s => s.id === 'same3');
+        if (totalUniqueTypes >= 6 && pokemonIds.length >= 6) return DB.synergyEffects.find(s => s.id === 'diff6');
+        return null;
+    }
+    
     function renderDeckView(contentDiv, data) {
         const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
         let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
@@ -567,21 +707,36 @@ document.addEventListener('DOMContentLoaded', () => {
             const monthEvents = {};
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);
-            
+            const addEvent = (event, eventDate) => {
+                const day = eventDate.getDate();
+                if (!monthEvents[day]) monthEvents[day] = [];
+                const fullEventInfo = { ...event, startDate: new Date(event.date + 'T00:00:00'), endDate: new Date(new Date(event.date + 'T00:00:00').setDate(new Date(event.date + 'T00:00:00').getDate() + (event.duration - 1))) };
+                monthEvents[day].push(fullEventInfo);
+            };
             (data.events || []).forEach(event => {
-                if (!event.startDate) return;
-                const eventStartDate = event.startDate.toDate();
                 for (let i = 0; i < (event.duration || 1); i++) {
-                    const currentEventDate = new Date(eventStartDate);
-                    currentEventDate.setDate(currentEventDate.getDate() + i);
-                    if (currentEventDate.getFullYear() === year && currentEventDate.getMonth() === month) {
-                        const day = currentEventDate.getDate();
-                        if (!monthEvents[day]) monthEvents[day] = [];
-                        monthEvents[day].push({ ...event, date: currentEventDate });
+                    const eventDate = new Date(event.date + 'T00:00:00');
+                    eventDate.setDate(eventDate.getDate() + i);
+                    if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                        addEvent(event, eventDate);
                     }
                 }
             });
-
+            (data.recurringEvents || []).forEach(re => {
+                 let currentDate = new Date(re.startDate + 'T00:00:00');
+                 while (currentDate.getFullYear() < year + 2) {
+                    if (currentDate.getFullYear() > year || (currentDate.getFullYear() === year && currentDate.getMonth() > month)) break;
+                    for (let i = 0; i < (re.duration || 1); i++) {
+                        const eventDate = new Date(currentDate);
+                        eventDate.setDate(eventDate.getDate() + i);
+                         if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                            addEvent({ ...re, date: currentDate.toISOString().split('T')[0] }, eventDate);
+                        }
+                    }
+                    if (re.interval === '4_weeks') currentDate.setDate(currentDate.getDate() + 28);
+                    else break;
+                }
+            });
             let html = `<div class="calendar-header"><span class="calendar-title">${year}년 ${month + 1}월</span><div class="calendar-nav"><button id="cal-prev-btn">&lt; 이전</button><button id="cal-today-btn">Today</button><button id="cal-next-btn">다음 &gt;</button></div></div><div class="calendar-legend"><div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div><div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div><div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div></div><table class="calendar-grid"><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody>`;
             let dateCounter = 1;
             const startDay = firstDay.getDay();
@@ -629,9 +784,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         const events = monthEvents[day];
                         if(events && events.length > 0) {
                             const eventContent = events.map(evt => {
-                                const startStr = evt.startDate.toDate().toISOString().split('T')[0];
-                                const endStr = evt.endDate.toDate().toISOString().split('T')[0];
-                                const period = (evt.duration || 1) > 1 ? `${startStr} ~ ${endStr}` : startStr;
+                                const duration = evt.duration || 1;
+                                const startStr = evt.startDate.toISOString().split('T')[0];
+                                const endStr = evt.endDate.toISOString().split('T')[0];
+                                const period = duration > 1 ? `${startStr} ~ ${endStr} (${duration}일간)` : startStr;
                                 return `<h4>${evt.title || evt.name}</h4><p><strong>기간:</strong> ${period}</p><p>${evt.description}</p>`;
                             }).join('<hr>');
                             showModal(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')} 이벤트`, eventContent);
@@ -647,191 +803,166 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         updateCalendar();
     }
-    
-    function renderDeckBuilder(contentDiv) {
-        let html = `<div class="deck-builder-view">
-            <div class="placement-container">
-                <h4>배치판</h4>
-                <div class="synergy-display">시너지 정보</div>
-                <div class="placement-grid"></div>
-            </div>
-            <div class="source-container">
-                <h4>포켓몬 목록</h4>
-                <div class="source-filter-bar">
-                    <select id="grade-filter" class="filter-dropdown"><option value="all">모든 등급</option></select>
-                    <select id="type-filter" class="filter-dropdown"><option value="all">모든 타입</option></select>
-                </div>
-                <div class="source-list"></div>
-            </div>
-        </div>`;
-        contentDiv.innerHTML = html;
 
-        const placementGrid = contentDiv.querySelector('.placement-grid');
+    function renderDeckBuilder(contentDiv) {
+        let html = `<div class="deck-builder-view"><div class="placement-container"><div class="placement-grid"><div class="placement-slot-header" id="weather-icon-container" style="visibility: hidden;">☀️</div><div class="placement-slot-header" id="synergy-icon-container" style="visibility: hidden;"><img src="https://i.imgur.com/g0t51J7.png" alt="타입 시너지"></div><div class="placement-slot-header"></div><div class="placement-slot assist" data-role="assist" data-position="1">어시스트_#1</div><div class="placement-slot main rearguard" data-role="main" data-position="4">후방_#4</div><div class="placement-slot main vanguard" data-role="main" data-position="1">전방_#1</div><div class="placement-slot assist" data-role="assist" data-position="2">어시스트_#2</div><div class="placement-slot main rearguard" data-role="main" data-position="5">후방_#5</div><div class="placement-slot main vanguard" data-role="main" data-position="2">전방_#2</div><div class="placement-slot assist" data-role="assist" data-position="3">어시스트_#3</div><div class="placement-slot main rearguard" data-role="main" data-position="6">후방_#6</div><div class="placement-slot main vanguard" data-role="main" data-position="3">전방_#3</div></div></div><div class="source-container"><h4>포켓몬 목록</h4><div class="source-filter-bar"><select id="grade-filter" class="filter-dropdown"><option value="all">모든 등급</option><option value="SS">SS</option><option value="S+">S+</option><option value="S">S</option></select><select id="type-filter" class="filter-dropdown"><option value="all">모든 타입</option></select></div><div class="source-list"></div></div></div>`;
+        contentDiv.innerHTML = html;
         const sourceList = contentDiv.querySelector('.source-list');
+        const placementGrid = contentDiv.querySelector('.placement-grid');
+        const weatherIconContainer = contentDiv.querySelector('#weather-icon-container');
+        const synergyIconContainer = contentDiv.querySelector('#synergy-icon-container');
         const gradeFilter = contentDiv.querySelector('#grade-filter');
         const typeFilter = contentDiv.querySelector('#type-filter');
-        const synergyDisplay = contentDiv.querySelector('.synergy-display');
         
-        const placedPokemon = new Map();
+        // [2차 개발] Map<Element, string> -> slot Element를 key로, pokemonId를 value로 저장
+        let placedPokemon = new Map(); 
         
-        const slotsConfig = [
-            { role: 'assist', position: 4 }, { role: 'assist', position: 5 }, { role: 'assist', position: 6 },
-            { role: 'assist', position: 1 }, { role: 'assist', position: 2 }, { role: 'assist', position: 3 },
-            { role: 'main', position: 4, area: 'rearguard' }, { role: 'main', position: 5, area: 'rearguard' }, { role: 'main', position: 6, area: 'rearguard' },
-            { role: 'main', position: 1, area: 'vanguard' }, { role: 'main', position: 2, area: 'vanguard' }, { role: 'main', position: 3, area: 'vanguard' },
-        ];
-
-        slotsConfig.forEach(cfg => {
-            const slot = document.createElement('div');
-            slot.className = `placement-slot ${cfg.role} ${cfg.area || ''}`;
-            slot.dataset.role = cfg.role;
-            slot.dataset.position = cfg.position;
-            slot.textContent = `${cfg.role === 'main' ? (cfg.area === 'vanguard' ? '전방' : '후방') : '어시'}_#${cfg.position}`;
-            placementGrid.appendChild(slot);
+        DB.pokemonType.lev2.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type.id;
+            option.textContent = type.name;
+            typeFilter.appendChild(option);
         });
-
-        ['SS', 'S+', 'S'].forEach(g => gradeFilter.innerHTML += `<option value="${g}">${g}</option>`);
-        DB.pokemonType.lev2.forEach(t => typeFilter.innerHTML += `<option value="${t.id}">${t.name}</option>`);
-
+        
         function applyFilters() {
             const selectedGrade = gradeFilter.value;
             const selectedType = typeFilter.value;
-            const pokemonArray = Object.values(DB.pokemonType.lev4);
-            const filtered = pokemonArray.filter(pkm => 
-                (selectedGrade === 'all' || pkm.grade === selectedGrade) &&
-                (selectedType === 'all' || pkm.types?.includes(selectedType))
-            );
-            renderSourceList(filtered);
-        }
+            const placedIds = new Set(Array.from(placedPokemon.values()));
 
+            let filteredPokemon = Object.entries(DB.pokemonType.lev4).filter(([id, pkm]) => {
+                const isPlaced = placedIds.has(id);
+                if (isPlaced) return false; // 이미 배치된 포켓몬은 목록에서 제외
+
+                const gradeMatch = selectedGrade === 'all' || !pkm.grade || pkm.grade === selectedGrade;
+                const typeMatch = selectedType === 'all' || (pkm.types && pkm.types.includes(selectedType));
+                return gradeMatch && typeMatch;
+            });
+            filteredPokemon.sort(([, a], [, b]) => (a.name_ko || a.name).localeCompare(b.name_ko || b.name, 'ko'));
+            renderSourceList(filteredPokemon);
+        }
+        
         function renderSourceList(pokemonList) {
             sourceList.innerHTML = '';
             const grid = document.createElement('div');
             grid.className = 'source-list-grid';
-            pokemonList.sort((a,b) => a.name_ko.localeCompare(b.name_ko, 'ko'));
-            grid.innerHTML = pokemonList.map(pkm => `
-                <div class="pokemon-source-icon" draggable="true" data-pokemon-id="${pkm.id}">
-                    <img src="${pkm.faceImageURL}" alt="${pkm.name_ko}">
-                    <span>${pkm.name_ko}</span>
-                </div>`).join('');
+            grid.innerHTML = pokemonList.map(([id, pkm]) => `<div class="pokemon-source-icon" draggable="true" data-pokemon-id="${id}"><img src="${pkm.faceImageURL}" alt="${pkm.name_ko || pkm.name}"><span>${pkm.name_ko || pkm.name}</span></div>`).join('');
             sourceList.appendChild(grid);
         }
 
-        let draggedElement = null;
-        contentDiv.addEventListener('dragstart', e => {
-            draggedElement = e.target.closest('[draggable="true"]');
+        gradeFilter.addEventListener('change', applyFilters);
+        typeFilter.addEventListener('change', applyFilters);
+        
+        let draggedItem = null; 
+        sourceList.addEventListener('dragstart', e => {
+            const target = e.target.closest('.pokemon-source-icon');
+            if (target) {
+                draggedItem = target;
+                e.dataTransfer.setData('text/plain', target.dataset.pokemonId);
+            }
+        });
+
+        placementGrid.addEventListener('dragstart', e => {
+            const target = e.target.closest('.placement-slot');
+             if(target && placedPokemon.has(target)) {
+                 draggedItem = target;
+                 e.dataTransfer.setData('text/plain', placedPokemon.get(target));
+             }
         });
 
         placementGrid.addEventListener('dragover', e => e.preventDefault());
+        
         placementGrid.addEventListener('drop', e => {
             e.preventDefault();
             const targetSlot = e.target.closest('.placement-slot');
-            if (!targetSlot || !draggedElement) return;
+            if (!targetSlot || !draggedItem) return;
 
-            const droppedPkmId = draggedElement.dataset.pokemonId;
-            const isMovingFromSlot = draggedElement.parentElement.classList.contains('placement-slot');
-            
-            if (!isMovingFromSlot && Array.from(placedPokemon.values()).includes(droppedPkmId)) {
-                alert('이미 배치된 포켓몬입니다.');
-                return;
-            }
+            const sourcePokemonId = e.dataTransfer.getData('text/plain');
+            const pokemonData = DB.pokemonType.lev4[sourcePokemonId];
+            if (!pokemonData) return;
 
-            const targetSlotPkmId = placedPokemon.get(targetSlot);
-            
-            if (isMovingFromSlot) {
-                const sourceSlot = draggedElement.parentElement;
-                if (targetSlotPkmId) {
-                    placePokemonInSlot(sourceSlot, targetSlotPkmId);
-                } else {
+            if (draggedItem.classList.contains('placement-slot')) { // 슬롯 간 이동
+                const sourceSlot = draggedItem;
+                if (targetSlot === sourceSlot) return; 
+
+                const targetPokemonId = placedPokemon.get(targetSlot);
+                
+                if (targetPokemonId) { // 목표 슬롯에 포켓몬이 있는 경우 (교체)
+                    const targetPokemonData = DB.pokemonType.lev4[targetPokemonId];
+                    placePokemonInSlot(sourceSlot, targetPokemonId, targetPokemonData);
+                } else { // 목표 슬롯이 비어있는 경우
                     clearSlot(sourceSlot);
                 }
+                placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
+
+            } else { // 목록에서 슬롯으로 배치
+                // [2차 개발] 이미 배치된 포켓몬인지 Set을 통해 확인
+                const isAlreadyPlaced = new Set(Array.from(placedPokemon.values())).has(sourcePokemonId);
+                if (isAlreadyPlaced) {
+                    alert("이미 배치된 포켓몬입니다.");
+                    return;
+                }
+                if (placedPokemon.has(targetSlot)) {
+                    alert('슬롯이 비어있습니다. 다른 포켓몬과 교체하려면 슬롯을 드래그하세요.');
+                    return;
+                }
+                placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
             }
-            placePokemonInSlot(targetSlot, droppedPkmId);
-            updateSynergyDisplay();
+
+            draggedItem = null;
+            updateTeamEffects();
+            applyFilters(); // 배치 후 목록 새로고침
         });
 
         placementGrid.addEventListener('click', e => {
-            if (e.target.classList.contains('remove-pkm-btn')) {
-                clearSlot(e.target.closest('.placement-slot'));
-                updateSynergyDisplay();
+            const removeButton = e.target.closest('.remove-pkm-btn');
+            if(removeButton) {
+                const parentSlot = removeButton.closest('.placement-slot');
+                if (parentSlot) {
+                    clearSlot(parentSlot);
+                    updateTeamEffects();
+                    applyFilters(); // 제거 후 목록 새로고침
+                }
             }
         });
 
-        function placePokemonInSlot(slot, pokemonId) {
-            const pokemonData = DB.pokemonType.lev4[pokemonId];
-            slot.innerHTML = `<div class="deck-pokemon-cell" draggable="true" data-pokemon-id="${pokemonId}"><img src="${pokemonData.faceImageURL}" alt="${pokemonData.name_ko}"><button class="remove-pkm-btn">×</button></div>`;
+        function placePokemonInSlot(slot, pokemonId, pokemonData) {
+            slot.innerHTML = `<div class="deck-pokemon-cell" draggable="true"><img src="${pokemonData.faceImageURL}" alt="${pokemonData.name_ko}"/><button class="remove-pkm-btn">×</button></div>`;
             placedPokemon.set(slot, pokemonId);
         }
 
         function clearSlot(slot) {
             const { role, position } = slot.dataset;
-            const area = slot.classList.contains('vanguard') ? '전방' : '후방';
-            slot.innerHTML = `${role === 'main' ? area : '어시'}_#${position}`;
+            let placeholder = role === 'assist' ? `어시스트_#${position}` : `${slot.classList.contains('vanguard') ? '전방' : '후방'}_#${position}`;
+            slot.innerHTML = placeholder;
             placedPokemon.delete(slot);
         }
 
-        function updateSynergyDisplay() {
+        function updateTeamEffects() {
             const mainPokemonIds = Array.from(placedPokemon.entries())
                 .filter(([slot,]) => slot.dataset.role === 'main')
                 .map(([, pokemonId]) => pokemonId);
             const synergy = calculateSynergy(mainPokemonIds);
             if (synergy) {
-                synergyDisplay.innerHTML = `<img src="${synergy.imageURL}" style="height:24px; margin-right:5px;"> <strong>${synergy.name}</strong>`;
+                synergyIconContainer.querySelector('img').src = synergy.imageURL;
+                synergyIconContainer.title = synergy.name;
+                synergyIconContainer.style.visibility = 'visible';
             } else {
-                synergyDisplay.textContent = '메인 포켓몬 6마리 배치 시 표시';
+                synergyIconContainer.style.visibility = 'hidden';
             }
         }
-        
         applyFilters();
     }
 
-    function calculateSynergy(pokemonIds) {
-        if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
-        const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
-        if (mainPokemon.some(pkm => !pkm)) return null;
-        const typePokemonCount = {};
-        mainPokemon.forEach(pkm => {
-            if (pkm?.types) pkm.types.forEach(type => { typePokemonCount[type] = (typePokemonCount[type] || 0) + 1; });
-        });
-        const counts = Object.values(typePokemonCount).sort((a, b) => b - a);
-        const totalUniqueTypes = Object.keys(typePokemonCount).length;
-        if (counts.length > 0 && counts[0] >= 6) return DB.synergyEffects.find(s => s.id === 'same6');
-        if (counts.length >= 2 && counts[0] >= 3 && counts[1] >= 3) return DB.synergyEffects.find(s => s.id === 'same3x2');
-        if (counts.length >= 2 && counts[0] >= 4 && counts[1] >= 2) return DB.synergyEffects.find(s => s.id === 'same4_2');
-        const totalPairs = counts.reduce((sum, c) => sum + Math.floor(c / 2), 0);
-        if (totalPairs >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
-        if (counts.length > 0 && counts[0] >= 3) return DB.synergyEffects.find(s => s.id === 'same3');
-        if (totalUniqueTypes >= 6 && pokemonIds.length >= 6) return DB.synergyEffects.find(s => s.id === 'diff6');
-        return null;
-    }
-    
-    function showModal(title, content) {
-        const existingModal = document.querySelector('.modal-overlay');
-        if (existingModal) existingModal.remove();
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'modal-overlay';
-        modalOverlay.innerHTML = `<div class="modal-content"><div class="modal-header"><h2>${title}</h2><button class="modal-close-btn">&times;</button></div><div class="modal-body"></div></div>`;
-        const modalBody = modalOverlay.querySelector('.modal-body');
-        if (typeof content === 'string') {
-            modalBody.innerHTML = content;
-        } else if (content instanceof HTMLElement) {
-            modalBody.appendChild(content);
-        }
-        document.body.appendChild(modalOverlay);
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target.matches('.modal-overlay, .modal-close-btn')) {
-                modalOverlay.remove();
-            }
-        });
-    }
 
-    function setupAdObservers() {
-        try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-        } catch(e) {
-            console.error("Adsense push error", e);
-        }
-    }
-
+    // --- 페이지 실행 ---
+    adBlockManager.checkAndApplyBlock();
     initialize();
+    setupAdObservers();
+
+    function setScreenHeight() {
+      let vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+    setScreenHeight();
+    window.addEventListener('resize', setScreenHeight);
 });
