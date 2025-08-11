@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 2차 개발 v3 적용');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 2차 개발 v4 적용');
 
     // --- 광고 설정 및 무효 트래픽 방지 로직 ---
     function setupAdObservers() {
@@ -540,6 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ▼▼▼ [피드백 수정] Legendary 아이템 UI 깨짐 문제 해결 ▼▼▼
     function renderSimpleView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
         detailView.className = 'simple-detail-view';
@@ -565,11 +566,43 @@ document.addEventListener('DOMContentLoaded', () => {
             tabNames = ['세트 효과 1', '세트 효과 2'];
             separator = '[세트 효과]';
         }
+        
+        // [소제목] 기반으로 텍스트를 구조화된 HTML로 변환하는 함수
+        const createStructuredContent = (text) => {
+            const lines = text.trim().split('\n');
+            let structuredHtml = '<div class="structured-content">';
+            let currentDescription = '';
+
+            const flushDescription = () => {
+                if (currentDescription) {
+                    structuredHtml += `<div class="description-text">${currentDescription.trim().replace(/\n/g, '<br>')}</div>`;
+                    currentDescription = '';
+                }
+            };
+
+            lines.forEach(line => {
+                const trimmedLine = line.trim();
+                if (trimmedLine.startsWith('[') && trimmedLine.endsWith(']')) {
+                    flushDescription(); // 이전 설명 텍스트를 먼저 추가
+                    const subtitle = trimmedLine.substring(1, trimmedLine.length - 1);
+                    structuredHtml += `<h4 class="content-subtitle">${subtitle}</h4>`;
+                } else {
+                    currentDescription += line + '\n';
+                }
+            });
+
+            flushDescription(); // 마지막 설명 텍스트 추가
+            structuredHtml += '</div>';
+            return structuredHtml;
+        };
+
 
         if (tabNames.length > 0 && description.includes(separator)) {
             const parts = description.split(separator);
             const tab1Content = parts[0].trim().replace(/\n/g, '<br>');
-            const tab2Content = parts.slice(1).join(separator).trim().replace(/\[(.*?)\]/g, '<h4>$1</h4>').replace(/\n/g, '<br>');
+            const tab2RawContent = parts.slice(1).join(separator).trim();
+            
+            const tab2Content = createStructuredContent(tab2RawContent);
 
             html += `
                 <div class="tab-container">
@@ -600,6 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
         contentDiv.innerHTML = '';
         contentDiv.appendChild(detailView);
     }
+    // ▲▲▲ [피드백 수정] Legendary 아이템 UI 깨짐 문제 해결 ▲▲▲
 
     function calculateSynergy(pokemonIds) {
         if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
@@ -630,19 +664,16 @@ document.addEventListener('DOMContentLoaded', () => {
         let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
         if (data.description) { html += `<p>${data.description}</p>`; }
         
-        // 4x4 그리드 구조를 테이블로 생성
         html += `<h4>덱 배치</h4><table class="placement-grid-4x4" style="margin: 20px auto;">`;
         
         const grid = Array(4).fill(null).map(() => Array(4).fill(null));
 
-        // 포켓몬 위치 매핑 (이미지와 동일하게)
         const positionMap = {
             'assist_4': [1, 0], 'assist_1': [1, 1], 'main_4': [1, 2], 'main_1': [1, 3],
             'assist_5': [2, 0], 'assist_2': [2, 1], 'main_5': [2, 2], 'main_2': [2, 3],
             'assist_6': [3, 0], 'assist_3': [3, 1], 'main_6': [3, 2], 'main_3': [3, 3]
         };
 
-        // 헤더 정보 채우기
         if (data.weather && weatherToEmoji[data.weather]) {
             grid[0][0] = { type: 'header', content: `날씨: ${data.weather} ${weatherToEmoji[data.weather]}`, colspan: 2 };
         }
@@ -652,7 +683,6 @@ document.addEventListener('DOMContentLoaded', () => {
              grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}" style="height: 30px; vertical-align: middle; margin-right: 5px;"> ${synergy.name}`, colspan: 2 };
         }
 
-        // 포켓몬 정보 채우기
         data.composition.forEach(member => { 
             const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
             if (!pkmData) return; 
@@ -663,11 +693,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // HTML 테이블 생성
         for (let i = 0; i < 4; i++) {
             html += '<tr>';
             for (let j = 0; j < 4; j++) {
-                if (grid[i][j] === undefined) continue; // colspan으로 병합된 셀은 건너뛰기
+                if (grid[i][j] === undefined) continue;
                 const cell = grid[i][j];
                 if (cell) {
                     if (cell.type === 'pokemon') {
@@ -679,7 +708,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 } else {
-                    // 빈 셀
                     html += `<td class="placement-slot"></td>`;
                 }
             }
