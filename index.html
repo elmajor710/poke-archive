@@ -12,7 +12,6 @@
     <meta property="og:url" content="https://pokedex.elmajor710.com">
     <link rel="icon" href="data:;base64,iVBORw0KGgo="> 
     <link rel="stylesheet" href="style.css">
-    <!-- [수정] 손상되었던 애드센스 스크립트 태그를 복원했습니다. -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -23,7 +22,7 @@
         <!-- 모바일용 메뉴 토글 버튼 -->
         <button id="menu-toggle" class="menu-toggle-btn">☰</button>
         <!-- 제목을 클릭하면 홈으로 이동 -->
-        <h1>Nirvana's Poke-Archive</h1>
+        <h1 id="home-button">Nirvana's Poke-Archive</h1>
         <!-- 헤더 공간을 채우기 위한 빈 div -->
         <div class="header-placeholder"></div>
     </header>
@@ -33,10 +32,12 @@
             <aside id="sidebar"></aside>
             <main id="content-area">
                 <div id="initial-content">
+                    <!-- 모바일 전용 공지/인기글 버튼 -->
                     <section class="mobile-notice-buttons">
                         <button class="mobile-notice-btn" data-target-menu="announcements">📢 공지사항</button>
                         <button class="mobile-notice-btn" data-target-menu="popular">🔥 인기글</button>
                     </section>
+                    <!-- PC용 공지/인기글 섹션 -->
                     <section class="notice-popular-section">
                         <div class="notice-container">
                             <h3>📢 공지사항</h3>
@@ -47,6 +48,7 @@
                             <ul id="popular-list"></ul>
                         </div>
                     </section>
+                    <!-- 메인 환영 이미지 -->
                     <div id="main-placeholder">
                         <img src="https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/taecho-three.jpg" alt="Welcome to the Poke-Archive">
                         <p>좌측 메뉴에서 궁금한 정보를 선택해주세요!</p>
@@ -79,7 +81,6 @@
             messagingSenderId: "1012379289991",
             appId: "1:1012379289991:web:5c33d4ac7536672d956b22"
         };
-      // [수정] firebase.initializeApp() 호출을 script.js로 이동하여 실행 순서 보장
       window.firebaseConfig = firebaseConfig;
     </script>
     
