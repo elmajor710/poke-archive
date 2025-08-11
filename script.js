@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 2차 개발 v4 적용');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 2차 개발 v5 적용');
 
     // --- 광고 설정 및 무효 트래픽 방지 로직 ---
     function setupAdObservers() {
@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ▼▼▼ [피드백 수정] Legendary 아이템 UI 깨짐 문제 해결 ▼▼▼
+    // ▼▼▼ [최종 수정] 룬&칩 탭 이름 및 분리 기준 변경 ▼▼▼
     function renderSimpleView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
         detailView.className = 'simple-detail-view';
@@ -563,11 +563,11 @@ document.addEventListener('DOMContentLoaded', () => {
             tabNames = ['기본 능력치', '소지 효과'];
             separator = '[소지 효과]';
         } else if (menuId === 'runeAndChip') {
-            tabNames = ['세트 효과 1', '세트 효과 2'];
-            separator = '[세트 효과]';
+            // [요청사항] 탭 이름과 분리 기준 텍스트를 새롭게 정의
+            tabNames = ['세트효과', '타입별 조합'];
+            separator = '[타입별 조합]';
         }
         
-        // [소제목] 기반으로 텍스트를 구조화된 HTML로 변환하는 함수
         const createStructuredContent = (text) => {
             const lines = text.trim().split('\n');
             let structuredHtml = '<div class="structured-content">';
@@ -583,7 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
             lines.forEach(line => {
                 const trimmedLine = line.trim();
                 if (trimmedLine.startsWith('[') && trimmedLine.endsWith(']')) {
-                    flushDescription(); // 이전 설명 텍스트를 먼저 추가
+                    flushDescription();
                     const subtitle = trimmedLine.substring(1, trimmedLine.length - 1);
                     structuredHtml += `<h4 class="content-subtitle">${subtitle}</h4>`;
                 } else {
@@ -591,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            flushDescription(); // 마지막 설명 텍스트 추가
+            flushDescription();
             structuredHtml += '</div>';
             return structuredHtml;
         };
@@ -599,9 +599,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (tabNames.length > 0 && description.includes(separator)) {
             const parts = description.split(separator);
-            const tab1Content = parts[0].trim().replace(/\n/g, '<br>');
+            // [수정] 탭 분리 기준에 맞춰 첫번째 탭 내용도 구조화된 HTML로 생성
+            const tab1Content = createStructuredContent(parts[0]); 
             const tab2RawContent = parts.slice(1).join(separator).trim();
-            
             const tab2Content = createStructuredContent(tab2RawContent);
 
             html += `
@@ -633,7 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
         contentDiv.innerHTML = '';
         contentDiv.appendChild(detailView);
     }
-    // ▲▲▲ [피드백 수정] Legendary 아이템 UI 깨짐 문제 해결 ▲▲▲
+    // ▲▲▲ [최종 수정] 룬&칩 탭 이름 및 분리 기준 변경 ▲▲▲
 
     function calculateSynergy(pokemonIds) {
         if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
