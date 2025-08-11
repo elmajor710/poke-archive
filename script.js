@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const noticeList = document.getElementById('notice-list');
     const popularList = document.getElementById('popular-list');
     const panels = {
-        lev1: sidebar, // 기존 코드 호환성을 위해 lev1 추가
+        lev1: sidebar,
         lev2: document.getElementById('lev2-panel'),
         lev3: document.getElementById('lev3-panel'),
         lev4: document.getElementById('lev4-panel')
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 데이터 로딩 및 준비 (기존 운영 코드 기반) ---
+    // --- 데이터 로딩 및 준비 ---
     async function fetchAllDataFromFirebase() {
         const collectionsToFetch = {
             pokemon: db.collection('pokemon').where("isPublished", "==", true),
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tips: db.collection('tips').where("isPublished", "==", true),
             recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true),
             events: db.collection('events'),
-            announcements: db.collection('announcements').where("isPublished", "==", true) // 공지사항 추가
+            announcements: db.collection('announcements').where("isPublished", "==", true)
         };
         const promises = Object.values(collectionsToFetch).map(query => query.get());
         const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot, announcementsSnapshot] = await Promise.all(promises);
@@ -71,14 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
         DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
         DB.tips.lev3 = snapshotToMap(tipsSnapshot);
         DB.deck.lev4 = snapshotToMap(decksSnapshot);
-        DB.announcements.lev3 = snapshotToMap(announcementsSnapshot); // 공지사항 데이터 저장
+        DB.announcements.lev3 = snapshotToMap(announcementsSnapshot);
         if(DB.calendar && DB.calendar.lev2) {
             DB.calendar.lev2.events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         }
     }
     
     function setupSideMenuData() {
-        // (기존 운영 코드의 setupSideMenuData 로직과 동일)
         DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         const types = {};
         DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
@@ -262,6 +261,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isMobile()) prevPanel.classList.remove('is-hidden');
             if(prevPanel !== sidebar) prevPanel.classList.add('visible');
         }
+        if(level === 2) {
+            appContainer.classList.remove('menu-active');
+        }
         setActive(level - 1, null);
     }
     
@@ -299,6 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 상세 뷰 렌더링 함수들 ---
     function renderPokemonView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
+        detailView.className = 'pokemon-detail-view';
         const nameKo = data.name_ko || '이름 없음';
         const nameEn = data.name_en || '';
         let commonHTML = `<h2>${nameKo} <span style="font-size:0.8em; color:#666;">${nameEn}</span></h2>`;
