@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 2차 개발 v5 적용');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 2차 개발 v6 적용');
 
     // --- 광고 설정 및 무효 트래픽 방지 로직 ---
     function setupAdObservers() {
@@ -368,7 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 panelHeader.appendChild(mainButton);
 
                 if (menuId === 'deck' && data.composition) renderDeckView(contentDiv, data);
-                else if(menuId === 'calendar') renderCalendarView(contentDiv, data);
+                else if(menuId === 'calendar') renderCalendarView(contentDiv, DB.calendar.lev2);
                 else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
                 else renderSimpleView(contentDiv, data, menuId); 
             } else {
@@ -540,7 +540,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ▼▼▼ [최종 수정] 룬&칩 탭 이름 및 분리 기준 변경 ▼▼▼
     function renderSimpleView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
         detailView.className = 'simple-detail-view';
@@ -554,7 +553,29 @@ document.addEventListener('DOMContentLoaded', () => {
             html += `<img src="${data.imageURL}" alt="${data.name}" class="main-image">`;
         }
 
-        const description = data.description || data.htmlContent || '';
+        let description = data.description || data.htmlContent || '';
+        
+        if (menuId === 'tips') {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = description;
+            tempDiv.querySelectorAll('p').forEach(p => {
+                const text = p.innerHTML.trim();
+                if (text.includes('[TIP]')) {
+                    p.innerHTML = text.replace('[TIP]', '<strong>TIP:</strong>');
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'tip-box';
+                    p.parentNode.insertBefore(wrapper, p);
+                    wrapper.appendChild(p);
+                } else if (text.includes('[주의]')) {
+                    p.innerHTML = text.replace('[주의]', '<strong>주의:</strong>');
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'warning-box';
+                    p.parentNode.insertBefore(wrapper, p);
+                    wrapper.appendChild(p);
+                }
+            });
+            description = tempDiv.innerHTML;
+        }
         
         let tabNames = [];
         let separator = '';
@@ -563,7 +584,6 @@ document.addEventListener('DOMContentLoaded', () => {
             tabNames = ['기본 능력치', '소지 효과'];
             separator = '[소지 효과]';
         } else if (menuId === 'runeAndChip') {
-            // [요청사항] 탭 이름과 분리 기준 텍스트를 새롭게 정의
             tabNames = ['세트효과', '타입별 조합'];
             separator = '[타입별 조합]';
         }
@@ -599,7 +619,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (tabNames.length > 0 && description.includes(separator)) {
             const parts = description.split(separator);
-            // [수정] 탭 분리 기준에 맞춰 첫번째 탭 내용도 구조화된 HTML로 생성
             const tab1Content = createStructuredContent(parts[0]); 
             const tab2RawContent = parts.slice(1).join(separator).trim();
             const tab2Content = createStructuredContent(tab2RawContent);
@@ -626,14 +645,12 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
         } else {
-            html += `<div class="item-description">${description.replace(/\\n/g, '<br>').replace(/\n/g, '<br>')}</div>`;
-            detailView.innerHTML = html;
+            html += `<div class="item-description">${description.replace(/\\n/g, '<br>')}</div>`;
         }
         
         contentDiv.innerHTML = '';
         contentDiv.appendChild(detailView);
     }
-    // ▲▲▲ [최종 수정] 룬&칩 탭 이름 및 분리 기준 변경 ▲▲▲
 
     function calculateSynergy(pokemonIds) {
         if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
@@ -660,7 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function renderDeckView(contentDiv, data) {
-        const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
+        const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '�️' };
         let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
         if (data.description) { html += `<p>${data.description}</p>`; }
         
@@ -718,27 +735,23 @@ document.addEventListener('DOMContentLoaded', () => {
         contentDiv.innerHTML = html;
     }
 
-        function renderCalendarView(contentDiv, data) {
+    function renderCalendarView(contentDiv, data) {
         let currentCalendarDate = new Date();
-
         function buildCalendar(year, month) {
             const calendarView = document.createElement('div');
             calendarView.className = 'calendar-view';
             const monthEvents = {};
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);
-
             const addEvent = (event, eventDate) => {
                 const day = eventDate.getDate();
                 if (!monthEvents[day]) monthEvents[day] = [];
-                // Firestore Timestamp를 JS Date로 변환하여 저장
                 const startDate = event.startDate.toDate ? event.startDate.toDate() : new Date(event.startDate);
                 const endDate = new Date(startDate);
                 endDate.setDate(startDate.getDate() + (event.duration - 1));
 
                 monthEvents[day].push({ ...event, startDate, endDate });
             };
-
             (data.events || []).forEach(event => {
                 if (!event.startDate) return;
                 const startDate = event.startDate.toDate ? event.startDate.toDate() : new Date(event.startDate);
@@ -750,7 +763,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             });
-
             (data.recurringEvents || []).forEach(re => {
                  let currentDate = new Date(re.startDate + 'T00:00:00');
                  while (currentDate.getFullYear() < year + 2) {
@@ -766,7 +778,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     else break;
                 }
             });
-
             let html = `<div class="calendar-header"><span class="calendar-title">${year}년 ${month + 1}월</span><div class="calendar-nav"><button id="cal-prev-btn">&lt; 이전</button><button id="cal-today-btn">Today</button><button id="cal-next-btn">다음 &gt;</button></div></div><div class="calendar-legend"><div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div><div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div><div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div></div><table class="calendar-grid"><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody>`;
             let dateCounter = 1;
             const startDay = firstDay.getDay();
@@ -835,7 +846,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateCalendar();
     }
-
 
     function renderDeckBuilder(contentDiv) {
         let html = `
