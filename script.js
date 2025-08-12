@@ -540,6 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ▼▼▼ [수정] '팁&노하우' 렌더링 로직 수정 ▼▼▼
     function renderSimpleView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
         detailView.className = 'simple-detail-view';
@@ -555,19 +556,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let description = data.description || data.htmlContent || '';
         
+        // menuId가 'tips'일 경우, [TIP]과 [주의]를 찾아 박스로 감싸는 로직
         if (menuId === 'tips') {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = description;
-            tempDiv.querySelectorAll('p').forEach(p => {
-                const text = p.innerHTML.trim();
+            
+            // p 태그를 순회하며 조건에 맞는 태그를 박스로 감쌈
+            const paragraphs = tempDiv.querySelectorAll('p');
+            paragraphs.forEach(p => {
+                const text = p.textContent || p.innerText;
                 if (text.includes('[TIP]')) {
-                    p.innerHTML = text.replace('[TIP]', '<strong>TIP:</strong>');
+                    p.innerHTML = p.innerHTML.replace('[TIP]', ''); // 태그 제거
                     const wrapper = document.createElement('div');
                     wrapper.className = 'tip-box';
                     p.parentNode.insertBefore(wrapper, p);
                     wrapper.appendChild(p);
                 } else if (text.includes('[주의]')) {
-                    p.innerHTML = text.replace('[주의]', '<strong>주의:</strong>');
+                    p.innerHTML = p.innerHTML.replace('[주의]', ''); // 태그 제거
                     const wrapper = document.createElement('div');
                     wrapper.className = 'warning-box';
                     p.parentNode.insertBefore(wrapper, p);
@@ -646,11 +651,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } else {
             html += `<div class="item-description">${description.replace(/\\n/g, '<br>')}</div>`;
+            detailView.innerHTML = html;
         }
         
         contentDiv.innerHTML = '';
         contentDiv.appendChild(detailView);
     }
+    // ▲▲▲ [수정] '팁&노하우' 렌더링 로직 수정 ▲▲▲
 
     function calculateSynergy(pokemonIds) {
         if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
@@ -677,7 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function renderDeckView(contentDiv, data) {
-        const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '�️' };
+        const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
         let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
         if (data.description) { html += `<p>${data.description}</p>`; }
         
