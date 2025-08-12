@@ -37,6 +37,11 @@ const DB = {
     ],
     // ▲▲▲ [2차 개발] 사이드바 메뉴에 '공지사항' 추가 ▲▲▲
 
+    notice: {
+        lev2: [],
+        lev3: {}
+    },
+
         pokemonType: {
         lev2: [ 
             { id: 'normal', name: '노말', color: '#A8A878' }, { id: 'fire', name: '불', color: '#F08030' },
