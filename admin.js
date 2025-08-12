@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setupPokemonManagement();
             setupItemManagement();
             setupRuneChipManagement();
+            setupNoticeManagement(); // 공지사항 기능 초기화
             setupTipsManagement();
             setupCalendarManagement();
             setupDeckManagement();
@@ -61,9 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function initializeAdminData() {
         console.log("initializeAdminData: Firestore에서 모든 데이터 로딩 시작...");
-        const collections = ['pokemon', 'items', 'runeAndChips', 'tips', 'events', 'recommendedDecks'];
+        // 'notice' 컬렉션 추가
+        const collections = ['pokemon', 'items', 'runeAndChips', 'notice', 'tips', 'events', 'recommendedDecks'];
         const promises = collections.map(col => db.collection(col).get());
-        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, eventsSnapshot, decksSnapshot] = await Promise.all(promises);
+        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, noticeSnapshot, tipsSnapshot, eventsSnapshot, decksSnapshot] = await Promise.all(promises);
 
         const snapshotToMap = (snapshot) => {
             const dataMap = {};
@@ -74,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
         DB.item.lev4 = snapshotToMap(itemsSnapshot);
         DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
+        DB.notice.lev3 = snapshotToMap(noticeSnapshot); // 공지사항 데이터 로드
         DB.tips.lev3 = snapshotToMap(tipsSnapshot);
         DB.deck.lev4 = snapshotToMap(decksSnapshot);
         DB.calendar.lev2.events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -91,6 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         DB.runeAndChip.lev3 = runeAndChipTypes;
 
+        DB.notice.lev2 = Object.values(DB.notice.lev3).map(data => ({ id: data.id, name: data.name || data.title }));
         DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title }));
         DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
 
@@ -121,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const collectionNames = {
             pokemon: "포켓몬", items: "아이템", runeAndChips: "룬&칩",
-            tips: "팁&노하우", recommendedDecks: "추천 덱"
+            notice: "공지사항", tips: "팁&노하우", recommendedDecks: "추천 덱"
         };
         
         async function loadDrafts() {
@@ -486,6 +490,79 @@ document.addEventListener('DOMContentLoaded', () => {
 
         loadRuneChipList();
     }
+
+    // ▼▼▼ [추가] 공지사항 관리 기능 (팁&노하우 복사) ▼▼▼
+    function setupNoticeManagement() {
+        const form = document.getElementById('notice-form');
+        const selectList = document.getElementById('notice-select-list');
+        const loadBtn = document.getElementById('load-notice-btn');
+        const deleteBtn = document.getElementById('delete-notice-btn');
+        const generateIdBtn = document.getElementById('generate-notice-id-btn');
+        
+        function loadNoticesList() {
+            const items = Object.values(DB.notice.lev3);
+            items.sort((a,b)=>(a.title || '').localeCompare(b.title || '', 'ko'));
+            selectList.innerHTML = '<option value="">-- 공지 선택 --</option>';
+            items.forEach(item => {
+                selectList.innerHTML += `<option value="${item.id}">${item.title || item.id}</option>`;
+            });
+        }
+
+        loadBtn.addEventListener('click', () => {
+            const data = DB.notice.lev3[selectList.value];
+            if(!data) return;
+            form.querySelector('#notice-id').value = data.id || '';
+            form.querySelector('#notice-title').value = data.title || '';
+            form.querySelector('#notice-content').value = data.htmlContent || '';
+            form.querySelector('#notice-is-published').checked = data.isPublished === true;
+        });
+        
+        generateIdBtn.addEventListener('click', () => {
+            const title = form.querySelector('#notice-title').value.trim().toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]/g, '');
+            const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            const randomStr = Math.random().toString(36).substr(2, 5);
+            
+            const newId = title ? `notice-${title.substring(0, 20)}-${randomStr}` : `notice-${date}-${randomStr}`;
+            form.querySelector('#notice-id').value = newId;
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const noticeId = form.querySelector('#notice-id').value.trim();
+            if (!noticeId) {
+                alert('고유 ID를 입력하거나 자동생성 버튼을 눌러주세요.');
+                return;
+            }
+            const noticeData = {
+                title: form.querySelector('#notice-title').value,
+                htmlContent: form.querySelector('#notice-content').value,
+                isPublished: form.querySelector('#notice-is-published').checked,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp() // 최신순 정렬을 위한 타임스탬프
+            };
+            await db.collection("notice").doc(noticeId).set(noticeData, { merge: true });
+            alert('저장 완료');
+            form.reset();
+            await initializeAdminData();
+            loadNoticesList();
+        });
+
+        deleteBtn.addEventListener('click', async () => {
+            const noticeId = form.querySelector('#notice-id').value.trim();
+            if (!noticeId) return;
+            if (confirm(`'${noticeId}' 공지를 삭제하시겠습니까?`)) {
+                await db.collection("notice").doc(noticeId).delete();
+                alert('삭제 완료');
+                form.reset();
+                await initializeAdminData();
+                loadNoticesList();
+            }
+        });
+
+        loadNoticesList();
+    }
+    // ▲▲▲ [추가] 공지사항 관리 기능 (팁&노하우 복사) ▲▲▲
 
     function setupTipsManagement() {
         const form = document.getElementById('tip-form');
