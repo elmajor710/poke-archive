@@ -527,79 +527,57 @@ header h1 {
     display: none !important;
 }
 
-/* ▼▼▼ [수정] 팁&노하우 게시물 가독성 스타일 ▼▼▼ */
+/* ▼▼▼ [추가] 팁&노하우 게시물 가독성 스타일 ▼▼▼ */
 .simple-detail-view .item-description {
-    line-height: 1.15; /* 요청사항: 줄간격 1.15 */
-    font-size: 12pt; /* 요청사항: 본문 12pt */
+    line-height: 1.15;
+    font-size: 12pt;
     background-color: #fff;
     padding: 10px;
 }
 
+/* HTML 태그 직접 스타일링 */
 .simple-detail-view .item-description h3 {
-    font-size: 18pt; /* 요청사항: 제목 18pt */
-    font-weight: bold; /* 요청사항: 볼드체 */
-    margin-top: 1.5em;
-    margin-bottom: 0.8em;
-    padding-bottom: 0.3em;
-    border-bottom: 2px solid #f0f0f0;
+    font-size: 18pt;
+    font-weight: bold;
 }
 
 .simple-detail-view .item-description h4 {
-    font-size: 14pt; /* 요청사항: 소제목 14pt */
-    font-weight: bold; /* 요청사항: 볼드체 */
-    margin-top: 1.5em;
-    margin-bottom: 0.8em;
-}
-
-.simple-detail-view .item-description h3:first-child,
-.simple-detail-view .item-description h4:first-child {
-    margin-top: 0;
+    font-size: 16pt;
+    font-weight: bold;
 }
 
 .simple-detail-view .item-description p,
 .simple-detail-view .item-description li {
-    font-size: 12pt; /* 요청사항: 본문 12pt */
-    margin-bottom: 1em;
+    font-size: 12pt;
+}
+
+.simple-detail-view .item-description table,
+.simple-detail-view .item-description th,
+.simple-detail-view .item-description td {
+    border: 1pt solid #ccc;
+    font-size: 12pt;
 }
 
 .simple-detail-view .item-description table {
     width: 100%;
     border-collapse: collapse;
     margin: 1.5em 0;
-    border: 1pt solid #ccc; /* 요청사항: 일반 테두리 1pt */
-    font-size: 12pt;
-}
-
-.simple-detail-view .item-description th,
-.simple-detail-view .item-description td {
-    border: 1pt solid #ccc; /* 요청사항: 일반 테두리 1pt */
-    padding: 8px 12px;
-    text-align: left;
 }
 
 .simple-detail-view .item-description th {
     background-color: #f8f9fa;
     font-weight: bold;
+    padding: 8px 12px;
 }
 
-.simple-detail-view .item-description ul,
-.simple-detail-view .item-description ol {
-    padding-left: 25px;
-    margin-bottom: 1em;
+.simple-detail-view .item-description td {
+    padding: 8px 12px;
 }
 
-.simple-detail-view .item-description img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin: 1.5em 0;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-/* [TIP], [주의] 박스 스타일 */
+/* 강조 박스 스타일 */
 .tip-box, .warning-box {
     margin: 1.5em 0;
-    padding: 15px;
+    padding: 1px 15px; /* 내부 p 태그의 마진을 고려하여 상하 패딩 조정 */
     border-radius: 8px;
     border-left-width: 5px;
     border-left-style: solid;
@@ -616,6 +594,6 @@ header h1 {
 }
 
 .tip-box p, .warning-box p {
-    margin: 0;
+    margin: 1em 0; /* 박스 안 p태그의 상하 마진 */
 }
-/* ▲▲▲ [수정] 팁&노하우 게시물 가독성 스타일 ▲▲▲ */
+/* ▲▲▲ [추가] 팁&노하우 게시물 가독성 스타일 ▲▲▲ */
