@@ -492,7 +492,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectList = document.getElementById('tip-select-list');
         const loadBtn = document.getElementById('load-tip-btn');
         const deleteBtn = document.getElementById('delete-tip-btn');
-        // ▼▼▼ [수정] ID 자동생성 버튼 요소 가져오기 ▼▼▼
         const generateIdBtn = document.getElementById('generate-tip-id-btn');
         
         function loadTipsList() {
@@ -513,15 +512,13 @@ document.addEventListener('DOMContentLoaded', () => {
             form.querySelector('#tip-is-published').checked = data.isPublished === true;
         });
         
-        // ▼▼▼ [수정] ID 자동생성 버튼 이벤트 리스너 추가 ▼▼▼
         generateIdBtn.addEventListener('click', () => {
             const title = form.querySelector('#tip-title').value.trim().toLowerCase()
-                .replace(/\s+/g, '-') // 공백을 하이픈으로
-                .replace(/[^a-z0-9-]/g, ''); // 영문, 숫자, 하이픈 외 제거
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]/g, '');
             const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
             const randomStr = Math.random().toString(36).substr(2, 5);
             
-            // 제목이 있으면 제목 기반 ID, 없으면 랜덤 ID 생성
             const newId = title ? `tip-${title.substring(0, 20)}-${randomStr}` : `tip-${date}-${randomStr}`;
             form.querySelector('#tip-id').value = newId;
         });
