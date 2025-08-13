@@ -70,13 +70,11 @@ header h1 {
     color: #cccccc;
     font-size: 14px;
     font-weight: bold;
-    min-height: 100px; 
 }
 
 #ad-container-top {
     width: 100%;
-    min-height: 250px; 
-    max-height: 300px;
+    min-height: 100px; 
     flex-shrink: 0;
     display: block;
 }
@@ -492,17 +490,15 @@ header h1 {
     #sidebar.visible {
         transform: translateX(0);
     }
-}
-
-@media (max-width: 768px) {
+    
+    /* ▼▼▼ [수정] 모바일 광고 스타일 ▼▼▼ */
     body {
         /* 하단 광고 높이(50px)만큼 body에 아래쪽 여백을 줘서 콘텐츠가 가려지지 않게 함 */
         padding-bottom: 50px;
     }
     #ad-container-top {
-        height: 50px !important;
-        min-height: 50px !important;
-        overflow: hidden !important;
+        height: 50px;
+        min-height: 50px;
     }
     #ad-container-bottom {
         display: flex; /* 모바일에서만 보이도록 설정 */
@@ -516,6 +512,16 @@ header h1 {
         border-top: 1px solid var(--border-color);
         box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
     }
+    
+    /* 메뉴 클릭 시 광고 숨기기 */
+    #app-container.menu-active ~ #ad-container-bottom,
+    #app-container.menu-active #ad-container-top {
+        display: none;
+    }
+    /* ▲▲▲ [수정] 모바일 광고 스타일 ▲▲▲ */
+}
+
+@media (max-width: 768px) {
     .deck-builder-view {
         flex-direction: column;
     }
