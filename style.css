@@ -208,7 +208,8 @@ header h1 {
 
 .main-welcome-area img {
     max-width: 100%;
-    max-height: 400px;
+    /* max-height: 400px; <-- 이 부분을 삭제하여 높이 제한을 해제했습니다. */
+    height: auto; /* 가로 너비에 맞춰 높이가 자동으로 조절되도록 명시합니다. */
     border-radius: 12px;
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     margin-bottom: 25px;
