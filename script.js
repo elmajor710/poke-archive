@@ -264,24 +264,31 @@ document.addEventListener('DOMContentLoaded', () => {
             if (button) {
                 if (button.id === 'mobile-menu-btn') {
                     sidebar.classList.toggle('visible');
-                    appContainer.classList.toggle('menu-active');
+                    // 메뉴를 열 때, app-container의 크기를 광고 영역을 제외한 나머지 공간으로 조정
+                    if (sidebar.classList.contains('visible')) {
+                        appContainer.style.height = `calc(100vh - var(--mobile-ad-height) * 2)`;
+                        appContainer.style.marginTop = `var(--mobile-ad-height)`;
+                    } else {
+                        appContainer.style.height = `calc(100vh - var(--mobile-ad-height))`;
+                        appContainer.style.marginTop = `var(--mobile-ad-height)`;
+                    }
                 } else if (button.classList.contains('back-btn')) {
-                    handleBackClick(button); 
+                    handleBackClick(button);
                 } else if (button.classList.contains('main-btn')) {
                     handleMainButtonClick();
                 } else if (button.classList.contains('main-action-btn')) {
                     if (button.dataset.menuId === 'popular') {
                         const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="tips"]`);
-                        if(targetMenuItem) handleMenuClick(targetMenuItem);
+                        if (targetMenuItem) handleMenuClick(targetMenuItem);
                         return;
                     }
                     const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="${button.dataset.menuId}"]`);
-                    if(targetMenuItem) handleMenuClick(targetMenuItem);
+                    if (targetMenuItem) handleMenuClick(targetMenuItem);
                 } else if (button.dataset.level) {
-                    handleMenuClick(button); 
+                    handleMenuClick(button);
                 }
             }
-
+            
             const noticeLink = e.target.closest('#main-notice-list a');
             if (noticeLink) {
                 e.preventDefault();
@@ -294,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => {
                         const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="${itemId}"]`);
                         if (lev2_btn) handleMenuClick(lev2_btn);
-                    }, 50); 
+                    }, 50);
                 }
             }
 
@@ -309,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     handleMenuClick(lev1_btn);
                     setTimeout(() => {
                         const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="${itemId}"]`);
-                        if(lev2_btn) handleMenuClick(lev2_btn);
+                        if (lev2_btn) handleMenuClick(lev2_btn);
                     }, 50);
                 }
             }
@@ -325,21 +332,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = button.dataset.id;
         const menuId = button.dataset.menuId || id;
         const nextLevel = level + 1;
-        const nextData = getNextData(level, id, menuId); 
+        const nextData = getNextData(level, id, menuId);
         const currentPanel = panels[`lev${level}`] || sidebar;
         const nextPanel = panels[`lev${nextLevel}`];
 
         if (!nextPanel) return;
 
         if (isMobile()) currentPanel.classList.add('is-hidden');
-        
+
         Object.values(panels).forEach((panel, index) => {
-            if(index > 0 && panel !== nextPanel) panel.classList.remove('visible');
+            if (index > 0 && panel !== nextPanel) panel.classList.remove('visible');
         });
 
         nextPanel.classList.remove('is-hidden');
         nextPanel.classList.add('visible');
-        
+
         setActive(level, button);
         renderPanelContent(nextLevel, nextData, menuId, id);
     }
@@ -356,16 +363,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (prevPanel) {
             if (isMobile()) prevPanel.classList.remove('is-hidden');
-            if(prevPanel !== sidebar) prevPanel.classList.add('visible');
+            if (prevPanel !== sidebar) prevPanel.classList.add('visible');
         }
-        
+
         if (level === 2) {
             handleMainButtonClick();
         } else {
             setActive(level - 1, null);
         }
     }
-    
+
     function handleMainButtonClick() {
         mainPlaceholder.style.display = 'flex';
         appContainer.classList.remove('menu-active');
@@ -406,13 +413,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentDiv = targetPanel.querySelector('.panel-content');
         if (!contentDiv) return;
         const panelHeader = targetPanel.querySelector('.panel-header');
-        
+
         const existingMainBtn = panelHeader.querySelector('.main-btn');
         if (existingMainBtn) existingMainBtn.remove();
 
         contentDiv.innerHTML = '';
         contentDiv.scrollTop = 0;
-        
+
         if (clickedId === 'deckBuilder') {
             const mainButton = document.createElement('button');
             mainButton.className = 'main-btn';
@@ -423,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 renderDeckBuilder(contentDiv);
             }
-            return; 
+            return;
         } else if (!data) {
             contentDiv.innerHTML = "데이터를 불러오지 못했습니다.";
         } else {
@@ -436,9 +443,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 panelHeader.appendChild(mainButton);
 
                 if (menuId === 'deck' && data.composition) renderDeckView(contentDiv, data);
-                else if(menuId === 'calendar') renderCalendarView(contentDiv, DB.calendar.lev2);
-                else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
-                else renderSimpleView(contentDiv, data, menuId); 
+                else if (menuId === 'calendar') renderCalendarView(contentDiv, DB.calendar.lev2);
+                else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId);
+                else renderSimpleView(contentDiv, data, menuId);
             } else {
                 data.forEach(item => {
                     const button = document.createElement('button');
@@ -459,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const modalOverlay = document.createElement('div');
         modalOverlay.className = 'modal-overlay';
-        
+
         modalOverlay.innerHTML = `
             <div class="modal-content">
                 <div class="modal-header">
@@ -505,7 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
         badgesHTML += '</div>';
         commonHTML += badgesHTML;
         if (data.imageURL) commonHTML += `<img src="${data.imageURL}" alt="${nameKo}" class="main-image">`;
-        
+
         let statsHTML = '';
         if (data.stats) {
             const totalStats = Object.values(data.stats).reduce((a, b) => Number(a) + Number(b), 0);
@@ -513,12 +520,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             statsHTML = '<h4>기본 정보</h4><p>등록된 종족값 정보가 없습니다.</p>';
         }
-        
+
         let skillsHTML = '';
         if (data.skills && data.skills.length > 0 && data.skills.some(s => s.name)) {
             skillsHTML += '<h4>스킬</h4><ul class="skill-list">';
-            data.skills.forEach((skill, index) => { 
-                if(skill.name) skillsHTML += `<li class="skill-item"><span class="skill-name" data-skill-index="${index}">${skill.name}</span><span class="skill-type">${skill.type}</span></li>`; 
+            data.skills.forEach((skill, index) => {
+                if (skill.name) skillsHTML += `<li class="skill-item"><span class="skill-name" data-skill-index="${index}">${skill.name}</span><span class="skill-type">${skill.type}</span></li>`;
             });
             skillsHTML += '</ul>';
         } else {
@@ -533,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (data.recommendedNatures && data.recommendedNatures.length > 0) {
             const natureNames = data.recommendedNatures.map(natureId => DB.definitions.natures.find(n => n.id === natureId)?.name || '').filter(Boolean);
-            if(natureNames.length > 0) {
+            if (natureNames.length > 0) {
                 buildHTML += `<h4>추천 성격</h4><p>${natureNames.join(', ')}</p>`;
                 hasBuildInfo = true;
             }
@@ -547,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const dbKey = (type === 'recommendedRunes' || type === 'recommendedChips') ? 'runeAndChip' : 'item';
                     const itemData = DB[dbKey]?.lev4?.[id];
                     if (itemData) {
-                         buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${dbKey}">${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}</div>`;
+                        buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${dbKey}">${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}</div>`;
                     }
                 });
                 buildHTML += `</div>`;
@@ -560,16 +567,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const useTabs = isMobile() || menuId === 'pokemonType' || menuId === 'pokemonGrade';
         detailView.className = `pokemon-detail-view ${useTabs ? 'use-tabs' : ''}`;
         if (useTabs) {
-             detailView.innerHTML = `${commonHTML}<div class="tab-container"><nav class="tab-nav"><button class="tab-button active" data-tab="tab-info">기본 정보</button><button class="tab-button" data-tab="tab-skills">스킬</button><button class="tab-button" data-tab="tab-build">추천 빌드</button></nav><div id="tab-info" class="tab-pane active">${statsHTML}</div><div id="tab-skills" class="tab-pane">${skillsHTML}</div><div id="tab-build" class="tab-pane">${buildHTML}</div></div>`;
+            detailView.innerHTML = `${commonHTML}<div class="tab-container"><nav class="tab-nav"><button class="tab-button active" data-tab="tab-info">기본 정보</button><button class="tab-button" data-tab="tab-skills">스킬</button><button class="tab-button" data-tab="tab-build">추천 빌드</button></nav><div id="tab-info" class="tab-pane active">${statsHTML}</div><div id="tab-skills" class="tab-pane">${skillsHTML}</div><div id="tab-build" class="tab-pane">${buildHTML}</div></div>`;
         } else {
             detailView.innerHTML = `${commonHTML}<div class="info-sections">${statsHTML}${skillsHTML}${buildHTML}</div>`;
         }
-        
+
         contentDiv.innerHTML = '';
         contentDiv.appendChild(detailView);
 
-        detailView.querySelectorAll('.skill-name').forEach(el => { 
-            el.addEventListener('click', () => { 
+        detailView.querySelectorAll('.skill-name').forEach(el => {
+            el.addEventListener('click', () => {
                 const skillIndex = parseInt(el.dataset.skill-index);
                 const skill = data.skills[skillIndex];
                 if (skill) {
@@ -579,9 +586,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         skill.keywords.forEach(kw => { skillDetailContent += `<li><strong>${kw.term}:</strong> ${kw.desc}</li>`; });
                         skillDetailContent += '</ul>';
                     }
-                    showModal(skill.name, skillDetailContent); 
+                    showModal(skill.name, skillDetailContent);
                 }
-            }); 
+            });
         });
         detailView.querySelectorAll('.recommend-item').forEach(el => {
             el.addEventListener('click', () => {
@@ -608,7 +615,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ▼▼▼ [수정] '팁&노하우' 및 '공지사항' 렌더링 로직 수정 ▼▼▼
     function renderSimpleView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
         detailView.className = 'simple-detail-view';
@@ -623,24 +629,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let description = data.description || data.htmlContent || '';
-        
-        // menuId가 'tips'일 경우, [TIP]과 [주의]를 찾아 박스로 감싸는 로직
+
         if (menuId === 'tips') {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = description;
-            
-            // p 태그를 순회하며 조건에 맞는 태그를 박스로 감쌈
+
             const paragraphs = tempDiv.querySelectorAll('p');
             paragraphs.forEach(p => {
                 const text = p.textContent || p.innerText;
                 if (text.includes('[TIP]')) {
-                    p.innerHTML = p.innerHTML.replace('[TIP]', ''); // 태그 제거
+                    p.innerHTML = p.innerHTML.replace('[TIP]', '');
                     const wrapper = document.createElement('div');
                     wrapper.className = 'tip-box';
                     p.parentNode.insertBefore(wrapper, p);
                     wrapper.appendChild(p);
                 } else if (text.includes('[주의]')) {
-                    p.innerHTML = p.innerHTML.replace('[주의]', ''); // 태그 제거
+                    p.innerHTML = p.innerHTML.replace('[주의]', '');
                     const wrapper = document.createElement('div');
                     wrapper.className = 'warning-box';
                     p.parentNode.insertBefore(wrapper, p);
@@ -649,7 +653,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             description = tempDiv.innerHTML;
         } else if (menuId === 'notice') {
-            // 공지사항은 HTML을 그대로 렌더링하도록 처리
             html += `<div class="item-description notice-content">${description}</div>`;
         }
 
@@ -663,7 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tabNames = ['세트효과', '타입별 조합'];
             separator = '[타입별 조합]';
         }
-        
+
         const createStructuredContent = (text) => {
             const lines = text.trim().split('\n');
             let structuredHtml = '<div class="structured-content">';
@@ -695,7 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (tabNames.length > 0 && description.includes(separator)) {
             const parts = description.split(separator);
-            const tab1Content = createStructuredContent(parts[0]); 
+            const tab1Content = createStructuredContent(parts[0]);
             const tab2RawContent = parts.slice(1).join(separator).trim();
             const tab2Content = createStructuredContent(tab2RawContent);
 
@@ -709,7 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div id="tab-2" class="tab-pane item-description">${tab2Content}</div>
                 </div>`;
             detailView.innerHTML = html;
-            
+
             detailView.querySelectorAll('.tab-button').forEach(button => {
                 button.addEventListener('click', () => {
                     if (button.classList.contains('active')) return;
@@ -724,14 +727,12 @@ document.addEventListener('DOMContentLoaded', () => {
             html += `<div class="item-description">${description.replace(/\\n/g, '<br>')}</div>`;
             detailView.innerHTML = html;
         } else {
-            // 공지사항의 경우, 이미 html 변수에 내용이 추가되었으므로 detailView에 바로 할당합니다.
             detailView.innerHTML = html;
         }
-        
+
         contentDiv.innerHTML = '';
         contentDiv.appendChild(detailView);
     }
-    // ▲▲▲ [수정] '팁&노하우' 및 '공지사항' 렌더링 로직 수정 ▲▲▲
 
     function calculateSynergy(pokemonIds) {
         if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
@@ -756,14 +757,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (totalUniqueTypes >= 6 && pokemonIds.length >= 6) return DB.synergyEffects.find(s => s.id === 'diff6');
         return null;
     }
-    
+
     function renderDeckView(contentDiv, data) {
         const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
         let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
         if (data.description) { html += `<p>${data.description}</p>`; }
-        
+
         html += `<h4>덱 배치</h4><table class="placement-grid-4x4" style="margin: 20px auto;">`;
-        
+
         const grid = Array(4).fill(null).map(() => Array(4).fill(null));
 
         const positionMap = {
@@ -778,14 +779,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const mainPokemonIds = data.composition.filter(m => m.role === 'main').map(m => m.pokemonId);
         const synergy = calculateSynergy(mainPokemonIds);
         if (synergy) {
-             grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}" style="height: 30px; vertical-align: middle; margin-right: 5px;"> ${synergy.name}`, colspan: 2 };
+            grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}" style="height: 30px; vertical-align: middle; margin-right: 5px;"> ${synergy.name}`, colspan: 2 };
         }
 
-        data.composition.forEach(member => { 
-            const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
-            if (!pkmData) return; 
+        data.composition.forEach(member => {
+            const pkmData = DB.pokemonType.lev4[member.pokemonId];
+            if (!pkmData) return;
             const key = `${member.role}_${member.position}`;
-            if(positionMap[key]) {
+            if (positionMap[key]) {
                 const [row, col] = positionMap[key];
                 grid[row][col] = { type: 'pokemon', role: member.role, ...pkmData };
             }
@@ -802,7 +803,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else if (cell.type === 'header') {
                         html += `<td class="placement-slot-header" colspan="${cell.colspan || 1}">${cell.content}</td>`;
                         if (cell.colspan > 1) {
-                            for (let k = 1; k < cell.colspan; k++) grid[i][j+k] = undefined;
+                            for (let k = 1; k < cell.colspan; k++) grid[i][j + k] = undefined;
                         }
                     }
                 } else {
@@ -811,7 +812,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             html += '</tr>';
         }
-        
+
         html += `</table></div>`;
         contentDiv.innerHTML = html;
     }
@@ -840,18 +841,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     const eventDate = new Date(startDate);
                     eventDate.setDate(eventDate.getDate() + i);
                     if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
-                        addEvent({...event, date: startDate.toISOString().split('T')[0]}, eventDate);
+                        addEvent({ ...event, date: startDate.toISOString().split('T')[0] }, eventDate);
                     }
                 }
             });
             (data.recurringEvents || []).forEach(re => {
-                 let currentDate = new Date(re.startDate + 'T00:00:00');
-                 while (currentDate.getFullYear() < year + 2) {
+                let currentDate = new Date(re.startDate + 'T00:00:00');
+                while (currentDate.getFullYear() < year + 2) {
                     if (currentDate.getFullYear() > year || (currentDate.getFullYear() === year && currentDate.getMonth() > month)) break;
                     for (let i = 0; i < (re.duration || 1); i++) {
                         const eventDate = new Date(currentDate);
                         eventDate.setDate(eventDate.getDate() + i);
-                         if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                        if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
                             addEvent({ ...re, date: currentDate.toISOString().split('T')[0], startDate: currentDate }, eventDate);
                         }
                     }
@@ -890,7 +891,7 @@ document.addEventListener('DOMContentLoaded', () => {
             calendarView.innerHTML = html;
             calendarView.addEventListener('click', (e) => {
                 const target = e.target;
-                if(target.id === 'cal-prev-btn') {
+                if (target.id === 'cal-prev-btn') {
                     currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
                     updateCalendar();
                 } else if (target.id === 'cal-next-btn') {
@@ -904,7 +905,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (cell) {
                         const day = parseInt(cell.dataset.day);
                         const events = monthEvents[day];
-                        if(events && events.length > 0) {
+                        if (events && events.length > 0) {
                             const eventContent = events.map(evt => {
                                 const duration = evt.duration || 1;
                                 const startStr = evt.startDate.toISOString().split('T')[0];
@@ -966,16 +967,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const placementGrid = contentDiv.querySelector('.placement-grid-4x4');
         const gradeFilter = contentDiv.querySelector('#grade-filter');
         const typeFilter = contentDiv.querySelector('#type-filter');
-        
-        let placedPokemon = new Map(); 
-        
+
+        let placedPokemon = new Map();
+
         DB.pokemonType.lev2.forEach(type => {
             const option = document.createElement('option');
             option.value = type.id;
             option.textContent = type.name;
             typeFilter.appendChild(option);
         });
-        
+
         function applyFilters() {
             const selectedGrade = gradeFilter.value;
             const selectedType = typeFilter.value;
@@ -991,7 +992,7 @@ document.addEventListener('DOMContentLoaded', () => {
             filteredPokemon.sort(([, a], [, b]) => (a.name_ko || a.name).localeCompare(b.name_ko || b.name, 'ko'));
             renderSourceList(filteredPokemon);
         }
-        
+
         function renderSourceList(pokemonList) {
             sourceList.innerHTML = '';
             const grid = document.createElement('div');
@@ -1002,8 +1003,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         gradeFilter.addEventListener('change', applyFilters);
         typeFilter.addEventListener('change', applyFilters);
-        
-        let draggedItem = null; 
+
+        let draggedItem = null;
         sourceList.addEventListener('dragstart', e => {
             const target = e.target.closest('.pokemon-source-icon');
             if (target) {
@@ -1014,14 +1015,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         placementGrid.addEventListener('dragstart', e => {
             const target = e.target.closest('.placement-slot');
-             if(target && placedPokemon.has(target)) {
-                 draggedItem = target;
-                 e.dataTransfer.setData('text/plain', placedPokemon.get(target));
-             }
+            if (target && placedPokemon.has(target)) {
+                draggedItem = target;
+                e.dataTransfer.setData('text/plain', placedPokemon.get(target));
+            }
         });
 
         placementGrid.addEventListener('dragover', e => e.preventDefault());
-        
+
         placementGrid.addEventListener('drop', e => {
             e.preventDefault();
             const targetSlot = e.target.closest('.placement-slot');
@@ -1033,10 +1034,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (draggedItem.classList.contains('placement-slot')) {
                 const sourceSlot = draggedItem;
-                if (targetSlot === sourceSlot) return; 
+                if (targetSlot === sourceSlot) return;
 
                 const targetPokemonId = placedPokemon.get(targetSlot);
-                
+
                 if (targetPokemonId) {
                     const targetPokemonData = DB.pokemonType.lev4[targetPokemonId];
                     placePokemonInSlot(sourceSlot, targetPokemonId, targetPokemonData);
@@ -1052,12 +1053,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
                 if (placedPokemon.has(targetSlot)) {
-                     const existingPokemonId = placedPokemon.get(targetSlot);
-                     const sourceSlotOfExisting = [...placedPokemon.entries()].find(([,pkmId]) => pkmId === sourcePokemonId)?.[0];
-                     if(sourceSlotOfExisting) clearSlot(sourceSlotOfExisting);
-                     
-                     clearSlot(targetSlot);
-                     applyFilters();
+                    const existingPokemonId = placedPokemon.get(targetSlot);
+                    const sourceSlotOfExisting = [...placedPokemon.entries()].find(([, pkmId]) => pkmId === sourcePokemonId)?.[0];
+                    if (sourceSlotOfExisting) clearSlot(sourceSlotOfExisting);
+
+                    clearSlot(targetSlot);
+                    applyFilters();
                 }
                 placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
             }
@@ -1069,7 +1070,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         placementGrid.addEventListener('click', e => {
             const removeButton = e.target.closest('.remove-pkm-btn');
-            if(removeButton) {
+            if (removeButton) {
                 const parentSlot = removeButton.closest('.placement-slot');
                 if (parentSlot) {
                     clearSlot(parentSlot);
@@ -1117,8 +1118,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setupAdObservers();
 
     function setScreenHeight() {
-      let vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
     }
     setScreenHeight();
     window.addEventListener('resize', setScreenHeight);
