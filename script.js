@@ -107,12 +107,10 @@ document.addEventListener('DOMContentLoaded', () => {
             pokemon: db.collection('pokemon').where("isPublished", "==", true),
             items: db.collection('items').where("isPublished", "==", true),
             runeAndChips: db.collection('runeAndChips').where("isPublished", "==", true),
-            // ▼▼▼ [수정] 'tips' 컬렉션에 createdAt 정렬 조건 추가 ▼▼▼
             tips: db.collection('tips').where("isPublished", "==", true).orderBy('createdAt', 'desc'),
-            // ▲▲▲ [수정] 'tips' 컬렉션에 createdAt 정렬 조건 추가 ▲▲▲
             recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true),
             events: db.collection('events'),
-            notice: db.collection('notice').where("isPublished", "==", true).orderBy('createdAt', 'desc') // 공지사항 컬렉션 추가
+            notice: db.collection('notice').where("isPublished", "==", true).orderBy('createdAt', 'desc')
         };
         const promises = Object.values(collectionsToFetch).map(query => query.get());
         const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot, noticeSnapshot] = await Promise.all(promises);
@@ -133,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
             DB.calendar.lev2.events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         }
 
-        // 공지사항 데이터를 DB 객체에 저장
         DB.notice.lev3 = snapshotToMap(noticeSnapshot);
         DB.notice.lev2 = Object.values(DB.notice.lev3).map(data => ({ id: data.id, name: data.title, date: data.createdAt ? data.createdAt.toDate() : new Date() }));
     }
@@ -187,7 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
         DB.deck.lev3.builder = [{ id: 'deckBuilder', name: '배치툴' }];
     }
 
-    // ▼▼▼ [수정] 사이드바 메뉴에 NEW 아이콘 표시 로직 추가 (공지사항/인기글) ▼▼▼
     function renderSidebar() {
         const sidebarContent = document.createElement('div');
         sidebarContent.className = 'panel-content';
@@ -201,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
             button.dataset.level = 1;
             button.dataset.id = item.id;
             
-            // 'notice'와 'tips' 메뉴에 New 아이콘 로직 적용
             if (item.id === 'notice' || item.id === 'tips') {
                 const dataList = item.id === 'notice' ? DB.notice.lev2 : DB.tips.lev2;
                 const hasNewPost = dataList.some(post => {
@@ -225,9 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sidebar.appendChild(sidebarContent);
         }
     }
-    // ▲▲▲ [수정] 사이드바 메뉴에 NEW 아이콘 표시 로직 추가 (공지사항/인기글) ▲▲▲
 
-    // ▼▼▼ [수정] 메인 페이지 공지사항 목록에 NEW 아이콘 표시 로직 추가 (인기글도 추가) ▼▼▼
     function renderMainNoticeList() {
         if (!mainNoticeList) return;
         
@@ -244,7 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }).join('');
         }
 
-        // '인기글' 목록 렌더링
         const popularPostsList = document.querySelector('.popular-posts-box ul');
         if (popularPostsList) {
             const popularToShow = DB.tips.lev2.slice(0, 5);
@@ -261,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-    // ▲▲▲ [수정] 메인 페이지 공지사항 목록에 NEW 아이콘 표시 로직 추가 (인기글도 추가) ▲▲▲
 
     function addEventListeners() {
         document.body.addEventListener('click', (e) => {
@@ -280,7 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     handleMainButtonClick();
                 } else if (button.classList.contains('main-action-btn')) {
                     if (button.dataset.menuId === 'popular') {
-                        // ▼▼▼ [수정] 모바일 '인기글' 버튼 클릭 시 tips 메뉴로 이동하도록 수정 ▼▼▼
                         const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="tips"]`);
                         if(targetMenuItem) handleMenuClick(targetMenuItem);
                         return;
@@ -307,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 50); 
                 }
             }
-            // ▼▼▼ [추가] 메인 페이지 '인기글' 링크 클릭 이벤트 리스너 추가 ▼▼▼
+
             const popularLink = e.target.closest('.popular-posts-box a');
             if (popularLink) {
                 e.preventDefault();
@@ -323,7 +313,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 50);
                 }
             }
-            // ▲▲▲ [추가] 메인 페이지 '인기글' 링크 클릭 이벤트 리스너 추가 ▲▲▲
         });
     }
 
