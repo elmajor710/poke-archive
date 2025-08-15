@@ -39,9 +39,10 @@
 
                     <div class="main-content-grid pc-only">
                        <div class="main-content-box notice-box">
-                           <h3>📢 공지사항</h3>
+                           <h3>� 공지사항</h3>
                            <ul id="main-notice-list">
-                               </ul>
+                               <!-- 공지사항이 여기에 동적으로 추가됩니다 -->
+                           </ul>
                        </div>
                        <div class="main-content-box popular-posts-box">
                            <h3>🔥 인기글</h3>
@@ -89,9 +90,11 @@
         </script>
     </div>
     <!-- ▲▲▲ [추가] 모바일용 하단 광고 컨테이너 ▲▲▲ -->
+    
+    <!-- Firebase SDK는 최신 버전을 사용합니다. -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
+    
     <script>
       // Firebase 초기화
         const firebaseConfig = {
@@ -107,7 +110,7 @@
     </script>
     
     <script src="data.js?v=2.0"></script> 
-    <script src="script.js?v=2.0"></script>
+    <script src="script.js?v=2.1"></script> <!-- script.js 버전 업데이트 -->
 
 </body>
 </html>
