@@ -17,8 +17,6 @@
     --event-luckycat-color: #4caf50;
     --main-pastel: #e8f5e9; /* 메인 슬롯 색상 변경 */
     --assist-pastel: #e3f2fd; /* 어시스트 슬롯 색상 변경 */
-    /* 모바일 광고 높이 변수 추가 */
-    --mobile-ad-height: 50px;
 }
 
 *, *::before, *::after {
@@ -100,6 +98,23 @@ header h1 {
 #app-container {
     display: flex;
     width: 100%;
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+#sidebar {
+    width: var(--sidebar-width);
+    border-right: 1px solid var(--border-color);
+    padding: 10px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    background-color: #fff;
+    transition: transform var(--slide-duration) ease-in-out;
+    z-index: 10;
+}
+
+#content-area {
     flex-grow: 1;
     position: relative;
     overflow: hidden;
@@ -300,6 +315,7 @@ header h1 {
 .calendar-grid td.has-events:hover { background-color: #e9ecef; }
 .day-other-month { background-color: #f8f9fa; }
 .day-other-month .date-number { color: #ccc; }
+.date-number { font-weight: 500; font-size: 0.9em; }
 .day-today .date-number { background-color: var(--primary-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; }
 .event-markers { margin-top: 5px; display: flex; flex-direction: column; gap: 3px; }
 .event-marker { font-size: 0.8em; padding: 2px 4px; border-radius: 4px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -460,96 +476,49 @@ header h1 {
     .pc-only { display: none; }
     
     #sidebar, .panel { 
-        position: fixed; /* absolute 대신 fixed로 변경 */
-        top: 0;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        background: #fff;
-        display: flex;
-        flex-direction: column;
+        position: absolute; 
+        width: 100%; 
+    }
+    #sidebar.is-hidden, .panel.is-hidden { 
+        transform: translateX(-100%); 
+        z-index: 1; 
+    }
+    #sidebar {
         transform: translateX(-100%);
-        transition: transform var(--slide-duration) ease-in-out;
-        visibility: hidden;
         z-index: 15;
     }
-    #sidebar.visible { 
-        transform: translateX(0); 
-        visibility: visible; 
-    }
-    
-    #sidebar.is-hidden { 
-        transform: translateX(-100%); 
-        visibility: hidden;
-    }
-
-    .panel {
-        top: 0;
-        left: 0;
-        bottom: 0;
-        z-index: 16;
-    }
-    .panel.visible {
+    #sidebar.visible {
         transform: translateX(0);
-        visibility: visible;
-        z-index: 17;
     }
     
-    /* 메뉴가 열리면 sidebar와 panel이 body를 덮도록 z-index를 높임 */
-    #app-container.menu-active ~ #ad-container-top,
-    #app-container.menu-active ~ #ad-container-bottom,
-    #app-container.menu-active #ad-container-top,
-    #app-container.menu-active #ad-container-bottom {
-        display: block; /* 광고를 계속 표시 */
-    }
-    
-    /* ▼▼▼ [수정] 모바일 광고 스타일 및 콘텐츠 영역 조정 ▼▼▼ */
+    /* ▼▼▼ [수정] 모바일 광고 스타일 ▼▼▼ */
     body {
-        /* 최상단 광고와 하단 광고 높이만큼 body에 패딩을 줘서 콘텐츠가 가려지지 않게 함 */
-        padding-top: var(--mobile-ad-height);
-        padding-bottom: var(--mobile-ad-height);
-    }
-    header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 20;
+        /* 하단 광고 높이(50px)만큼 body에 아래쪽 여백을 줘서 콘텐츠가 가려지지 않게 함 */
+        padding-bottom: 50px;
     }
     #ad-container-top {
-        display: block;
-        height: var(--mobile-ad-height);
-        min-height: var(--mobile-ad-height);
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 19;
+        height: 50px;
+        min-height: 50px;
     }
     #ad-container-bottom {
-        display: flex;
+        display: flex; /* 모바일에서만 보이도록 설정 */
         position: fixed;
         bottom: 0;
         left: 0;
         width: 100%;
-        height: var(--mobile-ad-height);
-        min-height: var(--mobile-ad-height);
+        height: 50px;
+        min-height: 50px;
         z-index: 999;
         border-top: 1px solid var(--border-color);
         box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
     }
-    #content-area {
-        /* 상단 헤더, 상단 광고, 하단 광고의 높이를 모두 고려하여 여백 설정 */
-        margin-top: calc(var(--mobile-ad-height) * 2);
-        margin-bottom: var(--mobile-ad-height);
-    }
     
-    /* 메뉴가 열렸을 때 광고를 숨기는 것이 아니라, z-index를 조정하여 메뉴가 광고를 덮도록 처리 */
-    #app-container.menu-active ~ #ad-container-top,
-    #app-container.menu-active ~ #ad-container-bottom {
-        display: block;
+    /* 메뉴 클릭 시 광고 숨기기 */
+    #app-container.menu-active ~ #ad-container-bottom,
+    #app-container.menu-active #ad-container-top {
+        display: none;
     }
-    /* ▲▲▲ [수정] 모바일 광고 스타일 및 콘텐츠 영역 조정 ▲▲▲ */
+    /* ▲▲▲ [수정] 모바일 광고 스타일 ▲▲▲ */
 }
 
 @media (max-width: 768px) {
