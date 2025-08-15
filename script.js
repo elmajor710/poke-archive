@@ -11,10 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const targetContainer = entry.target;
                     try {
                         (window.adsbygoogle = window.adsbygoogle || []).push({});
+                        // 모바일 환경일 때만 광고 높이를 50px로 고정
                         const styleWatcher = new MutationObserver((mutations) => {
                             for (const mutation of mutations) {
                                 if (mutation.attributeName === 'style') {
-                                    if (window.innerWidth <= 768) {
+                                    if (isMobile()) {
                                         const currentHeight = targetContainer.style.height;
                                         if (currentHeight !== '50px') {
                                             targetContainer.style.setProperty('height', '50px', 'important');
@@ -101,13 +102,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // ▼▼▼ [수정] Firestore에서 'notice' 컬렉션 데이터도 함께 불러오도록 추가 ▼▼▼
     async function fetchAllDataFromFirebase() {
         const collectionsToFetch = {
             pokemon: db.collection('pokemon').where("isPublished", "==", true),
             items: db.collection('items').where("isPublished", "==", true),
             runeAndChips: db.collection('runeAndChips').where("isPublished", "==", true),
-            tips: db.collection('tips').where("isPublished", "==", true),
+            // ▼▼▼ [수정] 'tips' 컬렉션에 createdAt 정렬 조건 추가 ▼▼▼
+            tips: db.collection('tips').where("isPublished", "==", true).orderBy('createdAt', 'desc'),
+            // ▲▲▲ [수정] 'tips' 컬렉션에 createdAt 정렬 조건 추가 ▲▲▲
             recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true),
             events: db.collection('events'),
             notice: db.collection('notice').where("isPublished", "==", true).orderBy('createdAt', 'desc') // 공지사항 컬렉션 추가
@@ -135,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
         DB.notice.lev3 = snapshotToMap(noticeSnapshot);
         DB.notice.lev2 = Object.values(DB.notice.lev3).map(data => ({ id: data.id, name: data.title, date: data.createdAt ? data.createdAt.toDate() : new Date() }));
     }
-    // ▲▲▲ [수정] Firestore에서 'notice' 컬렉션 데이터도 함께 불러오도록 추가 ▲▲▲
     
     function setupSideMenuData() {
         DB.notice.lev2.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -180,21 +181,43 @@ document.addEventListener('DOMContentLoaded', () => {
         runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         DB.runeAndChip.lev3 = runeAndChipTypes;
 
-        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title }));
+        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title, date: data.createdAt ? data.createdAt.toDate() : new Date() }));
         
         DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
         DB.deck.lev3.builder = [{ id: 'deckBuilder', name: '배치툴' }];
     }
 
+    // ▼▼▼ [수정] 사이드바 메뉴에 NEW 아이콘 표시 로직 추가 (공지사항/인기글) ▼▼▼
     function renderSidebar() {
         const sidebarContent = document.createElement('div');
         sidebarContent.className = 'panel-content';
+        const now = new Date();
+        const twentyFourHoursAgo = now.getTime() - (24 * 60 * 60 * 1000);
+        
         DB.sidebarMenu.forEach(item => {
             const button = document.createElement('button');
             button.className = 'menu-item';
             button.textContent = item.name;
             button.dataset.level = 1;
             button.dataset.id = item.id;
+            
+            // 'notice'와 'tips' 메뉴에 New 아이콘 로직 적용
+            if (item.id === 'notice' || item.id === 'tips') {
+                const dataList = item.id === 'notice' ? DB.notice.lev2 : DB.tips.lev2;
+                const hasNewPost = dataList.some(post => {
+                    const postDate = post.date instanceof Date ? post.date.getTime() : new Date(post.date).getTime();
+                    return postDate > twentyFourHoursAgo;
+                });
+                if (hasNewPost) {
+                    const newSpan = document.createElement('span');
+                    newSpan.textContent = 'New';
+                    newSpan.style.color = 'red';
+                    newSpan.style.fontWeight = 'bold';
+                    newSpan.style.marginLeft = '8px';
+                    button.appendChild(newSpan);
+                }
+            }
+            
             sidebarContent.appendChild(button);
         });
         if(sidebar) {
@@ -202,18 +225,43 @@ document.addEventListener('DOMContentLoaded', () => {
             sidebar.appendChild(sidebarContent);
         }
     }
+    // ▲▲▲ [수정] 사이드바 메뉴에 NEW 아이콘 표시 로직 추가 (공지사항/인기글) ▲▲▲
 
-    // ▼▼▼ [수정] Firestore에서 불러온 공지사항 데이터를 화면에 렌더링하도록 수정 ▼▼▼
+    // ▼▼▼ [수정] 메인 페이지 공지사항 목록에 NEW 아이콘 표시 로직 추가 (인기글도 추가) ▼▼▼
     function renderMainNoticeList() {
         if (!mainNoticeList) return;
         
-        // Firestore에서 불러온 DB.notice.lev2 데이터를 사용
         const noticesToShow = DB.notice.lev2.slice(0, 5);
-        mainNoticeList.innerHTML = noticesToShow.map(notice => 
-            `<li><a href="#" data-menu-id="notice" data-item-id="${notice.id}">${notice.name}</a></li>`
-        ).join('');
+        if (noticesToShow.length === 0) {
+            mainNoticeList.innerHTML = '<li><p>등록된 공지사항이 없습니다.</p></li>';
+        } else {
+            mainNoticeList.innerHTML = noticesToShow.map(notice => {
+                const now = new Date();
+                const twentyFourHoursAgo = now.getTime() - (24 * 60 * 60 * 1000);
+                const isNew = notice.date instanceof Date && notice.date.getTime() > twentyFourHoursAgo;
+                const newSpan = isNew ? `<span style="color:red; font-weight:bold; margin-left:8px;">New</span>` : '';
+                return `<li><a href="#" data-menu-id="notice" data-item-id="${notice.id}">${notice.name}${newSpan}</a></li>`;
+            }).join('');
+        }
+
+        // '인기글' 목록 렌더링
+        const popularPostsList = document.querySelector('.popular-posts-box ul');
+        if (popularPostsList) {
+            const popularToShow = DB.tips.lev2.slice(0, 5);
+            if (popularToShow.length === 0) {
+                popularPostsList.innerHTML = '<li><p>등록된 인기글이 없습니다.</p></li>';
+            } else {
+                popularPostsList.innerHTML = popularToShow.map(tip => {
+                    const now = new Date();
+                    const twentyFourHoursAgo = now.getTime() - (24 * 60 * 60 * 1000);
+                    const isNew = tip.date instanceof Date && tip.date.getTime() > twentyFourHoursAgo;
+                    const newSpan = isNew ? `<span style="color:red; font-weight:bold; margin-left:8px;">New</span>` : '';
+                    return `<li><a href="#" data-menu-id="tips" data-item-id="${tip.id}">${tip.name}${newSpan}</a></li>`;
+                }).join('');
+            }
+        }
     }
-    // ▲▲▲ [수정] Firestore에서 불러온 공지사항 데이터를 화면에 렌더링하도록 수정 ▲▲▲
+    // ▲▲▲ [수정] 메인 페이지 공지사항 목록에 NEW 아이콘 표시 로직 추가 (인기글도 추가) ▲▲▲
 
     function addEventListeners() {
         document.body.addEventListener('click', (e) => {
@@ -225,13 +273,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (button) {
                 if (button.id === 'mobile-menu-btn') {
                     sidebar.classList.toggle('visible');
+                    appContainer.classList.toggle('menu-active');
                 } else if (button.classList.contains('back-btn')) {
                     handleBackClick(button); 
                 } else if (button.classList.contains('main-btn')) {
                     handleMainButtonClick();
                 } else if (button.classList.contains('main-action-btn')) {
                     if (button.dataset.menuId === 'popular') {
-                        alert('인기글 기능은 준비중입니다.');
+                        // ▼▼▼ [수정] 모바일 '인기글' 버튼 클릭 시 tips 메뉴로 이동하도록 수정 ▼▼▼
+                        const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="tips"]`);
+                        if(targetMenuItem) handleMenuClick(targetMenuItem);
                         return;
                     }
                     const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="${button.dataset.menuId}"]`);
@@ -256,6 +307,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 50); 
                 }
             }
+            // ▼▼▼ [추가] 메인 페이지 '인기글' 링크 클릭 이벤트 리스너 추가 ▼▼▼
+            const popularLink = e.target.closest('.popular-posts-box a');
+            if (popularLink) {
+                e.preventDefault();
+                const menuId = popularLink.dataset.menuId;
+                const itemId = popularLink.dataset.itemId;
+
+                const lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
+                if (lev1_btn) {
+                    handleMenuClick(lev1_btn);
+                    setTimeout(() => {
+                        const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="${itemId}"]`);
+                        if(lev2_btn) handleMenuClick(lev2_btn);
+                    }, 50);
+                }
+            }
+            // ▲▲▲ [추가] 메인 페이지 '인기글' 링크 클릭 이벤트 리스너 추가 ▲▲▲
         });
     }
 
