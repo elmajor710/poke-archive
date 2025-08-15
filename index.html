@@ -11,49 +11,84 @@
     <meta property="og:image" content="https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/taecho-three.jpg">
     <meta property="og:url" content="https://pokedex.elmajor710.com">
     <link rel="icon" href="data:;base64,iVBORw0KGgo="> 
-    <link rel="stylesheet" href="style.css?v=1.23">
+    <link rel="stylesheet" href="style.css?v=2.0">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311" crossorigin="anonymous"></script>
 </head>
 <body>
     <header>
+        <button id="mobile-menu-btn" class="mobile-only">☰</button>
         <h1>Nirvana's Poke-Archive</h1>
     </header>
-
     <div id="ad-container-top" class="ad-container">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-2125965839205311"
-         data-ad-slot="6920735136"
-         data-ad-format="horizontal"></ins> </div>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2125965839205311"
+             data-ad-slot="6920735136"
+             data-ad-format="horizontal"></ins>
+    </div>
     
     <div id="page-body">
         <div id="app-container">
             <aside id="sidebar"></aside>
             <main id="content-area">
                 <div id="main-placeholder">
-                    <img src="https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/taecho-three.jpg" alt="Welcome to the Poke-Archive">
-                    <p>좌측 메뉴에서 궁금한 정보를 선택해주세요!</p>
+                    <div class="mobile-main-buttons mobile-only">
+                        <button class="main-action-btn" data-menu-id="notice">📢 공지사항</button>
+                        <button class="main-action-btn" data-menu-id="popular">🔥 인기글</button>
+                    </div>
+
+                    <div class="main-content-grid pc-only">
+                       <div class="main-content-box notice-box">
+                           <h3>📢 공지사항</h3>
+                           <ul id="main-notice-list">
+                               </ul>
+                       </div>
+                       <div class="main-content-box popular-posts-box">
+                           <h3>🔥 인기글</h3>
+                           <p>인기글 데이터는 준비중입니다.</p>
+                       </div>
+                    </div>
+                    
+                    <div class="main-welcome-area">
+                        <img src="https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/taecho-three.jpg" alt="Welcome to the Poke-Archive">
+                        <p>좌측 메뉴에서 궁금한 정보를 선택해주세요!</p>
+                    </div>
                 </div>
-                
                 <section id="lev2-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
                 <section id="lev3-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
                 <section id="lev4-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
             </main>
         </div>
         <div id="ad-container-right" class="ad-container">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-2125965839205311"
-         data-ad-slot="2027161792"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-</div>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-2125965839205311"
+                 data-ad-slot="2027161792"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        </div>
     </div>
     
     <div id="admin-panel" style="display: none; padding: 20px;">
         <h2>운영자 모드 (개발 예정)</h2>
     </div>
 
+    <!-- ▼▼▼ [추가] 모바일용 하단 광고 컨테이너 ▼▼▼ -->
+    <div id="ad-container-bottom" class="ad-container">
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311"
+             crossorigin="anonymous"></script>
+        <!-- [반응형,최하단]광고 -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2125965839205311"
+             data-ad-slot="9651108783"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+    <!-- ▲▲▲ [추가] 모바일용 하단 광고 컨테이너 ▲▲▲ -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
@@ -71,8 +106,8 @@
       const db = firebase.firestore();
     </script>
     
-    <script src="data.js?v=1.18"></script> 
-    <script src="script.js?v=1.24"></script>
+    <script src="data.js?v=2.0"></script> 
+    <script src="script.js?v=2.0"></script>
 
 </body>
 </html>

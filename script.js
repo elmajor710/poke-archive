@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 최종 완성본');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 2차 개발 v6 적용');
 
     // --- 광고 설정 및 무효 트래픽 방지 로직 ---
     function setupAdObservers() {
@@ -74,6 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 페이지 전역 변수 ---
     const appContainer = document.getElementById('app-container');
     const sidebar = document.getElementById('sidebar');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mainPlaceholder = document.getElementById('main-placeholder');
+    const mainNoticeList = document.getElementById('main-notice-list');
     const panels = {
         lev1: sidebar,
         lev2: document.getElementById('lev2-panel'),
@@ -90,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await fetchAllDataFromFirebase();
             setupSideMenuData();
             renderSidebar();
+            renderMainNoticeList();
             addEventListeners();
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
@@ -104,26 +108,31 @@ document.addEventListener('DOMContentLoaded', () => {
             runeAndChips: db.collection('runeAndChips').where("isPublished", "==", true),
             tips: db.collection('tips').where("isPublished", "==", true),
             recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true),
-            events: db.collection('events')
+            events: db.collection('events'),
         };
         const promises = Object.values(collectionsToFetch).map(query => query.get());
         const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot] = await Promise.all(promises);
+        
         const snapshotToMap = (snapshot) => {
             const dataMap = {};
             snapshot.forEach(doc => { dataMap[doc.id] = { id: doc.id, ...doc.data() }; });
             return dataMap;
         };
+
         DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
         DB.item.lev4 = snapshotToMap(itemsSnapshot);
         DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
         DB.tips.lev3 = snapshotToMap(tipsSnapshot);
         DB.deck.lev4 = snapshotToMap(decksSnapshot);
+        
         if(DB.calendar && DB.calendar.lev2) {
             DB.calendar.lev2.events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         }
     }
     
     function setupSideMenuData() {
+        DB.notice.lev2.sort((a, b) => new Date(b.date) - new Date(a.date));
+
         DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         const types = {};
         DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
@@ -158,14 +167,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const runeAndChipTypes = { rune: [], chip: [] };
         Object.values(DB.runeAndChip.lev4).forEach(rc => {
-            if(runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name });
+            if(rc.type && runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name });
         });
         runeAndChipTypes.rune.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         DB.runeAndChip.lev3 = runeAndChipTypes;
 
         DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title }));
+        
         DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
+        DB.deck.lev3.builder = [{ id: 'deckBuilder', name: '배치툴' }];
     }
 
     function renderSidebar() {
@@ -185,23 +196,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function renderMainNoticeList() {
+        if (!mainNoticeList) return;
+        const noticesToShow = DB.notice.lev2.slice(0, 5);
+        mainNoticeList.innerHTML = noticesToShow.map(notice => 
+            `<li><a href="#" data-menu-id="notice" data-item-id="${notice.id}">${notice.name}</a></li>`
+        ).join('');
+    }
+
     function addEventListeners() {
         document.body.addEventListener('click', (e) => {
             if (e.target.closest('.ad-container')) adBlockManager.recordClick();
         });
-        if(appContainer) {
-            appContainer.addEventListener('click', e => {
-                const button = e.target.closest('button');
-                if (!button) return;
-                if (button.classList.contains('back-btn')) handleBackClick(button); 
-                else if (button.classList.contains('main-btn')) handleMainButtonClick();
-                else if (button.dataset.level) handleMenuClick(button); 
-            });
-        }
+
+        document.body.addEventListener('click', e => {
+            const button = e.target.closest('button');
+            if (button) {
+                if (button.id === 'mobile-menu-btn') {
+                    sidebar.classList.toggle('visible');
+                } else if (button.classList.contains('back-btn')) {
+                    handleBackClick(button); 
+                } else if (button.classList.contains('main-btn')) {
+                    handleMainButtonClick();
+                } else if (button.classList.contains('main-action-btn')) {
+                    if (button.dataset.menuId === 'popular') {
+                        alert('인기글 기능은 준비중입니다.');
+                        return;
+                    }
+                    const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="${button.dataset.menuId}"]`);
+                    if(targetMenuItem) handleMenuClick(targetMenuItem);
+                } else if (button.dataset.level) {
+                    handleMenuClick(button); 
+                }
+            }
+
+            const noticeLink = e.target.closest('#main-notice-list a');
+            if (noticeLink) {
+                e.preventDefault();
+                const menuId = noticeLink.dataset.menuId;
+                const itemId = noticeLink.dataset.itemId;
+
+                const lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
+                if (lev1_btn) {
+                    handleMenuClick(lev1_btn);
+                    setTimeout(() => {
+                        const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="${itemId}"]`);
+                        if (lev2_btn) handleMenuClick(lev2_btn);
+                    }, 50); 
+                }
+            }
+        });
     }
 
     function handleMenuClick(button) {
+        if (isMobile()) sidebar.classList.remove('visible');
+        mainPlaceholder.style.display = 'none';
         appContainer.classList.add('menu-active');
+
         const level = parseInt(button.dataset.level);
         const id = button.dataset.id;
         const menuId = button.dataset.menuId || id;
@@ -209,13 +260,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextData = getNextData(level, id, menuId); 
         const currentPanel = panels[`lev${level}`] || sidebar;
         const nextPanel = panels[`lev${nextLevel}`];
+
         if (!nextPanel) return;
+
         if (isMobile()) currentPanel.classList.add('is-hidden');
+        
         Object.values(panels).forEach((panel, index) => {
             if(index > 0 && panel !== nextPanel) panel.classList.remove('visible');
         });
+
         nextPanel.classList.remove('is-hidden');
         nextPanel.classList.add('visible');
+        
         setActive(level, button);
         renderPanelContent(nextLevel, nextData, menuId, id);
     }
@@ -223,24 +279,35 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleBackClick(button) {
         const parentPanel = button.closest('.panel');
         if (!parentPanel) return;
+
         const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
         const currentPanel = panels[`lev${level}`];
         const prevPanel = panels[`lev${level - 1}`] || sidebar;
+
         currentPanel.classList.remove('visible');
+
         if (prevPanel) {
             if (isMobile()) prevPanel.classList.remove('is-hidden');
             if(prevPanel !== sidebar) prevPanel.classList.add('visible');
         }
-        setActive(level - 1, null);
+        
+        if (level === 2) {
+            handleMainButtonClick();
+        } else {
+            setActive(level - 1, null);
+        }
     }
     
     function handleMainButtonClick() {
+        mainPlaceholder.style.display = 'flex';
         appContainer.classList.remove('menu-active');
         Object.values(panels).forEach((panel, index) => {
             if (index > 0) panel.classList.remove('visible', 'is-hidden');
         });
         setActive(0, null);
-        if (isMobile() && sidebar) sidebar.classList.remove('is-hidden');
+        if (isMobile()) {
+            sidebar.classList.remove('visible', 'is-hidden');
+        }
     }
 
     function setActive(level, target) {
@@ -271,7 +338,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentDiv = targetPanel.querySelector('.panel-content');
         if (!contentDiv) return;
         const panelHeader = targetPanel.querySelector('.panel-header');
-        if(panelHeader.querySelector('.main-btn')) panelHeader.querySelector('.main-btn').remove();
+        
+        const existingMainBtn = panelHeader.querySelector('.main-btn');
+        if (existingMainBtn) existingMainBtn.remove();
+
         contentDiv.innerHTML = '';
         contentDiv.scrollTop = 0;
         
@@ -298,7 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 panelHeader.appendChild(mainButton);
 
                 if (menuId === 'deck' && data.composition) renderDeckView(contentDiv, data);
-                else if(menuId === 'calendar') renderCalendarView(contentDiv, data);
+                else if(menuId === 'calendar') renderCalendarView(contentDiv, DB.calendar.lev2);
                 else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
                 else renderSimpleView(contentDiv, data, menuId); 
             } else {
@@ -315,47 +385,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function showModal(title, content, isWeatherPopup = false, callback) {
-    const existingModal = document.querySelector('.modal-overlay');
-    if (existingModal) existingModal.remove();
+    function showModal(title, content) {
+        const existingModal = document.querySelector('.modal-overlay');
+        if (existingModal) existingModal.remove();
 
-    const modalOverlay = document.createElement('div');
-    modalOverlay.className = 'modal-overlay';
-    
-    let modalClass = 'modal-content';
-    if (isWeatherPopup) modalClass += ' weather-popup';
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'modal-overlay';
+        
+        modalOverlay.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>${title}</h2>
+                    <button class="modal-close-btn">&times;</button>
+                </div>
+                <div class="modal-body"></div>
+            </div>`;
 
-    modalOverlay.innerHTML = `
-        <div class="${modalClass}">
-            <div class="modal-header">
-                <h2>${title}</h2>
-                <button class="modal-close-btn">&times;</button>
-            </div>
-            <div class="modal-body"></div>
-        </div>`;
+        const modalBody = modalOverlay.querySelector('.modal-body');
 
-    const modalBody = modalOverlay.querySelector('.modal-body');
-
-    // [핵심 수정] content가 HTML 문자열인지, 살아있는 Element인지 확인하고 처리
-    if (typeof content === 'string') {
-        modalBody.innerHTML = content; // 문자열이면 그대로 넣기
-    } else if (content instanceof HTMLElement) {
-        modalBody.appendChild(content); // Element이면 자식으로 추가
-    }
-
-    document.body.appendChild(modalOverlay);
-
-    modalOverlay.addEventListener('click', (e) => {
-        const target = e.target;
-        const weatherOption = target.closest('.weather-option');
-        if (target.matches('.modal-overlay, .modal-close-btn')) {
-            modalOverlay.remove();
-        } else if (isWeatherPopup && weatherOption && callback) {
-            callback(weatherOption.dataset.weatherName);
-            modalOverlay.remove();
+        if (typeof content === 'string') {
+            modalBody.innerHTML = content;
+        } else if (content instanceof HTMLElement) {
+            modalBody.appendChild(content);
         }
-    });
-}
+
+        document.body.appendChild(modalOverlay);
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target.matches('.modal-overlay, .modal-close-btn')) {
+                modalOverlay.remove();
+            }
+        });
+    }
 
     function renderPokemonView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
@@ -415,11 +476,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 hasBuildInfo = true;
                 buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
                 data[type].forEach(id => {
-                    const itemTypeForDB = type.replace('recommended', '').toLowerCase().replace('s', '');
-                    const dbKey = (itemTypeForDB === 'rune' || itemTypeForDB === 'chip') ? 'runeAndChip' : 'item';
+                    const dbKey = (type === 'recommendedRunes' || type === 'recommendedChips') ? 'runeAndChip' : 'item';
                     const itemData = DB[dbKey]?.lev4?.[id];
                     if (itemData) {
-                         buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${itemTypeForDB}">${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}</div>`;
+                         buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${dbKey}">${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}</div>`;
                     }
                 });
                 buildHTML += `</div>`;
@@ -458,20 +518,12 @@ document.addEventListener('DOMContentLoaded', () => {
         detailView.querySelectorAll('.recommend-item').forEach(el => {
             el.addEventListener('click', () => {
                 const itemId = el.dataset.itemId;
-                const itemType = el.dataset.itemType;
-                const dbKey = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
+                const dbKey = el.dataset.itemType;
                 const itemData = DB[dbKey]?.lev4?.[itemId];
 
                 if (itemData) {
-                    // 1. 임시 div(살아있는 Element)를 메모리에 만듭니다.
                     const tempContentDiv = document.createElement('div');
-                    
-                    // 2. renderSimpleView를 호출하여 임시 div에 아이템의 상세 내용을 그립니다.
-                    //    이제 tempContentDiv 안에는 탭 기능이 살아있는 버튼들이 들어있습니다.
-                    const menuId = (itemType === 'rune' || itemType === 'chip') ? 'runeAndChip' : 'item';
-                    renderSimpleView(tempContentDiv, itemData, menuId);
-
-                    // 3. 업그레이드된 showModal 함수에 '살아있는' tempContentDiv를 통째로 전달합니다.
+                    renderSimpleView(tempContentDiv, itemData, dbKey);
                     showModal(itemData.name, tempContentDiv);
                 }
             });
@@ -488,69 +540,124 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ▼▼▼ [수정] '팁&노하우' 렌더링 로직 수정 ▼▼▼
     function renderSimpleView(contentDiv, data, menuId) {
-    const detailView = document.createElement('div');
-    detailView.className = 'simple-detail-view';
+        const detailView = document.createElement('div');
+        detailView.className = 'simple-detail-view';
 
-    let html = `<h2>${data.name || data.title}</h2>`;
-    if (data.grade) {
-        const gradeClass = `grade-${data.grade.toLowerCase()}`;
-        html += `<div class="badge-container"><span class="grade-badge ${gradeClass}">${data.grade}</span></div>`;
-    }
-    if (data.imageURL) {
-        html += `<img src="${data.imageURL}" alt="${data.name}" class="main-image">`;
-    }
+        let html = `<h2>${data.name || data.title}</h2>`;
+        if (data.grade) {
+            const gradeClass = `grade-${data.grade.toLowerCase()}`;
+            html += `<div class="badge-container"><span class="grade-badge ${gradeClass}">${data.grade}</span></div>`;
+        }
+        if (data.imageURL) {
+            html += `<img src="${data.imageURL}" alt="${data.name}" class="main-image">`;
+        }
 
-    const description = data.description || data.htmlContent || '';
-    
-    // 탭 이름과 구분자 설정
-    let tabNames = [];
-    let separator = '';
-    if (menuId === 'item') {
-        tabNames = ['기본 능력치', '소지 효과'];
-        separator = '[소지 효과]';
-    } else if (menuId === 'runeAndChip') {
-        tabNames = ['세트 효과 1', '세트 효과 2'];
-        separator = '[세트 효과]'; // 룬&칩의 구분자는 '[세트 효과]'로 지정
-    }
-
-    // 구분자가 있고, 설명 내용이 있을 경우 탭으로 분리
-    if (tabNames.length > 0 && description.includes(separator)) {
-        const parts = description.split(separator);
-        const tab1Content = parts[0].trim();
-        const tab2Content = parts[1].trim().replace(/\[(.*?)\]/g, '<h4>$1</h4>').replace(/\n/g, '<br>');
-
-        html += `
-            <div class="tab-container">
-                <nav class="tab-nav">
-                    <button class="tab-button active" data-tab="tab-1">${tabNames[0]}</button>
-                    <button class="tab-button" data-tab="tab-2">${tabNames[1]}</button>
-                </nav>
-                <div id="tab-1" class="tab-pane active item-description">${tab1Content.replace(/\n/g, '<br>')}</div>
-                <div id="tab-2" class="tab-pane item-description">${tab2Content}</div>
-            </div>`;
-        detailView.innerHTML = html;
+        let description = data.description || data.htmlContent || '';
         
-        // 탭 전환 이벤트 리스너 추가
-        detailView.querySelectorAll('.tab-button').forEach(button => {
-            button.addEventListener('click', () => {
-                if (button.classList.contains('active')) return;
-                detailView.querySelector('.tab-button.active').classList.remove('active');
-                detailView.querySelector('.tab-pane.active').classList.remove('active');
-                button.classList.add('active');
-                detailView.querySelector(`#${button.dataset.tab}`).classList.add('active');
+        // menuId가 'tips'일 경우, [TIP]과 [주의]를 찾아 박스로 감싸는 로직
+        if (menuId === 'tips') {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = description;
+            
+            // p 태그를 순회하며 조건에 맞는 태그를 박스로 감쌈
+            const paragraphs = tempDiv.querySelectorAll('p');
+            paragraphs.forEach(p => {
+                const text = p.textContent || p.innerText;
+                if (text.includes('[TIP]')) {
+                    p.innerHTML = p.innerHTML.replace('[TIP]', ''); // 태그 제거
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'tip-box';
+                    p.parentNode.insertBefore(wrapper, p);
+                    wrapper.appendChild(p);
+                } else if (text.includes('[주의]')) {
+                    p.innerHTML = p.innerHTML.replace('[주의]', ''); // 태그 제거
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'warning-box';
+                    p.parentNode.insertBefore(wrapper, p);
+                    wrapper.appendChild(p);
+                }
             });
-        });
+            description = tempDiv.innerHTML;
+        }
+        
+        let tabNames = [];
+        let separator = '';
 
-    } else {
-        // 구분자가 없을 경우 기존 방식대로 전체 내용을 표시
-        html += `<div class="item-description">${description.replace(/\\n/g, '<br>')}</div>`;
-        detailView.innerHTML = html;
+        if (menuId === 'item') {
+            tabNames = ['기본 능력치', '소지 효과'];
+            separator = '[소지 효과]';
+        } else if (menuId === 'runeAndChip') {
+            tabNames = ['세트효과', '타입별 조합'];
+            separator = '[타입별 조합]';
+        }
+        
+        const createStructuredContent = (text) => {
+            const lines = text.trim().split('\n');
+            let structuredHtml = '<div class="structured-content">';
+            let currentDescription = '';
+
+            const flushDescription = () => {
+                if (currentDescription) {
+                    structuredHtml += `<div class="description-text">${currentDescription.trim().replace(/\n/g, '<br>')}</div>`;
+                    currentDescription = '';
+                }
+            };
+
+            lines.forEach(line => {
+                const trimmedLine = line.trim();
+                if (trimmedLine.startsWith('[') && trimmedLine.endsWith(']')) {
+                    flushDescription();
+                    const subtitle = trimmedLine.substring(1, trimmedLine.length - 1);
+                    structuredHtml += `<h4 class="content-subtitle">${subtitle}</h4>`;
+                } else {
+                    currentDescription += line + '\n';
+                }
+            });
+
+            flushDescription();
+            structuredHtml += '</div>';
+            return structuredHtml;
+        };
+
+
+        if (tabNames.length > 0 && description.includes(separator)) {
+            const parts = description.split(separator);
+            const tab1Content = createStructuredContent(parts[0]); 
+            const tab2RawContent = parts.slice(1).join(separator).trim();
+            const tab2Content = createStructuredContent(tab2RawContent);
+
+            html += `
+                <div class="tab-container">
+                    <nav class="tab-nav">
+                        <button class="tab-button active" data-tab="tab-1">${tabNames[0]}</button>
+                        <button class="tab-button" data-tab="tab-2">${tabNames[1]}</button>
+                    </nav>
+                    <div id="tab-1" class="tab-pane active item-description">${tab1Content}</div>
+                    <div id="tab-2" class="tab-pane item-description">${tab2Content}</div>
+                </div>`;
+            detailView.innerHTML = html;
+            
+            detailView.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    if (button.classList.contains('active')) return;
+                    detailView.querySelector('.tab-button.active').classList.remove('active');
+                    detailView.querySelector('.tab-pane.active').classList.remove('active');
+                    button.classList.add('active');
+                    detailView.querySelector(`#${button.dataset.tab}`).classList.add('active');
+                });
+            });
+
+        } else {
+            html += `<div class="item-description">${description.replace(/\\n/g, '<br>')}</div>`;
+            detailView.innerHTML = html;
+        }
+        
+        contentDiv.innerHTML = '';
+        contentDiv.appendChild(detailView);
     }
-    
-    contentDiv.innerHTML = '';
-    contentDiv.appendChild(detailView);
-}
+    // ▲▲▲ [수정] '팁&노하우' 렌더링 로직 수정 ▲▲▲
 
     function calculateSynergy(pokemonIds) {
         if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
@@ -580,19 +687,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
         let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
         if (data.description) { html += `<p>${data.description}</p>`; }
+        
+        html += `<h4>덱 배치</h4><table class="placement-grid-4x4" style="margin: 20px auto;">`;
+        
         const grid = Array(4).fill(null).map(() => Array(4).fill(null));
+
         const positionMap = {
-            'assist_4': [1, 0], 'assist_5': [2, 0], 'assist_6': [3, 0], 'assist_1': [1, 1], 'assist_2': [2, 1], 'assist_3': [3, 1],
-            'main_4': [1, 2], 'main_5': [2, 2], 'main_6': [3, 2], 'main_1': [1, 3], 'main_2': [2, 3], 'main_3': [3, 3]
+            'assist_4': [1, 0], 'assist_1': [1, 1], 'main_4': [1, 2], 'main_1': [1, 3],
+            'assist_5': [2, 0], 'assist_2': [2, 1], 'main_5': [2, 2], 'main_2': [2, 3],
+            'assist_6': [3, 0], 'assist_3': [3, 1], 'main_6': [3, 2], 'main_3': [3, 3]
         };
+
         if (data.weather && weatherToEmoji[data.weather]) {
-            grid[0][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather, colspan: 2 };
+            grid[0][0] = { type: 'header', content: `날씨: ${data.weather} ${weatherToEmoji[data.weather]}`, colspan: 2 };
         }
         const mainPokemonIds = data.composition.filter(m => m.role === 'main').map(m => m.pokemonId);
         const synergy = calculateSynergy(mainPokemonIds);
         if (synergy) {
-             grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}">`, label: synergy.name, colspan: 2 };
+             grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}" style="height: 30px; vertical-align: middle; margin-right: 5px;"> ${synergy.name}`, colspan: 2 };
         }
+
         data.composition.forEach(member => { 
             const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
             if (!pkmData) return; 
@@ -602,45 +716,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 grid[row][col] = { type: 'pokemon', role: member.role, ...pkmData };
             }
         });
-        html += `<h4>덱 배치</h4><table class="deck-grid-table four-by-four-table"><tbody>`;
+
         for (let i = 0; i < 4; i++) {
-            html += '<tr>'; 
+            html += '<tr>';
             for (let j = 0; j < 4; j++) {
                 if (grid[i][j] === undefined) continue;
-                const cell = grid[i][j]; 
+                const cell = grid[i][j];
                 if (cell) {
                     if (cell.type === 'pokemon') {
-                        html += `<td class="role-${cell.role}"><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"></div></td>`;
+                        html += `<td class="placement-slot ${cell.role === 'main' ? 'main' : 'assist'} placed"><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span>${cell.name_ko}</span></div></td>`;
                     } else if (cell.type === 'header') {
-                        const colspan = cell.colspan ? `colspan="${cell.colspan}"` : '';
-                        const contentHTML = cell.content.startsWith('<img') ? cell.content : `<span class="header-emoji">${cell.content}</span>`;
-                        html += `<td class="header-cell" ${colspan} title="${cell.label}"><div>${contentHTML}</div></td>`;
+                        html += `<td class="placement-slot-header" colspan="${cell.colspan || 1}">${cell.content}</td>`;
                         if (cell.colspan > 1) {
                             for (let k = 1; k < cell.colspan; k++) grid[i][j+k] = undefined;
                         }
                     }
-                } else { 
-                    html += '<td class="empty-cell"></td>';
-                } 
-            } 
-            html += '</tr>'; 
-        }
-        html += `</tbody></table></div>`;
-        contentDiv.innerHTML = html;
-        contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
-            cell.addEventListener('click', () => {
-                const pokemonId = cell.dataset.pokemonId;
-                const pkmData = DB.pokemonType.lev4[pokemonId];
-                if (pkmData) {
-                    let typesHTML = (pkmData.types || []).map(typeId => {
-                        const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-                        return typeInfo ? `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>` : '';
-                    }).join(' ');
-                    const modalContent = `<div class="badge-container"><span class="grade-badge grade-${pkmData.grade.toLowerCase().replace('+', '-plus')}">${pkmData.grade}</span>${typesHTML}</div>`;
-                    showModal(pkmData.name_ko, modalContent);
+                } else {
+                    html += `<td class="placement-slot"></td>`;
                 }
-            });
-        });
+            }
+            html += '</tr>';
+        }
+        
+        html += `</table></div>`;
+        contentDiv.innerHTML = html;
     }
 
     function renderCalendarView(contentDiv, data) {
@@ -654,15 +753,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const addEvent = (event, eventDate) => {
                 const day = eventDate.getDate();
                 if (!monthEvents[day]) monthEvents[day] = [];
-                const fullEventInfo = { ...event, startDate: new Date(event.date + 'T00:00:00'), endDate: new Date(new Date(event.date + 'T00:00:00').setDate(new Date(event.date + 'T00:00:00').getDate() + (event.duration - 1))) };
-                monthEvents[day].push(fullEventInfo);
+                const startDate = event.startDate.toDate ? event.startDate.toDate() : new Date(event.startDate);
+                const endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + (event.duration - 1));
+
+                monthEvents[day].push({ ...event, startDate, endDate });
             };
             (data.events || []).forEach(event => {
+                if (!event.startDate) return;
+                const startDate = event.startDate.toDate ? event.startDate.toDate() : new Date(event.startDate);
                 for (let i = 0; i < (event.duration || 1); i++) {
-                    const eventDate = new Date(event.date + 'T00:00:00');
+                    const eventDate = new Date(startDate);
                     eventDate.setDate(eventDate.getDate() + i);
                     if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
-                        addEvent(event, eventDate);
+                        addEvent({...event, date: startDate.toISOString().split('T')[0]}, eventDate);
                     }
                 }
             });
@@ -674,7 +778,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const eventDate = new Date(currentDate);
                         eventDate.setDate(eventDate.getDate() + i);
                          if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
-                            addEvent({ ...re, date: currentDate.toISOString().split('T')[0] }, eventDate);
+                            addEvent({ ...re, date: currentDate.toISOString().split('T')[0], startDate: currentDate }, eventDate);
                         }
                     }
                     if (re.interval === '4_weeks') currentDate.setDate(currentDate.getDate() + 28);
@@ -741,40 +845,79 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             return calendarView;
         }
+
         function updateCalendar() {
             contentDiv.innerHTML = '';
             contentDiv.appendChild(buildCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth()));
         }
+
         updateCalendar();
     }
 
     function renderDeckBuilder(contentDiv) {
-        let html = `<div class="deck-builder-view"><div class="placement-container"><div class="placement-grid"><div class="placement-slot-header" id="weather-icon-container" style="visibility: hidden;">☀️</div><div class="placement-slot-header" id="synergy-icon-container" style="visibility: hidden;"><img src="https://i.imgur.com/g0t51J7.png" alt="타입 시너지"></div><div class="placement-slot-header"></div><div class="placement-slot assist" data-role="assist" data-position="1">어시스트_#1</div><div class="placement-slot main rearguard" data-role="main" data-position="4">후방_#4</div><div class="placement-slot main vanguard" data-role="main" data-position="1">전방_#1</div><div class="placement-slot assist" data-role="assist" data-position="2">어시스트_#2</div><div class="placement-slot main rearguard" data-role="main" data-position="5">후방_#5</div><div class="placement-slot main vanguard" data-role="main" data-position="2">전방_#2</div><div class="placement-slot assist" data-role="assist" data-position="3">어시스트_#3</div><div class="placement-slot main rearguard" data-role="main" data-position="6">후방_#6</div><div class="placement-slot main vanguard" data-role="main" data-position="3">전방_#3</div></div></div><div class="source-container"><h4>포켓몬 목록</h4><div class="source-filter-bar"><select id="grade-filter" class="filter-dropdown"><option value="all">모든 등급</option><option value="SS">SS</option><option value="S+">S+</option><option value="S">S</option></select><select id="type-filter" class="filter-dropdown"><option value="all">모든 타입</option></select></div><div class="source-list"></div></div></div>`;
+        let html = `
+            <div class="deck-builder-view">
+                <div class="placement-container">
+                    <div class="placement-grid-4x4">
+                        <div class="placement-slot-header" id="weather-slot">날씨 효과</div>
+                        <div class="placement-slot-header" id="synergy-slot">타입 시너지 효과</div>
+                        
+                        <div class="placement-slot assist" data-role="assist" data-position="4">어시스트_#4</div>
+                        <div class="placement-slot assist" data-role="assist" data-position="1">어시스트_#1</div>
+                        <div class="placement-slot main rearguard" data-role="main" data-position="4">메인_#4</div>
+                        <div class="placement-slot main vanguard" data-role="main" data-position="1">메인_#1</div>
+
+                        <div class="placement-slot assist" data-role="assist" data-position="5">어시스트_#5</div>
+                        <div class="placement-slot assist" data-role="assist" data-position="2">어시스트_#2</div>
+                        <div class="placement-slot main rearguard" data-role="main" data-position="5">메인_#5</div>
+                        <div class="placement-slot main vanguard" data-role="main" data-position="2">메인_#2</div>
+
+                        <div class="placement-slot assist" data-role="assist" data-position="6">어시스트_#6</div>
+                        <div class="placement-slot assist" data-role="assist" data-position="3">어시스트_#3</div>
+                        <div class="placement-slot main rearguard" data-role="main" data-position="6">메인_#6</div>
+                        <div class="placement-slot main vanguard" data-role="main" data-position="3">메인_#3</div>
+                    </div>
+                </div>
+                <div class="source-container">
+                    <h4>포켓몬 목록</h4>
+                    <div class="source-filter-bar">
+                        <select id="grade-filter" class="filter-dropdown"><option value="all">모든 등급</option><option value="SS">SS</option><option value="S+">S+</option><option value="S">S</option></select>
+                        <select id="type-filter" class="filter-dropdown"><option value="all">모든 타입</option></select>
+                    </div>
+                    <div class="source-list"></div>
+                </div>
+            </div>`;
         contentDiv.innerHTML = html;
         const sourceList = contentDiv.querySelector('.source-list');
-        const placementGrid = contentDiv.querySelector('.placement-grid');
-        const weatherIconContainer = contentDiv.querySelector('#weather-icon-container');
-        const synergyIconContainer = contentDiv.querySelector('#synergy-icon-container');
+        const placementGrid = contentDiv.querySelector('.placement-grid-4x4');
         const gradeFilter = contentDiv.querySelector('#grade-filter');
         const typeFilter = contentDiv.querySelector('#type-filter');
-        let placedPokemon = new Map();
+        
+        let placedPokemon = new Map(); 
+        
         DB.pokemonType.lev2.forEach(type => {
             const option = document.createElement('option');
             option.value = type.id;
             option.textContent = type.name;
             typeFilter.appendChild(option);
         });
+        
         function applyFilters() {
             const selectedGrade = gradeFilter.value;
             const selectedType = typeFilter.value;
+            const placedIds = new Set(Array.from(placedPokemon.values()));
+
             let filteredPokemon = Object.entries(DB.pokemonType.lev4).filter(([id, pkm]) => {
+                if (placedIds.has(id)) return false;
+
                 const gradeMatch = selectedGrade === 'all' || !pkm.grade || pkm.grade === selectedGrade;
                 const typeMatch = selectedType === 'all' || (pkm.types && pkm.types.includes(selectedType));
                 return gradeMatch && typeMatch;
             });
-            filteredPokemon.sort(([, a], [, b]) => (a.name_ko || a.name).localeCompare(b.name_ko || b.name));
+            filteredPokemon.sort(([, a], [, b]) => (a.name_ko || a.name).localeCompare(b.name_ko || b.name, 'ko'));
             renderSourceList(filteredPokemon);
         }
+        
         function renderSourceList(pokemonList) {
             sourceList.innerHTML = '';
             const grid = document.createElement('div');
@@ -782,8 +925,10 @@ document.addEventListener('DOMContentLoaded', () => {
             grid.innerHTML = pokemonList.map(([id, pkm]) => `<div class="pokemon-source-icon" draggable="true" data-pokemon-id="${id}"><img src="${pkm.faceImageURL}" alt="${pkm.name_ko || pkm.name}"><span>${pkm.name_ko || pkm.name}</span></div>`).join('');
             sourceList.appendChild(grid);
         }
+
         gradeFilter.addEventListener('change', applyFilters);
         typeFilter.addEventListener('change', applyFilters);
+        
         let draggedItem = null; 
         sourceList.addEventListener('dragstart', e => {
             const target = e.target.closest('.pokemon-source-icon');
@@ -792,36 +937,62 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.dataTransfer.setData('text/plain', target.dataset.pokemonId);
             }
         });
+
+        placementGrid.addEventListener('dragstart', e => {
+            const target = e.target.closest('.placement-slot');
+             if(target && placedPokemon.has(target)) {
+                 draggedItem = target;
+                 e.dataTransfer.setData('text/plain', placedPokemon.get(target));
+             }
+        });
+
         placementGrid.addEventListener('dragover', e => e.preventDefault());
+        
         placementGrid.addEventListener('drop', e => {
             e.preventDefault();
             const targetSlot = e.target.closest('.placement-slot');
             if (!targetSlot || !draggedItem) return;
-            const sourcePokemonId = draggedItem.classList.contains('placement-slot') ? placedPokemon.get(draggedItem) : draggedItem.dataset.pokemonId;
-            if (!sourcePokemonId) return;
+
+            const sourcePokemonId = e.dataTransfer.getData('text/plain');
             const pokemonData = DB.pokemonType.lev4[sourcePokemonId];
+            if (!pokemonData) return;
+
             if (draggedItem.classList.contains('placement-slot')) {
                 const sourceSlot = draggedItem;
                 if (targetSlot === sourceSlot) return; 
+
                 const targetPokemonId = placedPokemon.get(targetSlot);
-                if (targetPokemonId) { 
+                
+                if (targetPokemonId) {
                     const targetPokemonData = DB.pokemonType.lev4[targetPokemonId];
                     placePokemonInSlot(sourceSlot, targetPokemonId, targetPokemonData);
-                    placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
-                } else { 
-                    placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
+                } else {
                     clearSlot(sourceSlot);
                 }
-            } else if (draggedItem.classList.contains('pokemon-source-icon')) {
-                if (placedPokemon.has(targetSlot)) {
-                    alert('슬롯이 비어있지 않습니다.');
+                placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
+
+            } else {
+                const isAlreadyPlaced = new Set(Array.from(placedPokemon.values())).has(sourcePokemonId);
+                if (isAlreadyPlaced) {
+                    alert("이미 배치된 포켓몬입니다.");
                     return;
+                }
+                if (placedPokemon.has(targetSlot)) {
+                     const existingPokemonId = placedPokemon.get(targetSlot);
+                     const sourceSlotOfExisting = [...placedPokemon.entries()].find(([,pkmId]) => pkmId === sourcePokemonId)?.[0];
+                     if(sourceSlotOfExisting) clearSlot(sourceSlotOfExisting);
+                     
+                     clearSlot(targetSlot);
+                     applyFilters();
                 }
                 placePokemonInSlot(targetSlot, sourcePokemonId, pokemonData);
             }
+
             draggedItem = null;
             updateTeamEffects();
+            applyFilters();
         });
+
         placementGrid.addEventListener('click', e => {
             const removeButton = e.target.closest('.remove-pkm-btn');
             if(removeButton) {
@@ -829,27 +1000,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (parentSlot) {
                     clearSlot(parentSlot);
                     updateTeamEffects();
+                    applyFilters();
                 }
             }
         });
+
         function placePokemonInSlot(slot, pokemonId, pokemonData) {
-            slot.innerHTML = `<div class="deck-pokemon-cell" draggable="true"><img src="${pokemonData.faceImageURL}" alt="${pokemonData.name_ko}"/><button class="remove-pkm-btn">×</button></div>`;
+            slot.innerHTML = `<div class="deck-pokemon-cell" draggable="true"><img src="${pokemonData.faceImageURL}" alt="${pokemonData.name_ko}"/><button class="remove-pkm-btn">×</button><span>${pokemonData.name_ko}</span></div>`;
+            slot.classList.add('placed');
             placedPokemon.set(slot, pokemonId);
         }
+
         function clearSlot(slot) {
             const { role, position } = slot.dataset;
-            let placeholder = role === 'assist' ? `어시스트_#${position}` : `${slot.classList.contains('vanguard') ? '전방' : '후방'}_#${position}`;
+            let placeholder = role === 'assist' ? `어시스트_#${position}` : `메인_#${position}`;
             slot.innerHTML = placeholder;
+            slot.classList.remove('placed');
             placedPokemon.delete(slot);
         }
+
         function updateTeamEffects() {
-            const mainPokemonIds = Array.from(placedPokemon.entries()).filter(([,slot]) => slot.dataset.role === 'main').map(([pokemonId]) => pokemonId);
+            const synergySlot = placementGrid.querySelector('#synergy-slot');
+            const mainPokemonIds = Array.from(placedPokemon.entries())
+                .filter(([slot,]) => slot.dataset.role === 'main')
+                .map(([, pokemonId]) => pokemonId);
             const synergy = calculateSynergy(mainPokemonIds);
             if (synergy) {
-                synergyIconContainer.querySelector('img').src = synergy.imageURL;
-                synergyIconContainer.style.visibility = 'visible';
+                synergySlot.innerHTML = `<img src="${synergy.imageURL}" alt="${synergy.name}" title="${synergy.name}" style="height: 50%; object-fit: contain;">`;
+                synergySlot.title = synergy.name;
             } else {
-                synergyIconContainer.style.visibility = 'hidden';
+                synergySlot.innerHTML = '타입 시너지 효과';
+                synergySlot.title = '';
             }
         }
         applyFilters();
@@ -861,7 +1042,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initialize();
     setupAdObservers();
 
-    // 모바일 화면 높이 문제 해결을 위한 코드
     function setScreenHeight() {
       let vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);

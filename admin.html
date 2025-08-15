@@ -28,6 +28,9 @@
                     <li><a href="#" class="admin-tab-link" data-tab="pokemon-management">포켓몬 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="item-management">아이템 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="rune-chip-management">룬&칩 관리</a></li>
+                    <!-- ▼▼▼ [수정] 공지사항 관리 메뉴 추가 ▼▼▼ -->
+                    <li><a href="#" class="admin-tab-link" data-tab="notice-management">공지사항 관리</a></li>
+                    <!-- ▲▲▲ [수정] 공지사항 관리 메뉴 추가 ▲▲▲ -->
                     <li><a href="#" class="admin-tab-link" data-tab="tips-management">팁 & 노하우 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="calendar-management">캘린더 관리</a></li>
                     <li><a href="#" class="admin-tab-link" data-tab="deck-management">추천 덱 관리</a></li>
@@ -173,6 +176,42 @@
                 </section>
             </div>
 
+            <!-- ▼▼▼ [추가] 공지사항 관리 탭 ▼▼▼ -->
+            <div id="notice-management" class="admin-tab-content">
+                <header class="admin-header">
+                    <h1>공지사항 관리</h1>
+                    <div>
+                        <select id="notice-select-list"><option value="">-- 공지 선택 --</option></select>
+                        <button id="load-notice-btn" type="button" class="btn btn-primary">불러오기</button>
+                    </div>
+                </header>
+                <section class="content-section">
+                    <h2>공지 추가/수정</h2>
+                    <form id="notice-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="notice-id">고유 ID</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" id="notice-id">
+                                    <button type="button" id="generate-notice-id-btn" class="btn">ID 자동생성</button>
+                                </div>
+                            </div>
+                            <div class="form-group"><label for="notice-title">글 제목</label><input type="text" id="notice-title"></div>
+                        </div>
+                         <div class="form-group" style="margin-top:20px;">
+                            <label>공개 여부</label>
+                            <label class="checkbox-wrapper"><input type="checkbox" id="notice-is-published"><span>웹사이트에 즉시 공개</span></label>
+                        </div>
+                        <div class="form-group form-group-span-2" style="margin-top:20px;"><label for="notice-content">내용 (HTML)</label><textarea id="notice-content" rows="15"></textarea></div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">저장하기</button>
+                            <button id="delete-notice-btn" type="button" class="btn btn-danger">삭제하기</button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+            <!-- ▲▲▲ [추가] 공지사항 관리 탭 ▲▲▲ -->
+
             <div id="tips-management" class="admin-tab-content">
                 <header class="admin-header">
                     <h1>팁 & 노하우 관리</h1>
@@ -185,7 +224,13 @@
                     <h2>팁 추가/수정</h2>
                     <form id="tip-form">
                         <div class="form-grid">
-                            <div class="form-group"><label for="tip-id">고유 ID</label><input type="text" id="tip-id"></div>
+                            <div class="form-group">
+                                <label for="tip-id">고유 ID</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" id="tip-id">
+                                    <button type="button" id="generate-tip-id-btn" class="btn">ID 자동생성</button>
+                                </div>
+                            </div>
                             <div class="form-group"><label for="tip-title">글 제목</label><input type="text" id="tip-title"></div>
                         </div>
                          <div class="form-group" style="margin-top:20px;">
