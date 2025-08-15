@@ -101,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // ▼▼▼ [수정] Firestore에서 'notice' 컬렉션 데이터도 함께 불러오도록 추가 ▼▼▼
     async function fetchAllDataFromFirebase() {
         const collectionsToFetch = {
             pokemon: db.collection('pokemon').where("isPublished", "==", true),
@@ -109,9 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
             tips: db.collection('tips').where("isPublished", "==", true),
             recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true),
             events: db.collection('events'),
+            notice: db.collection('notice').where("isPublished", "==", true).orderBy('createdAt', 'desc') // 공지사항 컬렉션 추가
         };
         const promises = Object.values(collectionsToFetch).map(query => query.get());
-        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot] = await Promise.all(promises);
+        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot, noticeSnapshot] = await Promise.all(promises);
         
         const snapshotToMap = (snapshot) => {
             const dataMap = {};
@@ -128,7 +130,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if(DB.calendar && DB.calendar.lev2) {
             DB.calendar.lev2.events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         }
+
+        // 공지사항 데이터를 DB 객체에 저장
+        DB.notice.lev3 = snapshotToMap(noticeSnapshot);
+        DB.notice.lev2 = Object.values(DB.notice.lev3).map(data => ({ id: data.id, name: data.title, date: data.createdAt ? data.createdAt.toDate() : new Date() }));
     }
+    // ▲▲▲ [수정] Firestore에서 'notice' 컬렉션 데이터도 함께 불러오도록 추가 ▲▲▲
     
     function setupSideMenuData() {
         DB.notice.lev2.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -196,13 +203,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ▼▼▼ [수정] Firestore에서 불러온 공지사항 데이터를 화면에 렌더링하도록 수정 ▼▼▼
     function renderMainNoticeList() {
         if (!mainNoticeList) return;
+        
+        // Firestore에서 불러온 DB.notice.lev2 데이터를 사용
         const noticesToShow = DB.notice.lev2.slice(0, 5);
         mainNoticeList.innerHTML = noticesToShow.map(notice => 
             `<li><a href="#" data-menu-id="notice" data-item-id="${notice.id}">${notice.name}</a></li>`
         ).join('');
     }
+    // ▲▲▲ [수정] Firestore에서 불러온 공지사항 데이터를 화면에 렌더링하도록 수정 ▲▲▲
 
     function addEventListeners() {
         document.body.addEventListener('click', (e) => {
@@ -502,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         detailView.querySelectorAll('.skill-name').forEach(el => { 
             el.addEventListener('click', () => { 
-                const skillIndex = parseInt(el.dataset.skillIndex);
+                const skillIndex = parseInt(el.dataset.skill-index);
                 const skill = data.skills[skillIndex];
                 if (skill) {
                     let skillDetailContent = `<p>${skill.description || ''}</p>`;
@@ -517,8 +528,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         detailView.querySelectorAll('.recommend-item').forEach(el => {
             el.addEventListener('click', () => {
-                const itemId = el.dataset.itemId;
-                const dbKey = el.dataset.itemType;
+                const itemId = el.dataset.item-id;
+                const dbKey = el.dataset.item-type;
                 const itemData = DB[dbKey]?.lev4?.[itemId];
 
                 if (itemData) {
@@ -540,7 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ▼▼▼ [수정] '팁&노하우' 렌더링 로직 수정 ▼▼▼
+    // ▼▼▼ [수정] '팁&노하우' 및 '공지사항' 렌더링 로직 수정 ▼▼▼
     function renderSimpleView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
         detailView.className = 'simple-detail-view';
@@ -580,8 +591,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             description = tempDiv.innerHTML;
+        } else if (menuId === 'notice') {
+            // 공지사항은 HTML을 그대로 렌더링하도록 처리
+            html += `<div class="item-description notice-content">${description}</div>`;
         }
-        
+
         let tabNames = [];
         let separator = '';
 
@@ -649,15 +663,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
 
-        } else {
+        } else if (menuId !== 'notice') {
             html += `<div class="item-description">${description.replace(/\\n/g, '<br>')}</div>`;
+            detailView.innerHTML = html;
+        } else {
+            // 공지사항의 경우, 이미 html 변수에 내용이 추가되었으므로 detailView에 바로 할당합니다.
             detailView.innerHTML = html;
         }
         
         contentDiv.innerHTML = '';
         contentDiv.appendChild(detailView);
     }
-    // ▲▲▲ [수정] '팁&노하우' 렌더링 로직 수정 ▲▲▲
+    // ▲▲▲ [수정] '팁&노하우' 및 '공지사항' 렌더링 로직 수정 ▲▲▲
 
     function calculateSynergy(pokemonIds) {
         if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
