@@ -17,6 +17,8 @@
     --event-luckycat-color: #4caf50;
     --main-pastel: #e8f5e9; /* 메인 슬롯 색상 변경 */
     --assist-pastel: #e3f2fd; /* 어시스트 슬롯 색상 변경 */
+    /* 모바일 광고 높이 변수 추가 */
+    --mobile-ad-height: 50px;
 }
 
 *, *::before, *::after {
@@ -98,23 +100,6 @@ header h1 {
 #app-container {
     display: flex;
     width: 100%;
-    flex-grow: 1;
-    position: relative;
-    overflow: hidden;
-}
-
-#sidebar {
-    width: var(--sidebar-width);
-    border-right: 1px solid var(--border-color);
-    padding: 10px;
-    overflow-y: auto;
-    flex-shrink: 0;
-    background-color: #fff;
-    transition: transform var(--slide-duration) ease-in-out;
-    z-index: 10;
-}
-
-#content-area {
     flex-grow: 1;
     position: relative;
     overflow: hidden;
@@ -315,7 +300,6 @@ header h1 {
 .calendar-grid td.has-events:hover { background-color: #e9ecef; }
 .day-other-month { background-color: #f8f9fa; }
 .day-other-month .date-number { color: #ccc; }
-.date-number { font-weight: 500; font-size: 0.9em; }
 .day-today .date-number { background-color: var(--primary-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; }
 .event-markers { margin-top: 5px; display: flex; flex-direction: column; gap: 3px; }
 .event-marker { font-size: 0.8em; padding: 2px 4px; border-radius: 4px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -493,12 +477,26 @@ header h1 {
     
     /* ▼▼▼ [수정] 모바일 광고 스타일 ▼▼▼ */
     body {
-        /* 하단 광고 높이(50px)만큼 body에 아래쪽 여백을 줘서 콘텐츠가 가려지지 않게 함 */
-        padding-bottom: 50px;
+        /* 최상단 광고와 하단 광고 높이만큼 body에 패딩을 줘서 콘텐츠가 가려지지 않게 함 */
+        padding-top: var(--mobile-ad-height);
+        padding-bottom: var(--mobile-ad-height);
+    }
+    header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 20;
     }
     #ad-container-top {
-        height: 50px;
-        min-height: 50px;
+        display: block; /* 모바일에서도 표시되도록 변경 */
+        height: var(--mobile-ad-height);
+        min-height: var(--mobile-ad-height);
+        position: fixed;
+        top: var(--mobile-ad-height); /* 헤더 아래에 위치 */
+        left: 0;
+        right: 0;
+        z-index: 19;
     }
     #ad-container-bottom {
         display: flex; /* 모바일에서만 보이도록 설정 */
@@ -506,17 +504,25 @@ header h1 {
         bottom: 0;
         left: 0;
         width: 100%;
-        height: 50px;
-        min-height: 50px;
+        height: var(--mobile-ad-height);
+        min-height: var(--mobile-ad-height);
         z-index: 999;
         border-top: 1px solid var(--border-color);
         box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
     }
     
     /* 메뉴 클릭 시 광고 숨기기 */
+    #app-container.menu-active ~ #ad-container-top,
     #app-container.menu-active ~ #ad-container-bottom,
-    #app-container.menu-active #ad-container-top {
+    #app-container.menu-active #ad-container-top,
+    #app-container.menu-active #ad-container-bottom {
         display: none;
+    }
+
+    #content-area {
+        /* 광고 높이만큼 마진을 줘서 콘텐츠가 광고에 가려지지 않도록 수정 */
+        margin-top: calc(var(--mobile-ad-height) * 2);
+        margin-bottom: var(--mobile-ad-height);
     }
     /* ▲▲▲ [수정] 모바일 광고 스타일 ▲▲▲ */
 }
