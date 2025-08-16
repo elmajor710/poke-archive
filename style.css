@@ -62,7 +62,7 @@ header h1 {
 }
 
 .ad-container {
-    overflow: hidden; /* 중요: 광고가 박스를 넘어가지 않도록 함 */
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -470,14 +470,6 @@ header h1 {
     margin-bottom: 15px;
 }
 
-/* ▼▼▼ [추가] 'New' 배지 스타일 ▼▼▼ */
-.new-badge {
-    color: #e74c3c;
-    font-weight: bold;
-    font-size: 0.8em;
-    margin-left: 5px;
-}
-
 /* --- 미디어 쿼리 --- */
 @media (max-width: 1199px) {
     .mobile-only { display: block; }
@@ -501,12 +493,8 @@ header h1 {
     
     /* ▼▼▼ [수정] 모바일 광고 스타일 ▼▼▼ */
     body {
-<<<<<<<<< Temporary merge branch 1
         /* 하단 광고 높이(50px)만큼 body에 아래쪽 여백을 줘서 콘텐츠가 가려지지 않게 함 */
         padding-bottom: 50px;
-=========
-        padding-bottom: 50px; /* 하단 광고 높이만큼 body에 여백 추가 */
->>>>>>>>> Temporary merge branch 2
     }
     #ad-container-top {
         height: 50px;
@@ -524,15 +512,12 @@ header h1 {
         border-top: 1px solid var(--border-color);
         box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
     }
-<<<<<<<<< Temporary merge branch 1
     
     /* 메뉴 클릭 시 광고 숨기기 */
     #app-container.menu-active ~ #ad-container-bottom,
     #app-container.menu-active #ad-container-top {
         display: none;
     }
-=========
->>>>>>>>> Temporary merge branch 2
     /* ▲▲▲ [수정] 모바일 광고 스타일 ▲▲▲ */
 }
 
