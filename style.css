@@ -1,6 +1,6 @@
 :root {
     --sidebar-width: 240px;
-    --right-ad-width: 240px;
+    --right-ad-width: 240px; /* PC 우측 광고 너비 */
     --primary-color: #007bff;
     --active-color: #e6f7ff;
     --border-color: #dee2e6;
@@ -15,8 +15,8 @@
     --event-ranking-color: #ff9800;
     --event-limited-color: #2196f3;
     --event-luckycat-color: #4caf50;
-    --main-pastel: #e8f5e9;
-    --assist-pastel: #e3f2fd;
+    --main-pastel: #e8f5e9; /* 메인 슬롯 색상 변경 */
+    --assist-pastel: #e3f2fd; /* 어시스트 슬롯 색상 변경 */
 }
 
 *, *::before, *::after {
@@ -85,7 +85,7 @@ header h1 {
 }
 
 #ad-container-right,
-#ad-container-bottom {
+#ad-container-bottom { /* 하단 광고도 기본적으로는 숨김 */
     display: none;
 }
 
@@ -207,7 +207,7 @@ header h1 {
 
 .main-welcome-area img {
     max-width: 100%;
-    height: auto;
+    height: auto; /* 가로 너비에 맞춰 높이가 자동으로 조절되도록 명시합니다. */
     border-radius: 12px;
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     margin-bottom: 25px;
@@ -297,11 +297,177 @@ header h1 {
 .modal-header h2 { margin: 0; font-size: 1.3em; }
 .modal-close-btn { font-size: 24px; font-weight: bold; cursor: pointer; border: none; background: none; }
 
-.new-badge {
-    color: #e74c3c;
+.calendar-view { padding: 10px; }
+.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+.calendar-title { font-size: 1.5em; font-weight: bold; }
+.calendar-nav { display: flex; gap: 5px; }
+.calendar-nav button { padding: 8px 12px; border: 1px solid var(--border-color); background-color: #fff; border-radius: 5px; cursor: pointer; }
+.calendar-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; padding-left: 5px; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.9em; }
+.legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+.event-type-ranking { background-color: var(--event-ranking-color); }
+.event-type-limited { background-color: var(--event-limited-color); }
+.event-type-luckycat { background-color: var(--event-luckycat-color); }
+.calendar-grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.calendar-grid th { text-align: center; padding-bottom: 10px; font-weight: 600; color: #666; font-size: 0.9em; }
+.calendar-grid td { border: 1px solid var(--border-color); vertical-align: top; padding: 4px; height: 100px; }
+.calendar-grid td.has-events { cursor: pointer; background-color: #f8f9fa; }
+.calendar-grid td.has-events:hover { background-color: #e9ecef; }
+.day-other-month { background-color: #f8f9fa; }
+.day-other-month .date-number { color: #ccc; }
+.date-number { font-weight: 500; font-size: 0.9em; }
+.day-today .date-number { background-color: var(--primary-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; }
+.event-markers { margin-top: 5px; display: flex; flex-direction: column; gap: 3px; }
+.event-marker { font-size: 0.8em; padding: 2px 4px; border-radius: 4px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.source-container { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.source-filter-bar { padding: 10px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.filter-dropdown { padding: 8px 12px; font-size: 0.9em; border: 1px solid var(--border-color); border-radius: 6px; background-color: #fff; }
+.source-list { flex-grow: 1; overflow-y: auto; padding: 10px 5px; background-color: #f0f2f5; border-radius: 6px; }
+.source-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; align-content: start; }
+.pokemon-source-icon { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: grab; text-align: center; flex-shrink: 0; }
+.pokemon-source-icon img { width: 64px; height: 64px; background-color: white; border: 1px solid #ddd; border-radius: 8px; padding: 2px; }
+.pokemon-source-icon span { font-size: 12px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+
+.deck-builder-view { 
+    display: flex; 
+    flex-direction: row; 
+    gap: 20px; 
+    height: 100%; 
+    padding: 10px;
+}
+.placement-container { 
+    flex: 1; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.placement-grid-4x4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto repeat(3, 1fr);
+    gap: 8px;
+    width: 100%;
+    max-width: 500px;
+}
+.placement-slot, .placement-slot-header {
+    aspect-ratio: 1 / 1;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.9em;
+    color: #6c757d;
     font-weight: bold;
-    font-size: 0.8em;
-    margin-left: 5px;
+    user-select: none;
+    padding: 5px;
+    text-align: center;
+    transition: background-color 0.2s;
+}
+.placement-slot-header {
+    grid-column: span 2;
+    background-color: #f8f9fa;
+    border-style: dashed;
+}
+.placement-slot.assist { background-color: var(--assist-pastel); }
+.placement-slot.main { background-color: var(--main-pastel); }
+.placement-slot.placed {
+    color: #333;
+    font-weight: normal;
+}
+.placement-slot.placed .deck-pokemon-cell {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: grab;
+}
+.placement-slot.placed img {
+    width: 60%;
+    height: 60%;
+    object-fit: contain;
+    margin-bottom: 5px;
+}
+.placement-slot.placed span {
+    font-size: 12px;
+    font-weight: bold;
+}
+.placement-slot .remove-pkm-btn {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid #c0392b;
+    background-color: #e74c3c;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 10;
+}
+.placement-slot.placed:hover .remove-pkm-btn {
+    opacity: 1;
+}
+
+.tab-container {
+    margin-top: 20px;
+}
+.tab-nav {
+    display: flex;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+.tab-button {
+    flex: 1;
+    padding: 12px 5px;
+    text-align: center;
+    background-color: #ffffff;
+    border: none;
+    border-right: 1px solid #dee2e6;
+    font-size: 1em;
+    font-weight: 600;
+    color: #495057;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.tab-nav .tab-button:last-child {
+    border-right: none;
+}
+.tab-button.active {
+    background-color: #ffebe6;
+    color: #d9534f;
+    font-weight: bold;
+}
+.tab-pane {
+    display: none;
+    padding-top: 20px;
+}
+.tab-pane.active {
+    display: block;
+}
+.item-description .content-subtitle {
+    font-size: 1.1em;
+    color: #0056b3;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 5px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+.item-description .description-text {
+    margin-bottom: 15px;
 }
 
 /* --- 미디어 쿼리 --- */
@@ -325,7 +491,9 @@ header h1 {
         transform: translateX(0);
     }
     
+    /* ▼▼▼ [수정] 모바일 광고 스타일 ▼▼▼ */
     body {
+        /* 하단 광고 높이(50px)만큼 body에 아래쪽 여백을 줘서 콘텐츠가 가려지지 않게 함 */
         padding-bottom: 50px;
     }
     #ad-container-top {
@@ -333,7 +501,7 @@ header h1 {
         min-height: 50px;
     }
     #ad-container-bottom {
-        display: flex;
+        display: flex; /* 모바일에서만 보이도록 설정 */
         position: fixed;
         bottom: 0;
         left: 0;
@@ -343,6 +511,19 @@ header h1 {
         z-index: 999;
         border-top: 1px solid var(--border-color);
         box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+    }
+    
+    /* 메뉴 클릭 시 광고 숨기기 */
+    #app-container.menu-active ~ #ad-container-bottom,
+    #app-container.menu-active #ad-container-top {
+        display: none;
+    }
+    /* ▲▲▲ [수정] 모바일 광고 스타일 ▲▲▲ */
+}
+
+@media (max-width: 768px) {
+    .deck-builder-view {
+        flex-direction: column;
     }
 }
 
@@ -369,6 +550,7 @@ header h1 {
     display: none !important;
 }
 
+/* ▼▼▼ 팁&노하우 게시물 가독성 및 여백 스타일 ▼▼▼ */
 .simple-detail-view .item-description {
     line-height: 1.15;
     font-size: 12pt;
@@ -376,24 +558,25 @@ header h1 {
     padding: 10px;
 }
 
+/* HTML 태그 직접 스타일링 (여백 추가) */
 .simple-detail-view .item-description h3 {
     font-size: 18pt;
     font-weight: bold;
-    margin-top: 2em;
-    margin-bottom: 0.6em;
+    margin-top: 2em; /* 위쪽 여백 */
+    margin-bottom: 0.6em; /* 아래쪽 여백 */
 }
 
 .simple-detail-view .item-description h4 {
     font-size: 16pt;
     font-weight: bold;
-    margin-top: 1.8em;
-    margin-bottom: 0.6em;
+    margin-top: 1.8em; /* 위쪽 여백 */
+    margin-bottom: 0.6em; /* 아래쪽 여백 */
 }
 
 .simple-detail-view .item-description p,
 .simple-detail-view .item-description li {
     font-size: 12pt;
-    margin-bottom: 0.8em;
+    margin-bottom: 0.8em; /* 문단 아래 여백 */
 }
 
 .simple-detail-view .item-description table,
@@ -419,24 +602,25 @@ header h1 {
     padding: 8px 12px;
 }
 
+/* 강조 박스 스타일 */
 .tip-box, .warning-box {
     margin: 1.5em 0;
-    padding: 1px 15px;
+    padding: 1px 15px; /* 내부 p 태그의 마진을 고려하여 상하 패딩 조정 */
     border-radius: 8px;
     border-left-width: 5px;
     border-left-style: solid;
 }
 
 .tip-box {
-    background-color: #fffbe6;
+    background-color: #fffbe6; /* 노란색 배경 */
     border-left-color: #ffc107;
 }
 
 .warning-box {
-    background-color: #fff5f5;
+    background-color: #fff5f5; /* 빨간색 배경 */
     border-left-color: #e53e3e;
 }
 
 .tip-box p, .warning-box p {
-    margin: 1em 0;
+    margin: 1em 0; /* 박스 안 p태그의 상하 마진 */
 }
