@@ -62,7 +62,6 @@ header h1 {
 }
 
 .ad-container {
-    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -84,8 +83,18 @@ header h1 {
     margin: 0 auto;
 }
 
-#ad-container-right,
-#ad-container-bottom { /* 하단 광고도 기본적으로는 숨김 */
+/* [수정] PC에서는 하단 광고를 화면 밖으로 밀어내 숨김 */
+#ad-container-bottom {
+    position: fixed;
+    bottom: -100px; /* 화면 아래로 숨김 */
+    left: 0;
+    width: 100%;
+    height: 50px;
+    z-index: 999;
+    transition: bottom 0.3s ease-in-out;
+}
+
+#ad-container-right {
     display: none;
 }
 
@@ -191,6 +200,8 @@ header h1 {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
 }
 .main-content-box a {
     text-decoration: none;
@@ -207,7 +218,7 @@ header h1 {
 
 .main-welcome-area img {
     max-width: 100%;
-    height: auto; /* 가로 너비에 맞춰 높이가 자동으로 조절되도록 명시합니다. */
+    height: auto;
     border-radius: 12px;
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     margin-bottom: 25px;
@@ -259,7 +270,7 @@ header h1 {
 }
 .back-btn, .main-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border-color); background-color: #f8f9fa; cursor: pointer; }
 .main-btn { padding: 5px 12px; border-radius: 5px; background-color: #6c757d; color: white; border: 1px solid #6c757d; cursor: pointer; }
-.menu-item, .list-item { display: block; width: 100%; text-align: left; padding: 12px; margin-bottom: 5px; border: 1px solid #eee; background: #f9f9f9; border-radius: 6px; font-size: 16px; cursor: pointer; }
+.menu-item, .list-item { display: block; width: 100%; text-align: left; padding: 12px; margin-bottom: 5px; border: 1px solid #eee; background: #f9f9f9; border-radius: 6px; font-size: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 .menu-item.active, .list-item.active { background-color: var(--active-color); border-left: 4px solid var(--primary-color); font-weight: 600; }
 .item-description { white-space: pre-wrap; line-height: 1.7; background-color: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 14px; color: #333; }
 .stats-table { border-collapse: collapse; margin: 10px 0; width: 100%; max-width: 500px;  }
@@ -470,6 +481,29 @@ header h1 {
     margin-bottom: 15px;
 }
 
+/* [추가] New 배지 스타일 */
+.new-badge {
+    background-color: #e74c3c;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.new-badge-list {
+    background-color: #e74c3c;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+
 /* --- 미디어 쿼리 --- */
 @media (max-width: 1199px) {
     .mobile-only { display: block; }
@@ -491,34 +525,27 @@ header h1 {
         transform: translateX(0);
     }
     
-    /* ▼▼▼ [수정] 모바일 광고 스타일 ▼▼▼ */
+    /* [수정] 모바일 광고 스타일 */
     body {
         /* 하단 광고 높이(50px)만큼 body에 아래쪽 여백을 줘서 콘텐츠가 가려지지 않게 함 */
         padding-bottom: 50px;
     }
     #ad-container-top {
-        height: 50px;
-        min-height: 50px;
+        height: 50px !important;
+        min-height: 50px !important;
+        overflow: hidden !important; /* 광고 내용이 넘치지 않도록 강제 */
     }
     #ad-container-bottom {
-        display: flex; /* 모바일에서만 보이도록 설정 */
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 50px;
-        min-height: 50px;
-        z-index: 999;
+        display: flex;
+        bottom: 0; /* 제 위치로 이동 */
         border-top: 1px solid var(--border-color);
         box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
     }
     
-    /* 메뉴 클릭 시 광고 숨기기 */
-    #app-container.menu-active ~ #ad-container-bottom,
-    #app-container.menu-active #ad-container-top {
-        display: none;
+    /* 메뉴 클릭 시 하단 광고 숨기기 */
+    #app-container.menu-active ~ #ad-container-bottom {
+        bottom: -100px; /* 메뉴 활성화 시 다시 아래로 숨김 */
     }
-    /* ▲▲▲ [수정] 모바일 광고 스타일 ▲▲▲ */
 }
 
 @media (max-width: 768px) {
@@ -550,7 +577,7 @@ header h1 {
     display: none !important;
 }
 
-/* ▼▼▼ 팁&노하우 게시물 가독성 및 여백 스타일 ▼▼▼ */
+/* 팁&노하우 게시물 가독성 및 여백 스타일 */
 .simple-detail-view .item-description {
     line-height: 1.15;
     font-size: 12pt;
@@ -558,25 +585,24 @@ header h1 {
     padding: 10px;
 }
 
-/* HTML 태그 직접 스타일링 (여백 추가) */
 .simple-detail-view .item-description h3 {
     font-size: 18pt;
     font-weight: bold;
-    margin-top: 2em; /* 위쪽 여백 */
-    margin-bottom: 0.6em; /* 아래쪽 여백 */
+    margin-top: 2em;
+    margin-bottom: 0.6em;
 }
 
 .simple-detail-view .item-description h4 {
     font-size: 16pt;
     font-weight: bold;
-    margin-top: 1.8em; /* 위쪽 여백 */
-    margin-bottom: 0.6em; /* 아래쪽 여백 */
+    margin-top: 1.8em;
+    margin-bottom: 0.6em;
 }
 
 .simple-detail-view .item-description p,
 .simple-detail-view .item-description li {
     font-size: 12pt;
-    margin-bottom: 0.8em; /* 문단 아래 여백 */
+    margin-bottom: 0.8em;
 }
 
 .simple-detail-view .item-description table,
@@ -605,22 +631,22 @@ header h1 {
 /* 강조 박스 스타일 */
 .tip-box, .warning-box {
     margin: 1.5em 0;
-    padding: 1px 15px; /* 내부 p 태그의 마진을 고려하여 상하 패딩 조정 */
+    padding: 1px 15px;
     border-radius: 8px;
     border-left-width: 5px;
     border-left-style: solid;
 }
 
 .tip-box {
-    background-color: #fffbe6; /* 노란색 배경 */
+    background-color: #fffbe6;
     border-left-color: #ffc107;
 }
 
 .warning-box {
-    background-color: #fff5f5; /* 빨간색 배경 */
+    background-color: #fff5f5;
     border-left-color: #e53e3e;
 }
 
 .tip-box p, .warning-box p {
-    margin: 1em 0; /* 박스 안 p태그의 상하 마진 */
+    margin: 1em 0;
 }
