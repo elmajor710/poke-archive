@@ -15,8 +15,8 @@
     --event-ranking-color: #ff9800;
     --event-limited-color: #2196f3;
     --event-luckycat-color: #4caf50;
-    --main-pastel: #e8f5e9; /* 메인 슬롯 색상 변경 */
-    --assist-pastel: #e3f2fd; /* 어시스트 슬롯 색상 변경 */
+    --main-pastel: #e8f5e9; 
+    --assist-pastel: #e3f2fd;
 }
 
 *, *::before, *::after {
@@ -83,14 +83,9 @@ header h1 {
     margin: 0 auto;
 }
 
+/* [수정] 하단 광고 컨테이너는 기본적으로 보이지 않도록 처리 */
 #ad-container-bottom {
-    position: fixed;
-    bottom: -100px;
-    left: 0;
-    width: 100%;
-    height: 50px;
-    z-index: 999;
-    transition: bottom 0.3s ease-in-out;
+    display: none;
 }
 
 #ad-container-right {
@@ -501,6 +496,73 @@ header h1 {
     margin-left: 8px;
 }
 
+/* [수정] 복구 코드 기반 추천 덱 스타일 */
+.four-by-four-table {
+    width: 100%;
+    max-width: 400px;
+    border-collapse: separate;
+    border-spacing: 5px;
+    margin: 20px auto;
+    table-layout: fixed;
+}
+.four-by-four-table td {
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    text-align: center;
+    vertical-align: top;
+    width: 25%;
+    height: 0;
+    padding-bottom: 25%;
+    position: relative;
+    border-radius: 8px;
+}
+.four-by-four-table td > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+}
+.four-by-four-table .deck-pokemon-cell {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.four-by-four-table .deck-pokemon-cell:hover {
+    background-color: #e9ecef;
+}
+.four-by-four-table .deck-pokemon-cell img {
+    width: 65%;
+    height: 65%;
+    object-fit: contain;
+    margin-bottom: 4px;
+}
+.four-by-four-table .deck-pokemon-cell .pkm-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: #333;
+    line-height: 1.2;
+}
+.four-by-four-table .header-cell {
+    background-color: #e9f5ff;
+}
+.four-by-four-table .header-cell .header-emoji {
+    font-size: 2.5em;
+}
+.four-by-four-table .header-cell img {
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+}
+.four-by-four-table .empty-cell {
+    background-color: #f0f0f0;
+    border-style: dashed;
+}
+
 
 /* --- 미디어 쿼리 --- */
 @media (max-width: 1199px) {
@@ -524,24 +586,11 @@ header h1 {
     }
     
     /* [수정] 모바일 광고 스타일 강화 */
-    body {
-        padding-bottom: 50px;
-    }
     #ad-container-top {
         height: 50px !important;
         min-height: 50px !important;
-        max-height: 50px !important; /* 최대 높이도 강제 */
+        max-height: 50px !important;
         overflow: hidden !important;
-    }
-    #ad-container-bottom {
-        display: flex;
-        bottom: 0;
-        border-top: 1px solid var(--border-color);
-        box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
-    }
-    
-    #app-container.menu-active ~ #ad-container-bottom {
-        bottom: -100px;
     }
 }
 
