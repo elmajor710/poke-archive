@@ -1,9 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 개선 버전 적용');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 최종 수정본');
 
     // --- 광고 설정 ---
     function setupAds() {
-        // 모든 광고 컨테이너에 대해 광고 요청을 한 번만 실행
         try {
             (window.adsbygoogle = window.adsbygoogle || []).push({});
         } catch (e) {
@@ -70,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderSidebar();
             renderMainNoticeList();
             addEventListeners();
-            setupAds(); // 광고 초기화
+            setupAds();
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
@@ -78,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     async function fetchAllDataFromFirebase() {
-        // [수정] 'notice' 컬렉션을 가져오도록 추가
+        // [수정] 'notice' 컬렉션을 다시 가져오도록 추가
         const collectionsToFetch = {
             notice: db.collection('notice').where("isPublished", "==", true),
             pokemon: db.collection('pokemon').where("isPublished", "==", true),
@@ -97,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return dataMap;
         };
 
-        // [수정] 가져온 공지사항 데이터를 DB 객체에 할당
         DB.notice.lev3 = snapshotToMap(noticeSnapshot);
         DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
         DB.item.lev4 = snapshotToMap(itemsSnapshot);
@@ -111,15 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function setupSideMenuData() {
-        // [수정] lev3에 로드된 공지사항 데이터를 기반으로 lev2 메뉴 목록 생성
+        // [수정] 공지사항 데이터 가공 (타임스탬프 포함)
         DB.notice.lev2 = Object.values(DB.notice.lev3).map(data => ({ 
             id: data.id, 
             name: data.title,
-            // 'New' 기능 판별을 위해 createdAt 타임스탬프 추가
-            createdAt: data.createdAt 
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt
         }));
-        // 최신순으로 정렬
-        DB.notice.lev2.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+        DB.notice.lev2.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
 
         DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         const types = {};
@@ -161,20 +158,25 @@ document.addEventListener('DOMContentLoaded', () => {
         runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         DB.runeAndChip.lev3 = runeAndChipTypes;
 
-        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title }));
+        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ 
+            id: data.id, 
+            name: data.name || data.title,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt
+        }));
         
         DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
         DB.deck.lev3.builder = [{ id: 'deckBuilder', name: '배치툴' }];
     }
 
-    // [추가] 'New' 배지 표시 여부를 판단하는 함수
+    // [수정] isNew 함수가 updatedAt도 확인하도록 변경
     function isNew(timestamp) {
         if (!timestamp || !timestamp.toDate) return false;
         const postDate = timestamp.toDate();
         const now = new Date();
         const diffTime = now.getTime() - postDate.getTime();
         const diffDays = diffTime / (1000 * 60 * 60 * 24);
-        return diffDays <= 7; // 7일 이내 게시물은 true 반환
+        return diffDays <= 7;
     }
 
     function renderSidebar() {
@@ -188,11 +190,16 @@ document.addEventListener('DOMContentLoaded', () => {
             
             let buttonHTML = item.name;
 
-            // [수정] 'New' 배지 로직 추가
-            // 해당 카테고리의 데이터(lev2) 중에 새 글이 있는지 확인
-            const categoryData = DB[item.id]?.lev2;
-            if (categoryData && Array.isArray(categoryData)) {
-                const hasNewPost = categoryData.some(post => isNew(post.createdAt));
+            // [수정] 모든 카테고리에 대해 'New' 배지 로직 적용
+            let dataToCheck = [];
+            if (item.id === 'notice' || item.id === 'tips') {
+                dataToCheck = Object.values(DB[item.id]?.lev3 || {});
+            } else if (DB[item.id] && DB[item.id].lev4) {
+                dataToCheck = Object.values(DB[item.id].lev4);
+            }
+
+            if (dataToCheck.length > 0) {
+                const hasNewPost = dataToCheck.some(post => isNew(post.updatedAt) || isNew(post.createdAt));
                 if (hasNewPost) {
                     buttonHTML += '<span class="new-badge">N</span>';
                 }
@@ -207,13 +214,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // [추가] 메인 화면 공지사항 목록 렌더링 함수
     function renderMainNoticeList() {
         if (!mainNoticeList) return;
-        // 최신 5개 공지사항 선택
         const noticesToShow = DB.notice.lev2.slice(0, 5);
         mainNoticeList.innerHTML = noticesToShow.map(notice => {
-            // [수정] 목록에도 'New' 배지 추가
-            const newBadge = isNew(notice.createdAt) ? '<span class="new-badge-list">New</span>' : '';
+            const newBadge = isNew(notice.updatedAt) || isNew(notice.createdAt) ? '<span class="new-badge-list">New</span>' : '';
             return `<li><a href="#" data-menu-id="notice" data-item-id="${notice.id}">${notice.name}</a> ${newBadge}</li>`;
         }).join('');
     }
@@ -342,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) return DB.pokemonType.lev4?.[id];
         if (nextLevel === 2) return DB[menuId]?.lev2;
         if (nextLevel === 3) {
-            // [수정] 공지사항, 팁&노하우는 lev3가 최종 뷰이므로 lev3 데이터를 반환
             if (menuId === 'notice' || menuId === 'tips') return DB[menuId]?.lev3?.[id];
             return DB[menuId]?.lev3?.[id];
         }
@@ -398,8 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     button.dataset.menuId = menuId;
                     
                     let itemHTML = item.name;
-                    // [수정] lev2 목록에도 'New' 배지 추가
-                    if (isNew(item.createdAt)) {
+                    if (isNew(item.updatedAt) || isNew(item.createdAt)) {
                         itemHTML += '<span class="new-badge-list">New</span>';
                     }
                     button.innerHTML = itemHTML;
@@ -704,15 +708,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
     
+    // [수정] 추천 덱 레이아웃 렌더링 함수
     function renderDeckView(contentDiv, data) {
         const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
         let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
         if (data.description) { html += `<p>${data.description}</p>`; }
-        
-        html += `<h4>덱 배치</h4><table class="placement-grid-4x4" style="margin: 20px auto;">`;
-        
-        const grid = Array(4).fill(null).map(() => Array(4).fill(null));
+        html += `<h4>덱 배치</h4>`;
 
+        const grid = Array(4).fill(null).map(() => Array(4).fill(null));
         const positionMap = {
             'assist_4': [1, 0], 'assist_1': [1, 1], 'main_4': [1, 2], 'main_1': [1, 3],
             'assist_5': [2, 0], 'assist_2': [2, 1], 'main_5': [2, 2], 'main_2': [2, 3],
@@ -720,12 +723,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         if (data.weather && weatherToEmoji[data.weather]) {
-            grid[0][0] = { type: 'header', content: `날씨: ${data.weather} ${weatherToEmoji[data.weather]}`, colspan: 2 };
+            grid[0][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather, colspan: 2 };
         }
         const mainPokemonIds = data.composition.filter(m => m.role === 'main').map(m => m.pokemonId);
         const synergy = calculateSynergy(mainPokemonIds);
         if (synergy) {
-             grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}" style="height: 30px; vertical-align: middle; margin-right: 5px;"> ${synergy.name}`, colspan: 2 };
+             grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}" alt="${synergy.name}">`, label: synergy.name, colspan: 2 };
         }
 
         data.composition.forEach(member => { 
@@ -734,10 +737,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const key = `${member.role}_${member.position}`;
             if(positionMap[key]) {
                 const [row, col] = positionMap[key];
-                grid[row][col] = { type: 'pokemon', role: member.role, ...pkmData };
+                grid[row][col] = { type: 'pokemon', ...pkmData };
             }
         });
 
+        html += `<table class="four-by-four-table"><tbody>`;
         for (let i = 0; i < 4; i++) {
             html += '<tr>';
             for (let j = 0; j < 4; j++) {
@@ -745,21 +749,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cell = grid[i][j];
                 if (cell) {
                     if (cell.type === 'pokemon') {
-                        html += `<td class="placement-slot ${cell.role === 'main' ? 'main' : 'assist'} placed"><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span>${cell.name_ko}</span></div></td>`;
+                        html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="pkm-name">${cell.name_ko}</span></div></td>`;
                     } else if (cell.type === 'header') {
-                        html += `<td class="placement-slot-header" colspan="${cell.colspan || 1}">${cell.content}</td>`;
+                        html += `<td class="header-cell" colspan="${cell.colspan || 1}" title="${cell.label}"><div>${cell.content}</div></td>`;
                         if (cell.colspan > 1) {
                             for (let k = 1; k < cell.colspan; k++) grid[i][j+k] = undefined;
                         }
                     }
                 } else {
-                    html += `<td class="placement-slot"></td>`;
+                    html += `<td class="empty-cell"></td>`;
                 }
             }
             html += '</tr>';
         }
-        
-        html += `</table></div>`;
+        html += `</tbody></table></div>`;
         contentDiv.innerHTML = html;
     }
 

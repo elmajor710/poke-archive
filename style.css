@@ -83,10 +83,9 @@ header h1 {
     margin: 0 auto;
 }
 
-/* [수정] PC에서는 하단 광고를 화면 밖으로 밀어내 숨김 */
 #ad-container-bottom {
     position: fixed;
-    bottom: -100px; /* 화면 아래로 숨김 */
+    bottom: -100px;
     left: 0;
     width: 100%;
     height: 50px;
@@ -481,7 +480,6 @@ header h1 {
     margin-bottom: 15px;
 }
 
-/* [추가] New 배지 스타일 */
 .new-badge {
     background-color: #e74c3c;
     color: white;
@@ -525,26 +523,25 @@ header h1 {
         transform: translateX(0);
     }
     
-    /* [수정] 모바일 광고 스타일 */
+    /* [수정] 모바일 광고 스타일 강화 */
     body {
-        /* 하단 광고 높이(50px)만큼 body에 아래쪽 여백을 줘서 콘텐츠가 가려지지 않게 함 */
         padding-bottom: 50px;
     }
     #ad-container-top {
         height: 50px !important;
         min-height: 50px !important;
-        overflow: hidden !important; /* 광고 내용이 넘치지 않도록 강제 */
+        max-height: 50px !important; /* 최대 높이도 강제 */
+        overflow: hidden !important;
     }
     #ad-container-bottom {
         display: flex;
-        bottom: 0; /* 제 위치로 이동 */
+        bottom: 0;
         border-top: 1px solid var(--border-color);
         box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
     }
     
-    /* 메뉴 클릭 시 하단 광고 숨기기 */
     #app-container.menu-active ~ #ad-container-bottom {
-        bottom: -100px; /* 메뉴 활성화 시 다시 아래로 숨김 */
+        bottom: -100px;
     }
 }
 
@@ -577,7 +574,6 @@ header h1 {
     display: none !important;
 }
 
-/* 팁&노하우 게시물 가독성 및 여백 스타일 */
 .simple-detail-view .item-description {
     line-height: 1.15;
     font-size: 12pt;
@@ -628,7 +624,6 @@ header h1 {
     padding: 8px 12px;
 }
 
-/* 강조 박스 스타일 */
 .tip-box, .warning-box {
     margin: 1.5em 0;
     padding: 1px 15px;
