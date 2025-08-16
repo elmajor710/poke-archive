@@ -100,6 +100,24 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("initializeAdminData: 모든 Firestore 데이터를 전역 DB 객체에 로드 완료.");
     }
 
+    // [추가] 데이터 저장 시 타임스탬프를 추가하는 헬퍼 함수
+    async function saveDataWithTimestamp(collectionName, docId, data) {
+        const docRef = db.collection(collectionName).doc(docId);
+        const doc = await docRef.get();
+
+        const dataToSave = {
+            ...data,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        if (!doc.exists) {
+            dataToSave.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        }
+
+        await docRef.set(dataToSave, { merge: true });
+    }
+
+
     function setupTabSwitching() {
         const adminNav = document.getElementById('admin-nav');
         adminNav.addEventListener('click', (e) => {
@@ -300,7 +318,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 recommendedChips: Array.from(chipsSelect.selectedOptions).map(opt => opt.value)
             };
             
-            await db.collection("pokemon").doc(pkmId).set(pokemonData, { merge: true });
+            // [수정] 헬퍼 함수 사용
+            await saveDataWithTimestamp("pokemon", pkmId, pokemonData);
             alert(`'${pokemonData.name_ko}' 정보가 성공적으로 저장되었습니다!`);
             await initializeAdminData();
             loadPokemonList();
@@ -409,7 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 description: form.querySelector('#item-description').value,
                 isPublished: form.querySelector('#item-is-published').checked,
             };
-            await db.collection("items").doc(itemId).set(itemData, { merge: true });
+            await saveDataWithTimestamp("items", itemId, itemData);
             alert('저장 완료');
             form.reset();
             await initializeAdminData();
@@ -468,7 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 description: form.querySelector('#rc-description').value,
                 isPublished: form.querySelector('#rc-is-published').checked,
             };
-            await db.collection("runeAndChips").doc(rcId).set(rcData, { merge: true });
+            await saveDataWithTimestamp("runeAndChips", rcId, rcData);
             alert('저장 완료');
             form.reset();
             await initializeAdminData();
@@ -534,22 +553,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            const docRef = db.collection("notice").doc(noticeId);
-            const doc = await docRef.get();
-
             const noticeData = {
                 title: form.querySelector('#notice-title').value,
                 htmlContent: form.querySelector('#notice-content').value,
                 isPublished: form.querySelector('#notice-is-published').checked,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            // [수정] 새 문서일 경우에만 createdAt 추가
-            if (!doc.exists) {
-                noticeData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-            }
-
-            await docRef.set(noticeData, { merge: true });
+            await saveDataWithTimestamp("notice", noticeId, noticeData);
             alert('저장 완료');
             form.reset();
             await initializeAdminData();
@@ -620,7 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 htmlContent: form.querySelector('#tip-content').value,
                 isPublished: form.querySelector('#tip-is-published').checked,
             };
-            await db.collection("tips").doc(tipId).set(tipData, { merge: true });
+            await saveDataWithTimestamp("tips", tipId, tipData);
             alert('저장 완료');
             form.reset();
             await initializeAdminData();
@@ -819,7 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         pokemonId: s.value
                     }))
             };
-            await db.collection("recommendedDecks").doc(deckId).set(deckData, { merge: true });
+            await saveDataWithTimestamp("recommendedDecks", deckId, deckData);
             alert('저장 완료');
             form.reset();
             updateSynergyDisplay();
