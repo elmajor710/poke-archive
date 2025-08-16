@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 최종 복구 기반 수정본');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 광고 문제 최종 해결');
 
     // --- 광고 설정 ---
     function setupAds() {
