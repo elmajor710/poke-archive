@@ -1,13 +1,40 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 광고 문제 최종 해결');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 최종 완성본');
 
-    // --- 광고 설정 ---
-    function setupAds() {
-        try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-        } catch (e) {
-            console.error("광고 로딩 중 오류 발생:", e);
-        }
+    // [수정] 복구 코드의 광고 처리 로직을 그대로 적용
+    function setupAdObservers() {
+        const adContainers = document.querySelectorAll('.ad-container');
+        if (adContainers.length === 0) return;
+        const adObserver = new ResizeObserver(entries => {
+            for (const entry of entries) {
+                if (entry.contentRect.width > 0) {
+                    const targetContainer = entry.target;
+                    try {
+                        (window.adsbygoogle = window.adsbygoogle || []).push({});
+                        const styleWatcher = new MutationObserver((mutations) => {
+                            for (const mutation of mutations) {
+                                if (mutation.attributeName === 'style') {
+                                    // CSS와 동일하게 1199px 기준으로 50px 높이를 강제합니다.
+                                    if (window.innerWidth <= 1199) {
+                                        const currentHeight = targetContainer.style.height;
+                                        if (currentHeight !== '50px') {
+                                            targetContainer.style.setProperty('height', '50px', 'important');
+                                            targetContainer.style.setProperty('min-height', '50px', 'important');
+                                        }
+                                    }
+                                    styleWatcher.disconnect();
+                                }
+                            }
+                        });
+                        styleWatcher.observe(targetContainer, { attributes: true });
+                    } catch (e) {
+                        console.error(`'${targetContainer.id}' 광고 요청 중 오류 발생:`, e);
+                    }
+                    adObserver.unobserve(targetContainer);
+                }
+            }
+        });
+        adContainers.forEach(container => adObserver.observe(container));
     }
 
     const adBlockManager = {
@@ -69,7 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
             renderSidebar();
             renderMainNoticeList();
             addEventListeners();
-            setupAds();
+            // [수정] 문제가 되었던 다른 광고 함수 대신 복구 코드의 함수를 호출합니다.
+            setupAdObservers();
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
