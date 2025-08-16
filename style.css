@@ -501,16 +501,12 @@ header h1 {
     
     /* ▼▼▼ [수정] 모바일 광고 스타일 ▼▼▼ */
     body {
-        /* 최상단 광고와 하단 광고 높이만큼 body에 패딩을 줘서 콘텐츠가 가려지지 않게 함 */
-        padding-top: var(--mobile-ad-height);
-        padding-bottom: var(--mobile-ad-height);
-    }
-    header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 20;
+<<<<<<<<< Temporary merge branch 1
+        /* 하단 광고 높이(50px)만큼 body에 아래쪽 여백을 줘서 콘텐츠가 가려지지 않게 함 */
+        padding-bottom: 50px;
+=========
+        padding-bottom: 50px; /* 하단 광고 높이만큼 body에 여백 추가 */
+>>>>>>>>> Temporary merge branch 2
     }
     #ad-container-top {
         height: 50px;
@@ -528,18 +524,16 @@ header h1 {
         border-top: 1px solid var(--border-color);
         box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
     }
-    #content-area {
-        /* 상단 헤더, 상단 광고, 하단 광고의 높이를 모두 고려하여 여백 설정 */
-        margin-top: calc(var(--mobile-ad-height) * 2);
-        margin-bottom: var(--mobile-ad-height);
-    }
+<<<<<<<<< Temporary merge branch 1
     
-    /* 메뉴가 열렸을 때 광고를 숨기는 것이 아니라, z-index를 조정하여 메뉴가 광고를 덮도록 처리 */
-    #app-container.menu-active ~ #ad-container-top,
-    #app-container.menu-active ~ #ad-container-bottom {
-        display: block;
+    /* 메뉴 클릭 시 광고 숨기기 */
+    #app-container.menu-active ~ #ad-container-bottom,
+    #app-container.menu-active #ad-container-top {
+        display: none;
     }
-    /* ▲▲▲ [수정] 모바일 광고 스타일 및 콘텐츠 영역 조정 ▲▲▲ */
+=========
+>>>>>>>>> Temporary merge branch 2
+    /* ▲▲▲ [수정] 모바일 광고 스타일 ▲▲▲ */
 }
 
 @media (max-width: 768px) {

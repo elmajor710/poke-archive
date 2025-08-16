@@ -11,11 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const targetContainer = entry.target;
                     try {
                         (window.adsbygoogle = window.adsbygoogle || []).push({});
-                        // 모바일 환경일 때만 광고 높이를 50px로 고정
+<<<<<<<<< Temporary merge branch 1
                         const styleWatcher = new MutationObserver((mutations) => {
                             for (const mutation of mutations) {
                                 if (mutation.attributeName === 'style') {
-                                    if (isMobile()) {
+                                    if (window.innerWidth <= 768) {
                                         const currentHeight = targetContainer.style.height;
                                         if (currentHeight !== '50px') {
                                             targetContainer.style.setProperty('height', '50px', 'important');
@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         });
                         styleWatcher.observe(targetContainer, { attributes: true });
+=========
+>>>>>>>>> Temporary merge branch 2
                     } catch (e) {
                         console.error(`'${targetContainer.id}' 광고 요청 중 오류 발생:`, e);
                     }
@@ -112,12 +114,20 @@ document.addEventListener('DOMContentLoaded', () => {
             pokemon: db.collection('pokemon').where("isPublished", "==", true),
             items: db.collection('items').where("isPublished", "==", true),
             runeAndChips: db.collection('runeAndChips').where("isPublished", "==", true),
-            tips: db.collection('tips').where("isPublished", "==", true).orderBy('createdAt', 'desc'),
+<<<<<<<<< Temporary merge branch 1
+=========
+            notice: db.collection('notice').where("isPublished", "==", true), // 공지사항 불러오기
+>>>>>>>>> Temporary merge branch 2
+            tips: db.collection('tips').where("isPublished", "==", true),
             recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true),
             events: db.collection('events'),
         };
         const promises = Object.values(collectionsToFetch).map(query => query.get());
-        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot, noticeSnapshot] = await Promise.all(promises);
+<<<<<<<<< Temporary merge branch 1
+        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot] = await Promise.all(promises);
+=========
+        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, noticeSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot] = await Promise.all(promises);
+>>>>>>>>> Temporary merge branch 2
         
         const snapshotToMap = (snapshot) => {
             const dataMap = {};
@@ -184,7 +194,11 @@ document.addEventListener('DOMContentLoaded', () => {
         runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         DB.runeAndChip.lev3 = runeAndChipTypes;
 
-        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title, date: data.createdAt ? data.createdAt.toDate() : new Date() }));
+<<<<<<<<< Temporary merge branch 1
+        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title }));
+=========
+        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title, updatedAt: data.updatedAt }));
+>>>>>>>>> Temporary merge branch 2
         
         DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
         DB.deck.lev3.builder = [{ id: 'deckBuilder', name: '배치툴' }];
@@ -220,26 +234,15 @@ document.addEventListener('DOMContentLoaded', () => {
         DB.sidebarMenu.forEach(item => {
             const button = document.createElement('button');
             button.className = 'menu-item';
-            button.textContent = item.name;
+            
+            let buttonHTML = item.name;
+            if (newPostStatus[item.id]) {
+                buttonHTML += ` <span class="new-badge">New</span>`;
+            }
+            button.innerHTML = buttonHTML;
+
             button.dataset.level = 1;
             button.dataset.id = item.id;
-            
-            if (item.id === 'notice' || item.id === 'tips') {
-                const dataList = item.id === 'notice' ? DB.notice.lev2 : DB.tips.lev2;
-                const hasNewPost = dataList.some(post => {
-                    const postDate = post.date instanceof Date ? post.date.getTime() : new Date(post.date).getTime();
-                    return postDate > twentyFourHoursAgo;
-                });
-                if (hasNewPost) {
-                    const newSpan = document.createElement('span');
-                    newSpan.textContent = 'New';
-                    newSpan.style.color = 'red';
-                    newSpan.style.fontWeight = 'bold';
-                    newSpan.style.marginLeft = '8px';
-                    button.appendChild(newSpan);
-                }
-            }
-            
             sidebarContent.appendChild(button);
         });
         if(sidebar) {
@@ -354,7 +357,11 @@ document.addEventListener('DOMContentLoaded', () => {
             setActive(level - 1, null);
         }
     }
-
+    
+<<<<<<<<< Temporary merge branch 1
+=========
+    // ▼▼▼ [수정] 모바일 광고 제어 로직 추가 ▼▼▼
+>>>>>>>>> Temporary merge branch 2
     function handleMainButtonClick() {
         if (isMobile()) {
             document.getElementById('ad-container-top').style.display = 'flex';
@@ -616,16 +623,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let description = data.description || data.htmlContent || '';
-
+        
+<<<<<<<<< Temporary merge branch 1
+        // menuId가 'tips'일 경우, [TIP]과 [주의]를 찾아 박스로 감싸는 로직
         if (menuId === 'tips') {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = description;
-
+            
+            // p 태그를 순회하며 조건에 맞는 태그를 박스로 감쌈
+=========
+        if (menuId === 'tips' || menuId === 'notice') {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = description;
+            
+>>>>>>>>> Temporary merge branch 2
             const paragraphs = tempDiv.querySelectorAll('p');
             paragraphs.forEach(p => {
                 const text = p.textContent || p.innerText;
                 if (text.includes('[TIP]')) {
-                    p.innerHTML = p.innerHTML.replace('[TIP]', '');
+<<<<<<<<< Temporary merge branch 1
+                    p.innerHTML = p.innerHTML.replace('[TIP]', ''); // 태그 제거
+=========
+                    p.innerHTML = p.innerHTML.replace('[TIP]', ''); 
+>>>>>>>>> Temporary merge branch 2
                     const wrapper = document.createElement('div');
                     wrapper.className = 'tip-box';
                     p.parentNode.insertBefore(wrapper, p);
