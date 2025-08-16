@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("initializeAdminData: 모든 Firestore 데이터를 전역 DB 객체에 로드 완료.");
     }
 
-    // [추가] 데이터 저장 시 타임스탬프를 추가하는 헬퍼 함수
+    // [수정] 데이터 저장 시 타임스탬프를 추가하는 헬퍼 함수
     async function saveDataWithTimestamp(collectionName, docId, data) {
         const docRef = db.collection(collectionName).doc(docId);
         const doc = await docRef.get();
@@ -318,7 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 recommendedChips: Array.from(chipsSelect.selectedOptions).map(opt => opt.value)
             };
             
-            // [수정] 헬퍼 함수 사용
             await saveDataWithTimestamp("pokemon", pkmId, pokemonData);
             alert(`'${pokemonData.name_ko}' 정보가 성공적으로 저장되었습니다!`);
             await initializeAdminData();
