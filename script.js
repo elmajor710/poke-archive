@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 최종 수정본');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 최종 복구 기반 수정본');
 
     // --- 광고 설정 ---
     function setupAds() {
@@ -77,7 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     async function fetchAllDataFromFirebase() {
-        // [수정] 'notice' 컬렉션을 다시 가져오도록 추가
         const collectionsToFetch = {
             notice: db.collection('notice').where("isPublished", "==", true),
             pokemon: db.collection('pokemon').where("isPublished", "==", true),
@@ -109,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function setupSideMenuData() {
-        // [수정] 공지사항 데이터 가공 (타임스탬프 포함)
         DB.notice.lev2 = Object.values(DB.notice.lev3).map(data => ({ 
             id: data.id, 
             name: data.title,
@@ -169,7 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
         DB.deck.lev3.builder = [{ id: 'deckBuilder', name: '배치툴' }];
     }
 
-    // [수정] isNew 함수가 updatedAt도 확인하도록 변경
     function isNew(timestamp) {
         if (!timestamp || !timestamp.toDate) return false;
         const postDate = timestamp.toDate();
@@ -190,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             let buttonHTML = item.name;
 
-            // [수정] 모든 카테고리에 대해 'New' 배지 로직 적용
             let dataToCheck = [];
             if (item.id === 'notice' || item.id === 'tips') {
                 dataToCheck = Object.values(DB[item.id]?.lev3 || {});
@@ -214,7 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // [추가] 메인 화면 공지사항 목록 렌더링 함수
     function renderMainNoticeList() {
         if (!mainNoticeList) return;
         const noticesToShow = DB.notice.lev2.slice(0, 5);
@@ -708,18 +703,20 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
     
-    // [수정] 추천 덱 레이아웃 렌더링 함수
+    // [수정] 복구 코드 기반으로 추천 덱 렌더링 함수 수정
     function renderDeckView(contentDiv, data) {
         const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
         let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
         if (data.description) { html += `<p>${data.description}</p>`; }
+        
         html += `<h4>덱 배치</h4>`;
-
+        
         const grid = Array(4).fill(null).map(() => Array(4).fill(null));
         const positionMap = {
-            'assist_4': [1, 0], 'assist_1': [1, 1], 'main_4': [1, 2], 'main_1': [1, 3],
-            'assist_5': [2, 0], 'assist_2': [2, 1], 'main_5': [2, 2], 'main_2': [2, 3],
-            'assist_6': [3, 0], 'assist_3': [3, 1], 'main_6': [3, 2], 'main_3': [3, 3]
+            'assist_4': [1, 0], 'assist_5': [2, 0], 'assist_6': [3, 0], 
+            'assist_1': [1, 1], 'assist_2': [2, 1], 'assist_3': [3, 1],
+            'main_4': [1, 2], 'main_5': [2, 2], 'main_6': [3, 2], 
+            'main_1': [1, 3], 'main_2': [2, 3], 'main_3': [3, 3]
         };
 
         if (data.weather && weatherToEmoji[data.weather]) {

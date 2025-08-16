@@ -12,7 +12,7 @@
     <meta property="og:url" content="https://pokedex.elmajor710.com">
     <link rel="icon" href="data:;base64,iVBORw0KGgo="> 
     <!-- CSS 파일 버전을 업데이트하여 브라우저 캐시 문제 방지 -->
-    <link rel="stylesheet" href="style.css?v=3.0">
+    <link rel="stylesheet" href="style.css?v=4.0">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -33,7 +33,6 @@
             <aside id="sidebar"></aside>
             <main id="content-area">
                 <div id="main-placeholder">
-                    <!-- [수정] 모바일/PC 화면 구성을 위한 구조 변경 -->
                     <div class="mobile-main-buttons mobile-only">
                         <button class="main-action-btn" data-menu-id="notice">📢 공지사항</button>
                         <button class="main-action-btn" data-menu-id="popular">🔥 인기글</button>
@@ -76,14 +75,7 @@
         <h2>운영자 모드 (개발 예정)</h2>
     </div>
 
-    <div id="ad-container-bottom" class="ad-container">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-2125965839205311"
-             data-ad-slot="9651108783"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-    </div>
+    <!-- [수정] 모바일 하단 광고 컨테이너 제거 -->
     
     <!-- Firebase SDK는 최신 버전을 사용합니다. -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -103,9 +95,9 @@
       const db = firebase.firestore();
     </script>
     
-    <script src="data.js?v=3.0"></script> 
+    <script src="data.js?v=4.0"></script> 
     <!-- JS 파일 버전을 업데이트하여 브라우저 캐시 문제 방지 -->
-    <script src="script.js?v=3.0"></script>
+    <script src="script.js?v=4.0"></script>
 
 </body>
 </html>
