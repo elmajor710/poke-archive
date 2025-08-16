@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setupPokemonManagement();
             setupItemManagement();
             setupRuneChipManagement();
-            setupNoticeManagement(); // 공지사항 기능 초기화
+            setupNoticeManagement();
             setupTipsManagement();
             setupCalendarManagement();
             setupDeckManagement();
@@ -62,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function initializeAdminData() {
         console.log("initializeAdminData: Firestore에서 모든 데이터 로딩 시작...");
-        // 'notice' 컬렉션 추가
         const collections = ['pokemon', 'items', 'runeAndChips', 'notice', 'tips', 'events', 'recommendedDecks'];
         const promises = collections.map(col => db.collection(col).get());
         const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, noticeSnapshot, tipsSnapshot, eventsSnapshot, decksSnapshot] = await Promise.all(promises);
@@ -76,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
         DB.item.lev4 = snapshotToMap(itemsSnapshot);
         DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
-        DB.notice.lev3 = snapshotToMap(noticeSnapshot); // 공지사항 데이터 로드
+        DB.notice.lev3 = snapshotToMap(noticeSnapshot);
         DB.tips.lev3 = snapshotToMap(tipsSnapshot);
         DB.deck.lev4 = snapshotToMap(decksSnapshot);
         DB.calendar.lev2.events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -491,7 +490,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loadRuneChipList();
     }
 
-    // ▼▼▼ [추가] 공지사항 관리 기능 (팁&노하우 복사) ▼▼▼
     function setupNoticeManagement() {
         const form = document.getElementById('notice-form');
         const selectList = document.getElementById('notice-select-list');
@@ -535,13 +533,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('고유 ID를 입력하거나 자동생성 버튼을 눌러주세요.');
                 return;
             }
+            
+            const docRef = db.collection("notice").doc(noticeId);
+            const doc = await docRef.get();
+
             const noticeData = {
                 title: form.querySelector('#notice-title').value,
                 htmlContent: form.querySelector('#notice-content').value,
                 isPublished: form.querySelector('#notice-is-published').checked,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp() // 최신순 정렬을 위한 타임스탬프
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
-            await db.collection("notice").doc(noticeId).set(noticeData, { merge: true });
+
+            // [수정] 새 문서일 경우에만 createdAt 추가
+            if (!doc.exists) {
+                noticeData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            }
+
+            await docRef.set(noticeData, { merge: true });
             alert('저장 완료');
             form.reset();
             await initializeAdminData();
@@ -562,7 +570,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         loadNoticesList();
     }
-    // ▲▲▲ [추가] 공지사항 관리 기능 (팁&노하우 복사) ▲▲▲
 
     function setupTipsManagement() {
         const form = document.getElementById('tip-form');

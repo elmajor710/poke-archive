@@ -1,39 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 2차 개발 v6 적용');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 개선 버전 적용');
 
-    // --- 광고 설정 및 무효 트래픽 방지 로직 ---
-    function setupAdObservers() {
-        const adContainers = document.querySelectorAll('.ad-container');
-        if (adContainers.length === 0) return;
-        const adObserver = new ResizeObserver(entries => {
-            for (const entry of entries) {
-                if (entry.contentRect.width > 0) {
-                    const targetContainer = entry.target;
-                    try {
-                        (window.adsbygoogle = window.adsbygoogle || []).push({});
-                        const styleWatcher = new MutationObserver((mutations) => {
-                            for (const mutation of mutations) {
-                                if (mutation.attributeName === 'style') {
-                                    if (window.innerWidth <= 768) {
-                                        const currentHeight = targetContainer.style.height;
-                                        if (currentHeight !== '50px') {
-                                            targetContainer.style.setProperty('height', '50px', 'important');
-                                            targetContainer.style.setProperty('min-height', '50px', 'important');
-                                        }
-                                    }
-                                    styleWatcher.disconnect();
-                                }
-                            }
-                        });
-                        styleWatcher.observe(targetContainer, { attributes: true });
-                    } catch (e) {
-                        console.error(`'${targetContainer.id}' 광고 요청 중 오류 발생:`, e);
-                    }
-                    adObserver.unobserve(targetContainer);
-                }
-            }
-        });
-        adContainers.forEach(container => adObserver.observe(container));
+    // --- 광고 설정 ---
+    function setupAds() {
+        // 모든 광고 컨테이너에 대해 광고 요청을 한 번만 실행
+        try {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+            console.error("광고 로딩 중 오류 발생:", e);
+        }
     }
 
     const adBlockManager = {
@@ -95,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderSidebar();
             renderMainNoticeList();
             addEventListeners();
+            setupAds(); // 광고 초기화
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
@@ -102,7 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     async function fetchAllDataFromFirebase() {
+        // [수정] 'notice' 컬렉션을 가져오도록 추가
         const collectionsToFetch = {
+            notice: db.collection('notice').where("isPublished", "==", true),
             pokemon: db.collection('pokemon').where("isPublished", "==", true),
             items: db.collection('items').where("isPublished", "==", true),
             runeAndChips: db.collection('runeAndChips').where("isPublished", "==", true),
@@ -111,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             events: db.collection('events'),
         };
         const promises = Object.values(collectionsToFetch).map(query => query.get());
-        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot] = await Promise.all(promises);
+        const [noticeSnapshot, pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot] = await Promise.all(promises);
         
         const snapshotToMap = (snapshot) => {
             const dataMap = {};
@@ -119,6 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return dataMap;
         };
 
+        // [수정] 가져온 공지사항 데이터를 DB 객체에 할당
+        DB.notice.lev3 = snapshotToMap(noticeSnapshot);
         DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
         DB.item.lev4 = snapshotToMap(itemsSnapshot);
         DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
@@ -131,7 +111,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function setupSideMenuData() {
-        DB.notice.lev2.sort((a, b) => new Date(b.date) - new Date(a.date));
+        // [수정] lev3에 로드된 공지사항 데이터를 기반으로 lev2 메뉴 목록 생성
+        DB.notice.lev2 = Object.values(DB.notice.lev3).map(data => ({ 
+            id: data.id, 
+            name: data.title,
+            // 'New' 기능 판별을 위해 createdAt 타임스탬프 추가
+            createdAt: data.createdAt 
+        }));
+        // 최신순으로 정렬
+        DB.notice.lev2.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
 
         DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         const types = {};
@@ -179,15 +167,38 @@ document.addEventListener('DOMContentLoaded', () => {
         DB.deck.lev3.builder = [{ id: 'deckBuilder', name: '배치툴' }];
     }
 
+    // [추가] 'New' 배지 표시 여부를 판단하는 함수
+    function isNew(timestamp) {
+        if (!timestamp || !timestamp.toDate) return false;
+        const postDate = timestamp.toDate();
+        const now = new Date();
+        const diffTime = now.getTime() - postDate.getTime();
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+        return diffDays <= 7; // 7일 이내 게시물은 true 반환
+    }
+
     function renderSidebar() {
         const sidebarContent = document.createElement('div');
         sidebarContent.className = 'panel-content';
         DB.sidebarMenu.forEach(item => {
             const button = document.createElement('button');
             button.className = 'menu-item';
-            button.textContent = item.name;
             button.dataset.level = 1;
             button.dataset.id = item.id;
+            
+            let buttonHTML = item.name;
+
+            // [수정] 'New' 배지 로직 추가
+            // 해당 카테고리의 데이터(lev2) 중에 새 글이 있는지 확인
+            const categoryData = DB[item.id]?.lev2;
+            if (categoryData && Array.isArray(categoryData)) {
+                const hasNewPost = categoryData.some(post => isNew(post.createdAt));
+                if (hasNewPost) {
+                    buttonHTML += '<span class="new-badge">N</span>';
+                }
+            }
+            
+            button.innerHTML = buttonHTML;
             sidebarContent.appendChild(button);
         });
         if(sidebar) {
@@ -198,10 +209,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderMainNoticeList() {
         if (!mainNoticeList) return;
+        // 최신 5개 공지사항 선택
         const noticesToShow = DB.notice.lev2.slice(0, 5);
-        mainNoticeList.innerHTML = noticesToShow.map(notice => 
-            `<li><a href="#" data-menu-id="notice" data-item-id="${notice.id}">${notice.name}</a></li>`
-        ).join('');
+        mainNoticeList.innerHTML = noticesToShow.map(notice => {
+            // [수정] 목록에도 'New' 배지 추가
+            const newBadge = isNew(notice.createdAt) ? '<span class="new-badge-list">New</span>' : '';
+            return `<li><a href="#" data-menu-id="notice" data-item-id="${notice.id}">${notice.name}</a> ${newBadge}</li>`;
+        }).join('');
     }
 
     function addEventListeners() {
@@ -327,7 +341,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextLevel = currentLevel + 1;
         if (nextLevel === 4 && (menuId === 'pokemonType' || menuId === 'pokemonGrade')) return DB.pokemonType.lev4?.[id];
         if (nextLevel === 2) return DB[menuId]?.lev2;
-        if (nextLevel === 3) return DB[menuId]?.lev3?.[id];
+        if (nextLevel === 3) {
+            // [수정] 공지사항, 팁&노하우는 lev3가 최종 뷰이므로 lev3 데이터를 반환
+            if (menuId === 'notice' || menuId === 'tips') return DB[menuId]?.lev3?.[id];
+            return DB[menuId]?.lev3?.[id];
+        }
         if (nextLevel === 4) return DB[menuId]?.lev4?.[id];
         return null;
     }
@@ -375,10 +393,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 data.forEach(item => {
                     const button = document.createElement('button');
                     button.className = 'list-item';
-                    button.textContent = item.name;
                     button.dataset.id = item.id;
                     button.dataset.level = level;
                     button.dataset.menuId = menuId;
+                    
+                    let itemHTML = item.name;
+                    // [수정] lev2 목록에도 'New' 배지 추가
+                    if (isNew(item.createdAt)) {
+                        itemHTML += '<span class="new-badge-list">New</span>';
+                    }
+                    button.innerHTML = itemHTML;
+                    
                     contentDiv.appendChild(button);
                 });
             }
@@ -540,7 +565,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ▼▼▼ [수정] '팁&노하우' 렌더링 로직 수정 ▼▼▼
     function renderSimpleView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
         detailView.className = 'simple-detail-view';
@@ -556,23 +580,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let description = data.description || data.htmlContent || '';
         
-        // menuId가 'tips'일 경우, [TIP]과 [주의]를 찾아 박스로 감싸는 로직
-        if (menuId === 'tips') {
+        if (menuId === 'tips' || menuId === 'notice') {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = description;
             
-            // p 태그를 순회하며 조건에 맞는 태그를 박스로 감쌈
             const paragraphs = tempDiv.querySelectorAll('p');
             paragraphs.forEach(p => {
                 const text = p.textContent || p.innerText;
                 if (text.includes('[TIP]')) {
-                    p.innerHTML = p.innerHTML.replace('[TIP]', ''); // 태그 제거
+                    p.innerHTML = p.innerHTML.replace('[TIP]', '');
                     const wrapper = document.createElement('div');
                     wrapper.className = 'tip-box';
                     p.parentNode.insertBefore(wrapper, p);
                     wrapper.appendChild(p);
                 } else if (text.includes('[주의]')) {
-                    p.innerHTML = p.innerHTML.replace('[주의]', ''); // 태그 제거
+                    p.innerHTML = p.innerHTML.replace('[주의]', '');
                     const wrapper = document.createElement('div');
                     wrapper.className = 'warning-box';
                     p.parentNode.insertBefore(wrapper, p);
@@ -657,7 +679,6 @@ document.addEventListener('DOMContentLoaded', () => {
         contentDiv.innerHTML = '';
         contentDiv.appendChild(detailView);
     }
-    // ▲▲▲ [수정] '팁&노하우' 렌더링 로직 수정 ▲▲▲
 
     function calculateSynergy(pokemonIds) {
         if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
@@ -1040,7 +1061,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 페이지 실행 ---
     adBlockManager.checkAndApplyBlock();
     initialize();
-    setupAdObservers();
 
     function setScreenHeight() {
       let vh = window.innerHeight * 0.01;
