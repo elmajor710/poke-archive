@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 3차 개발 적용');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 2차 개발 v6 적용');
 
     // --- 광고 설정 및 무효 트래픽 방지 로직 ---
     function setupAdObservers() {
@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const targetContainer = entry.target;
                     try {
                         (window.adsbygoogle = window.adsbygoogle || []).push({});
-<<<<<<<<< Temporary merge branch 1
                         const styleWatcher = new MutationObserver((mutations) => {
                             for (const mutation of mutations) {
                                 if (mutation.attributeName === 'style') {
@@ -27,8 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         });
                         styleWatcher.observe(targetContainer, { attributes: true });
-=========
->>>>>>>>> Temporary merge branch 2
                     } catch (e) {
                         console.error(`'${targetContainer.id}' 광고 요청 중 오류 발생:`, e);
                     }
@@ -95,39 +92,26 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await fetchAllDataFromFirebase();
             setupSideMenuData();
-            renderSidebar(); // 'New' 배지 렌더링 포함
+            renderSidebar();
             renderMainNoticeList();
             addEventListeners();
-            // 페이지 로드 시 광고 상태 초기화
-            if (isMobile()) {
-                handleMainButtonClick(); 
-            }
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
         }
     }
     
-    // ▼▼▼ [수정] 'notice' 컬렉션 불러오기 추가 ▼▼▼
     async function fetchAllDataFromFirebase() {
         const collectionsToFetch = {
             pokemon: db.collection('pokemon').where("isPublished", "==", true),
             items: db.collection('items').where("isPublished", "==", true),
             runeAndChips: db.collection('runeAndChips').where("isPublished", "==", true),
-<<<<<<<<< Temporary merge branch 1
-=========
-            notice: db.collection('notice').where("isPublished", "==", true), // 공지사항 불러오기
->>>>>>>>> Temporary merge branch 2
             tips: db.collection('tips').where("isPublished", "==", true),
             recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true),
             events: db.collection('events'),
         };
         const promises = Object.values(collectionsToFetch).map(query => query.get());
-<<<<<<<<< Temporary merge branch 1
         const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot] = await Promise.all(promises);
-=========
-        const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, noticeSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot] = await Promise.all(promises);
->>>>>>>>> Temporary merge branch 2
         
         const snapshotToMap = (snapshot) => {
             const dataMap = {};
@@ -138,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
         DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
         DB.item.lev4 = snapshotToMap(itemsSnapshot);
         DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
-        DB.notice.lev3 = snapshotToMap(noticeSnapshot); // 공지사항 데이터 저장
         DB.tips.lev3 = snapshotToMap(tipsSnapshot);
         DB.deck.lev4 = snapshotToMap(decksSnapshot);
         
@@ -147,12 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // ▼▼▼ [수정] 'notice' 데이터 처리 로직 추가 ▼▼▼
     function setupSideMenuData() {
-        // 공지사항 데이터 처리
-        DB.notice.lev2 = Object.values(DB.notice.lev3)
-            .map(data => ({ id: data.id, name: data.title, updatedAt: data.updatedAt }))
-            .sort((a, b) => (b.updatedAt?.toDate() || 0) - (a.updatedAt?.toDate() || 0));
+        DB.notice.lev2.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         const types = {};
@@ -194,53 +173,19 @@ document.addEventListener('DOMContentLoaded', () => {
         runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         DB.runeAndChip.lev3 = runeAndChipTypes;
 
-<<<<<<<<< Temporary merge branch 1
         DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title }));
-=========
-        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ id: data.id, name: data.name || data.title, updatedAt: data.updatedAt }));
->>>>>>>>> Temporary merge branch 2
         
         DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
         DB.deck.lev3.builder = [{ id: 'deckBuilder', name: '배치툴' }];
     }
 
-    // ▼▼▼ [추가] 'New' 배지 확인 로직 ▼▼▼
-    function checkForNewPosts() {
-        const newStatus = {};
-        const now = new Date();
-        const threeDaysAgo = now.setDate(now.getDate() - 3);
-
-        const checkCategory = (category, data) => {
-            const hasNew = Object.values(data).some(post => 
-                post.updatedAt && post.updatedAt.toDate() > threeDaysAgo
-            );
-            if (hasNew) {
-                newStatus[category] = true;
-            }
-        };
-
-        checkCategory('notice', DB.notice.lev3);
-        checkCategory('tips', DB.tips.lev3);
-        // 다른 카테고리도 추가 가능
-        
-        return newStatus;
-    }
-
-    // ▼▼▼ [수정] 'New' 배지 렌더링 로직 추가 ▼▼▼
     function renderSidebar() {
-        const newPostStatus = checkForNewPosts();
         const sidebarContent = document.createElement('div');
         sidebarContent.className = 'panel-content';
         DB.sidebarMenu.forEach(item => {
             const button = document.createElement('button');
             button.className = 'menu-item';
-            
-            let buttonHTML = item.name;
-            if (newPostStatus[item.id]) {
-                buttonHTML += ` <span class="new-badge">New</span>`;
-            }
-            button.innerHTML = buttonHTML;
-
+            button.textContent = item.name;
             button.dataset.level = 1;
             button.dataset.id = item.id;
             sidebarContent.appendChild(button);
@@ -303,13 +248,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ▼▼▼ [수정] 모바일 광고 제어 로직 추가 ▼▼▼
     function handleMenuClick(button) {
-        if (isMobile()) {
-            document.getElementById('ad-container-top').style.display = 'none';
-            document.getElementById('ad-container-bottom').style.display = 'none';
-            sidebar.classList.remove('visible');
-        }
+        if (isMobile()) sidebar.classList.remove('visible');
         mainPlaceholder.style.display = 'none';
         appContainer.classList.add('menu-active');
 
@@ -358,15 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-<<<<<<<<< Temporary merge branch 1
-=========
-    // ▼▼▼ [수정] 모바일 광고 제어 로직 추가 ▼▼▼
->>>>>>>>> Temporary merge branch 2
     function handleMainButtonClick() {
-        if (isMobile()) {
-            document.getElementById('ad-container-top').style.display = 'flex';
-            document.getElementById('ad-container-bottom').style.display = 'flex';
-        }
         mainPlaceholder.style.display = 'flex';
         appContainer.classList.remove('menu-active');
         Object.values(panels).forEach((panel, index) => {
@@ -624,28 +556,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let description = data.description || data.htmlContent || '';
         
-<<<<<<<<< Temporary merge branch 1
         // menuId가 'tips'일 경우, [TIP]과 [주의]를 찾아 박스로 감싸는 로직
         if (menuId === 'tips') {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = description;
             
             // p 태그를 순회하며 조건에 맞는 태그를 박스로 감쌈
-=========
-        if (menuId === 'tips' || menuId === 'notice') {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = description;
-            
->>>>>>>>> Temporary merge branch 2
             const paragraphs = tempDiv.querySelectorAll('p');
             paragraphs.forEach(p => {
                 const text = p.textContent || p.innerText;
                 if (text.includes('[TIP]')) {
-<<<<<<<<< Temporary merge branch 1
                     p.innerHTML = p.innerHTML.replace('[TIP]', ''); // 태그 제거
-=========
-                    p.innerHTML = p.innerHTML.replace('[TIP]', ''); 
->>>>>>>>> Temporary merge branch 2
                     const wrapper = document.createElement('div');
                     wrapper.className = 'tip-box';
                     p.parentNode.insertBefore(wrapper, p);
