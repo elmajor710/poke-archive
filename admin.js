@@ -298,7 +298,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 recommendedNatures: Array.from(form.querySelectorAll('input[name="natures"]:checked')).map(cb => cb.value),
                 recommendedItems: Array.from(itemsSelect.selectedOptions).map(opt => opt.value),
                 recommendedRunes: Array.from(runesSelect.selectedOptions).map(opt => opt.value),
-                recommendedChips: Array.from(chipsSelect.selectedOptions).map(opt => opt.value)
+                recommendedChips: Array.from(chipsSelect.selectedOptions).map(opt => opt.value),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp() // 수정 시간 기록
             };
             
             await db.collection("pokemon").doc(pkmId).set(pokemonData, { merge: true });
@@ -409,6 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 imageURL: form.querySelector('#item-image-url').value,
                 description: form.querySelector('#item-description').value,
                 isPublished: form.querySelector('#item-is-published').checked,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp() // 수정 시간 기록
             };
             await db.collection("items").doc(itemId).set(itemData, { merge: true });
             alert('저장 완료');
@@ -468,6 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 imageURL: form.querySelector('#rc-image-url').value,
                 description: form.querySelector('#rc-description').value,
                 isPublished: form.querySelector('#rc-is-published').checked,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp() // 수정 시간 기록
             };
             await db.collection("runeAndChips").doc(rcId).set(rcData, { merge: true });
             alert('저장 완료');
@@ -491,7 +494,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loadRuneChipList();
     }
 
-    // ▼▼▼ [추가] 공지사항 관리 기능 (팁&노하우 복사) ▼▼▼
     function setupNoticeManagement() {
         const form = document.getElementById('notice-form');
         const selectList = document.getElementById('notice-select-list');
@@ -539,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 title: form.querySelector('#notice-title').value,
                 htmlContent: form.querySelector('#notice-content').value,
                 isPublished: form.querySelector('#notice-is-published').checked,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp() // 최신순 정렬을 위한 타임스탬프
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp() // 수정 시간 기록
             };
             await db.collection("notice").doc(noticeId).set(noticeData, { merge: true });
             alert('저장 완료');
@@ -562,7 +564,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         loadNoticesList();
     }
-    // ▲▲▲ [추가] 공지사항 관리 기능 (팁&노하우 복사) ▲▲▲
 
     function setupTipsManagement() {
         const form = document.getElementById('tip-form');
@@ -612,6 +613,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 title: form.querySelector('#tip-title').value,
                 htmlContent: form.querySelector('#tip-content').value,
                 isPublished: form.querySelector('#tip-is-published').checked,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp() // 수정 시간 기록
             };
             await db.collection("tips").doc(tipId).set(tipData, { merge: true });
             alert('저장 완료');
@@ -810,7 +812,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         role: s.dataset.role,
                         position: parseInt(s.dataset.position),
                         pokemonId: s.value
-                    }))
+                    })),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp() // 수정 시간 기록
             };
             await db.collection("recommendedDecks").doc(deckId).set(deckData, { merge: true });
             alert('저장 완료');
