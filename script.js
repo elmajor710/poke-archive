@@ -434,9 +434,15 @@ function renderSidebar() {
             }
         }
 
+        /* addEventListeners 함수 내부에서 popularDeckLink 부분을 찾아 아래 코드로 교체하세요 */
+
         const popularDeckLink = e.target.closest('#popular-deck-list a');
         if (popularDeckLink) {
             e.preventDefault();
+            // ▼▼▼ [추가] 인기글을 통해 접속했다는 사실을 기록 ▼▼▼
+            sessionStorage.setItem('fromPopularPost', 'true');
+            // ▲▲▲ [추가] 인기글을 통해 접속했다는 사실을 기록 ▲▲▲
+
             const menuId = popularDeckLink.dataset.menuId;
             const itemId = popularDeckLink.dataset.itemId;
 
