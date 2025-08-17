@@ -418,9 +418,14 @@ function renderSidebar() {
             }
         }
 
+        /* addEventListeners 함수 내부에서 noticeLink와 popularDeckLink 부분을 찾아 각각 수정하세요 */
+
         const noticeLink = e.target.closest('#main-notice-list a');
         if (noticeLink) {
             e.preventDefault();
+            // ▼▼▼ [추가] "첫 화면에서 바로 왔음!" 메모 남기기 ▼▼▼
+            sessionStorage.setItem('fromMainPageShortcut', 'true');
+
             const menuId = noticeLink.dataset.menuId;
             const itemId = noticeLink.dataset.itemId;
 
@@ -434,14 +439,11 @@ function renderSidebar() {
             }
         }
 
-        /* addEventListeners 함수 내부에서 popularDeckLink 부분을 찾아 아래 코드로 교체하세요 */
-
         const popularDeckLink = e.target.closest('#popular-deck-list a');
         if (popularDeckLink) {
             e.preventDefault();
-            // ▼▼▼ [추가] 인기글을 통해 접속했다는 사실을 기록 ▼▼▼
-            sessionStorage.setItem('fromPopularPost', 'true');
-            // ▲▲▲ [추가] 인기글을 통해 접속했다는 사실을 기록 ▲▲▲
+            // ▼▼▼ [추가] "첫 화면에서 바로 왔음!" 메모 남기기 ▼▼▼
+            sessionStorage.setItem('fromMainPageShortcut', 'true');
 
             const menuId = popularDeckLink.dataset.menuId;
             const itemId = popularDeckLink.dataset.itemId;
@@ -526,18 +528,22 @@ async function handleLikeClick(button) {
 
     /* script.js 파일에서 기존 handleMenuClick 함수를 찾아 아래 코드로 전체 교체하세요 */
 function handleMenuClick(button) {
+    // ▼▼▼ [추가] 일반 메뉴 탐색 시, '첫 화면 바로가기' 메모 삭제 ▼▼▼
+    if (!button.closest('#main-notice-list') && !button.closest('#popular-deck-list')) {
+        sessionStorage.removeItem('fromMainPageShortcut');
+    }
+    // ▲▲▲ [추가] 일반 메뉴 탐색 시, '첫 화면 바로가기' 메모 삭제 ▲▲▲
+
     if (isMobile()) sidebar.classList.remove('visible');
     mainPlaceholder.style.display = 'none';
     appContainer.classList.add('menu-active');
 
-    // ▼▼▼ [추가] 모바일에서 메뉴 클릭 시 하단 광고 숨기기 ▼▼▼
     if (isMobile()) {
         const bottomAd = document.getElementById('ad-container-bottom');
         if (bottomAd) {
             bottomAd.style.display = 'none';
         }
     }
-    // ▲▲▲ [추가] 모바일에서 메뉴 클릭 시 하단 광고 숨기기 ▲▲▲
 
     const level = parseInt(button.dataset.level);
     const id = button.dataset.id;
@@ -562,23 +568,22 @@ function handleMenuClick(button) {
     renderPanelContent(nextLevel, nextData, menuId, id);
 }
     
-    /* handleMenuClick 함수 바로 아래에 이 코드를 추가하세요 */
-
 /* script.js 파일에서 기존 handleBackClick 함수를 찾아 아래 코드로 전체 교체하세요 */
 function handleBackClick(button) {
     const parentPanel = button.closest('.panel');
     if (!parentPanel) return;
 
-    // ▼▼▼ [수정] '뒤로가기' 로직 최종 버전 ▼▼▼
-    // '인기글'을 통해 들어왔다는 기록이 있는지 확인
-    const fromPopular = sessionStorage.getItem('fromPopularPost');
-    if (parentPanel.id === 'lev4-panel' && fromPopular === 'true') {
-        sessionStorage.removeItem('fromPopularPost'); // 기록 삭제
-        handleMainButtonClick(); // 메인 화면으로 이동
+    // ▼▼▼ [수정] '스마트 뒤로가기' 로직 최종 버전 ▼▼▼
+    const fromShortcut = sessionStorage.getItem('fromMainPageShortcut');
+
+    // "첫 화면 바로가기" 메모가 있다면, 메인으로 이동
+    if (fromShortcut === 'true') {
+        sessionStorage.removeItem('fromMainPageShortcut'); // 메모는 한 번만 사용하고 삭제
+        handleMainButtonClick();
         return;
     }
 
-    // 일반적인 '뒤로가기' 로직 (직전 화면으로 이동)
+    // 메모가 없다면, 일반적인 '직전 화면으로 가기' 로직 수행
     const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
     const currentPanel = panels[`lev${level}`];
     const prevPanel = panels[`lev${level - 1}`] || sidebar;
@@ -587,20 +592,17 @@ function handleBackClick(button) {
 
     if (prevPanel) {
         if (isMobile()) prevPanel.classList.remove('is-hidden');
-        // 이전 패널이 사이드바가 아닐 때만 보이도록 처리
         if(prevPanel !== sidebar) {
             prevPanel.classList.add('visible');
         }
     }
     
-    // 가장 첫 단계(lev2)에서 뒤로가면 메인 화면으로 이동
     if (level === 2) {
         handleMainButtonClick();
     } else {
-        // 그 외에는 이전 레벨의 활성화 상태만 복구
         setActive(level - 1, null);
     }
-    // ▲▲▲ [수정] '뒤로가기' 로직 최종 버전 ▲▲▲
+    // ▲▲▲ [수정] '스마트 뒤로가기' 로직 최종 버전 ▲▲▲
 }
 
     /* script.js 파일에서 기존 handleMainButtonClick 함수를 찾아 아래 코드로 전체 교체하세요 */
