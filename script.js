@@ -202,11 +202,23 @@ async function fetchAndRenderPopularDecks() {
         Object.values(grades).forEach(gradeList => gradeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
         DB.pokemonGrade.lev3 = grades;
         
-        const itemGrades = { god: [], legendary: [], epic: [] };
-        Object.values(DB.item.lev4).forEach(item => {
-            const gradeKey = item.grade?.toLowerCase();
-            if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name });
-        });
+        /* setupSideMenuData 함수 내부에서 아이템 등급을 처리하는 부분을 찾아 아래 코드로 교체하세요 */
+// 기존 const itemGrades = ... 부터 DB.item.lev3 = itemGrades; 까지의 부분을 교체합니다.
+
+const itemGrades = { god: [], legendary: [], epic: [] };
+Object.values(DB.item.lev4).forEach(item => {
+    const gradeKey = item.grade?.toLowerCase();
+    if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name });
+});
+Object.values(itemGrades).forEach(g => g.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
+DB.item.lev3 = itemGrades;
+
+// ▼▼▼ [추가] 아이템 L2 메뉴 등급순 정렬 보장 ▼▼▼
+const gradeOrder = { 'god': 1, 'legendary': 2, 'epic': 3 };
+if (DB.item && DB.item.lev2 && Array.isArray(DB.item.lev2)) {
+    DB.item.lev2.sort((a, b) => (gradeOrder[a.id] || 99) - (gradeOrder[b.id] || 99));
+}
+// ▲▲▲ [추가] 아이템 L2 메뉴 등급순 정렬 보장 ▲▲▲
         Object.values(itemGrades).forEach(g => g.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
         DB.item.lev3 = itemGrades;
         
@@ -501,27 +513,36 @@ async function handleLikeClick(button) {
         renderPanelContent(nextLevel, nextData, menuId, id);
     }
 
-    function handleBackClick(button) {
-        const parentPanel = button.closest('.panel');
-        if (!parentPanel) return;
+    /* script.js 파일에서 기존 handleBackClick 함수를 찾아 아래 코드로 전체 교체하세요 */
+function handleBackClick(button) {
+    const parentPanel = button.closest('.panel');
+    if (!parentPanel) return;
 
-        const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
-        const currentPanel = panels[`lev${level}`];
-        const prevPanel = panels[`lev${level - 1}`] || sidebar;
-
-        currentPanel.classList.remove('visible');
-
-        if (prevPanel) {
-            if (isMobile()) prevPanel.classList.remove('is-hidden');
-            if(prevPanel !== sidebar) prevPanel.classList.add('visible');
-        }
-        
-        if (level === 2) {
-            handleMainButtonClick();
-        } else {
-            setActive(level - 1, null);
-        }
+    // ▼▼▼ [수정] '뒤로가기' 로직 변경 ▼▼▼
+    // 현재 패널이 'lev4-panel'이고, 헤더에 '메인' 버튼이 있다면 메인 화면으로 바로 이동
+    if (parentPanel.id === 'lev4-panel' && parentPanel.querySelector('.main-btn')) {
+        handleMainButtonClick();
+        return;
     }
+    // ▲▲▲ [수정] '뒤로가기' 로직 변경 ▲▲▲
+
+    const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
+    const currentPanel = panels[`lev${level}`];
+    const prevPanel = panels[`lev${level - 1}`] || sidebar;
+
+    currentPanel.classList.remove('visible');
+
+    if (prevPanel) {
+        if (isMobile()) prevPanel.classList.remove('is-hidden');
+        if(prevPanel !== sidebar) prevPanel.classList.add('visible');
+    }
+    
+    if (level === 2) {
+        handleMainButtonClick();
+    } else {
+        setActive(level - 1, null);
+    }
+}
     
     function handleMainButtonClick() {
         mainPlaceholder.style.display = 'flex';
@@ -619,127 +640,133 @@ async function handleLikeClick(button) {
         }
     }
 
-    function renderPokemonView(contentDiv, data, menuId) {
-        const detailView = document.createElement('div');
-        const nameKo = data.name_ko || '이름 없음';
-        const nameEn = data.name_en || '';
-        let commonHTML = `<h2>${nameKo} <span style="font-size:0.8em; color:#666;">${nameEn}</span></h2>`;
-        let badgesHTML = '<div class="badge-container">';
-        if (data.grade) {
-            const gradeClass = `grade-${data.grade.toLowerCase().replace('+', '-plus')}`;
-            badgesHTML += `<span class="grade-badge ${gradeClass}">${data.grade}</span>`;
-        }
-        if (data.types && data.types.length > 0) {
-            data.types.forEach(typeId => {
-                const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-                if (typeInfo) badgesHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
-            });
-        }
-        badgesHTML += '</div>';
-        commonHTML += badgesHTML;
-        if (data.imageURL) commonHTML += `<img src="${data.imageURL}" alt="${nameKo}" class="main-image">`;
-        
-        let statsHTML = '';
-        if (data.stats) {
-            const totalStats = Object.values(data.stats).reduce((a, b) => Number(a) + Number(b), 0);
-            statsHTML += `<h4>종족값 (총합: ${totalStats})</h4><table class="stats-table">${Object.entries(data.stats).map(([stat, value]) => `<tr><td>${stat.toUpperCase()}</td><td>${value}</td></tr>`).join('')}</table>`;
-        } else {
-            statsHTML = '<h4>기본 정보</h4><p>등록된 종족값 정보가 없습니다.</p>';
-        }
-        
-        let skillsHTML = '';
-        if (data.skills && data.skills.length > 0 && data.skills.some(s => s.name)) {
-            skillsHTML += '<h4>스킬</h4><ul class="skill-list">';
-            data.skills.forEach((skill, index) => { 
-                if(skill.name) skillsHTML += `<li class="skill-item"><span class="skill-name" data-skill-index="${index}">${skill.name}</span><span class="skill-type">${skill.type}</span></li>`; 
-            });
-            skillsHTML += '</ul>';
-        } else {
-            skillsHTML = '<h4>스킬</h4><p>등록된 스킬 정보가 없습니다.</p>';
-        }
-
-        let buildHTML = '';
-        let hasBuildInfo = false;
-        if (data.build_concept) {
-            buildHTML += `<h4>빌드 콘셉트</h4><p>${data.build_concept}</p>`;
-            hasBuildInfo = true;
-        }
-        if (data.recommendedNatures && data.recommendedNatures.length > 0) {
-            const natureNames = data.recommendedNatures.map(natureId => DB.definitions.natures.find(n => n.id === natureId)?.name || '').filter(Boolean);
-            if(natureNames.length > 0) {
-                buildHTML += `<h4>추천 성격</h4><p>${natureNames.join(', ')}</p>`;
-                hasBuildInfo = true;
-            }
-        }
-        const recommendTypes = { recommendedItems: '추천 아이템', recommendedRunes: '추천 룬', recommendedChips: '추천 칩' };
-        for (const type in recommendTypes) {
-            if (data[type] && data[type].length > 0) {
-                hasBuildInfo = true;
-                buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
-                data[type].forEach(id => {
-                    const dbKey = (type === 'recommendedRunes' || type === 'recommendedChips') ? 'runeAndChip' : 'item';
-                    const itemData = DB[dbKey]?.lev4?.[id];
-                    if (itemData) {
-                         buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${dbKey}">${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}</div>`;
-                    }
-                });
-                buildHTML += `</div>`;
-            }
-        }
-        if (!hasBuildInfo) {
-            buildHTML = '<h4>추천 빌드</h4><p>등록된 추천 빌드 정보가 없습니다.</p>';
-        }
-
-        const useTabs = isMobile() || menuId === 'pokemonType' || menuId === 'pokemonGrade';
-        detailView.className = `pokemon-detail-view ${useTabs ? 'use-tabs' : ''}`;
-        if (useTabs) {
-             detailView.innerHTML = `${commonHTML}<div class="tab-container"><nav class="tab-nav"><button class="tab-button active" data-tab="tab-info">기본 정보</button><button class="tab-button" data-tab="tab-skills">스킬</button><button class="tab-button" data-tab="tab-build">추천 빌드</button></nav><div id="tab-info" class="tab-pane active">${statsHTML}</div><div id="tab-skills" class="tab-pane">${skillsHTML}</div><div id="tab-build" class="tab-pane">${buildHTML}</div></div>`;
-        } else {
-            detailView.innerHTML = `${commonHTML}<div class="info-sections">${statsHTML}${skillsHTML}${buildHTML}</div>`;
-        }
-        
-        contentDiv.innerHTML = '';
-        contentDiv.appendChild(detailView);
-
-        detailView.querySelectorAll('.skill-name').forEach(el => { 
-            el.addEventListener('click', () => { 
-                const skillIndex = parseInt(el.dataset.skillIndex);
-                const skill = data.skills[skillIndex];
-                if (skill) {
-                    let skillDetailContent = `<p>${skill.description || ''}</p>`;
-                    if (skill.keywords && skill.keywords.length > 0) {
-                        skillDetailContent += '<hr><h4>키워드 설명</h4><ul>';
-                        skill.keywords.forEach(kw => { skillDetailContent += `<li><strong>${kw.term}:</strong> ${kw.desc}</li>`; });
-                        skillDetailContent += '</ul>';
-                    }
-                    showModal(skill.name, skillDetailContent); 
-                }
-            }); 
-        });
-        detailView.querySelectorAll('.recommend-item').forEach(el => {
-            el.addEventListener('click', () => {
-                const itemId = el.dataset.itemId;
-                const dbKey = el.dataset.itemType;
-                const itemData = DB[dbKey]?.lev4?.[itemId];
-
-                if (itemData) {
-                    const tempContentDiv = document.createElement('div');
-                    renderSimpleView(tempContentDiv, itemData, dbKey);
-                    showModal(itemData.name, tempContentDiv);
-                }
-            });
-        });
-
-        detailView.querySelectorAll('.tab-button').forEach(button => {
-            button.addEventListener('click', () => {
-                if (button.classList.contains('active')) return;
-                detailView.querySelector('.tab-button.active').classList.remove('active');
-                detailView.querySelector('.tab-pane.active').classList.remove('active');
-                button.classList.add('active');
-                detailView.querySelector(`#${button.dataset.tab}`).classList.add('active');
-            });
+    /* script.js 파일에서 기존 renderPokemonView 함수를 찾아 아래 코드로 전체 교체하세요 */
+function renderPokemonView(contentDiv, data, menuId) {
+    const detailView = document.createElement('div');
+    const nameKo = data.name_ko || '이름 없음';
+    const nameEn = data.name_en || '';
+    let commonHTML = `<h2>${nameKo} <span style="font-size:0.8em; color:#666;">${nameEn}</span></h2>`;
+    let badgesHTML = '<div class="badge-container">';
+    if (data.grade) {
+        const gradeClass = `grade-${data.grade.toLowerCase().replace('+', '-plus')}`;
+        badgesHTML += `<span class="grade-badge ${gradeClass}">${data.grade}</span>`;
+    }
+    if (data.types && data.types.length > 0) {
+        data.types.forEach(typeId => {
+            const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+            if (typeInfo) badgesHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
         });
     }
+    badgesHTML += '</div>';
+    commonHTML += badgesHTML;
+    if (data.imageURL) commonHTML += `<img src="${data.imageURL}" alt="${nameKo}" class="main-image">`;
+    
+    let statsHTML = '';
+    if (data.stats) {
+        const totalStats = Object.values(data.stats).reduce((a, b) => Number(a) + Number(b), 0);
+        statsHTML += `<h4>종족값 (총합: ${totalStats})</h4><table class="stats-table">${Object.entries(data.stats).map(([stat, value]) => `<tr><td>${stat.toUpperCase()}</td><td>${value}</td></tr>`).join('')}</table>`;
+    } else {
+        statsHTML = '<h4>기본 정보</h4><p>등록된 종족값 정보가 없습니다.</p>';
+    }
+    
+    let skillsHTML = '';
+    if (data.skills && data.skills.length > 0 && data.skills.some(s => s.name)) {
+        skillsHTML += '<h4>스킬</h4><ul class="skill-list">';
+        data.skills.forEach((skill, index) => { 
+            if(skill.name) skillsHTML += `<li class="skill-item"><span class="skill-name" data-skill-index="${index}">${skill.name}</span><span class="skill-type">${skill.type}</span></li>`; 
+        });
+        skillsHTML += '</ul>';
+    } else {
+        skillsHTML = '<h4>스킬</h4><p>등록된 스킬 정보가 없습니다.</p>';
+    }
+
+    let buildHTML = '';
+    let hasBuildInfo = false;
+    if (data.build_concept) {
+        buildHTML += `<h4>빌드 콘셉트</h4><p>${data.build_concept}</p>`;
+        hasBuildInfo = true;
+    }
+    if (data.recommendedNatures && data.recommendedNatures.length > 0) {
+        const natureNames = data.recommendedNatures.map(natureId => DB.definitions.natures.find(n => n.id === natureId)?.name || '').filter(Boolean);
+        if(natureNames.length > 0) {
+            buildHTML += `<h4>추천 성격</h4><p>${natureNames.join(', ')}</p>`;
+            hasBuildInfo = true;
+        }
+    }
+    const recommendTypes = { recommendedItems: '추천 아이템', recommendedRunes: '추천 룬', recommendedChips: '추천 칩' };
+    for (const type in recommendTypes) {
+        if (data[type] && data[type].length > 0) {
+            hasBuildInfo = true;
+            buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
+            data[type].forEach(id => {
+                const dbKey = (type === 'recommendedRunes' || type === 'recommendedChips') ? 'runeAndChip' : 'item';
+                const itemData = DB[dbKey]?.lev4?.[id];
+                if (itemData) {
+                     buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${dbKey}">${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}</div>`;
+                }
+            });
+            buildHTML += `</div>`;
+        }
+    }
+    if (!hasBuildInfo) {
+        buildHTML = '<h4>추천 빌드</h4><p>등록된 추천 빌드 정보가 없습니다.</p>';
+    }
+
+    const useTabs = isMobile() || menuId === 'pokemonType' || menuId === 'pokemonGrade';
+    detailView.className = `pokemon-detail-view ${useTabs ? 'use-tabs' : ''}`;
+    if (useTabs) {
+         detailView.innerHTML = `${commonHTML}<div class="tab-container"><nav class="tab-nav"><button class="tab-button active" data-tab="tab-info">기본 정보</button><button class="tab-button" data-tab="tab-skills">스킬</button><button class="tab-button" data-tab="tab-build">추천 빌드</button></nav><div id="tab-info" class="tab-pane active">${statsHTML}</div><div id="tab-skills" class="tab-pane">${skillsHTML}</div><div id="tab-build" class="tab-pane">${buildHTML}</div></div>`;
+    } else {
+        detailView.innerHTML = `${commonHTML}<div class="info-sections">${statsHTML}${skillsHTML}${buildHTML}</div>`;
+    }
+    
+    contentDiv.innerHTML = '';
+    contentDiv.appendChild(detailView);
+
+    detailView.querySelectorAll('.skill-name').forEach(el => { 
+        el.addEventListener('click', () => { 
+            const skillIndex = parseInt(el.dataset.skillIndex);
+            const skill = data.skills[skillIndex];
+            if (skill) {
+                let skillDetailContent = `<p>${skill.description || ''}</p>`;
+                if (skill.keywords && skill.keywords.length > 0) {
+                    skillDetailContent += '<hr><h4>키워드 설명</h4><ul>';
+                    skill.keywords.forEach(kw => { skillDetailContent += `<li><strong>${kw.term}:</strong> ${kw.desc}</li>`; });
+                    skillDetailContent += '</ul>';
+                }
+                showModal(skill.name, skillDetailContent); 
+            }
+        }); 
+    });
+    
+    // ▼▼▼ [수정] 훼손되었던 팝업 클릭 이벤트 리스너 복구 ▼▼▼
+    detailView.querySelectorAll('.recommend-item').forEach(el => {
+        el.addEventListener('click', () => {
+            const itemId = el.dataset.itemId;
+            const dbKey = el.dataset.itemType;
+            const itemData = DB[dbKey]?.lev4?.[itemId];
+
+            if (itemData) {
+                const tempContentDiv = document.createElement('div');
+                // renderSimpleView를 사용하여 아이템/룬/칩의 상세 내용을 생성
+                renderSimpleView(tempContentDiv, itemData, dbKey);
+                // 생성된 내용을 모달(팝업)으로 보여줌
+                showModal(itemData.name, tempContentDiv.innerHTML);
+            }
+        });
+    });
+    // ▲▲▲ [수정] 훼손되었던 팝업 클릭 이벤트 리스너 복구 ▲▲▲
+
+    detailView.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+            if (button.classList.contains('active')) return;
+            detailView.querySelector('.tab-button.active').classList.remove('active');
+            detailView.querySelector('.tab-pane.active').classList.remove('active');
+            button.classList.add('active');
+            detailView.querySelector(`#${button.dataset.tab}`).classList.add('active');
+        });
+    });
+}
 
     function renderSimpleView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
