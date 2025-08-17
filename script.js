@@ -321,13 +321,11 @@ async function fetchAndRenderPopularDecks() {
     });
 
     document.body.addEventListener('click', e => {
-        // ▼▼▼ [추가] 좋아요 버튼 클릭 처리 ▼▼▼
         const likeBtn = e.target.closest('.like-btn');
         if (likeBtn) {
             handleLikeClick(likeBtn);
-            return; // 다른 버튼 로직과 중복 실행 방지
+            return; 
         }
-        // ▲▲▲ [추가] 좋아요 버튼 클릭 처리 ▲▲▲
 
         const button = e.target.closest('button');
         if (button) {
@@ -338,12 +336,21 @@ async function fetchAndRenderPopularDecks() {
             } else if (button.classList.contains('main-btn')) {
                 handleMainButtonClick();
             } else if (button.classList.contains('main-action-btn')) {
+                // ▼▼▼ [수정] 모바일 '인기글' 버튼 클릭 시 '추천덱' 목록으로 바로 이동 ▼▼▼
                 if (button.dataset.menuId === 'popular') {
-                    // 메인 페이지의 '인기글' 버튼을 누르면, 사이드바의 '덱 구성' 메뉴를 클릭한 것처럼 동작
-                    const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="deck"]`);
-                    if(targetMenuItem) handleMenuClick(targetMenuItem);
+                    const lev1_btn = sidebar.querySelector(`.menu-item[data-id="deck"]`);
+                    if (lev1_btn) {
+                        handleMenuClick(lev1_btn); // L1 '덱 구성' 클릭
+                        setTimeout(() => {
+                            const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="recommended"]`);
+                            if (lev2_btn) {
+                                handleMenuClick(lev2_btn); // L2 '추천덱' 클릭
+                            }
+                        }, 50);
+                    }
                     return;
                 }
+                // ▲▲▲ [수정] 모바일 '인기글' 버튼 클릭 시 '추천덱' 목록으로 바로 이동 ▲▲▲
                 const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="${button.dataset.menuId}"]`);
                 if(targetMenuItem) handleMenuClick(targetMenuItem);
             } else if (button.dataset.level) {
@@ -367,23 +374,20 @@ async function fetchAndRenderPopularDecks() {
             }
         }
 
-        // ▼▼▼ [추가] 인기글 링크 클릭 처리 ▼▼▼
         const popularDeckLink = e.target.closest('#popular-deck-list a');
         if (popularDeckLink) {
             e.preventDefault();
-            const menuId = popularDeckLink.dataset.menuId; // 'deck'
-            const itemId = popularDeckLink.dataset.itemId; // 덱 ID
+            const menuId = popularDeckLink.dataset.menuId;
+            const itemId = popularDeckLink.dataset.itemId;
 
             const lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
             if (lev1_btn) {
-                handleMenuClick(lev1_btn); // '덱 구성' 메뉴 클릭
+                handleMenuClick(lev1_btn);
                 setTimeout(() => {
-                    // '추천덱'은 lev2에 있으므로 lev2 패널에서 'recommended' 버튼을 찾음
                     const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="recommended"]`);
                     if (lev2_btn) {
-                        handleMenuClick(lev2_btn); // '추천덱' 버튼 클릭
+                        handleMenuClick(lev2_btn);
                         setTimeout(() => {
-                            // lev3 패널에서 실제 덱 버튼을 찾아 클릭
                             const lev3_btn = panels.lev3.querySelector(`.list-item[data-id="${itemId}"]`);
                             if (lev3_btn) handleMenuClick(lev3_btn);
                         }, 50);
@@ -391,7 +395,6 @@ async function fetchAndRenderPopularDecks() {
                 }, 50); 
             }
         }
-        // ▲▲▲ [추가] 인기글 링크 클릭 처리 ▲▲▲
     });
 }
 
