@@ -564,17 +564,21 @@ function handleMenuClick(button) {
     
     /* handleMenuClick 함수 바로 아래에 이 코드를 추가하세요 */
 
-// ▼▼▼ [추가] 누락되었던 뒤로가기 버튼 함수 ▼▼▼
+/* script.js 파일에서 기존 handleBackClick 함수를 찾아 아래 코드로 전체 교체하세요 */
 function handleBackClick(button) {
     const parentPanel = button.closest('.panel');
     if (!parentPanel) return;
 
-    // 인기글 또는 최종 상세 보기 화면에서 뒤로가기 시 메인으로 이동
-    if (parentPanel.id === 'lev4-panel' && parentPanel.querySelector('.main-btn')) {
-        handleMainButtonClick();
+    // ▼▼▼ [수정] '뒤로가기' 로직 최종 버전 ▼▼▼
+    // '인기글'을 통해 들어왔다는 기록이 있는지 확인
+    const fromPopular = sessionStorage.getItem('fromPopularPost');
+    if (parentPanel.id === 'lev4-panel' && fromPopular === 'true') {
+        sessionStorage.removeItem('fromPopularPost'); // 기록 삭제
+        handleMainButtonClick(); // 메인 화면으로 이동
         return;
     }
 
+    // 일반적인 '뒤로가기' 로직 (직전 화면으로 이동)
     const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
     const currentPanel = panels[`lev${level}`];
     const prevPanel = panels[`lev${level - 1}`] || sidebar;
@@ -583,16 +587,21 @@ function handleBackClick(button) {
 
     if (prevPanel) {
         if (isMobile()) prevPanel.classList.remove('is-hidden');
-        if(prevPanel !== sidebar) prevPanel.classList.add('visible');
+        // 이전 패널이 사이드바가 아닐 때만 보이도록 처리
+        if(prevPanel !== sidebar) {
+            prevPanel.classList.add('visible');
+        }
     }
     
+    // 가장 첫 단계(lev2)에서 뒤로가면 메인 화면으로 이동
     if (level === 2) {
         handleMainButtonClick();
     } else {
+        // 그 외에는 이전 레벨의 활성화 상태만 복구
         setActive(level - 1, null);
     }
+    // ▲▲▲ [수정] '뒤로가기' 로직 최종 버전 ▲▲▲
 }
-// ▲▲▲ [추가] 누락되었던 뒤로가기 버튼 함수 ▲▲▲
 
     /* script.js 파일에서 기존 handleMainButtonClick 함수를 찾아 아래 코드로 전체 교체하세요 */
 function handleMainButtonClick() {
