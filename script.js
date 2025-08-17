@@ -169,77 +169,73 @@ async function fetchAndRenderPopularDecks() {
         }
     }
     
-    function setupSideMenuData() {
-        DB.notice.lev2 = Object.values(DB.notice.lev3).map(data => ({ 
-            id: data.id, 
-            name: data.title,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt
-        }));
-        DB.notice.lev2.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+    /* script.js 파일에서 기존 setupSideMenuData 함수를 찾아 아래 코드로 전체 교체하세요 */
+function setupSideMenuData() {
+    DB.notice.lev2 = Object.values(DB.notice.lev3).map(data => ({ 
+        id: data.id, 
+        name: data.title,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt
+    }));
+    DB.notice.lev2.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
 
-        DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-        const types = {};
-        DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
-        Object.values(DB.pokemonType.lev4).forEach(pokemon => {
-            if (pokemon.types && Array.isArray(pokemon.types)) {
-                pokemon.types.forEach(typeId => {
-                    if (types[typeId]) types[typeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
-                });
-            }
-        });
-        Object.values(types).forEach(typeList => typeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
-        DB.pokemonType.lev3 = types;
+    DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+    const types = {};
+    DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
+    Object.values(DB.pokemonType.lev4).forEach(pokemon => {
+        if (pokemon.types && Array.isArray(pokemon.types)) {
+            pokemon.types.forEach(typeId => {
+                if (types[typeId]) types[typeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
+            });
+        }
+    });
+    Object.values(types).forEach(typeList => typeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
+    DB.pokemonType.lev3 = types;
 
-        const grades = {};
-        DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
-        Object.values(DB.pokemonType.lev4).forEach(pokemon => {
-            if (pokemon && pokemon.grade) {
-                const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id;
-                if (gradeId && grades[gradeId]) grades[gradeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
-            }
-        });
-        Object.values(grades).forEach(gradeList => gradeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
-        DB.pokemonGrade.lev3 = grades;
-        
-        /* setupSideMenuData 함수 내부에서 아이템 등급을 처리하는 부분을 찾아 아래 코드로 교체하세요 */
-// 기존 const itemGrades = ... 부터 DB.item.lev3 = itemGrades; 까지의 부분을 교체합니다.
-
-const itemGrades = { god: [], legendary: [], epic: [] };
-Object.values(DB.item.lev4).forEach(item => {
-    const gradeKey = item.grade?.toLowerCase();
-    if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name });
-});
-Object.values(itemGrades).forEach(g => g.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
-DB.item.lev3 = itemGrades;
-
-// ▼▼▼ [추가] 아이템 L2 메뉴 등급순 정렬 보장 ▼▼▼
-const gradeOrder = { 'god': 1, 'legendary': 2, 'epic': 3 };
-if (DB.item && DB.item.lev2 && Array.isArray(DB.item.lev2)) {
-    DB.item.lev2.sort((a, b) => (gradeOrder[a.id] || 99) - (gradeOrder[b.id] || 99));
-}
-// ▲▲▲ [추가] 아이템 L2 메뉴 등급순 정렬 보장 ▲▲▲
-        Object.values(itemGrades).forEach(g => g.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
-        DB.item.lev3 = itemGrades;
-        
-        const runeAndChipTypes = { rune: [], chip: [] };
-        Object.values(DB.runeAndChip.lev4).forEach(rc => {
-            if(rc.type && runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name });
-        });
-        runeAndChipTypes.rune.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-        runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-        DB.runeAndChip.lev3 = runeAndChipTypes;
-
-        DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ 
-            id: data.id, 
-            name: data.name || data.title,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt
-        }));
-        
-        DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name, likeCount: deck.likeCount || 0 }));
-        DB.deck.lev3.builder = [{ id: 'deckBuilder', name: '배치툴' }];
+    const grades = {};
+    DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
+    Object.values(DB.pokemonType.lev4).forEach(pokemon => {
+        if (pokemon && pokemon.grade) {
+            const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id;
+            if (gradeId && grades[gradeId]) grades[gradeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
+        }
+    });
+    Object.values(grades).forEach(gradeList => gradeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
+    DB.pokemonGrade.lev3 = grades;
+    
+    const itemGrades = { god: [], legendary: [], epic: [] };
+    Object.values(DB.item.lev4).forEach(item => {
+        const gradeKey = item.grade?.toLowerCase();
+        if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name });
+    });
+    Object.values(itemGrades).forEach(g => g.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
+    DB.item.lev3 = itemGrades;
+    
+    // ▼▼▼ [수정] 아이템 L2 메뉴 등급순 정렬 보장 ▼▼▼
+    const gradeOrder = { 'god': 1, 'legendary': 2, 'epic': 3 };
+    if (DB.item && DB.item.lev2 && Array.isArray(DB.item.lev2)) {
+        DB.item.lev2.sort((a, b) => (gradeOrder[a.id] || 99) - (gradeOrder[b.id] || 99));
     }
+    // ▲▲▲ [수정] 아이템 L2 메뉴 등급순 정렬 보장 ▲▲▲
+    
+    const runeAndChipTypes = { rune: [], chip: [] };
+    Object.values(DB.runeAndChip.lev4).forEach(rc => {
+        if(rc.type && runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name });
+    });
+    runeAndChipTypes.rune.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+    runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+    DB.runeAndChip.lev3 = runeAndChipTypes;
+
+    DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ 
+        id: data.id, 
+        name: data.name || data.title,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt
+    }));
+    
+    DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name, likeCount: deck.likeCount || 0 }));
+    DB.deck.lev3.builder = [{ id: 'deckBuilder', name: '배치툴' }];
+}
 
     function isNew(timestamp) {
         if (!timestamp || !timestamp.toDate) return false;
@@ -639,6 +635,50 @@ function handleBackClick(button) {
             }
         }
     }
+
+    /* script.js 파일의 함수 정의 영역에 아래 코드를 추가하세요 */
+
+// ▼▼▼ [추가] 팝업(모달) 생성 및 표시 함수 ▼▼▼
+function showModal(title, contentHTML) {
+    // 1. 기존에 열려있는 모달이 있다면 제거
+    const existingModal = document.querySelector('.modal-overlay');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    // 2. 모달의 각 부분(배경, 내용 상자 등)을 생성
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+
+    const modalHeader = document.createElement('div');
+    modalHeader.className = 'modal-header';
+    modalHeader.innerHTML = `<h2>${title}</h2><button class="modal-close-btn">&times;</button>`;
+
+    const modalBody = document.createElement('div');
+    modalBody.className = 'modal-body';
+    modalBody.innerHTML = contentHTML;
+
+    // 3. 생성된 요소들을 조립
+    modalContent.appendChild(modalHeader);
+    modalContent.appendChild(modalBody);
+    modalOverlay.appendChild(modalContent);
+
+    // 4. 웹페이지에 모달을 추가
+    document.body.appendChild(modalOverlay);
+
+    // 5. 닫기 버튼이나 배경을 클릭하면 모달이 닫히도록 설정
+    const closeModal = () => modalOverlay.remove();
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+            closeModal();
+        }
+    });
+    modalContent.querySelector('.modal-close-btn').addEventListener('click', closeModal);
+}
+// ▲▲▲ [추가] 팝업(모달) 생성 및 표시 함수 ▲▲▲
 
     /* script.js 파일에서 기존 renderPokemonView 함수를 찾아 아래 코드로 전체 교체하세요 */
 function renderPokemonView(contentDiv, data, menuId) {
