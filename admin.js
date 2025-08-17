@@ -734,126 +734,135 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setupDeckManagement() {
-        const form = document.getElementById('deck-form');
-        const selectList = document.getElementById('deck-select-list');
-        const loadBtn = document.getElementById('load-deck-btn');
-        const deleteBtn = document.getElementById('delete-deck-btn');
-        const pokemonSelects = form.querySelectorAll('.deck-pokemon-select');
-        const weatherSelect = form.querySelector('#deck-weather'); 
-        const synergyDisplay = form.querySelector('#deck-synergy-display');
+    const form = document.getElementById('deck-form');
+    const selectList = document.getElementById('deck-select-list');
+    const loadBtn = document.getElementById('load-deck-btn');
+    const deleteBtn = document.getElementById('delete-deck-btn');
+    const pokemonSelects = form.querySelectorAll('.deck-pokemon-select');
+    const weatherSelect = form.querySelector('#deck-weather'); 
+    const synergyDisplay = form.querySelector('#deck-synergy-display');
 
-        function populateDeckPokemonSelectors() {
-            const pokemonList = Object.values(DB.pokemonType.lev4);
-            pokemonList.sort((a, b) => (a.name_ko || '').localeCompare(b.name_ko || '', 'ko'));
-            const optionsHTML = pokemonList.map(pkm => `<option value="${pkm.id}">${pkm.name_ko}</option>`).join('');
-            pokemonSelects.forEach(select => {
-                select.innerHTML = '<option value="">-- 선택 --</option>' + optionsHTML;
-            });
-        }
-        
-        function loadDecksList() {
-            const decks = Object.values(DB.deck.lev4);
-            decks.sort((a,b)=>(a.name || '').localeCompare(b.name || '', 'ko'));
-            selectList.innerHTML = '<option value="">-- 추천 덱 선택 --</option>';
-            decks.forEach(deck => {
-                selectList.innerHTML += `<option value="${deck.id}">${deck.name}</option>`;
-            });
-        }
-
-        function calculateSynergy(pokemonIds) {
-            if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
-            const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
-            if (mainPokemon.some(pkm => !pkm)) return null;
-            const typePokemonCount = {};
-            mainPokemon.forEach(pkm => {
-                if (pkm && pkm.types) pkm.types.forEach(type => { typePokemonCount[type] = (typePokemonCount[type] || 0) + 1; });
-            });
-            const counts = Object.values(typePokemonCount).sort((a, b) => b - a);
-            const totalUniqueTypes = Object.keys(typePokemonCount).length;
-            if (counts.length > 0 && counts[0] >= 6) return DB.synergyEffects.find(s => s.id === 'same6');
-            if (counts.length >= 2 && counts[0] >= 3 && counts[1] >= 3) return DB.synergyEffects.find(s => s.id === 'same3x2');
-            if (counts.length >= 2 && counts[0] >= 4 && counts[1] >= 2) return DB.synergyEffects.find(s => s.id === 'same4_2');
-            const totalPairs = counts.reduce((sum, c) => sum + Math.floor(c / 2), 0);
-            if (totalPairs >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
-            if (counts.length > 0 && counts[0] >= 3) return DB.synergyEffects.find(s => s.id === 'same3');
-            if (totalUniqueTypes >= 6 && pokemonIds.length >= 6) return DB.synergyEffects.find(s => s.id === 'diff6');
-            return null;
-        }
-    
-        function updateSynergyDisplay() {
-            const mainPokemonIds = Array.from(pokemonSelects)
-                .filter(select => select.dataset.role === 'main' && select.value)
-                .map(select => select.value);
-            const synergy = calculateSynergy(mainPokemonIds);
-            if (synergy) {
-                synergyDisplay.innerHTML = `<img src="${synergy.imageURL}" style="height:30px; margin-right: 10px;"> <strong>${synergy.name}</strong>`;
-            } else {
-                synergyDisplay.innerHTML = `<span>메인 포켓몬 6마리를 선택하면 자동 계산됩니다.</span>`;
-            }
-        }
+    function populateDeckPokemonSelectors() {
+        const pokemonList = Object.values(DB.pokemonType.lev4);
+        pokemonList.sort((a, b) => (a.name_ko || '').localeCompare(b.name_ko || '', 'ko'));
+        const optionsHTML = pokemonList.map(pkm => `<option value="${pkm.id}">${pkm.name_ko}</option>`).join('');
         pokemonSelects.forEach(select => {
-            if (select.dataset.role === 'main') select.addEventListener('change', updateSynergyDisplay);
+            select.innerHTML = '<option value="">-- 선택 --</option>' + optionsHTML;
         });
-        
-        loadBtn.addEventListener('click', () => {
-            const data = DB.deck.lev4[selectList.value];
-            if (!data) return;
-            form.reset();
-            form.querySelector('#deck-id').value = data.id || '';
-            form.querySelector('#deck-name').value = data.name || '';
-            form.querySelector('#deck-description').value = data.description || '';
-            weatherSelect.value = data.weather || '';
-            form.querySelector('#deck-is-published').checked = data.isPublished === true;
-            if (data.composition) {
-                data.composition.forEach(member => {
-                    const selector = `.deck-pokemon-select[data-role="${member.role}"][data-position="${member.position}"]`;
-                    const selectEl = form.querySelector(selector);
-                    if (selectEl) selectEl.value = member.pokemonId;
-                });
-            }
-            updateSynergyDisplay();
+    }
+    
+    function loadDecksList() {
+        const decks = Object.values(DB.deck.lev4);
+        decks.sort((a,b)=>(a.name || '').localeCompare(b.name || '', 'ko'));
+        selectList.innerHTML = '<option value="">-- 추천 덱 선택 --</option>';
+        decks.forEach(deck => {
+            selectList.innerHTML += `<option value="${deck.id}">${deck.name}</option>`;
         });
+    }
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const deckId = form.querySelector('#deck-id').value.trim();
-            if (!deckId) return;
-            const deckData = {
-                name: form.querySelector('#deck-name').value,
-                description: form.querySelector('#deck-description').value,
-                weather: weatherSelect.value,
-                isPublished: form.querySelector('#deck-is-published').checked,
-                composition: Array.from(pokemonSelects)
-                    .filter(s => s.value)
-                    .map(s => ({
-                        role: s.dataset.role,
-                        position: parseInt(s.dataset.position),
-                        pokemonId: s.value
-                    }))
-            };
-            await saveDataWithTimestamp("recommendedDecks", deckId, deckData);
-            alert('저장 완료');
+    function calculateSynergy(pokemonIds) {
+        if (!DB.synergyEffects || !pokemonIds || pokemonIds.length < 6) return null;
+        const mainPokemon = pokemonIds.map(id => DB.pokemonType.lev4[id]);
+        if (mainPokemon.some(pkm => !pkm)) return null;
+        const typePokemonCount = {};
+        mainPokemon.forEach(pkm => {
+            if (pkm && pkm.types) pkm.types.forEach(type => { typePokemonCount[type] = (typePokemonCount[type] || 0) + 1; });
+        });
+        const counts = Object.values(typePokemonCount).sort((a, b) => b - a);
+        const totalUniqueTypes = Object.keys(typePokemonCount).length;
+        if (counts.length > 0 && counts[0] >= 6) return DB.synergyEffects.find(s => s.id === 'same6');
+        if (counts.length >= 2 && counts[0] >= 3 && counts[1] >= 3) return DB.synergyEffects.find(s => s.id === 'same3x2');
+        if (counts.length >= 2 && counts[0] >= 4 && counts[1] >= 2) return DB.synergyEffects.find(s => s.id === 'same4_2');
+        const totalPairs = counts.reduce((sum, c) => sum + Math.floor(c / 2), 0);
+        if (totalPairs >= 3) return DB.synergyEffects.find(s => s.id === 'same2x3');
+        if (counts.length > 0 && counts[0] >= 3) return DB.synergyEffects.find(s => s.id === 'same3');
+        if (totalUniqueTypes >= 6 && pokemonIds.length >= 6) return DB.synergyEffects.find(s => s.id === 'diff6');
+        return null;
+    }
+
+    function updateSynergyDisplay() {
+        const mainPokemonIds = Array.from(pokemonSelects)
+            .filter(select => select.dataset.role === 'main' && select.value)
+            .map(select => select.value);
+        const synergy = calculateSynergy(mainPokemonIds);
+        if (synergy) {
+            synergyDisplay.innerHTML = `<img src="${synergy.imageURL}" style="height:30px; margin-right: 10px;"> <strong>${synergy.name}</strong>`;
+        } else {
+            synergyDisplay.innerHTML = `<span>메인 포켓몬 6마리를 선택하면 자동 계산됩니다.</span>`;
+        }
+    }
+    pokemonSelects.forEach(select => {
+        if (select.dataset.role === 'main') select.addEventListener('change', updateSynergyDisplay);
+    });
+    
+    loadBtn.addEventListener('click', () => {
+        const data = DB.deck.lev4[selectList.value];
+        if (!data) return;
+        form.reset();
+        form.querySelector('#deck-id').value = data.id || '';
+        form.querySelector('#deck-name').value = data.name || '';
+        form.querySelector('#deck-description').value = data.description || '';
+        weatherSelect.value = data.weather || '';
+        // ▼▼▼ [추가] 좋아요 수 표시 ▼▼▼
+        form.querySelector('#deck-like-count').value = data.likeCount || 0;
+        // ▲▲▲ [추가] 좋아요 수 표시 ▲▲▲
+        form.querySelector('#deck-is-published').checked = data.isPublished === true;
+        if (data.composition) {
+            data.composition.forEach(member => {
+                const selector = `.deck-pokemon-select[data-role="${member.role}"][data-position="${member.position}"]`;
+                const selectEl = form.querySelector(selector);
+                if (selectEl) selectEl.value = member.pokemonId;
+            });
+        }
+        updateSynergyDisplay();
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const deckId = form.querySelector('#deck-id').value.trim();
+        if (!deckId) return;
+        
+        // ▼▼▼ [수정] likeCount 필드 추가 ▼▼▼
+        const existingData = DB.deck.lev4[deckId];
+        const deckData = {
+            name: form.querySelector('#deck-name').value,
+            description: form.querySelector('#deck-description').value,
+            weather: weatherSelect.value,
+            isPublished: form.querySelector('#deck-is-published').checked,
+            likeCount: existingData ? existingData.likeCount || 0 : 0, // 기존 값이 있으면 유지, 없으면 0으로 초기화
+            composition: Array.from(pokemonSelects)
+                .filter(s => s.value)
+                .map(s => ({
+                    role: s.dataset.role,
+                    position: parseInt(s.dataset.position),
+                    pokemonId: s.value
+                }))
+        };
+        // ▲▲▲ [수정] likeCount 필드 추가 ▲▲▲
+
+        await saveDataWithTimestamp("recommendedDecks", deckId, deckData);
+        alert('저장 완료');
+        form.reset();
+        updateSynergyDisplay();
+        await initializeAdminData();
+        loadDecksList();
+    });
+
+    deleteBtn.addEventListener('click', async () => {
+        const deckId = form.querySelector('#deck-id').value.trim();
+        if (!deckId) return;
+        if (confirm(`'${deckId}' 덱을 삭제하시겠습니까?`)) {
+            await db.collection("recommendedDecks").doc(deckId).delete();
+            alert('삭제 완료');
             form.reset();
             updateSynergyDisplay();
             await initializeAdminData();
             loadDecksList();
-        });
-
-        deleteBtn.addEventListener('click', async () => {
-            const deckId = form.querySelector('#deck-id').value.trim();
-            if (!deckId) return;
-            if (confirm(`'${deckId}' 덱을 삭제하시겠습니까?`)) {
-                await db.collection("recommendedDecks").doc(deckId).delete();
-                alert('삭제 완료');
-                form.reset();
-                updateSynergyDisplay();
-                await initializeAdminData();
-                loadDecksList();
-            }
-        });
-        
-        populateDeckPokemonSelectors();
-        loadDecksList();
-        updateSynergyDisplay();
-    }
+        }
+    });
+    
+    populateDeckPokemonSelectors();
+    loadDecksList();
+    updateSynergyDisplay();
+}
 });

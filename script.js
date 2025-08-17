@@ -107,21 +107,55 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function initialize() {
-        try {
-            initializeUser(); // 사용자 정보 먼저 초기화
-            await fetchAllDataFromFirebase();
-            setupSideMenuData();
-            renderSidebar();
-            renderMainNoticeList();
-            renderMainPopularList(); // [추가] 인기글 목록 렌더링
-            addEventListeners();
-            setupAdObservers();
-        } catch (error) {
+    try {
+        await fetchAllDataFromFirebase();
+        setupSideMenuData();
+        renderSidebar();
+        renderMainNoticeList();
+        // ▼▼▼ [추가] 인기글 로딩 함수 호출 ▼▼▼
+        fetchAndRenderPopularDecks(); 
+        // ▲▲▲ [추가] 인기글 로딩 함수 호출 ▲▲▲
+        addEventListeners();
+        setupAdObservers();
+    } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
         }
     }
     
+    // ▼▼▼ [추가] 인기글 목록 렌더링 함수 ▼▼▼
+async function fetchAndRenderPopularDecks() {
+    const popularDeckList = document.getElementById('popular-deck-list');
+    if (!popularDeckList) return;
+
+    try {
+        popularDeckList.innerHTML = '<li>데이터를 불러오는 중...</li>';
+        const snapshot = await db.collection('recommendedDecks')
+            .where("isPublished", "==", true)
+            .orderBy('likeCount', 'desc')
+            .limit(5)
+            .get();
+
+        if (snapshot.empty) {
+            popularDeckList.innerHTML = '<li>아직 인기글이 없습니다.</li>';
+            return;
+        }
+
+        const decksHTML = snapshot.docs.map(doc => {
+            const deck = { id: doc.id, ...doc.data() };
+            // 공지사항 링크와 동일한 방식으로 data-* 속성을 사용하여 클릭 시 해당 덱으로 이동하도록 함
+            return `<li><a href="#" data-menu-id="deck" data-item-id="${deck.id}">${deck.name}</a> ❤️ ${deck.likeCount || 0}</li>`;
+        }).join('');
+        
+        popularDeckList.innerHTML = decksHTML;
+
+    } catch (error) {
+        console.error("인기글 데이터를 불러오는 중 오류 발생:", error);
+        popularDeckList.innerHTML = '<li>오류가 발생했습니다.</li>';
+    }
+}
+// ▲▲▲ [추가] 인기글 목록 렌더링 함수 ▲▲▲
+
     async function fetchAllDataFromFirebase() {
         const collectionsToFetch = {
             notice: db.collection('notice').where("isPublished", "==", true),
@@ -282,72 +316,144 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addEventListeners() {
-        document.body.addEventListener('click', (e) => {
-            if (e.target.closest('.ad-container')) adBlockManager.recordClick();
-        });
+    document.body.addEventListener('click', (e) => {
+        if (e.target.closest('.ad-container')) adBlockManager.recordClick();
+    });
 
-        document.body.addEventListener('click', e => {
-            const button = e.target.closest('button');
-            if (button) {
-                if (button.id === 'mobile-menu-btn') {
-                    sidebar.classList.toggle('visible');
-                } else if (button.classList.contains('back-btn')) {
-                    handleBackClick(button); 
-                } else if (button.classList.contains('main-btn')) {
-                    handleMainButtonClick();
-                } else if (button.classList.contains('main-action-btn')) {
-                    if (button.dataset.menuId === 'popular') {
-                        const firstPopularLink = mainPopularList.querySelector('a');
-                        if (firstPopularLink) {
-                            firstPopularLink.click();
-                        } else {
-                            alert('인기글이 아직 없습니다.');
-                        }
-                        return;
-                    }
-                    const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="${button.dataset.menuId}"]`);
+    document.body.addEventListener('click', e => {
+        // ▼▼▼ [추가] 좋아요 버튼 클릭 처리 ▼▼▼
+        const likeBtn = e.target.closest('.like-btn');
+        if (likeBtn) {
+            handleLikeClick(likeBtn);
+            return; // 다른 버튼 로직과 중복 실행 방지
+        }
+        // ▲▲▲ [추가] 좋아요 버튼 클릭 처리 ▲▲▲
+
+        const button = e.target.closest('button');
+        if (button) {
+            if (button.id === 'mobile-menu-btn') {
+                sidebar.classList.toggle('visible');
+            } else if (button.classList.contains('back-btn')) {
+                handleBackClick(button); 
+            } else if (button.classList.contains('main-btn')) {
+                handleMainButtonClick();
+            } else if (button.classList.contains('main-action-btn')) {
+                if (button.dataset.menuId === 'popular') {
+                    // 메인 페이지의 '인기글' 버튼을 누르면, 사이드바의 '덱 구성' 메뉴를 클릭한 것처럼 동작
+                    const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="deck"]`);
                     if(targetMenuItem) handleMenuClick(targetMenuItem);
-                } else if (button.dataset.level) {
-                    handleMenuClick(button); 
-                } else if (button.classList.contains('like-button')) { // [추가] 좋아요 버튼 클릭 핸들러
-                    handleLikeClick(button);
+                    return;
                 }
+                const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="${button.dataset.menuId}"]`);
+                if(targetMenuItem) handleMenuClick(targetMenuItem);
+            } else if (button.dataset.level) {
+                handleMenuClick(button); 
             }
+        }
 
-            const link = e.target.closest('#main-notice-list a, #main-popular-list a');
-            if (link) {
-                e.preventDefault();
-                const menuId = link.dataset.menuId;
-                const itemId = link.dataset.itemId;
-                
-                let lev1_btn, lev2_id;
-                
-                if (menuId === 'deck') {
-                    lev1_btn = sidebar.querySelector(`.menu-item[data-id="deck"]`);
-                    lev2_id = 'recommended'; // 추천덱 메뉴로 바로 가기
-                } else {
-                    lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
-                    lev2_id = itemId;
-                }
+        const noticeLink = e.target.closest('#main-notice-list a');
+        if (noticeLink) {
+            e.preventDefault();
+            const menuId = noticeLink.dataset.menuId;
+            const itemId = noticeLink.dataset.itemId;
 
-                if (lev1_btn) {
-                    handleMenuClick(lev1_btn);
-                    setTimeout(() => {
-                        const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="${lev2_id}"]`);
-                        if (lev2_btn) {
-                            handleMenuClick(lev2_btn);
-                            if (menuId === 'deck') {
-                                setTimeout(() => {
-                                    const lev3_btn = panels.lev3.querySelector(`.list-item[data-id="${itemId}"]`);
-                                    if(lev3_btn) handleMenuClick(lev3_btn);
-                                }, 50);
-                            }
-                        }
-                    }, 50);
-                }
+            const lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
+            if (lev1_btn) {
+                handleMenuClick(lev1_btn);
+                setTimeout(() => {
+                    const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="${itemId}"]`);
+                    if (lev2_btn) handleMenuClick(lev2_btn);
+                }, 50); 
             }
-        });
+        }
+
+        // ▼▼▼ [추가] 인기글 링크 클릭 처리 ▼▼▼
+        const popularDeckLink = e.target.closest('#popular-deck-list a');
+        if (popularDeckLink) {
+            e.preventDefault();
+            const menuId = popularDeckLink.dataset.menuId; // 'deck'
+            const itemId = popularDeckLink.dataset.itemId; // 덱 ID
+
+            const lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
+            if (lev1_btn) {
+                handleMenuClick(lev1_btn); // '덱 구성' 메뉴 클릭
+                setTimeout(() => {
+                    // '추천덱'은 lev2에 있으므로 lev2 패널에서 'recommended' 버튼을 찾음
+                    const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="recommended"]`);
+                    if (lev2_btn) {
+                        handleMenuClick(lev2_btn); // '추천덱' 버튼 클릭
+                        setTimeout(() => {
+                            // lev3 패널에서 실제 덱 버튼을 찾아 클릭
+                            const lev3_btn = panels.lev3.querySelector(`.list-item[data-id="${itemId}"]`);
+                            if (lev3_btn) handleMenuClick(lev3_btn);
+                        }, 50);
+                    }
+                }, 50); 
+            }
+        }
+        // ▲▲▲ [추가] 인기글 링크 클릭 처리 ▲▲▲
+    });
+}
+
+    // ▼▼▼ [추가] 좋아요 기능 관련 함수 ▼▼▼
+
+// 로컬 스토리지에서 '좋아요'한 덱 목록을 가져오는 헬퍼 함수
+function getLikedDecks() {
+    return JSON.parse(localStorage.getItem('likedDecks')) || [];
+}
+
+// '좋아요' 버튼 클릭을 처리하는 메인 함수
+async function handleLikeClick(button) {
+    const deckId = button.dataset.deckId;
+    if (!deckId) return;
+
+    const likeCountSpan = button.querySelector('.like-count');
+    const heartIcon = button.querySelector('.heart-icon');
+    let currentLikes = parseInt(likeCountSpan.textContent);
+    
+    let likedDecks = getLikedDecks();
+    const isLiked = likedDecks.includes(deckId);
+
+    // 낙관적 UI 업데이트: 서버 응답을 기다리지 않고 UI를 먼저 변경
+    if (isLiked) {
+        // 좋아요 취소
+        likedDecks = likedDecks.filter(id => id !== deckId);
+        button.classList.remove('liked');
+        heartIcon.textContent = '♡';
+        likeCountSpan.textContent = currentLikes - 1;
+    } else {
+        // 좋아요 누름
+        likedDecks.push(deckId);
+        button.classList.add('liked');
+        heartIcon.textContent = '❤️';
+        likeCountSpan.textContent = currentLikes + 1;
     }
+
+    localStorage.setItem('likedDecks', JSON.stringify(likedDecks));
+
+    // Firestore 데이터 업데이트
+    try {
+        await db.collection('recommendedDecks').doc(deckId).update({
+            likeCount: firebase.firestore.FieldValue.increment(isLiked ? -1 : 1)
+        });
+        // 성공 시 특별한 처리 없음. UI는 이미 업데이트 됨.
+    } catch (error) {
+        console.error("좋아요 업데이트 실패:", error);
+        // 실패 시 UI 롤백
+        alert('일시적인 오류로 좋아요 처리에 실패했습니다.');
+        likeCountSpan.textContent = currentLikes; // 원래 값으로 복구
+        if (isLiked) {
+             button.classList.add('liked');
+             heartIcon.textContent = '❤️';
+        } else {
+             button.classList.remove('liked');
+             heartIcon.textContent = '♡';
+        }
+        // 로컬 스토리지도 원상 복구
+        localStorage.setItem('likedDecks', JSON.stringify(getLikedDecks().filter(id => id !== deckId)));
+    }
+}
+// ▲▲▲ [추가] 좋아요 기능 관련 함수 ▲▲▲
 
     // [추가] 좋아요 버튼 클릭 처리 함수
     async function handleLikeClick(button) {
@@ -801,76 +907,83 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // [수정] 복구 코드 기반으로 추천 덱 렌더링 함수 수정
     function renderDeckView(contentDiv, data) {
-        const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
-        let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
-        
-        // [추가] 좋아요 버튼 컨테이너
-        const isLiked = likedDecks.has(data.id);
-        html += `
-            <div class="like-container">
-                <button class="like-button ${isLiked ? 'liked' : ''}" data-deck-id="${data.id}">
-                    <span class="like-icon empty">♡</span>
-                    <span class="like-icon filled">❤️</span>
-                    <span class="like-count">${data.likeCount || 0}</span>
-                </button>
-            </div>
-        `;
+    const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
 
-        if (data.description) { html += `<p>${data.description}</p>`; }
-        
-        html += `<h4>덱 배치</h4>`;
-        
-        const grid = Array(4).fill(null).map(() => Array(4).fill(null));
-        const positionMap = {
-            'assist_4': [1, 0], 'assist_5': [2, 0], 'assist_6': [3, 0], 
-            'assist_1': [1, 1], 'assist_2': [2, 1], 'assist_3': [3, 1],
-            'main_4': [1, 2], 'main_5': [2, 2], 'main_6': [3, 2], 
-            'main_1': [1, 3], 'main_2': [2, 3], 'main_3': [3, 3]
-        };
+    // ▼▼▼ [추가] 좋아요 상태 확인 및 UI 구성 ▼▼▼
+    const likedDecks = getLikedDecks();
+    const isLiked = likedDecks.includes(data.id);
+    const likeButtonHTML = `
+        <div class="like-container">
+            <button class="like-btn ${isLiked ? 'liked' : ''}" data-deck-id="${data.id}">
+                <span class="heart-icon">${isLiked ? '❤️' : '♡'}</span>
+                <span class="like-count">${data.likeCount || 0}</span>
+            </button>
+        </div>
+    `;
+    // ▲▲▲ [추가] 좋아요 상태 확인 및 UI 구성 ▲▲▲
+    
+    // [수정] h2 태그 옆에 좋아요 버튼 HTML 삽입
+    let html = `<div class="deck-detail-view">
+                    <div class="deck-header">
+                        <h2>${data.name}</h2>
+                        ${likeButtonHTML}
+                    </div>`;
 
-        if (data.weather && weatherToEmoji[data.weather]) {
-            grid[0][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather, colspan: 2 };
-        }
-        const mainPokemonIds = data.composition.filter(m => m.role === 'main').map(m => m.pokemonId);
-        const synergy = calculateSynergy(mainPokemonIds);
-        if (synergy) {
-             grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}" alt="${synergy.name}">`, label: synergy.name, colspan: 2 };
-        }
+    if (data.description) { html += `<p class="deck-description">${data.description}</p>`; }
+    
+    html += `<h4>덱 배치</h4>`;
+    
+    const grid = Array(4).fill(null).map(() => Array(4).fill(null));
+    const positionMap = {
+        'assist_4': [1, 0], 'assist_5': [2, 0], 'assist_6': [3, 0], 
+        'assist_1': [1, 1], 'assist_2': [2, 1], 'assist_3': [3, 1],
+        'main_4': [1, 2], 'main_5': [2, 2], 'main_6': [3, 2], 
+        'main_1': [1, 3], 'main_2': [2, 3], 'main_3': [3, 3]
+    };
 
-        data.composition.forEach(member => { 
-            const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
-            if (!pkmData) return; 
-            const key = `${member.role}_${member.position}`;
-            if(positionMap[key]) {
-                const [row, col] = positionMap[key];
-                grid[row][col] = { type: 'pokemon', ...pkmData };
-            }
-        });
-
-        html += `<table class="four-by-four-table"><tbody>`;
-        for (let i = 0; i < 4; i++) {
-            html += '<tr>';
-            for (let j = 0; j < 4; j++) {
-                if (grid[i][j] === undefined) continue;
-                const cell = grid[i][j];
-                if (cell) {
-                    if (cell.type === 'pokemon') {
-                        html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="pkm-name">${cell.name_ko}</span></div></td>`;
-                    } else if (cell.type === 'header') {
-                        html += `<td class="header-cell" colspan="${cell.colspan || 1}" title="${cell.label}"><div>${cell.content}</div></td>`;
-                        if (cell.colspan > 1) {
-                            for (let k = 1; k < cell.colspan; k++) grid[i][j+k] = undefined;
-                        }
-                    }
-                } else {
-                    html += `<td class="empty-cell"></td>`;
-                }
-            }
-            html += '</tr>';
-        }
-        html += `</tbody></table></div>`;
-        contentDiv.innerHTML = html;
+    if (data.weather && weatherToEmoji[data.weather]) {
+        grid[0][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather, colspan: 2 };
     }
+    const mainPokemonIds = data.composition.filter(m => m.role === 'main').map(m => m.pokemonId);
+    const synergy = calculateSynergy(mainPokemonIds);
+    if (synergy) {
+         grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}" alt="${synergy.name}">`, label: synergy.name, colspan: 2 };
+    }
+
+    data.composition.forEach(member => { 
+        const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
+        if (!pkmData) return; 
+        const key = `${member.role}_${member.position}`;
+        if(positionMap[key]) {
+            const [row, col] = positionMap[key];
+            grid[row][col] = { type: 'pokemon', ...pkmData };
+        }
+    });
+
+    html += `<table class="four-by-four-table"><tbody>`;
+    for (let i = 0; i < 4; i++) {
+        html += '<tr>';
+        for (let j = 0; j < 4; j++) {
+            if (grid[i][j] === undefined) continue;
+            const cell = grid[i][j];
+            if (cell) {
+                if (cell.type === 'pokemon') {
+                    html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="pkm-name">${cell.name_ko}</span></div></td>`;
+                } else if (cell.type === 'header') {
+                    html += `<td class="header-cell" colspan="${cell.colspan || 1}" title="${cell.label}"><div>${cell.content}</div></td>`;
+                    if (cell.colspan > 1) {
+                        for (let k = 1; k < cell.colspan; k++) grid[i][j+k] = undefined;
+                    }
+                }
+            } else {
+                html += `<td class="empty-cell"></td>`;
+            }
+        }
+        html += '</tr>';
+    }
+    html += `</tbody></table></div>`;
+    contentDiv.innerHTML = html;
+}
 
     function renderCalendarView(contentDiv, data) {
         let currentCalendarDate = new Date();
