@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 최종 완성본');
+    console.log('스크립트 초기화 완료. Nirvana Pokedex 좋아요 기능 추가');
 
     // [수정] 복구 코드의 광고 처리 로직을 그대로 적용
     function setupAdObservers() {
@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         const styleWatcher = new MutationObserver((mutations) => {
                             for (const mutation of mutations) {
                                 if (mutation.attributeName === 'style') {
-                                    // CSS와 동일하게 1199px 기준으로 50px 높이를 강제합니다.
                                     if (window.innerWidth <= 1199) {
                                         const currentHeight = targetContainer.style.height;
                                         if (currentHeight !== '50px') {
@@ -78,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const mainPlaceholder = document.getElementById('main-placeholder');
     const mainNoticeList = document.getElementById('main-notice-list');
+    const mainPopularList = document.getElementById('main-popular-list'); // [추가] 인기글 목록
     const panels = {
         lev1: sidebar,
         lev2: document.getElementById('lev2-panel'),
@@ -86,17 +86,35 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let activeButtons = {};
     const isMobile = () => window.innerWidth <= 1199;
+    
+    // [추가] 좋아요 기능 관련 전역 변수
+    let userId;
+    let likedDecks = new Set();
 
     // --- 함수 정의 영역 ---
 
+    // [추가] 사용자 ID 및 '좋아요' 목록 초기화 함수
+    function initializeUser() {
+        userId = localStorage.getItem('pokeArchiveUserId');
+        if (!userId) {
+            userId = crypto.randomUUID();
+            localStorage.setItem('pokeArchiveUserId', userId);
+        }
+        const storedLikes = localStorage.getItem('pokeArchiveLikedDecks');
+        if (storedLikes) {
+            likedDecks = new Set(JSON.parse(storedLikes));
+        }
+    }
+
     async function initialize() {
         try {
+            initializeUser(); // 사용자 정보 먼저 초기화
             await fetchAllDataFromFirebase();
             setupSideMenuData();
             renderSidebar();
             renderMainNoticeList();
+            renderMainPopularList(); // [추가] 인기글 목록 렌더링
             addEventListeners();
-            // [수정] 문제가 되었던 다른 광고 함수 대신 복구 코드의 함수를 호출합니다.
             setupAdObservers();
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
@@ -191,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updatedAt: data.updatedAt
         }));
         
-        DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name }));
+        DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name, likeCount: deck.likeCount || 0 }));
         DB.deck.lev3.builder = [{ id: 'deckBuilder', name: '배치툴' }];
     }
 
@@ -247,6 +265,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
     }
 
+    // [추가] 인기글 목록 렌더링 함수
+    function renderMainPopularList() {
+        if (!mainPopularList) return;
+        const popularDecks = [...DB.deck.lev3.recommended]
+            .sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0))
+            .slice(0, 5);
+        
+        if (popularDecks.length > 0) {
+            mainPopularList.innerHTML = popularDecks.map(deck => {
+                return `<li><a href="#" data-menu-id="deck" data-item-id="${deck.id}">${deck.name}</a> <span class="popular-like-count">❤️ ${deck.likeCount || 0}</span></li>`;
+            }).join('');
+        } else {
+            mainPopularList.innerHTML = '<li>아직 인기글이 없습니다.</li>';
+        }
+    }
+
     function addEventListeners() {
         document.body.addEventListener('click', (e) => {
             if (e.target.closest('.ad-container')) adBlockManager.recordClick();
@@ -263,32 +297,99 @@ document.addEventListener('DOMContentLoaded', () => {
                     handleMainButtonClick();
                 } else if (button.classList.contains('main-action-btn')) {
                     if (button.dataset.menuId === 'popular') {
-                        alert('인기글 기능은 준비중입니다.');
+                        const firstPopularLink = mainPopularList.querySelector('a');
+                        if (firstPopularLink) {
+                            firstPopularLink.click();
+                        } else {
+                            alert('인기글이 아직 없습니다.');
+                        }
                         return;
                     }
                     const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="${button.dataset.menuId}"]`);
                     if(targetMenuItem) handleMenuClick(targetMenuItem);
                 } else if (button.dataset.level) {
                     handleMenuClick(button); 
+                } else if (button.classList.contains('like-button')) { // [추가] 좋아요 버튼 클릭 핸들러
+                    handleLikeClick(button);
                 }
             }
 
-            const noticeLink = e.target.closest('#main-notice-list a');
-            if (noticeLink) {
+            const link = e.target.closest('#main-notice-list a, #main-popular-list a');
+            if (link) {
                 e.preventDefault();
-                const menuId = noticeLink.dataset.menuId;
-                const itemId = noticeLink.dataset.itemId;
+                const menuId = link.dataset.menuId;
+                const itemId = link.dataset.itemId;
+                
+                let lev1_btn, lev2_id;
+                
+                if (menuId === 'deck') {
+                    lev1_btn = sidebar.querySelector(`.menu-item[data-id="deck"]`);
+                    lev2_id = 'recommended'; // 추천덱 메뉴로 바로 가기
+                } else {
+                    lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
+                    lev2_id = itemId;
+                }
 
-                const lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
                 if (lev1_btn) {
                     handleMenuClick(lev1_btn);
                     setTimeout(() => {
-                        const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="${itemId}"]`);
-                        if (lev2_btn) handleMenuClick(lev2_btn);
-                    }, 50); 
+                        const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="${lev2_id}"]`);
+                        if (lev2_btn) {
+                            handleMenuClick(lev2_btn);
+                            if (menuId === 'deck') {
+                                setTimeout(() => {
+                                    const lev3_btn = panels.lev3.querySelector(`.list-item[data-id="${itemId}"]`);
+                                    if(lev3_btn) handleMenuClick(lev3_btn);
+                                }, 50);
+                            }
+                        }
+                    }, 50);
                 }
             }
         });
+    }
+
+    // [추가] 좋아요 버튼 클릭 처리 함수
+    async function handleLikeClick(button) {
+        const deckId = button.dataset.deckId;
+        if (!deckId || !userId) return;
+
+        button.disabled = true; // 중복 클릭 방지
+
+        const deckRef = db.collection("recommendedDecks").doc(deckId);
+        const isLiked = likedDecks.has(deckId);
+        const increment = isLiked ? -1 : 1;
+
+        try {
+            await deckRef.update({
+                likeCount: firebase.firestore.FieldValue.increment(increment)
+            });
+
+            // UI 즉시 업데이트
+            const countSpan = button.querySelector('.like-count');
+            let currentCount = parseInt(countSpan.textContent);
+            countSpan.textContent = currentCount + increment;
+            button.classList.toggle('liked', !isLiked);
+
+            // 로컬 상태 업데이트
+            if (isLiked) {
+                likedDecks.delete(deckId);
+            } else {
+                likedDecks.add(deckId);
+            }
+            localStorage.setItem('pokeArchiveLikedDecks', JSON.stringify([...likedDecks]));
+            
+            // 전역 DB 객체 업데이트 및 인기글 목록 다시 렌더링
+            DB.deck.lev4[deckId].likeCount = (DB.deck.lev4[deckId].likeCount || 0) + increment;
+            DB.deck.lev3.recommended.find(d => d.id === deckId).likeCount = DB.deck.lev4[deckId].likeCount;
+            renderMainPopularList();
+
+        } catch (error) {
+            console.error("'좋아요' 업데이트 실패:", error);
+            alert("일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        } finally {
+            button.disabled = false; // 버튼 활성화
+        }
     }
 
     function handleMenuClick(button) {
@@ -435,39 +536,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         }
-    }
-
-    function showModal(title, content) {
-        const existingModal = document.querySelector('.modal-overlay');
-        if (existingModal) existingModal.remove();
-
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'modal-overlay';
-        
-        modalOverlay.innerHTML = `
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>${title}</h2>
-                    <button class="modal-close-btn">&times;</button>
-                </div>
-                <div class="modal-body"></div>
-            </div>`;
-
-        const modalBody = modalOverlay.querySelector('.modal-body');
-
-        if (typeof content === 'string') {
-            modalBody.innerHTML = content;
-        } else if (content instanceof HTMLElement) {
-            modalBody.appendChild(content);
-        }
-
-        document.body.appendChild(modalOverlay);
-
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target.matches('.modal-overlay, .modal-close-btn')) {
-                modalOverlay.remove();
-            }
-        });
     }
 
     function renderPokemonView(contentDiv, data, menuId) {
@@ -735,6 +803,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderDeckView(contentDiv, data) {
         const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
         let html = `<div class="deck-detail-view"><h2>${data.name}</h2>`;
+        
+        // [추가] 좋아요 버튼 컨테이너
+        const isLiked = likedDecks.has(data.id);
+        html += `
+            <div class="like-container">
+                <button class="like-button ${isLiked ? 'liked' : ''}" data-deck-id="${data.id}">
+                    <span class="like-icon empty">♡</span>
+                    <span class="like-icon filled">❤️</span>
+                    <span class="like-count">${data.likeCount || 0}</span>
+                </button>
+            </div>
+        `;
+
         if (data.description) { html += `<p>${data.description}</p>`; }
         
         html += `<h4>덱 배치</h4>`;

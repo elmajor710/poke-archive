@@ -83,7 +83,6 @@ header h1 {
     margin: 0 auto;
 }
 
-/* [수정] 하단 광고 컨테이너는 기본적으로 보이지 않도록 처리 */
 #ad-container-bottom {
     display: none;
 }
@@ -196,14 +195,26 @@ header h1 {
     text-overflow: ellipsis;
     display: flex;
     align-items: center;
+    justify-content: space-between;
 }
 .main-content-box a {
     text-decoration: none;
     color: #0056b3;
     cursor: pointer;
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .main-content-box a:hover {
     text-decoration: underline;
+}
+
+.popular-like-count {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-left: 10px;
+    flex-shrink: 0;
 }
 
 .main-welcome-area {
@@ -496,7 +507,6 @@ header h1 {
     margin-left: 8px;
 }
 
-/* [수정] 복구 코드 기반 추천 덱 스타일 */
 .four-by-four-table {
     width: 100%;
     max-width: 400px;
@@ -563,6 +573,49 @@ header h1 {
     border-style: dashed;
 }
 
+/* [추가] 좋아요 버튼 스타일 */
+.like-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+.like-button {
+    background-color: #f0f2f5;
+    border: 1px solid #ccd0d5;
+    border-radius: 20px;
+    padding: 8px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #606770;
+    transition: background-color 0.2s;
+}
+.like-button:hover {
+    background-color: #e4e6eb;
+}
+.like-button .like-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+.like-button .filled {
+    display: none;
+    color: #fa383e;
+}
+.like-button.liked .empty {
+    display: none;
+}
+.like-button.liked .filled {
+    display: inline;
+}
+.like-button.liked {
+    background-color: #ffebe6;
+    border-color: #ffc2c2;
+    color: #fa383e;
+}
+
 
 /* --- 미디어 쿼리 --- */
 @media (max-width: 1199px) {
@@ -585,7 +638,6 @@ header h1 {
         transform: translateX(0);
     }
     
-    /* [수정] 모바일 광고 스타일 강화 */
     #ad-container-top {
         height: 50px !important;
         min-height: 50px !important;

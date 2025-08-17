@@ -12,7 +12,7 @@
     <meta property="og:url" content="https://pokedex.elmajor710.com">
     <link rel="icon" href="data:;base64,iVBORw0KGgo="> 
     <!-- CSS 파일 버전을 업데이트하여 브라우저 캐시 문제 방지 -->
-    <link rel="stylesheet" href="style.css?v=4.0">
+    <link rel="stylesheet" href="style.css?v=5.0">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -47,7 +47,10 @@
                        </div>
                        <div class="main-content-box popular-posts-box">
                            <h3>🔥 인기글</h3>
-                           <p>인기글 데이터는 준비중입니다.</p>
+                           <!-- [수정] 인기글 목록을 표시할 ul 태그로 변경 -->
+                           <ul id="main-popular-list">
+                               <li>인기글을 불러오는 중입니다...</li>
+                           </ul>
                        </div>
                     </div>
                     
@@ -75,7 +78,7 @@
         <h2>운영자 모드 (개발 예정)</h2>
     </div>
 
-    <!-- [수정] 모바일 하단 광고 컨테이너 제거 -->
+    <!-- 모바일 하단 광고 컨테이너는 제거되었습니다. -->
     
     <!-- Firebase SDK는 최신 버전을 사용합니다. -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -95,9 +98,9 @@
       const db = firebase.firestore();
     </script>
     
-    <script src="data.js?v=4.0"></script> 
+    <script src="data.js?v=5.0"></script> 
     <!-- JS 파일 버전을 업데이트하여 브라우저 캐시 문제 방지 -->
-    <script src="script.js?v=4.0"></script>
+    <script src="script.js?v=5.0"></script>
 
 </body>
 </html>
