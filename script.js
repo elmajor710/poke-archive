@@ -87,25 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeButtons = {};
     const isMobile = () => window.innerWidth <= 1199;
     
-    // [추가] 좋아요 기능 관련 전역 변수
-    let userId;
-    let likedDecks = new Set();
-
-    // --- 함수 정의 영역 ---
-
-    // [추가] 사용자 ID 및 '좋아요' 목록 초기화 함수
-    function initializeUser() {
-        userId = localStorage.getItem('pokeArchiveUserId');
-        if (!userId) {
-            userId = crypto.randomUUID();
-            localStorage.setItem('pokeArchiveUserId', userId);
-        }
-        const storedLikes = localStorage.getItem('pokeArchiveLikedDecks');
-        if (storedLikes) {
-            likedDecks = new Set(JSON.parse(storedLikes));
-        }
-    }
-
+    
     async function initialize() {
     try {
         await fetchAllDataFromFirebase();
@@ -458,48 +440,7 @@ async function handleLikeClick(button) {
 }
 // ▲▲▲ [추가] 좋아요 기능 관련 함수 ▲▲▲
 
-    // [추가] 좋아요 버튼 클릭 처리 함수
-    async function handleLikeClick(button) {
-        const deckId = button.dataset.deckId;
-        if (!deckId || !userId) return;
-
-        button.disabled = true; // 중복 클릭 방지
-
-        const deckRef = db.collection("recommendedDecks").doc(deckId);
-        const isLiked = likedDecks.has(deckId);
-        const increment = isLiked ? -1 : 1;
-
-        try {
-            await deckRef.update({
-                likeCount: firebase.firestore.FieldValue.increment(increment)
-            });
-
-            // UI 즉시 업데이트
-            const countSpan = button.querySelector('.like-count');
-            let currentCount = parseInt(countSpan.textContent);
-            countSpan.textContent = currentCount + increment;
-            button.classList.toggle('liked', !isLiked);
-
-            // 로컬 상태 업데이트
-            if (isLiked) {
-                likedDecks.delete(deckId);
-            } else {
-                likedDecks.add(deckId);
-            }
-            localStorage.setItem('pokeArchiveLikedDecks', JSON.stringify([...likedDecks]));
-            
-            // 전역 DB 객체 업데이트 및 인기글 목록 다시 렌더링
-            DB.deck.lev4[deckId].likeCount = (DB.deck.lev4[deckId].likeCount || 0) + increment;
-            DB.deck.lev3.recommended.find(d => d.id === deckId).likeCount = DB.deck.lev4[deckId].likeCount;
-            renderMainPopularList();
-
-        } catch (error) {
-            console.error("'좋아요' 업데이트 실패:", error);
-            alert("일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-        } finally {
-            button.disabled = false; // 버튼 활성화
-        }
-    }
+    
 
     function handleMenuClick(button) {
         if (isMobile()) sidebar.classList.remove('visible');
