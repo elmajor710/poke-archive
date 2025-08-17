@@ -375,7 +375,8 @@ function renderSidebar() {
         }
     }
 
-    function addEventListeners() {
+/* script.js 파일에서 기존 addEventListeners 함수를 찾아 아래 코드로 전체 교체하세요 */
+function addEventListeners() {
     document.body.addEventListener('click', (e) => {
         if (e.target.closest('.ad-container')) adBlockManager.recordClick();
     });
@@ -396,21 +397,22 @@ function renderSidebar() {
             } else if (button.classList.contains('main-btn')) {
                 handleMainButtonClick();
             } else if (button.classList.contains('main-action-btn')) {
-                // ▼▼▼ [수정] 모바일 '인기글' 버튼 클릭 시 '추천덱' 목록으로 바로 이동 ▼▼▼
+                // ▼▼▼ [수정] 모바일 첫 화면 버튼 클릭 시 메모 남기기 ▼▼▼
+                sessionStorage.setItem('fromMainPageShortcut', 'true');
+                
                 if (button.dataset.menuId === 'popular') {
                     const lev1_btn = sidebar.querySelector(`.menu-item[data-id="deck"]`);
                     if (lev1_btn) {
-                        handleMenuClick(lev1_btn); // L1 '덱 구성' 클릭
+                        handleMenuClick(lev1_btn);
                         setTimeout(() => {
                             const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="recommended"]`);
                             if (lev2_btn) {
-                                handleMenuClick(lev2_btn); // L2 '추천덱' 클릭
+                                handleMenuClick(lev2_btn);
                             }
                         }, 50);
                     }
                     return;
                 }
-                // ▲▲▲ [수정] 모바일 '인기글' 버튼 클릭 시 '추천덱' 목록으로 바로 이동 ▲▲▲
                 const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="${button.dataset.menuId}"]`);
                 if(targetMenuItem) handleMenuClick(targetMenuItem);
             } else if (button.dataset.level) {
@@ -421,6 +423,9 @@ function renderSidebar() {
         const noticeLink = e.target.closest('#main-notice-list a');
         if (noticeLink) {
             e.preventDefault();
+            // ▼▼▼ [수정] PC 첫 화면 공지사항 클릭 시 메모 남기기 ▼▼▼
+            sessionStorage.setItem('fromMainPageShortcut', 'true');
+            
             const menuId = noticeLink.dataset.menuId;
             const itemId = noticeLink.dataset.itemId;
 
@@ -434,15 +439,12 @@ function renderSidebar() {
             }
         }
 
-        /* addEventListeners 함수 내부에서 popularDeckLink 부분을 찾아 아래 코드로 교체하세요 */
-
         const popularDeckLink = e.target.closest('#popular-deck-list a');
         if (popularDeckLink) {
             e.preventDefault();
-            // ▼▼▼ [추가] 인기글을 통해 접속했다는 사실을 기록 ▼▼▼
-            sessionStorage.setItem('fromPopularPost', 'true');
-            // ▲▲▲ [추가] 인기글을 통해 접속했다는 사실을 기록 ▲▲▲
-
+            // ▼▼▼ [수정] PC 첫 화면 인기글 클릭 시 메모 남기기 ▼▼▼
+            sessionStorage.setItem('fromMainPageShortcut', 'true');
+            
             const menuId = popularDeckLink.dataset.menuId;
             const itemId = popularDeckLink.dataset.itemId;
 
@@ -462,7 +464,7 @@ function renderSidebar() {
             }
         }
     });
-}
+}    
 
     // ▼▼▼ [추가] 좋아요 기능 관련 함수 ▼▼▼
 
@@ -524,20 +526,25 @@ async function handleLikeClick(button) {
 }
 // ▲▲▲ [추가] 좋아요 기능 관련 함수 ▲▲▲
 
-    /* script.js 파일에서 기존 handleMenuClick 함수를 찾아 아래 코드로 전체 교체하세요 */
+/* script.js 파일에서 기존 handleMenuClick 함수를 찾아 아래 코드로 전체 교체하세요 */
 function handleMenuClick(button) {
+    // ▼▼▼ [수정] 일반 사이드바 메뉴 탐색 시, '첫 화면 바로가기' 메모 삭제 ▼▼▼
+    // button.closest('.main-action-btn') 등을 통해 첫 화면 버튼이 아님을 확인
+    if (button.dataset.level === 1) { // 사이드바의 첫 레벨 메뉴를 클릭했을 때만 메모 삭제
+        sessionStorage.removeItem('fromMainPageShortcut');
+    }
+    // ▲▲▲ [수정] 일반 사이드바 메뉴 탐색 시, '첫 화면 바로가기' 메모 삭제 ▲▲▲
+
     if (isMobile()) sidebar.classList.remove('visible');
     mainPlaceholder.style.display = 'none';
     appContainer.classList.add('menu-active');
 
-    // ▼▼▼ [추가] 모바일에서 메뉴 클릭 시 하단 광고 숨기기 ▼▼▼
     if (isMobile()) {
         const bottomAd = document.getElementById('ad-container-bottom');
         if (bottomAd) {
             bottomAd.style.display = 'none';
         }
     }
-    // ▲▲▲ [추가] 모바일에서 메뉴 클릭 시 하단 광고 숨기기 ▲▲▲
 
     const level = parseInt(button.dataset.level);
     const id = button.dataset.id;
@@ -562,20 +569,23 @@ function handleMenuClick(button) {
     renderPanelContent(nextLevel, nextData, menuId, id);
 }
     
-    /* handleMenuClick 함수 바로 아래에 이 코드를 추가하세요 */
-
-// ▼▼▼ [추가] 누락되었던 뒤로가기 버튼 함수 ▼▼▼
+/* script.js 파일에서 기존 handleBackClick 함수를 찾아 아래 코드로 전체 교체하세요 */
 function handleBackClick(button) {
     const parentPanel = button.closest('.panel');
     if (!parentPanel) return;
 
-    // 인기글 또는 최종 상세 보기 화면에서 뒤로가기 시 메인으로 이동
-    if (parentPanel.id === 'lev4-panel' && parentPanel.querySelector('.main-btn')) {
+    // ▼▼▼ [수정] '스마트 뒤로가기' 로직 최종 버전 ▼▼▼
+    const fromShortcut = sessionStorage.getItem('fromMainPageShortcut');
+    const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
+
+    // "첫 화면 바로가기" 메모가 있고, 현재 위치가 Lev.3 또는 그 이상일 때
+    if (fromShortcut === 'true' && level >= 3) {
+        sessionStorage.removeItem('fromMainPageShortcut'); // 메모는 한 번만 사용하고 삭제
         handleMainButtonClick();
         return;
     }
 
-    const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
+    // 일반적인 '직전 화면으로 가기' 로직 수행
     const currentPanel = panels[`lev${level}`];
     const prevPanel = panels[`lev${level - 1}`] || sidebar;
 
@@ -583,7 +593,9 @@ function handleBackClick(button) {
 
     if (prevPanel) {
         if (isMobile()) prevPanel.classList.remove('is-hidden');
-        if(prevPanel !== sidebar) prevPanel.classList.add('visible');
+        if(prevPanel !== sidebar) {
+            prevPanel.classList.add('visible');
+        }
     }
     
     if (level === 2) {
@@ -591,8 +603,8 @@ function handleBackClick(button) {
     } else {
         setActive(level - 1, null);
     }
+    // ▲▲▲ [수정] '스마트 뒤로가기' 로직 최종 버전 ▲▲▲
 }
-// ▲▲▲ [추가] 누락되었던 뒤로가기 버튼 함수 ▲▲▲
 
     /* script.js 파일에서 기존 handleMainButtonClick 함수를 찾아 아래 코드로 전체 교체하세요 */
 function handleMainButtonClick() {
@@ -716,15 +728,13 @@ function handleMainButtonClick() {
 
     /* script.js 파일의 함수 정의 영역에 아래 코드를 추가하세요 */
 
-// ▼▼▼ [추가] 팝업(모달) 생성 및 표시 함수 ▼▼▼
-function showModal(title, contentHTML) {
-    // 1. 기존에 열려있는 모달이 있다면 제거
+/* script.js 파일에서 기존 showModal 함수를 찾아 아래 코드로 전체 교체하세요 */
+function showModal(title, contentElement) {
     const existingModal = document.querySelector('.modal-overlay');
     if (existingModal) {
         existingModal.remove();
     }
 
-    // 2. 모달의 각 부분(배경, 내용 상자 등)을 생성
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'modal-overlay';
 
@@ -737,17 +747,17 @@ function showModal(title, contentHTML) {
 
     const modalBody = document.createElement('div');
     modalBody.className = 'modal-body';
-    modalBody.innerHTML = contentHTML;
+    
+    // ▼▼▼ [수정] HTML이 아닌, 기능이 포함된 요소를 직접 추가 ▼▼▼
+    modalBody.appendChild(contentElement);
+    // ▲▲▲ [수정] HTML이 아닌, 기능이 포함된 요소를 직접 추가 ▲▲▲
 
-    // 3. 생성된 요소들을 조립
     modalContent.appendChild(modalHeader);
     modalContent.appendChild(modalBody);
     modalOverlay.appendChild(modalContent);
 
-    // 4. 웹페이지에 모달을 추가
     document.body.appendChild(modalOverlay);
 
-    // 5. 닫기 버튼이나 배경을 클릭하면 모달이 닫히도록 설정
     const closeModal = () => modalOverlay.remove();
     modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) {
@@ -756,7 +766,6 @@ function showModal(title, contentHTML) {
     });
     modalContent.querySelector('.modal-close-btn').addEventListener('click', closeModal);
 }
-// ▲▲▲ [추가] 팝업(모달) 생성 및 표시 함수 ▲▲▲
 
     /* script.js 파일에서 기존 renderPokemonView 함수를 찾아 아래 코드로 전체 교체하세요 */
 function renderPokemonView(contentDiv, data, menuId) {
@@ -841,23 +850,32 @@ function renderPokemonView(contentDiv, data, menuId) {
     contentDiv.innerHTML = '';
     contentDiv.appendChild(detailView);
 
+    // ▼▼▼ [수정] 스킬 클릭 시 팝업 오류 해결 ▼▼▼
     detailView.querySelectorAll('.skill-name').forEach(el => { 
         el.addEventListener('click', () => { 
             const skillIndex = parseInt(el.dataset.skillIndex);
             const skill = data.skills[skillIndex];
             if (skill) {
-                let skillDetailContent = `<p>${skill.description || ''}</p>`;
-                if (skill.keywords && skill.keywords.length > 0) {
-                    skillDetailContent += '<hr><h4>키워드 설명</h4><ul>';
-                    skill.keywords.forEach(kw => { skillDetailContent += `<li><strong>${kw.term}:</strong> ${kw.desc}</li>`; });
-                    skillDetailContent += '</ul>';
+                // 1. 스킬 설명을 담을 임시 HTML 요소를 만듭니다.
+                const skillDetailElement = document.createElement('div');
+                
+                let contentHTML = `<p>${skill.description || ''}</p>`;
+                if (skill.keywords && skill.keywords.length > 0 && skill.keywords.some(kw => kw.term)) {
+                    contentHTML += '<hr><h4>키워드 설명</h4><ul>';
+                    skill.keywords.forEach(kw => { 
+                        if(kw.term) contentHTML += `<li><strong>${kw.term}:</strong> ${kw.desc || ''}</li>`; 
+                    });
+                    contentHTML += '</ul>';
                 }
-                showModal(skill.name, skillDetailContent); 
+                skillDetailElement.innerHTML = contentHTML;
+                
+                // 2. 글자(String)가 아닌, 완성된 HTML 요소(Element)를 전달합니다.
+                showModal(skill.name, skillDetailElement); 
             }
         }); 
     });
+    // ▲▲▲ [수정] 스킬 클릭 시 팝업 오류 해결 ▲▲▲
     
-    // ▼▼▼ [수정] 훼손되었던 팝업 클릭 이벤트 리스너 복구 ▼▼▼
     detailView.querySelectorAll('.recommend-item').forEach(el => {
         el.addEventListener('click', () => {
             const itemId = el.dataset.itemId;
@@ -866,14 +884,11 @@ function renderPokemonView(contentDiv, data, menuId) {
 
             if (itemData) {
                 const tempContentDiv = document.createElement('div');
-                // renderSimpleView를 사용하여 아이템/룬/칩의 상세 내용을 생성
                 renderSimpleView(tempContentDiv, itemData, dbKey);
-                // 생성된 내용을 모달(팝업)으로 보여줌
-                showModal(itemData.name, tempContentDiv.innerHTML);
+                showModal(itemData.name, tempContentDiv);
             }
         });
     });
-    // ▲▲▲ [수정] 훼손되었던 팝업 클릭 이벤트 리스너 복구 ▲▲▲
 
     detailView.querySelectorAll('.tab-button').forEach(button => {
         button.addEventListener('click', () => {
