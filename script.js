@@ -238,39 +238,70 @@ async function fetchAndRenderPopularDecks() {
         return diffDays <= 7;
     }
 
-    function renderSidebar() {
-        const sidebarContent = document.createElement('div');
-        sidebarContent.className = 'panel-content';
-        DB.sidebarMenu.forEach(item => {
-            const button = document.createElement('button');
-            button.className = 'menu-item';
-            button.dataset.level = 1;
-            button.dataset.id = item.id;
-            
-            let buttonHTML = item.name;
+    /* script.js 파일에서 기존 renderSidebar 함수를 찾아 아래 코드로 전체 교체하세요 */
+function renderSidebar() {
+    // 1. 메뉴 목록을 담을 컨테이너 생성
+    const sidebarContent = document.createElement('div');
+    sidebarContent.className = 'panel-content';
+    DB.sidebarMenu.forEach(item => {
+        const button = document.createElement('button');
+        button.className = 'menu-item';
+        button.dataset.level = 1;
+        button.dataset.id = item.id;
+        
+        let buttonHTML = item.name;
 
-            let dataToCheck = [];
-            if (item.id === 'notice' || item.id === 'tips') {
-                dataToCheck = Object.values(DB[item.id]?.lev3 || {});
-            } else if (DB[item.id] && DB[item.id].lev4) {
-                dataToCheck = Object.values(DB[item.id].lev4);
-            }
-
-            if (dataToCheck.length > 0) {
-                const hasNewPost = dataToCheck.some(post => isNew(post.updatedAt) || isNew(post.createdAt));
-                if (hasNewPost) {
-                    buttonHTML += '<span class="new-badge">N</span>';
-                }
-            }
-            
-            button.innerHTML = buttonHTML;
-            sidebarContent.appendChild(button);
-        });
-        if(sidebar) {
-            sidebar.innerHTML = '';
-            sidebar.appendChild(sidebarContent);
+        let dataToCheck = [];
+        if (item.id === 'notice' || item.id === 'tips') {
+            dataToCheck = Object.values(DB[item.id]?.lev3 || {});
+        } else if (DB[item.id] && DB[item.id].lev4) {
+            dataToCheck = Object.values(DB[item.id].lev4);
         }
+
+        if (dataToCheck.length > 0) {
+            const hasNewPost = dataToCheck.some(post => isNew(post.updatedAt) || isNew(post.createdAt));
+            if (hasNewPost) {
+                buttonHTML += '<span class="new-badge">N</span>';
+            }
+        }
+        
+        button.innerHTML = buttonHTML;
+        sidebarContent.appendChild(button);
+    });
+
+    // 2. 광고 영역을 담을 컨테이너 생성
+    const adContainer = document.createElement('div');
+    adContainer.id = 'sidebar-ad-container';
+    adContainer.innerHTML = `
+        <div class="coupang-ad-box">
+            <p class="ad-notice">
+                이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
+            </p>
+            <iframe src="https://coupa.ng/cjwGmH" width="120" height="240" frameborder="0" scrolling="no" referrerpolicy="unsafe-url" browsingtopics></iframe>
+        </div>
+        <div class="blog-ad-box">
+            <a href="https://index001.elmajor710.com" target="_blank" class="custom-ad-banner">
+                <div class="ad-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M20 6h-2.18c.11-.31.18-.65.18-1a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3c0 .35.07.69.18 1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zM8 4h8a1 1 0 0 1 1 1c0 .34-.07.66-.18 1H7.18C7.07 5.66 7 5.34 7 5a1 1 0 0 1 1-1zm12 15H4V8h16v11z"/>
+                        <path d="M12 17a4 4 0 0 0 4-4h-2a2 2 0 0 1-2 2 2 2 0 0 1-2-2H8a4 4 0 0 0 4 4zm0-6a1 1 0 0 0 1-1V9a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1z"/>
+                    </svg>
+                </div>
+                <div class="ad-text">
+                    <strong>나라지원금 Info.</strong>
+                    <span>놓치면 손해! 혜택 확인하기</span>
+                </div>
+            </a>
+        </div>
+    `;
+
+    // 3. 실제 사이드바(#sidebar)에 메뉴와 광고를 순서대로 추가
+    if(sidebar) {
+        sidebar.innerHTML = ''; // 기존 내용 초기화
+        sidebar.appendChild(sidebarContent); // 메뉴 목록 추가
+        sidebar.appendChild(adContainer); // 광고 영역 추가
     }
+}
 
     function renderMainNoticeList() {
         if (!mainNoticeList) return;
