@@ -628,10 +628,14 @@ header h1 {
     .mobile-only { display: block; }
     .pc-only { display: none; }
     
-    #sidebar, .panel { 
-        position: absolute; 
-        width: 100%; 
-    }
+   /* style.css 파일의 @media (max-width: 1199px) 블록 내부를 찾으세요 */
+
+#sidebar, .panel { 
+    position: absolute; 
+    width: 100%;
+    /* ▼▼▼ [추가] 모바일 화면 높이에 맞춤 ▼▼▼ */
+    height: 100%; 
+}
     #sidebar.is-hidden, .panel.is-hidden { 
         transform: translateX(-100%); 
         z-index: 1; 
