@@ -556,6 +556,38 @@ function handleMenuClick(button) {
     renderPanelContent(nextLevel, nextData, menuId, id);
 }
     
+    /* handleMenuClick 함수 바로 아래에 이 코드를 추가하세요 */
+
+// ▼▼▼ [추가] 누락되었던 뒤로가기 버튼 함수 ▼▼▼
+function handleBackClick(button) {
+    const parentPanel = button.closest('.panel');
+    if (!parentPanel) return;
+
+    // 인기글 또는 최종 상세 보기 화면에서 뒤로가기 시 메인으로 이동
+    if (parentPanel.id === 'lev4-panel' && parentPanel.querySelector('.main-btn')) {
+        handleMainButtonClick();
+        return;
+    }
+
+    const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
+    const currentPanel = panels[`lev${level}`];
+    const prevPanel = panels[`lev${level - 1}`] || sidebar;
+
+    currentPanel.classList.remove('visible');
+
+    if (prevPanel) {
+        if (isMobile()) prevPanel.classList.remove('is-hidden');
+        if(prevPanel !== sidebar) prevPanel.classList.add('visible');
+    }
+    
+    if (level === 2) {
+        handleMainButtonClick();
+    } else {
+        setActive(level - 1, null);
+    }
+}
+// ▲▲▲ [추가] 누락되었던 뒤로가기 버튼 함수 ▲▲▲
+
     /* script.js 파일에서 기존 handleMainButtonClick 함수를 찾아 아래 코드로 전체 교체하세요 */
 function handleMainButtonClick() {
     mainPlaceholder.style.display = 'flex';
