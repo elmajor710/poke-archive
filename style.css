@@ -905,3 +905,36 @@ header h1 {
     font-size: 12px;
     color: #546e7a; /* 부드러운 회색 텍스트 */
 }
+
+/* --- ▼▼▼ 신규 모바일 광고 스타일 ▼▼▼ --- */
+#mobile-ad-top {
+    display: none; /* 평소엔 숨김 */
+    padding: 15px;
+    background-color: #fff;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+#ad-container-bottom {
+    display: none; /* 평소엔 숨김 */
+    padding: 20px 15px;
+    border-top: 1px solid #e0e0e0;
+    background-color: #fff;
+}
+
+/* --- ▼▼▼ 미디어 쿼리 수정 (모바일 광고 제어) ▼▼▼ --- */
+@media (max-width: 1199px) {
+    /* 기존 상단 애드센스 숨기기 */
+    #ad-container-top {
+        display: none !important;
+    }
+
+    /* 사이드바에 추가했던 광고 숨기기 */
+    #sidebar-ad-container {
+        display: none;
+    }
+
+    /* 모바일 전용 상/하단 광고 보이기 */
+    #mobile-ad-top, #ad-container-bottom {
+        display: block;
+    }
+}
