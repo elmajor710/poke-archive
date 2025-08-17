@@ -850,24 +850,32 @@ function renderPokemonView(contentDiv, data, menuId) {
     contentDiv.innerHTML = '';
     contentDiv.appendChild(detailView);
 
+    // ▼▼▼ [수정] 스킬 클릭 시 팝업 오류 해결 ▼▼▼
     detailView.querySelectorAll('.skill-name').forEach(el => { 
         el.addEventListener('click', () => { 
             const skillIndex = parseInt(el.dataset.skillIndex);
             const skill = data.skills[skillIndex];
             if (skill) {
-                let skillDetailContent = `<p>${skill.description || ''}</p>`;
-                if (skill.keywords && skill.keywords.length > 0) {
-                    skillDetailContent += '<hr><h4>키워드 설명</h4><ul>';
-                    skill.keywords.forEach(kw => { skillDetailContent += `<li><strong>${kw.term}:</strong> ${kw.desc}</li>`; });
-                    skillDetailContent += '</ul>';
+                // 1. 스킬 설명을 담을 임시 HTML 요소를 만듭니다.
+                const skillDetailElement = document.createElement('div');
+                
+                let contentHTML = `<p>${skill.description || ''}</p>`;
+                if (skill.keywords && skill.keywords.length > 0 && skill.keywords.some(kw => kw.term)) {
+                    contentHTML += '<hr><h4>키워드 설명</h4><ul>';
+                    skill.keywords.forEach(kw => { 
+                        if(kw.term) contentHTML += `<li><strong>${kw.term}:</strong> ${kw.desc || ''}</li>`; 
+                    });
+                    contentHTML += '</ul>';
                 }
-                showModal(skill.name, skillDetailContent); 
+                skillDetailElement.innerHTML = contentHTML;
+                
+                // 2. 글자(String)가 아닌, 완성된 HTML 요소(Element)를 전달합니다.
+                showModal(skill.name, skillDetailElement); 
             }
         }); 
     });
+    // ▲▲▲ [수정] 스킬 클릭 시 팝업 오류 해결 ▲▲▲
     
-    /* renderPokemonView 함수 내부에서 '.recommend-item' 부분을 찾아 아래 코드로 교체하세요 */
-
     detailView.querySelectorAll('.recommend-item').forEach(el => {
         el.addEventListener('click', () => {
             const itemId = el.dataset.itemId;
@@ -877,9 +885,7 @@ function renderPokemonView(contentDiv, data, menuId) {
             if (itemData) {
                 const tempContentDiv = document.createElement('div');
                 renderSimpleView(tempContentDiv, itemData, dbKey);
-                // ▼▼▼ [수정] .innerHTML을 빼고 요소 자체를 전달 ▼▼▼
                 showModal(itemData.name, tempContentDiv);
-                // ▲▲▲ [수정] .innerHTML을 빼고 요소 자체를 전달 ▲▲▲
             }
         });
     });
