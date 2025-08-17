@@ -48,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setupPokemonManagement();
             setupItemManagement();
             setupRuneChipManagement();
-            // [수정] 공지사항 관리 함수 호출 추가
             setupNoticeManagement();
             setupTipsManagement();
             setupCalendarManagement();
@@ -63,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function initializeAdminData() {
         console.log("initializeAdminData: Firestore에서 모든 데이터 로딩 시작...");
-        // [수정] 'notice' 컬렉션 추가
         const collections = ['pokemon', 'items', 'runeAndChips', 'notice', 'tips', 'events', 'recommendedDecks'];
         const promises = collections.map(col => db.collection(col).get());
         const [pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, noticeSnapshot, tipsSnapshot, eventsSnapshot, decksSnapshot] = await Promise.all(promises);
@@ -102,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("initializeAdminData: 모든 Firestore 데이터를 전역 DB 객체에 로드 완료.");
     }
 
-    // [추가] 데이터 저장 시 타임스탬프를 추가하는 헬퍼 함수
     async function saveDataWithTimestamp(collectionName, docId, data) {
         const docRef = db.collection(collectionName).doc(docId);
         const doc = await docRef.get();
@@ -114,6 +111,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!doc.exists) {
             dataToSave.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            // [추가] '좋아요' 기능이 있는 데이터 타입의 경우 likeCount 초기화
+            if (['recommendedDecks'].includes(collectionName)) {
+                dataToSave.likeCount = 0;
+            }
         }
 
         await docRef.set(dataToSave, { merge: true });
@@ -510,10 +511,8 @@ document.addEventListener('DOMContentLoaded', () => {
         loadRuneChipList();
     }
 
-    // [추가] 공지사항 관리 함수
     function setupNoticeManagement() {
         const form = document.getElementById('notice-form');
-        if (!form) return;
         const selectList = document.getElementById('notice-select-list');
         const loadBtn = document.getElementById('load-notice-btn');
         const deleteBtn = document.getElementById('delete-notice-btn');
