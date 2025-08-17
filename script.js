@@ -375,7 +375,8 @@ function renderSidebar() {
         }
     }
 
-    function addEventListeners() {
+/* script.js 파일에서 기존 addEventListeners 함수를 찾아 아래 코드로 전체 교체하세요 */
+function addEventListeners() {
     document.body.addEventListener('click', (e) => {
         if (e.target.closest('.ad-container')) adBlockManager.recordClick();
     });
@@ -396,21 +397,22 @@ function renderSidebar() {
             } else if (button.classList.contains('main-btn')) {
                 handleMainButtonClick();
             } else if (button.classList.contains('main-action-btn')) {
-                // ▼▼▼ [수정] 모바일 '인기글' 버튼 클릭 시 '추천덱' 목록으로 바로 이동 ▼▼▼
+                // ▼▼▼ [수정] 모바일 첫 화면 버튼 클릭 시 메모 남기기 ▼▼▼
+                sessionStorage.setItem('fromMainPageShortcut', 'true');
+                
                 if (button.dataset.menuId === 'popular') {
                     const lev1_btn = sidebar.querySelector(`.menu-item[data-id="deck"]`);
                     if (lev1_btn) {
-                        handleMenuClick(lev1_btn); // L1 '덱 구성' 클릭
+                        handleMenuClick(lev1_btn);
                         setTimeout(() => {
                             const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="recommended"]`);
                             if (lev2_btn) {
-                                handleMenuClick(lev2_btn); // L2 '추천덱' 클릭
+                                handleMenuClick(lev2_btn);
                             }
                         }, 50);
                     }
                     return;
                 }
-                // ▲▲▲ [수정] 모바일 '인기글' 버튼 클릭 시 '추천덱' 목록으로 바로 이동 ▲▲▲
                 const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="${button.dataset.menuId}"]`);
                 if(targetMenuItem) handleMenuClick(targetMenuItem);
             } else if (button.dataset.level) {
@@ -418,14 +420,12 @@ function renderSidebar() {
             }
         }
 
-        /* addEventListeners 함수 내부에서 noticeLink와 popularDeckLink 부분을 찾아 각각 수정하세요 */
-
         const noticeLink = e.target.closest('#main-notice-list a');
         if (noticeLink) {
             e.preventDefault();
-            // ▼▼▼ [추가] "첫 화면에서 바로 왔음!" 메모 남기기 ▼▼▼
+            // ▼▼▼ [수정] PC 첫 화면 공지사항 클릭 시 메모 남기기 ▼▼▼
             sessionStorage.setItem('fromMainPageShortcut', 'true');
-
+            
             const menuId = noticeLink.dataset.menuId;
             const itemId = noticeLink.dataset.itemId;
 
@@ -442,9 +442,9 @@ function renderSidebar() {
         const popularDeckLink = e.target.closest('#popular-deck-list a');
         if (popularDeckLink) {
             e.preventDefault();
-            // ▼▼▼ [추가] "첫 화면에서 바로 왔음!" 메모 남기기 ▼▼▼
+            // ▼▼▼ [수정] PC 첫 화면 인기글 클릭 시 메모 남기기 ▼▼▼
             sessionStorage.setItem('fromMainPageShortcut', 'true');
-
+            
             const menuId = popularDeckLink.dataset.menuId;
             const itemId = popularDeckLink.dataset.itemId;
 
@@ -464,7 +464,7 @@ function renderSidebar() {
             }
         }
     });
-}
+}    
 
     // ▼▼▼ [추가] 좋아요 기능 관련 함수 ▼▼▼
 
@@ -526,13 +526,14 @@ async function handleLikeClick(button) {
 }
 // ▲▲▲ [추가] 좋아요 기능 관련 함수 ▲▲▲
 
-    /* script.js 파일에서 기존 handleMenuClick 함수를 찾아 아래 코드로 전체 교체하세요 */
+/* script.js 파일에서 기존 handleMenuClick 함수를 찾아 아래 코드로 전체 교체하세요 */
 function handleMenuClick(button) {
-    // ▼▼▼ [추가] 일반 메뉴 탐색 시, '첫 화면 바로가기' 메모 삭제 ▼▼▼
-    if (!button.closest('#main-notice-list') && !button.closest('#popular-deck-list')) {
+    // ▼▼▼ [수정] 일반 사이드바 메뉴 탐색 시, '첫 화면 바로가기' 메모 삭제 ▼▼▼
+    // button.closest('.main-action-btn') 등을 통해 첫 화면 버튼이 아님을 확인
+    if (button.dataset.level === 1) { // 사이드바의 첫 레벨 메뉴를 클릭했을 때만 메모 삭제
         sessionStorage.removeItem('fromMainPageShortcut');
     }
-    // ▲▲▲ [추가] 일반 메뉴 탐색 시, '첫 화면 바로가기' 메모 삭제 ▲▲▲
+    // ▲▲▲ [수정] 일반 사이드바 메뉴 탐색 시, '첫 화면 바로가기' 메모 삭제 ▲▲▲
 
     if (isMobile()) sidebar.classList.remove('visible');
     mainPlaceholder.style.display = 'none';
@@ -575,16 +576,16 @@ function handleBackClick(button) {
 
     // ▼▼▼ [수정] '스마트 뒤로가기' 로직 최종 버전 ▼▼▼
     const fromShortcut = sessionStorage.getItem('fromMainPageShortcut');
+    const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
 
-    // "첫 화면 바로가기" 메모가 있다면, 메인으로 이동
-    if (fromShortcut === 'true') {
+    // "첫 화면 바로가기" 메모가 있고, 현재 위치가 Lev.3 또는 그 이상일 때
+    if (fromShortcut === 'true' && level >= 3) {
         sessionStorage.removeItem('fromMainPageShortcut'); // 메모는 한 번만 사용하고 삭제
         handleMainButtonClick();
         return;
     }
 
-    // 메모가 없다면, 일반적인 '직전 화면으로 가기' 로직 수행
-    const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
+    // 일반적인 '직전 화면으로 가기' 로직 수행
     const currentPanel = panels[`lev${level}`];
     const prevPanel = panels[`lev${level - 1}`] || sidebar;
 
