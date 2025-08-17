@@ -87,23 +87,62 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeButtons = {};
     const isMobile = () => window.innerWidth <= 1199;
     
-    
-    async function initialize() {
+    /* script.js 파일의 함수 정의 영역에 아래 코드를 추가하세요 */
+
+// ▼▼▼ [추가] 모바일 전용 광고를 설정하는 함수 ▼▼▼
+function setupMobileAds() {
+    // 모바일이 아니면 함수를 즉시 종료
+    if (!isMobile()) return;
+
+    const topAdContainer = document.getElementById('mobile-ad-top');
+    const bottomAdContainer = document.getElementById('ad-container-bottom');
+
+    if (topAdContainer) {
+        topAdContainer.innerHTML = `
+            <div class="blog-ad-box">
+                <a href="https://index001.elmajor710.com" target="_blank" class="custom-ad-banner">
+                    <div class="ad-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3c0 .35.07.69.18 1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zM8 4h8a1 1 0 0 1 1 1c0 .34-.07.66-.18 1H7.18C7.07 5.66 7 5.34 7 5a1 1 0 0 1 1-1zm12 15H4V8h16v11z"/><path d="M12 17a4 4 0 0 0 4-4h-2a2 2 0 0 1-2 2 2 2 0 0 1-2-2H8a4 4 0 0 0 4 4zm0-6a1 1 0 0 0 1-1V9a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1z"/></svg>
+                    </div>
+                    <div class="ad-text">
+                        <strong>나라지원금 Info.</strong>
+                        <span>놓치면 손해! 혜택 확인하기</span>
+                    </div>
+                </a>
+            </div>
+        `;
+    }
+
+    if (bottomAdContainer) {
+        bottomAdContainer.innerHTML = `
+            <div class="coupang-ad-box">
+                <p class="ad-notice">
+                    이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
+                </p>
+                <iframe src="https://coupa.ng/cjwGmH" width="120" height="240" frameborder="0" scrolling="no" referrerpolicy="unsafe-url" browsingtopics></iframe>
+            </div>
+        `;
+    }
+}
+
+    /* script.js 파일에서 initialize 함수를 찾아 아래와 같이 수정하세요 */
+async function initialize() {
     try {
         await fetchAllDataFromFirebase();
         setupSideMenuData();
         renderSidebar();
         renderMainNoticeList();
-        // ▼▼▼ [추가] 인기글 로딩 함수 호출 ▼▼▼
         fetchAndRenderPopularDecks(); 
-        // ▲▲▲ [추가] 인기글 로딩 함수 호출 ▲▲▲
+        // ▼▼▼ [추가] 모바일 광고 설정 함수 호출 ▼▼▼
+        setupMobileAds();
+        // ▲▲▲ [추가] 모바일 광고 설정 함수 호출 ▲▲▲
         addEventListeners();
         setupAdObservers();
     } catch (error) {
-            console.error("초기화 중 심각한 오류 발생:", error);
-            document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
-        }
+        console.error("초기화 중 심각한 오류 발생:", error);
+        document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
     }
+}
     
     // ▼▼▼ [추가] 인기글 목록 렌더링 함수 ▼▼▼
 async function fetchAndRenderPopularDecks() {
