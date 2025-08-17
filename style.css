@@ -105,6 +105,7 @@ header h1 {
     overflow: hidden;
 }
 
+/* style.css 파일에서 이 부분을 찾아서 아래 내용으로 수정하세요 */
 #sidebar {
     width: var(--sidebar-width);
     border-right: 1px solid var(--border-color);
@@ -114,6 +115,9 @@ header h1 {
     background-color: #fff;
     transition: transform var(--slide-duration) ease-in-out;
     z-index: 10;
+    /* ▼▼▼ [추가] Flexbox 레이아웃 적용 ▼▼▼ */
+    display: flex;
+    flex-direction: column;
 }
 
 #content-area {
@@ -267,11 +271,13 @@ header h1 {
     align-items: center; 
 }
 
+/* style.css 파일에서 이 부분을 찾아서 아래 내용으로 수정하세요 */
 .panel-content { 
     padding: 10px; 
     overflow-y: auto; 
-    flex-grow: 1; 
     -webkit-overflow-scrolling: touch;
+    /* ▼▼▼ [추가] 남은 공간을 모두 차지하도록 설정 ▼▼▼ */
+    flex-grow: 1; 
 }
 .back-btn, .main-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border-color); background-color: #f8f9fa; cursor: pointer; }
 .main-btn { padding: 5px 12px; border-radius: 5px; background-color: #6c757d; color: white; border: 1px solid #6c757d; cursor: pointer; }
@@ -836,3 +842,62 @@ header h1 {
     border-color: #e57373;
 }
 /* ▲▲▲ [추가] 인기글 및 좋아요 기능 스타일 ▲▲▲ */
+
+/* --- ▼▼▼ 신규 광고 영역 스타일 ▼▼▼ --- */
+#sidebar-ad-container {
+    margin-top: 20px; /* 메뉴 목록과의 간격 */
+    padding-top: 20px; /* 광고 영역 상단 패딩 */
+    border-top: 2px solid #f0f2f5; /* 메뉴와 광고를 구분하는 선 */
+    flex-shrink: 0; /* 컨테이너 크기가 줄어들지 않도록 설정 */
+}
+.coupang-ad-box {
+    margin-bottom: 20px; /* 블로그 광고와의 간격 조정 */
+    text-align: center;
+}
+.ad-notice {
+    font-size: 11px;
+    color: #888;
+    background-color: #f8f9fa;
+    padding: 8px;
+    border-radius: 4px;
+    margin: 0 0 10px 0;
+    line-height: 1.4;
+    text-align: left;
+}
+.blog-ad-box a.custom-ad-banner {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: linear-gradient(135deg, #e3f2fd, #f0f7ff); /* 은은한 그라데이션 배경 */
+    border: 1px solid #b3e5fc;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+}
+.blog-ad-box a.custom-ad-banner:hover {
+    transform: translateY(-2px); /* 살짝 떠오르는 효과 */
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1); /* 그림자 효과 */
+    border-color: #81d4fa;
+}
+.ad-icon {
+    flex-shrink: 0;
+    margin-right: 12px;
+}
+.ad-icon svg {
+    width: 36px;
+    height: 36px;
+    fill: var(--primary-color);
+}
+.ad-text {
+    text-align: left;
+}
+.ad-text strong {
+    display: block;
+    font-size: 15px;
+    font-weight: bold;
+    color: #0d47a1; /* 진한 파란색 텍스트 */
+}
+.ad-text span {
+    font-size: 12px;
+    color: #546e7a; /* 부드러운 회색 텍스트 */
+}
