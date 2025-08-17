@@ -716,15 +716,13 @@ function handleMainButtonClick() {
 
     /* script.js 파일의 함수 정의 영역에 아래 코드를 추가하세요 */
 
-// ▼▼▼ [추가] 팝업(모달) 생성 및 표시 함수 ▼▼▼
-function showModal(title, contentHTML) {
-    // 1. 기존에 열려있는 모달이 있다면 제거
+/* script.js 파일에서 기존 showModal 함수를 찾아 아래 코드로 전체 교체하세요 */
+function showModal(title, contentElement) {
     const existingModal = document.querySelector('.modal-overlay');
     if (existingModal) {
         existingModal.remove();
     }
 
-    // 2. 모달의 각 부분(배경, 내용 상자 등)을 생성
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'modal-overlay';
 
@@ -737,17 +735,17 @@ function showModal(title, contentHTML) {
 
     const modalBody = document.createElement('div');
     modalBody.className = 'modal-body';
-    modalBody.innerHTML = contentHTML;
+    
+    // ▼▼▼ [수정] HTML이 아닌, 기능이 포함된 요소를 직접 추가 ▼▼▼
+    modalBody.appendChild(contentElement);
+    // ▲▲▲ [수정] HTML이 아닌, 기능이 포함된 요소를 직접 추가 ▲▲▲
 
-    // 3. 생성된 요소들을 조립
     modalContent.appendChild(modalHeader);
     modalContent.appendChild(modalBody);
     modalOverlay.appendChild(modalContent);
 
-    // 4. 웹페이지에 모달을 추가
     document.body.appendChild(modalOverlay);
 
-    // 5. 닫기 버튼이나 배경을 클릭하면 모달이 닫히도록 설정
     const closeModal = () => modalOverlay.remove();
     modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) {
@@ -756,7 +754,6 @@ function showModal(title, contentHTML) {
     });
     modalContent.querySelector('.modal-close-btn').addEventListener('click', closeModal);
 }
-// ▲▲▲ [추가] 팝업(모달) 생성 및 표시 함수 ▲▲▲
 
     /* script.js 파일에서 기존 renderPokemonView 함수를 찾아 아래 코드로 전체 교체하세요 */
 function renderPokemonView(contentDiv, data, menuId) {
@@ -857,7 +854,8 @@ function renderPokemonView(contentDiv, data, menuId) {
         }); 
     });
     
-    // ▼▼▼ [수정] 훼손되었던 팝업 클릭 이벤트 리스너 복구 ▼▼▼
+    /* renderPokemonView 함수 내부에서 '.recommend-item' 부분을 찾아 아래 코드로 교체하세요 */
+
     detailView.querySelectorAll('.recommend-item').forEach(el => {
         el.addEventListener('click', () => {
             const itemId = el.dataset.itemId;
@@ -866,14 +864,13 @@ function renderPokemonView(contentDiv, data, menuId) {
 
             if (itemData) {
                 const tempContentDiv = document.createElement('div');
-                // renderSimpleView를 사용하여 아이템/룬/칩의 상세 내용을 생성
                 renderSimpleView(tempContentDiv, itemData, dbKey);
-                // 생성된 내용을 모달(팝업)으로 보여줌
-                showModal(itemData.name, tempContentDiv.innerHTML);
+                // ▼▼▼ [수정] .innerHTML을 빼고 요소 자체를 전달 ▼▼▼
+                showModal(itemData.name, tempContentDiv);
+                // ▲▲▲ [수정] .innerHTML을 빼고 요소 자체를 전달 ▲▲▲
             }
         });
     });
-    // ▲▲▲ [수정] 훼손되었던 팝업 클릭 이벤트 리스너 복구 ▲▲▲
 
     detailView.querySelectorAll('.tab-button').forEach(button => {
         button.addEventListener('click', () => {
