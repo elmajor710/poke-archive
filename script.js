@@ -518,66 +518,67 @@ async function handleLikeClick(button) {
 }
 // ▲▲▲ [추가] 좋아요 기능 관련 함수 ▲▲▲
 
+    /* script.js 파일에서 기존 handleMenuClick 함수를 찾아 아래 코드로 전체 교체하세요 */
+function handleMenuClick(button) {
+    if (isMobile()) sidebar.classList.remove('visible');
+    mainPlaceholder.style.display = 'none';
+    appContainer.classList.add('menu-active');
+
+    // ▼▼▼ [추가] 모바일에서 메뉴 클릭 시 하단 광고 숨기기 ▼▼▼
+    if (isMobile()) {
+        const bottomAd = document.getElementById('ad-container-bottom');
+        if (bottomAd) {
+            bottomAd.style.display = 'none';
+        }
+    }
+    // ▲▲▲ [추가] 모바일에서 메뉴 클릭 시 하단 광고 숨기기 ▲▲▲
+
+    const level = parseInt(button.dataset.level);
+    const id = button.dataset.id;
+    const menuId = button.dataset.menuId || id;
+    const nextLevel = level + 1;
+    const nextData = getNextData(level, id, menuId); 
+    const currentPanel = panels[`lev${level}`] || sidebar;
+    const nextPanel = panels[`lev${nextLevel}`];
+
+    if (!nextPanel) return;
+
+    if (isMobile()) currentPanel.classList.add('is-hidden');
     
+    Object.values(panels).forEach((panel, index) => {
+        if(index > 0 && panel !== nextPanel) panel.classList.remove('visible');
+    });
 
-    function handleMenuClick(button) {
-        if (isMobile()) sidebar.classList.remove('visible');
-        mainPlaceholder.style.display = 'none';
-        appContainer.classList.add('menu-active');
-
-        const level = parseInt(button.dataset.level);
-        const id = button.dataset.id;
-        const menuId = button.dataset.menuId || id;
-        const nextLevel = level + 1;
-        const nextData = getNextData(level, id, menuId); 
-        const currentPanel = panels[`lev${level}`] || sidebar;
-        const nextPanel = panels[`lev${nextLevel}`];
-
-        if (!nextPanel) return;
-
-        if (isMobile()) currentPanel.classList.add('is-hidden');
-        
-        Object.values(panels).forEach((panel, index) => {
-            if(index > 0 && panel !== nextPanel) panel.classList.remove('visible');
-        });
-
-        nextPanel.classList.remove('is-hidden');
-        nextPanel.classList.add('visible');
-        
-        setActive(level, button);
-        renderPanelContent(nextLevel, nextData, menuId, id);
-    }
-
-    /* script.js 파일에서 기존 handleBackClick 함수를 찾아 아래 코드로 전체 교체하세요 */
-function handleBackClick(button) {
-    const parentPanel = button.closest('.panel');
-    if (!parentPanel) return;
-
-    // ▼▼▼ [수정] '뒤로가기' 로직 변경 ▼▼▼
-    // 현재 패널이 'lev4-panel'이고, 헤더에 '메인' 버튼이 있다면 메인 화면으로 바로 이동
-    if (parentPanel.id === 'lev4-panel' && parentPanel.querySelector('.main-btn')) {
-        handleMainButtonClick();
-        return;
-    }
-    // ▲▲▲ [수정] '뒤로가기' 로직 변경 ▲▲▲
-
-    const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
-    const currentPanel = panels[`lev${level}`];
-    const prevPanel = panels[`lev${level - 1}`] || sidebar;
-
-    currentPanel.classList.remove('visible');
-
-    if (prevPanel) {
-        if (isMobile()) prevPanel.classList.remove('is-hidden');
-        if(prevPanel !== sidebar) prevPanel.classList.add('visible');
-    }
+    nextPanel.classList.remove('is-hidden');
+    nextPanel.classList.add('visible');
     
-    if (level === 2) {
-        handleMainButtonClick();
-    } else {
-        setActive(level - 1, null);
+    setActive(level, button);
+    renderPanelContent(nextLevel, nextData, menuId, id);
+}
+    
+    /* script.js 파일에서 기존 handleMainButtonClick 함수를 찾아 아래 코드로 전체 교체하세요 */
+function handleMainButtonClick() {
+    mainPlaceholder.style.display = 'flex';
+    appContainer.classList.remove('menu-active');
+
+    // ▼▼▼ [추가] 모바일에서 메인 화면으로 돌아올 때 하단 광고 다시 보이기 ▼▼▼
+    if (isMobile()) {
+        const bottomAd = document.getElementById('ad-container-bottom');
+        if (bottomAd) {
+            bottomAd.style.display = 'block';
+        }
+    }
+    // ▲▲▲ [추가] 모바일에서 메인 화면으로 돌아올 때 하단 광고 다시 보이기 ▲▲▲
+
+    Object.values(panels).forEach((panel, index) => {
+        if (index > 0) panel.classList.remove('visible', 'is-hidden');
+    });
+    setActive(0, null);
+    if (isMobile()) {
+        sidebar.classList.remove('visible', 'is-hidden');
     }
 }
+
     
     function handleMainButtonClick() {
         mainPlaceholder.style.display = 'flex';
