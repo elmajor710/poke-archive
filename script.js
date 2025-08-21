@@ -125,18 +125,17 @@ function setupMobileAds() {
     }
 }
 
-/* script.js 파일에서 initialize 함수를 찾아 아래와 같이 수정하세요 */
+    /* script.js 파일에서 initialize 함수를 찾아 아래와 같이 수정하세요 */
 async function initialize() {
     try {
         await fetchAllDataFromFirebase();
         setupSideMenuData();
         renderSidebar();
-        // ▼▼▼ [추가] PC 메인 광고 생성 함수 호출 ▼▼▼
-        renderPcMainAds();
-        // ▲▲▲ [추가] PC 메인 광고 생성 함수 호출 ▲▲▲
         renderMainNoticeList();
         fetchAndRenderPopularDecks(); 
+        // ▼▼▼ [추가] 모바일 광고 설정 함수 호출 ▼▼▼
         setupMobileAds();
+        // ▲▲▲ [추가] 모바일 광고 설정 함수 호출 ▲▲▲
         addEventListeners();
         setupAdObservers();
     } catch (error) {
@@ -286,8 +285,9 @@ function setupSideMenuData() {
         return diffDays <= 7;
     }
 
-/* script.js 파일에서 기존 renderSidebar 함수를 찾아 아래 코드로 전체 교체하세요 */
+    /* script.js 파일에서 기존 renderSidebar 함수를 찾아 아래 코드로 전체 교체하세요 */
 function renderSidebar() {
+    // 1. 메뉴 목록을 담을 컨테이너 생성
     const sidebarContent = document.createElement('div');
     sidebarContent.className = 'panel-content';
     DB.sidebarMenu.forEach(item => {
@@ -316,21 +316,9 @@ function renderSidebar() {
         sidebarContent.appendChild(button);
     });
 
-    if(sidebar) {
-        sidebar.innerHTML = '';
-        sidebar.appendChild(sidebarContent);
-    }
-}
-
-/* script.js 파일의 함수 정의 영역에 아래 코드를 추가하세요 */
-
-// ▼▼▼ [추가] PC 메인 콘텐츠 하단 광고 생성 함수 ▼▼▼
-function renderPcMainAds() {
-    // 모바일이거나 광고 컨테이너가 없으면 함수를 즉시 종료
-    if (isMobile()) return;
-    const adContainer = document.getElementById('main-content-ad-container');
-    if (!adContainer) return;
-
+    // 2. 광고 영역을 담을 컨테이너 생성
+    const adContainer = document.createElement('div');
+    adContainer.id = 'sidebar-ad-container';
     adContainer.innerHTML = `
         <div class="coupang-ad-box">
             <p class="ad-notice">
@@ -353,6 +341,13 @@ function renderPcMainAds() {
             </a>
         </div>
     `;
+
+    // 3. 실제 사이드바(#sidebar)에 메뉴와 광고를 순서대로 추가
+    if(sidebar) {
+        sidebar.innerHTML = ''; // 기존 내용 초기화
+        sidebar.appendChild(sidebarContent); // 메뉴 목록 추가
+        sidebar.appendChild(adContainer); // 광고 영역 추가
+    }
 }
 
     function renderMainNoticeList() {
@@ -1045,10 +1040,11 @@ function renderPokemonView(contentDiv, data, menuId) {
         return null;
     }
     
-    /* script.js 파일에서 기존 renderDeckView 함수를 찾아 아래 코드로 전체 교체하세요 */
-function renderDeckView(contentDiv, data) {
+    // [수정] 복구 코드 기반으로 추천 덱 렌더링 함수 수정
+    function renderDeckView(contentDiv, data) {
     const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
 
+    // ▼▼▼ [추가] 좋아요 상태 확인 및 UI 구성 ▼▼▼
     const likedDecks = getLikedDecks();
     const isLiked = likedDecks.includes(data.id);
     const likeButtonHTML = `
@@ -1059,7 +1055,9 @@ function renderDeckView(contentDiv, data) {
             </button>
         </div>
     `;
+    // ▲▲▲ [추가] 좋아요 상태 확인 및 UI 구성 ▲▲▲
     
+    // [수정] h2 태그 옆에 좋아요 버튼 HTML 삽입
     let html = `<div class="deck-detail-view">
                     <div class="deck-header">
                         <h2>${data.name}</h2>
@@ -1105,7 +1103,7 @@ function renderDeckView(contentDiv, data) {
             const cell = grid[i][j];
             if (cell) {
                 if (cell.type === 'pokemon') {
-                    html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"></div></td>`;
+                    html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="pkm-name">${cell.name_ko}</span></div></td>`;
                 } else if (cell.type === 'header') {
                     html += `<td class="header-cell" colspan="${cell.colspan || 1}" title="${cell.label}"><div>${cell.content}</div></td>`;
                     if (cell.colspan > 1) {
@@ -1118,39 +1116,8 @@ function renderDeckView(contentDiv, data) {
         }
         html += '</tr>';
     }
-    html += `</tbody>`;
-    
-    html += `<tfoot><tr>
-                <td colspan="2">어시스트 #1~#6</td>
-                <td colspan="2">메인덱 #1~#6</td>
-             </tr></tfoot>`;
-
-    html += `</table></div>`;
+    html += `</tbody></table></div>`;
     contentDiv.innerHTML = html;
-    
-    contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
-        cell.addEventListener('click', () => {
-            const pokemonId = cell.dataset.pokemonId;
-            const pkmData = DB.pokemonType.lev4[pokemonId];
-            if (pkmData) {
-                let badgesHTML = '';
-                if (pkmData.grade) {
-                    const gradeClass = `grade-${pkmData.grade.toLowerCase().replace('+', '-plus')}`;
-                    badgesHTML += `<span class="grade-badge ${gradeClass}">${pkmData.grade}</span>`;
-                }
-                if (pkmData.types && pkmData.types.length > 0) {
-                    pkmData.types.forEach(typeId => {
-                        const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-                        if (typeInfo) badgesHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
-                    });
-                }
-                
-                const popupContent = document.createElement('div');
-                popupContent.innerHTML = `<div class="badge-container" style="justify-content: center; margin-top: 10px;">${badgesHTML}</div>`;
-                showModal(pkmData.name_ko, popupContent);
-            }
-        });
-    });
 }
 
     function renderCalendarView(contentDiv, data) {
