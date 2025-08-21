@@ -938,3 +938,29 @@ header h1 {
         display: block;
     }
 }
+
+/* --- ▼▼▼ 1단계: 추천덱 UI 개선 스타일 ▼▼▼ --- */
+
+.four-by-four-table {
+    border-spacing: 2px;
+}
+.four-by-four-table .deck-pokemon-cell img {
+    width: 95%; /* 이미지가 셀의 95%를 차지하도록 설정 */
+    height: 95%;
+    object-fit: contain;
+}
+.four-by-four-table tfoot td {
+    border: none;
+    background-color: transparent;
+    font-weight: bold;
+    font-size: 14px;
+    padding-top: 5px;
+    color: #555;
+    vertical-align: middle;
+}
+.four-by-four-table .deck-pokemon-cell .pkm-name {
+    display: none; /* 기존 포켓몬 이름 숨기기 */
+}
+.four-by-four-table .deck-pokemon-cell {
+    padding: 2px;
+}
