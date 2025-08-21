@@ -938,3 +938,48 @@ header h1 {
         display: block;
     }
 }
+
+/* --- ▼▼▼ 1단계: PC 광고 위치 변경 및 추천덱 UI 개선 스타일 ▼▼▼ --- */
+
+/* 1. 기존 사이드바 광고 숨기기 */
+#sidebar-ad-container {
+    display: none;
+}
+
+/* 2. 메인 콘텐츠 하단에 추가된 PC 광고 컨테이너 스타일 */
+#main-content-ad-container {
+    border: 3px dashed #e74c3c;
+    padding: 20px;
+    margin: 30px 0;
+    border-radius: 12px;
+    background-color: #fff8f8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap; /* 화면이 좁아지면 줄바꿈 */
+}
+
+/* 3. 추천덱 UI 개선 스타일 */
+.four-by-four-table {
+    border-spacing: 2px;
+}
+.four-by-four-table .deck-pokemon-cell img {
+    width: 85%;
+    height: 85%;
+}
+.four-by-four-table tfoot td {
+    border: none;
+    background-color: transparent;
+    font-weight: bold;
+    font-size: 14px;
+    padding-top: 5px;
+    color: #555;
+    vertical-align: middle;
+}
+.four-by-four-table .deck-pokemon-cell .pkm-name {
+    display: none;
+}
+.four-by-four-table .deck-pokemon-cell {
+    padding: 2px;
+}
