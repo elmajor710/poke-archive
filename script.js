@@ -285,7 +285,7 @@ function setupSideMenuData() {
         return diffDays <= 7;
     }
 
-    /* script.js 파일에서 기존 renderSidebar 함수를 찾아 아래 코드로 전체 교체하세요 */
+/* script.js 파일에서 기존 renderSidebar 함수를 찾아 아래 코드로 전체 교체하세요 */
 function renderSidebar() {
     // 1. 메뉴 목록을 담을 컨테이너 생성
     const sidebarContent = document.createElement('div');
@@ -316,16 +316,10 @@ function renderSidebar() {
         sidebarContent.appendChild(button);
     });
 
-    // 2. 광고 영역을 담을 컨테이너 생성
+    // 2. ▼▼▼ [수정] 쿠팡 광고를 제거하고, 블로그 광고만 남깁니다. ▼▼▼
     const adContainer = document.createElement('div');
     adContainer.id = 'sidebar-ad-container';
     adContainer.innerHTML = `
-        <div class="coupang-ad-box">
-            <p class="ad-notice">
-                이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
-            </p>
-            <iframe src="https://coupa.ng/cjwGmH" width="120" height="240" frameborder="0" scrolling="no" referrerpolicy="unsafe-url" browsingtopics></iframe>
-        </div>
         <div class="blog-ad-box">
             <a href="https://index001.elmajor710.com" target="_blank" class="custom-ad-banner">
                 <div class="ad-icon">
@@ -1040,11 +1034,10 @@ function renderPokemonView(contentDiv, data, menuId) {
         return null;
     }
     
-    // [수정] 복구 코드 기반으로 추천 덱 렌더링 함수 수정
-    function renderDeckView(contentDiv, data) {
+    /* script.js 파일에서 기존 renderDeckView 함수를 찾아 아래 코드로 전체 교체하세요 */
+function renderDeckView(contentDiv, data) {
     const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
 
-    // ▼▼▼ [추가] 좋아요 상태 확인 및 UI 구성 ▼▼▼
     const likedDecks = getLikedDecks();
     const isLiked = likedDecks.includes(data.id);
     const likeButtonHTML = `
@@ -1055,9 +1048,7 @@ function renderPokemonView(contentDiv, data, menuId) {
             </button>
         </div>
     `;
-    // ▲▲▲ [추가] 좋아요 상태 확인 및 UI 구성 ▲▲▲
     
-    // [수정] h2 태그 옆에 좋아요 버튼 HTML 삽입
     let html = `<div class="deck-detail-view">
                     <div class="deck-header">
                         <h2>${data.name}</h2>
@@ -1103,7 +1094,7 @@ function renderPokemonView(contentDiv, data, menuId) {
             const cell = grid[i][j];
             if (cell) {
                 if (cell.type === 'pokemon') {
-                    html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"><span class="pkm-name">${cell.name_ko}</span></div></td>`;
+                    html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"></div></td>`;
                 } else if (cell.type === 'header') {
                     html += `<td class="header-cell" colspan="${cell.colspan || 1}" title="${cell.label}"><div>${cell.content}</div></td>`;
                     if (cell.colspan > 1) {
@@ -1116,121 +1107,159 @@ function renderPokemonView(contentDiv, data, menuId) {
         }
         html += '</tr>';
     }
-    html += `</tbody></table></div>`;
+    html += `</tbody>`;
+    
+    // ▼▼▼ [추가] '어시스트'와 '메인덱' 텍스트 라벨을 담을 tfoot 추가 ▼▼▼
+    html += `<tfoot><tr>
+                <td colspan="2">어시스트 #1~#6</td>
+                <td colspan="2">메인덱 #1~#6</td>
+             </tr></tfoot>`;
+
+    html += `</table></div>`;
     contentDiv.innerHTML = html;
+    
+    // ▼▼▼ [추가] 포켓몬 이미지 클릭 시 팝업을 띄우는 이벤트 리스너 ▼▼▼
+    contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
+        cell.addEventListener('click', () => {
+            const pokemonId = cell.dataset.pokemonId;
+            const pkmData = DB.pokemonType.lev4[pokemonId];
+            if (pkmData) {
+                let badgesHTML = '';
+                if (pkmData.grade) {
+                    const gradeClass = `grade-${pkmData.grade.toLowerCase().replace('+', '-plus')}`;
+                    badgesHTML += `<span class="grade-badge ${gradeClass}">${pkmData.grade}</span>`;
+                }
+                if (pkmData.types && pkmData.types.length > 0) {
+                    pkmData.types.forEach(typeId => {
+                        const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+                        if (typeInfo) badgesHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
+                    });
+                }
+                
+                const popupContent = document.createElement('div');
+                popupContent.innerHTML = `<div class="badge-container" style="justify-content: center; margin-top: 10px;">${badgesHTML}</div>`;
+                showModal(pkmData.name_ko, popupContent);
+            }
+        });
+    });
 }
 
-    function renderCalendarView(contentDiv, data) {
-        let currentCalendarDate = new Date();
-        function buildCalendar(year, month) {
-            const calendarView = document.createElement('div');
-            calendarView.className = 'calendar-view';
-            const monthEvents = {};
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const addEvent = (event, eventDate) => {
-                const day = eventDate.getDate();
-                if (!monthEvents[day]) monthEvents[day] = [];
-                const startDate = event.startDate.toDate ? event.startDate.toDate() : new Date(event.startDate);
-                const endDate = new Date(startDate);
-                endDate.setDate(startDate.getDate() + (event.duration - 1));
+    /* script.js 파일에서 기존 renderCalendarView 함수를 찾아 아래 코드로 전체 교체하세요 */
+function renderCalendarView(contentDiv, data) {
+    let currentCalendarDate = new Date();
+    function buildCalendar(year, month) {
+        const calendarView = document.createElement('div');
+        calendarView.className = 'calendar-view';
+        const monthEvents = {};
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const addEvent = (event, eventDate) => {
+            const day = eventDate.getDate();
+            if (!monthEvents[day]) monthEvents[day] = [];
+            const startDate = event.startDate.toDate ? event.startDate.toDate() : new Date(event.startDate);
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + (event.duration - 1));
 
-                monthEvents[day].push({ ...event, startDate, endDate });
-            };
-            (data.events || []).forEach(event => {
-                if (!event.startDate) return;
-                const startDate = event.startDate.toDate ? event.startDate.toDate() : new Date(event.startDate);
-                for (let i = 0; i < (event.duration || 1); i++) {
-                    const eventDate = new Date(startDate);
-                    eventDate.setDate(eventDate.getDate() + i);
-                    if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
-                        addEvent({...event, date: startDate.toISOString().split('T')[0]}, eventDate);
-                    }
+            monthEvents[day].push({ ...event, startDate, endDate });
+        };
+        (data.events || []).forEach(event => {
+            if (!event.startDate) return;
+            const startDate = event.startDate.toDate ? event.startDate.toDate() : new Date(event.startDate);
+            for (let i = 0; i < (event.duration || 1); i++) {
+                const eventDate = new Date(startDate);
+                eventDate.setDate(eventDate.getDate() + i);
+                if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                    addEvent({...event, date: startDate.toISOString().split('T')[0]}, eventDate);
                 }
-            });
-            (data.recurringEvents || []).forEach(re => {
-                 let currentDate = new Date(re.startDate + 'T00:00:00');
-                 while (currentDate.getFullYear() < year + 2) {
-                    if (currentDate.getFullYear() > year || (currentDate.getFullYear() === year && currentDate.getMonth() > month)) break;
-                    for (let i = 0; i < (re.duration || 1); i++) {
-                        const eventDate = new Date(currentDate);
-                        eventDate.setDate(eventDate.getDate() + i);
-                         if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
-                            addEvent({ ...re, date: currentDate.toISOString().split('T')[0], startDate: currentDate }, eventDate);
-                        }
-                    }
-                    if (re.interval === '4_weeks') currentDate.setDate(currentDate.getDate() + 28);
-                    else break;
-                }
-            });
-            let html = `<div class="calendar-header"><span class="calendar-title">${year}년 ${month + 1}월</span><div class="calendar-nav"><button id="cal-prev-btn">&lt; 이전</button><button id="cal-today-btn">Today</button><button id="cal-next-btn">다음 &gt;</button></div></div><div class="calendar-legend"><div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div><div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div><div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div></div><table class="calendar-grid"><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody>`;
-            let dateCounter = 1;
-            const startDay = firstDay.getDay();
-            const daysInMonth = lastDay.getDate();
-            for (let i = 0; i < 6; i++) {
-                html += '<tr>';
-                for (let j = 0; j < 7; j++) {
-                    if (i === 0 && j < startDay || dateCounter > daysInMonth) {
-                        html += '<td class="day-other-month"></td>';
-                    } else {
-                        const today = new Date();
-                        const isToday = (dateCounter === today.getDate() && month === today.getMonth() && year === today.getFullYear());
-                        const eventsOnDay = monthEvents[dateCounter];
-                        let cellClass = 'day-current-month';
-                        if (isToday) cellClass += ' day-today';
-                        if (eventsOnDay) cellClass += ' has-events';
-                        html += `<td class="${cellClass}" data-day="${dateCounter}"><div class="date-number">${dateCounter}</div>`;
-                        if (eventsOnDay) {
-                            html += `<div class="event-markers">${eventsOnDay.map(event => `<div class="event-marker event-type-${event.type}">${event.title || event.name}</div>`).join('')}</div>`;
-                        }
-                        html += '</td>';
-                        dateCounter++;
-                    }
-                }
-                html += '</tr>';
-                if (dateCounter > daysInMonth) break;
             }
-            html += `</tbody></table>`;
-            calendarView.innerHTML = html;
-            calendarView.addEventListener('click', (e) => {
-                const target = e.target;
-                if(target.id === 'cal-prev-btn') {
-                    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
-                    updateCalendar();
-                } else if (target.id === 'cal-next-btn') {
-                    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
-                    updateCalendar();
-                } else if (target.id === 'cal-today-btn') {
-                    currentCalendarDate = new Date();
-                    updateCalendar();
-                } else {
-                    const cell = target.closest('.has-events');
-                    if (cell) {
-                        const day = parseInt(cell.dataset.day);
-                        const events = monthEvents[day];
-                        if(events && events.length > 0) {
-                            const eventContent = events.map(evt => {
-                                const duration = evt.duration || 1;
-                                const startStr = evt.startDate.toISOString().split('T')[0];
-                                const endStr = evt.endDate.toISOString().split('T')[0];
-                                const period = duration > 1 ? `${startStr} ~ ${endStr} (${duration}일간)` : startStr;
-                                return `<h4>${evt.title || evt.name}</h4><p><strong>기간:</strong> ${period}</p><p>${evt.description}</p>`;
-                            }).join('<hr>');
-                            showModal(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')} 이벤트`, eventContent);
-                        }
+        });
+        (data.recurringEvents || []).forEach(re => {
+             let currentDate = new Date(re.startDate + 'T00:00:00');
+             while (currentDate.getFullYear() < year + 2) {
+                if (currentDate.getFullYear() > year || (currentDate.getFullYear() === year && currentDate.getMonth() > month)) break;
+                for (let i = 0; i < (re.duration || 1); i++) {
+                    const eventDate = new Date(currentDate);
+                    eventDate.setDate(eventDate.getDate() + i);
+                     if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                        addEvent({ ...re, date: currentDate.toISOString().split('T')[0], startDate: currentDate }, eventDate);
                     }
                 }
-            });
-            return calendarView;
+                if (re.interval === '4_weeks') currentDate.setDate(currentDate.getDate() + 28);
+                else break;
+            }
+        });
+        let html = `<div class="calendar-header"><span class="calendar-title">${year}년 ${month + 1}월</span><div class="calendar-nav"><button id="cal-prev-btn">&lt; 이전</button><button id="cal-today-btn">Today</button><button id="cal-next-btn">다음 &gt;</button></div></div><div class="calendar-legend"><div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div><div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div><div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div></div><table class="calendar-grid"><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody>`;
+        let dateCounter = 1;
+        const startDay = firstDay.getDay();
+        const daysInMonth = lastDay.getDate();
+        for (let i = 0; i < 6; i++) {
+            html += '<tr>';
+            for (let j = 0; j < 7; j++) {
+                if (i === 0 && j < startDay || dateCounter > daysInMonth) {
+                    html += '<td class="day-other-month"></td>';
+                } else {
+                    const today = new Date();
+                    const isToday = (dateCounter === today.getDate() && month === today.getMonth() && year === today.getFullYear());
+                    const eventsOnDay = monthEvents[dateCounter];
+                    let cellClass = 'day-current-month';
+                    if (isToday) cellClass += ' day-today';
+                    if (eventsOnDay) cellClass += ' has-events';
+                    html += `<td class="${cellClass}" data-day="${dateCounter}"><div class="date-number">${dateCounter}</div>`;
+                    if (eventsOnDay) {
+                        html += `<div class="event-markers">${eventsOnDay.map(event => `<div class="event-marker event-type-${event.type}">${event.title || event.name}</div>`).join('')}</div>`;
+                    }
+                    html += '</td>';
+                    dateCounter++;
+                }
+            }
+            html += '</tr>';
+            if (dateCounter > daysInMonth) break;
         }
-
-        function updateCalendar() {
-            contentDiv.innerHTML = '';
-            contentDiv.appendChild(buildCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth()));
-        }
-
-        updateCalendar();
+        html += `</tbody></table>`;
+        calendarView.innerHTML = html;
+        calendarView.addEventListener('click', (e) => {
+            const target = e.target;
+            if(target.id === 'cal-prev-btn') {
+                currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+                updateCalendar();
+            } else if (target.id === 'cal-next-btn') {
+                currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+                updateCalendar();
+            } else if (target.id === 'cal-today-btn') {
+                currentCalendarDate = new Date();
+                updateCalendar();
+            } else {
+                const cell = target.closest('.has-events');
+                if (cell) {
+                    const day = parseInt(cell.dataset.day);
+                    const events = monthEvents[day];
+                    if(events && events.length > 0) {
+                        const eventContent = events.map(evt => {
+                            const duration = evt.duration || 1;
+                            const startStr = evt.startDate.toISOString().split('T')[0];
+                            const endStr = evt.endDate.toISOString().split('T')[0];
+                            const period = duration > 1 ? `${startStr} ~ ${endStr} (${duration}일간)` : startStr;
+                            return `<h4>${evt.title || evt.name}</h4><p><strong>기간:</strong> ${period}</p><p>${evt.description}</p>`;
+                        }).join('<hr>');
+                        
+                        // ▼▼▼ [수정] 캘린더 팝업이 Element를 전달하도록 수정 ▼▼▼
+                        const popupContent = document.createElement('div');
+                        popupContent.innerHTML = eventContent;
+                        showModal(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')} 이벤트`, popupContent);
+                    }
+                }
+            }
+        });
+        return calendarView;
     }
+
+    function updateCalendar() {
+        contentDiv.innerHTML = '';
+        contentDiv.appendChild(buildCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth()));
+    }
+
+    updateCalendar();
+}
 
     function renderDeckBuilder(contentDiv) {
         let html = `
