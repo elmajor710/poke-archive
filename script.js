@@ -1482,18 +1482,28 @@ function renderCalendarView(contentDiv, data) {
     window.addEventListener('resize', setScreenHeight);
 
     // ▼▼▼ [추가] 3단계: 새로운 페이지를 보여주는 함수 ▼▼▼
-// ▼▼▼ [수정] 3단계: 새로운 페이지를 보여주는 함수 (데이터 로딩 기능 추가) ▼▼▼
 function showListPage(menuId, subMenuId = null) {
     const mainPlaceholder = document.getElementById('main-placeholder');
     const listPage = document.getElementById('list-filter-page');
     const listPageTitle = document.getElementById('list-page-title');
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const filtersContainer = document.getElementById('list-page-filters');
 
+    // 1. 필요한 메뉴에서만 필터 영역을 보여줍니다.
+    const menusWithFilters = ['pokemonType', 'pokemonGrade', 'item'];
+    if (menusWithFilters.includes(menuId)) {
+        filtersContainer.style.display = 'block';
+    } else {
+        filtersContainer.style.display = 'none';
+    }
+
+    // 2. 페이지를 화면에 표시합니다.
     mainPlaceholder.style.display = 'none';
     if(mobileMenuBtn) mobileMenuBtn.style.display = 'none';
     listPage.style.display = 'flex';
     setTimeout(() => listPage.classList.add('visible'), 10);
 
+    // 3. 어떤 데이터를 보여줄지 결정합니다.
     let dataList = [];
     let title = '';
     const menuInfo = DB.sidebarMenu.find(item => item.id === menuId);
@@ -1527,9 +1537,9 @@ function showListPage(menuId, subMenuId = null) {
             break;
     }
     
+    // 4. 페이지 제목을 설정하고, 올바른 목록 형태를 렌더링합니다.
     listPageTitle.textContent = title;
 
-    // ▼▼▼ [핵심 수정] 어떤 목록을 보여줄지 결정하는 '교통정리' 로직 ▼▼▼
     const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
     if (cardLayoutMenus.includes(menuId)) {
         renderListPage(dataList, menuId); // [이미지] | [텍스트] 카드 목록
