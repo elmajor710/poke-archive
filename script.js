@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lev4: document.getElementById('lev4-panel')
     };
     let activeButtons = {};
-    const isMobile = () => window.innerWidth <= 1199;
+    const isMobile = () => window.innerWidth <= 991;
     
     /* script.js 파일의 함수 정의 영역에 아래 코드를 추가하세요 */
 
