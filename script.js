@@ -3,38 +3,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // [수정] 복구 코드의 광고 처리 로직을 그대로 적용
     function setupAdObservers() {
-        const adContainers = document.querySelectorAll('.ad-container');
-        if (adContainers.length === 0) return;
-        const adObserver = new ResizeObserver(entries => {
-            for (const entry of entries) {
-                if (entry.contentRect.width > 0) {
-                    const targetContainer = entry.target;
-                    try {
-                        (window.adsbygoogle = window.adsbygoogle || []).push({});
-                        const styleWatcher = new MutationObserver((mutations) => {
-                            for (const mutation of mutations) {
-                                if (mutation.attributeName === 'style') {
-                                    if (window.innerWidth <= 1199) {
-                                        const currentHeight = targetContainer.style.height;
-                                        if (currentHeight !== '50px') {
-                                            targetContainer.style.setProperty('height', '50px', 'important');
-                                            targetContainer.style.setProperty('min-height', '50px', 'important');
-                                        }
-                                    }
-                                    styleWatcher.disconnect();
-                                }
-                            }
-                        });
-                        styleWatcher.observe(targetContainer, { attributes: true });
-                    } catch (e) {
-                        console.error(`'${targetContainer.id}' 광고 요청 중 오류 발생:`, e);
-                    }
-                    adObserver.unobserve(targetContainer);
+    const adContainers = document.querySelectorAll('.ad-container');
+    if (adContainers.length === 0) return;
+
+    // IntersectionObserver를 사용하여 광고가 화면에 보일 때만 로드하도록 변경
+    const adObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                try {
+                    // adsbygoogle.js 스크립트가 로드되었는지 확인 후 광고 푸시
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                } catch (e) {
+                    console.error('AdSense push error:', e);
                 }
+                // 한번 로드된 광고는 다시 관찰하지 않음
+                observer.unobserve(entry.target);
             }
         });
-        adContainers.forEach(container => adObserver.observe(container));
-    }
+    }, { threshold: 0.1 }); // 10%만 보여도 로드 시작
+
+    adContainers.forEach(container => {
+        // 빈 광고 컨테이너만 관찰 대상으로 추가
+        if (!container.hasChildNodes() || container.innerHTML.trim() === '') {
+             adObserver.observe(container);
+        }
+    });
+}
 
     const adBlockManager = {
         CLICK_LIMIT: 3,
@@ -135,7 +129,7 @@ async function initialize() {
         fetchAndRenderPopularDecks(); 
         setupMobileAds();
         addEventListeners();
-        // setupAdObservers(); // <--- 이렇게 맨 앞에 //를 붙여서 잠시 비활성화합니다.
+        setupAdObservers(); // <--- 이렇게 맨 앞에 //를 붙여서 잠시 비활성화합니다.
     } catch (error) {
         console.error("초기화 중 심각한 오류 발생:", error);
         document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
