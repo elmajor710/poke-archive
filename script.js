@@ -371,11 +371,15 @@ function renderSidebar() {
             e.preventDefault();
             const menuId = gridBtn.dataset.menuId;
             const subMenuId = gridBtn.dataset.itemId;
+            // 캘린더는 목록 없이 바로 최종 본문을 보여줍니다.
             if (menuId === 'calendar') {
-                 const lev1_btn = sidebar.querySelector(`.menu-item[data-id="calendar"]`);
-                 if(lev1_btn) handleMenuClick(lev1_btn);
+                 const detailPanel = document.getElementById('lev4-panel');
+                 const contentDiv = detailPanel.querySelector('.panel-content');
+                 renderCalendarView(contentDiv, DB.calendar.lev2);
+                 showDetailPage(detailPanel); // 상세 페이지를 바로 보여주는 새 함수 호출
                  return;
             }
+            // 나머지 메뉴는 목록 페이지를 보여줍니다.
             showListPage(menuId, subMenuId);
             return;
         }
@@ -386,7 +390,7 @@ function renderSidebar() {
             return;
         }
 
-        // ▼▼▼ [추가] 새로운 목록 페이지의 항목 클릭 처리 ▼▼▼
+        // ▼▼▼ [최종 수정] 새로운 목록의 항목 클릭 시, 무조건 최종 상세 페이지만을 보여주는 로직 ▼▼▼
         const listItem = e.target.closest('#list-page-content .list-item, #list-page-content .list-item-card');
         if (listItem) {
             e.preventDefault();
@@ -397,58 +401,31 @@ function renderSidebar() {
             if (itemData) {
                 const detailPanel = document.getElementById('lev4-panel');
                 const contentDiv = detailPanel.querySelector('.panel-content');
-                const panelHeader = detailPanel.querySelector('.panel-header');
-
-                // 상세 페이지를 보여주기 전에 헤더를 정리합니다.
-                panelHeader.querySelector('.back-btn').style.display = 'block';
-                const existingMainBtn = panelHeader.querySelector('.main-btn');
-                if (existingMainBtn) existingMainBtn.remove();
                 
-                // 상세 페이지 렌더링
-                const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
-                const finalViewLevel = categoryInfo ? categoryInfo.levels : 0;
-                renderPanelContent(finalViewLevel, itemData, menuId, itemId);
-
-                // 페이지 전환
-                document.getElementById('list-filter-page').classList.remove('visible');
-                detailPanel.classList.add('visible');
+                // menuId에 따라 적절한 최종 뷰 렌더링 함수를 직접 호출
+                if (menuId === 'deck' && itemData.composition) {
+                    renderDeckView(contentDiv, itemData);
+                } else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
+                    renderPokemonView(contentDiv, itemData, menuId);
+                } else { // 공지, 팁, 아이템, 룬, 칩
+                    renderSimpleView(contentDiv, itemData, menuId);
+                }
+                showDetailPage(detailPanel); // 목록 페이지 숨기고 상세 페이지 표시
             }
             return;
         }
-        // ▲▲▲ [추가] 여기까지 ▲▲▲
+        // ▲▲▲ [최종 수정] 여기까지 ▲▲▲
 
+        // --- 이하 기존의 PC화면용 이벤트 리스너 (수정 없음) ---
         const likeBtn = e.target.closest('.like-btn');
-        if (likeBtn) {
-            handleLikeClick(likeBtn);
-            return; 
-        }
+        if (likeBtn) { handleLikeClick(likeBtn); return; }
 
         const button = e.target.closest('button');
         if (button) {
-            if (button.id === 'mobile-menu-btn') {
-                sidebar.classList.toggle('visible');
-            } else if (button.classList.contains('back-btn')) {
-                handleBackClick(button); 
-            } else if (button.classList.contains('main-btn')) {
-                handleMainButtonClick();
-            } else if (button.classList.contains('main-action-btn')) {
-                sessionStorage.setItem('fromMainPageShortcut', 'true');
-                if (button.dataset.menuId === 'popular') {
-                    const lev1_btn = sidebar.querySelector(`.menu-item[data-id="deck"]`);
-                    if (lev1_btn) {
-                        handleMenuClick(lev1_btn);
-                        setTimeout(() => {
-                            const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="recommended"]`);
-                            if (lev2_btn) handleMenuClick(lev2_btn);
-                        }, 50);
-                    }
-                    return;
-                }
-                const targetMenuItem = sidebar.querySelector(`.menu-item[data-id="${button.dataset.menuId}"]`);
-                if(targetMenuItem) handleMenuClick(targetMenuItem);
-            } else if (button.dataset.level) {
-                handleMenuClick(button); 
-            }
+            if (button.id === 'mobile-menu-btn') sidebar.classList.toggle('visible');
+            else if (button.classList.contains('back-btn')) handleBackClick(button); 
+            else if (button.classList.contains('main-btn')) handleMainButtonClick();
+            else if (button.dataset.level) handleMenuClick(button); 
         }
 
         const noticeLink = e.target.closest('#main-notice-list a');
@@ -466,7 +443,6 @@ function renderSidebar() {
                 }, 50); 
             }
         }
-
         const popularDeckLink = e.target.closest('#popular-deck-list a');
         if (popularDeckLink) {
             e.preventDefault();
@@ -489,7 +465,7 @@ function renderSidebar() {
             }
         }
     });
-} 
+}
 
     // ▼▼▼ [추가] 좋아요 기능 관련 함수 ▼▼▼
 
@@ -598,42 +574,46 @@ function handleBackClick(button) {
     const parentPanel = button.closest('.panel');
     if (!parentPanel) return;
 
-    // ▼▼▼ [핵심 수정] 상세 정보 페이지에서 뒤로 갈 때, 목록 페이지를 보여주도록 수정 ▼▼▼
+    // ▼▼▼ [최종 수정] 새로운 모바일 흐름을 위한 뒤로가기 로직 ▼▼▼
     const listPage = document.getElementById('list-filter-page');
-    // lev4-panel이 상세페이지 역할을 하므로, 이 패널에서 뒤로가기 시 목록페이지를 보여줌
-    if (parentPanel.id === 'lev4-panel' && listPage.style.display === 'none') {
+    if (parentPanel.id === 'lev4-panel' && !listPage.classList.contains('visible')) {
         parentPanel.classList.remove('visible');
-        listPage.classList.add('visible');
+        
+        // 캘린더에서 뒤로 갈 때는 바로 메인으로, 나머지는 목록으로 갑니다.
+        if (sessionStorage.getItem('isCalendarView') === 'true') {
+            sessionStorage.removeItem('isCalendarView');
+            hideListPage(); // 그리드 메뉴가 있는 메인 화면으로 이동
+        } else {
+            listPage.classList.add('visible'); // 목록 페이지로 이동
+        }
+        
+        // 상세 페이지 내용을 깨끗하게 비워서 다음을 준비합니다.
+        setTimeout(() => {
+            parentPanel.querySelector('.panel-content').innerHTML = '';
+            const mainBtn = parentPanel.querySelector('.main-btn');
+            if(mainBtn) mainBtn.remove();
+        }, 350);
         return;
     }
-    // ▲▲▲ [핵심 수정] 여기까지 ▲▲▲
+    // ▲▲▲ [최종 수정] 여기까지 ▲▲▲
 
+    // --- 이하 기존의 PC용 스마트 뒤로가기 로직 (수정 없음) ---
     const fromShortcut = sessionStorage.getItem('fromMainPageShortcut');
     const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
-
     if (fromShortcut === 'true' && level >= 3) {
         sessionStorage.removeItem('fromMainPageShortcut');
         handleMainButtonClick();
         return;
     }
-
     const currentPanel = panels[`lev${level}`];
     const prevPanel = panels[`lev${level - 1}`] || sidebar;
-
     currentPanel.classList.remove('visible');
-
     if (prevPanel) {
         if (isMobile()) prevPanel.classList.remove('is-hidden');
-        if(prevPanel !== sidebar) {
-            prevPanel.classList.add('visible');
-        }
+        if(prevPanel !== sidebar) prevPanel.classList.add('visible');
     }
-    
-    if (level === 2) {
-        handleMainButtonClick();
-    } else {
-        setActive(level - 1, null);
-    }
+    if (level === 2) handleMainButtonClick();
+    else setActive(level - 1, null);
 }
 
     /* script.js 파일에서 기존 handleMainButtonClick 함수를 찾아 아래 코드로 전체 교체하세요 */
@@ -1647,6 +1627,37 @@ function renderSimpleListPage(data, menuId) {
     }).join('');
 
     listContent.innerHTML = listHTML;
+}
+
+// ▼▼▼ [추가] 상세 페이지를 보여주는 전용 함수 ▼▼▼
+function showDetailPage(detailPanel) {
+    const listPage = document.getElementById('list-filter-page');
+    const panelHeader = detailPanel.querySelector('.panel-header');
+    
+    // 헤더 정리: 기존 '메인' 버튼이 있으면 지우고 새로 추가
+    const existingMainBtn = panelHeader.querySelector('.main-btn');
+    if (existingMainBtn) existingMainBtn.remove();
+    const mainButton = document.createElement('button');
+    mainButton.className = 'main-btn';
+    mainButton.textContent = '메인';
+    panelHeader.appendChild(mainButton);
+    
+    // '메인' 버튼 클릭 시, 그리드 메뉴로 바로 돌아가는 기능
+    mainButton.addEventListener('click', () => {
+        detailPanel.classList.remove('visible');
+        hideListPage();
+    }, { once: true }); // 이벤트 리스너가 한 번만 실행되도록 설정
+
+    // 페이지 전환
+    listPage.classList.remove('visible');
+    detailPanel.classList.add('visible');
+    
+    // 캘린더인지 아닌지 메모 남기기
+    if (detailPanel.querySelector('.calendar-view')) {
+        sessionStorage.setItem('isCalendarView', 'true');
+    } else {
+        sessionStorage.removeItem('isCalendarView');
+    }
 }
 });
 
