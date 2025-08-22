@@ -360,35 +360,59 @@ function renderSidebar() {
         }
     }
 
-    function addEventListeners() {
+   function addEventListeners() {
     document.body.addEventListener('click', (e) => {
         if (e.target.closest('.ad-container')) adBlockManager.recordClick();
     });
 
     document.body.addEventListener('click', e => {
-        // ▼▼▼ [수정] 새로운 그리드 메뉴 버튼 클릭 시 '통합 목록 페이지'를 보여주는 로직 ▼▼▼
         const gridBtn = e.target.closest('.grid-menu-btn');
         if (gridBtn) {
             e.preventDefault();
             const menuId = gridBtn.dataset.menuId;
             const subMenuId = gridBtn.dataset.itemId;
-
-            // '캘린더'는 기존 방식을 유지 (페이지 전환 없이 바로 표시)
             if (menuId === 'calendar') {
                  const lev1_btn = sidebar.querySelector(`.menu-item[data-id="calendar"]`);
                  if(lev1_btn) handleMenuClick(lev1_btn);
                  return;
             }
-
-            // 새로운 통합 목록 페이지를 보여주는 함수 호출
             showListPage(menuId, subMenuId);
             return;
         }
 
-        // ▼▼▼ [추가] 새로운 페이지의 '메인으로' 버튼 클릭 처리 ▼▼▼
         const backToGridBtn = e.target.closest('.back-to-grid-btn');
         if (backToGridBtn) {
-            hideListPage(); // 새로운 페이지를 숨기는 함수 호출
+            hideListPage();
+            return;
+        }
+
+        // ▼▼▼ [추가] 새로운 목록 페이지의 항목 클릭 처리 ▼▼▼
+        const listItem = e.target.closest('#list-page-content .list-item, #list-page-content .list-item-card');
+        if (listItem) {
+            e.preventDefault();
+            const menuId = listItem.dataset.menuId;
+            const itemId = listItem.dataset.id;
+            const itemData = DB[menuId]?.lev4?.[itemId] || DB[menuId]?.lev3?.[itemId];
+
+            if (itemData) {
+                const detailPanel = document.getElementById('lev4-panel');
+                const contentDiv = detailPanel.querySelector('.panel-content');
+                const panelHeader = detailPanel.querySelector('.panel-header');
+
+                // 상세 페이지를 보여주기 전에 헤더를 정리합니다.
+                panelHeader.querySelector('.back-btn').style.display = 'block';
+                const existingMainBtn = panelHeader.querySelector('.main-btn');
+                if (existingMainBtn) existingMainBtn.remove();
+                
+                // 상세 페이지 렌더링
+                const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
+                const finalViewLevel = categoryInfo ? categoryInfo.levels : 0;
+                renderPanelContent(finalViewLevel, itemData, menuId, itemId);
+
+                // 페이지 전환
+                document.getElementById('list-filter-page').classList.remove('visible');
+                detailPanel.classList.add('visible');
+            }
             return;
         }
         // ▲▲▲ [추가] 여기까지 ▲▲▲
@@ -415,9 +439,7 @@ function renderSidebar() {
                         handleMenuClick(lev1_btn);
                         setTimeout(() => {
                             const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="recommended"]`);
-                            if (lev2_btn) {
-                                handleMenuClick(lev2_btn);
-                            }
+                            if (lev2_btn) handleMenuClick(lev2_btn);
                         }, 50);
                     }
                     return;
@@ -435,7 +457,6 @@ function renderSidebar() {
             sessionStorage.setItem('fromMainPageShortcut', 'true');
             const menuId = noticeLink.dataset.menuId;
             const itemId = noticeLink.dataset.itemId;
-
             const lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
             if (lev1_btn) {
                 handleMenuClick(lev1_btn);
@@ -468,7 +489,7 @@ function renderSidebar() {
             }
         }
     });
-}
+} 
 
     // ▼▼▼ [추가] 좋아요 기능 관련 함수 ▼▼▼
 
@@ -573,23 +594,29 @@ function handleMenuClick(button) {
     renderPanelContent(nextLevel, nextData, menuId, id);
 }
     
-/* script.js 파일에서 기존 handleBackClick 함수를 찾아 아래 코드로 전체 교체하세요 */
 function handleBackClick(button) {
     const parentPanel = button.closest('.panel');
     if (!parentPanel) return;
 
-    // ▼▼▼ [수정] '스마트 뒤로가기' 로직 최종 버전 ▼▼▼
+    // ▼▼▼ [핵심 수정] 상세 정보 페이지에서 뒤로 갈 때, 목록 페이지를 보여주도록 수정 ▼▼▼
+    const listPage = document.getElementById('list-filter-page');
+    // lev4-panel이 상세페이지 역할을 하므로, 이 패널에서 뒤로가기 시 목록페이지를 보여줌
+    if (parentPanel.id === 'lev4-panel' && listPage.style.display === 'none') {
+        parentPanel.classList.remove('visible');
+        listPage.classList.add('visible');
+        return;
+    }
+    // ▲▲▲ [핵심 수정] 여기까지 ▲▲▲
+
     const fromShortcut = sessionStorage.getItem('fromMainPageShortcut');
     const level = parseInt(parentPanel.id.replace('lev', '').replace('-panel', ''));
 
-    // "첫 화면 바로가기" 메모가 있고, 현재 위치가 Lev.3 또는 그 이상일 때
     if (fromShortcut === 'true' && level >= 3) {
-        sessionStorage.removeItem('fromMainPageShortcut'); // 메모는 한 번만 사용하고 삭제
+        sessionStorage.removeItem('fromMainPageShortcut');
         handleMainButtonClick();
         return;
     }
 
-    // 일반적인 '직전 화면으로 가기' 로직 수행
     const currentPanel = panels[`lev${level}`];
     const prevPanel = panels[`lev${level - 1}`] || sidebar;
 
@@ -607,7 +634,6 @@ function handleBackClick(button) {
     } else {
         setActive(level - 1, null);
     }
-    // ▲▲▲ [수정] '스마트 뒤로가기' 로직 최종 버전 ▲▲▲
 }
 
     /* script.js 파일에서 기존 handleMainButtonClick 함수를 찾아 아래 코드로 전체 교체하세요 */

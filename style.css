@@ -263,7 +263,7 @@ header h1 {
 
 .panel.visible { transform: translateX(0); visibility: visible; z-index: 5; }
 #lev3-panel.visible { z-index: 6; }
-#lev4-panel.visible { z-index: 7; }
+#lev4-panel.visible { z-index: 11; } /* 숫자를 7에서 11로 변경 */
 
 .panel-header { 
     padding: 10px 15px; 
