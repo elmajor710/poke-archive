@@ -361,66 +361,50 @@ function renderSidebar() {
     }
 
    function addEventListeners() {
-    document.body.addEventListener('click', (e) => {
-        if (e.target.closest('.ad-container')) adBlockManager.recordClick();
-    });
-
     document.body.addEventListener('click', e => {
+        // --- 광고 클릭 처리 ---
+        if (e.target.closest('.ad-container')) {
+            adBlockManager.recordClick();
+            return; 
+        }
+
+        // --- 새로운 모바일 UI 이벤트 처리 ---
         const gridBtn = e.target.closest('.grid-menu-btn');
         if (gridBtn) {
             e.preventDefault();
             const menuId = gridBtn.dataset.menuId;
-            const subMenuId = gridBtn.dataset.itemId;
             if (menuId === 'calendar') {
-                 const detailPanel = document.getElementById('lev4-panel');
-                 const contentDiv = detailPanel.querySelector('.panel-content');
-                 renderCalendarView(contentDiv, DB.calendar.lev2);
-                 showDetailPage(detailPanel);
-                 return;
+                showDetailPage(null, menuId);
+                return;
             }
-            showListPage(menuId, subMenuId);
+            showListPage(menuId, gridBtn.dataset.itemId);
             return;
         }
 
-        // ▼▼▼ [추가] 필터 팝업 열기/닫기 로직 ▼▼▼
+        const backToGridBtn = e.target.closest('.back-to-grid-btn');
+        if (backToGridBtn) {
+            hideListPage();
+            return;
+        }
+
+        const listItem = e.target.closest('#list-page-content .list-item, #list-page-content .list-item-card');
+        if (listItem) {
+            e.preventDefault();
+            showDetailPage(listItem.dataset.id, listItem.dataset.menuId);
+            return;
+        }
+
         const openFilterBtn = e.target.closest('#open-filter-modal-btn');
         if (openFilterBtn) {
             openFilterModal();
             return;
         }
-        const closeFilterBtn = e.target.closest('#filter-modal-close-btn');
-        if (closeFilterBtn) {
+        if (e.target.closest('#filter-modal-close-btn') || e.target.closest('#filter-apply-btn')) {
             closeFilterModal();
             return;
         }
-        const applyFilterBtn = e.target.closest('#filter-apply-btn');
-        if(applyFilterBtn) {
-            // TODO: 다음 단계에서 실제 필터링 로직 추가
-            closeFilterModal();
-            return;
-        }
-        // ▲▲▲ [추가] 여기까지 ▲▲▲
 
-        const backToGridBtn = e.target.closest('.back-to-grid-btn');
-        if (backToGridBtn) { hideListPage(); return; }
-
-        const listItem = e.target.closest('#list-page-content .list-item, #list-page-content .list-item-card');
-        if (listItem) {
-            e.preventDefault();
-            const menuId = listItem.dataset.menuId;
-            const itemId = listItem.dataset.id;
-            const itemData = DB[menuId]?.lev4?.[itemId] || DB[menuId]?.lev3?.[itemId];
-            if (itemData) {
-                const detailPanel = document.getElementById('lev4-panel');
-                const contentDiv = detailPanel.querySelector('.panel-content');
-                if (menuId === 'deck' && itemData.composition) renderDeckView(contentDiv, itemData);
-                else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, itemData, menuId);
-                else renderSimpleView(contentDiv, itemData, menuId);
-                showDetailPage(detailPanel);
-            }
-            return;
-        }
-
+        // --- 기존 PC 및 슬라이드 패널 이벤트 처리 (수정 없음) ---
         const likeBtn = e.target.closest('.like-btn');
         if (likeBtn) { handleLikeClick(likeBtn); return; }
 
@@ -430,43 +414,6 @@ function renderSidebar() {
             else if (button.classList.contains('back-btn')) handleBackClick(button); 
             else if (button.classList.contains('main-btn')) handleMainButtonClick();
             else if (button.dataset.level) handleMenuClick(button); 
-        }
-
-        const noticeLink = e.target.closest('#main-notice-list a');
-        if (noticeLink) {
-            e.preventDefault();
-            sessionStorage.setItem('fromMainPageShortcut', 'true');
-            const menuId = noticeLink.dataset.menuId;
-            const itemId = noticeLink.dataset.itemId;
-            const lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
-            if (lev1_btn) {
-                handleMenuClick(lev1_btn);
-                setTimeout(() => {
-                    const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="${itemId}"]`);
-                    if (lev2_btn) handleMenuClick(lev2_btn);
-                }, 50); 
-            }
-        }
-        const popularDeckLink = e.target.closest('#popular-deck-list a');
-        if (popularDeckLink) {
-            e.preventDefault();
-            sessionStorage.setItem('fromMainPageShortcut', 'true');
-            const menuId = popularDeckLink.dataset.menuId;
-            const itemId = popularDeckLink.dataset.itemId;
-            const lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
-            if (lev1_btn) {
-                handleMenuClick(lev1_btn);
-                setTimeout(() => {
-                    const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="recommended"]`);
-                    if (lev2_btn) {
-                        handleMenuClick(lev2_btn);
-                        setTimeout(() => {
-                            const lev3_btn = panels.lev3.querySelector(`.list-item[data-id="${itemId}"]`);
-                            if (lev3_btn) handleMenuClick(lev3_btn);
-                        }, 50);
-                    }
-                }, 50); 
-            }
         }
     });
 }
@@ -578,20 +525,17 @@ function handleBackClick(button) {
     const parentPanel = button.closest('.panel');
     if (!parentPanel) return;
 
-    // ▼▼▼ [최종 수정] 새로운 모바일 흐름을 위한 뒤로가기 로직 ▼▼▼
-    const listPage = document.getElementById('list-filter-page');
-    if (parentPanel.id === 'lev4-panel' && !listPage.classList.contains('visible')) {
+    // 모바일 목록 -> 상세 보기 -> 뒤로가기
+    if (sessionStorage.getItem('isFromMobileList') === 'true') {
         parentPanel.classList.remove('visible');
         
-        // 캘린더에서 뒤로 갈 때는 바로 메인으로, 나머지는 목록으로 갑니다.
-        if (sessionStorage.getItem('isCalendarView') === 'true') {
-            sessionStorage.removeItem('isCalendarView');
-            hideListPage(); // 그리드 메뉴가 있는 메인 화면으로 이동
+        if (parentPanel.querySelector('.calendar-view')) {
+            hideListPage();
         } else {
-            listPage.classList.add('visible'); // 목록 페이지로 이동
+            document.getElementById('list-filter-page').classList.add('visible');
         }
         
-        // 상세 페이지 내용을 깨끗하게 비워서 다음을 준비합니다.
+        sessionStorage.removeItem('isFromMobileList');
         setTimeout(() => {
             parentPanel.querySelector('.panel-content').innerHTML = '';
             const mainBtn = parentPanel.querySelector('.main-btn');
@@ -599,7 +543,6 @@ function handleBackClick(button) {
         }, 350);
         return;
     }
-    // ▲▲▲ [최종 수정] 여기까지 ▲▲▲
 
     // --- 이하 기존의 PC용 스마트 뒤로가기 로직 (수정 없음) ---
     const fromShortcut = sessionStorage.getItem('fromMainPageShortcut');
@@ -1718,6 +1661,42 @@ function openFilterModal() {
 function closeFilterModal() {
     const modalOverlay = document.getElementById('filter-modal-overlay');
     modalOverlay.style.display = 'none';
+}
+
+function showDetailPage(itemId, menuId) {
+    const listPage = document.getElementById('list-filter-page');
+    const detailPanel = document.getElementById('lev4-panel');
+    const contentDiv = detailPanel.querySelector('.panel-content');
+    const itemData = DB[menuId]?.lev4?.[itemId] || DB[menuId]?.lev3?.[itemId];
+
+    // 상세 페이지 내용 렌더링
+    if (menuId === 'calendar') {
+        renderCalendarView(contentDiv, DB.calendar.lev2);
+    } else if (itemData) {
+        if (menuId === 'deck' && itemData.composition) renderDeckView(contentDiv, itemData);
+        else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, itemData, menuId);
+        else renderSimpleView(contentDiv, itemData, menuId);
+    } else {
+        contentDiv.innerHTML = '<p>데이터를 불러오는 데 실패했습니다.</p>';
+    }
+
+    // 헤더에 '메인' 버튼 추가
+    const panelHeader = detailPanel.querySelector('.panel-header');
+    const existingMainBtn = panelHeader.querySelector('.main-btn');
+    if (existingMainBtn) existingMainBtn.remove();
+    const mainButton = document.createElement('button');
+    mainButton.className = 'main-btn';
+    mainButton.textContent = '메인';
+    panelHeader.appendChild(mainButton);
+    mainButton.addEventListener('click', () => {
+        detailPanel.classList.remove('visible');
+        setTimeout(() => hideListPage(), 50);
+    }, { once: true });
+
+    // 페이지 전환
+    if (listPage) listPage.classList.remove('visible');
+    detailPanel.classList.add('visible');
+    sessionStorage.setItem('isFromMobileList', 'true');
 }
 
 });
