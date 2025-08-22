@@ -677,19 +677,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         loadBtn.addEventListener('click', async () => {
-            const selectedId = selectList.value;
-            if(!selectedId) return;
-            const doc = await db.collection("events").doc(selectedId).get();
-            if (doc.exists) {
-                const data = doc.data();
-                form.querySelector('#event-id').value = doc.id;
-                form.querySelector('#event-title').value = data.title || '';
-                form.querySelector('#event-type').value = data.type || 'ranking';
-                form.querySelector('#event-description').value = data.description || '';
-                form.querySelector('#event-start-date').value = formatDate(data.startDate);
-                form.querySelector('#event-end-date').value = formatDate(data.endDate);
-            }
-        });
+    const selectedId = selectList.value;
+    if(!selectedId) return;
+    const doc = await db.collection("events").doc(selectedId).get();
+    if (doc.exists) {
+        const data = doc.data();
+        form.querySelector('#event-id').value = doc.id;
+        form.querySelector('#event-title').value = data.title || '';
+        form.querySelector('#event-type').value = data.type || 'ranking';
+        form.querySelector('#event-description').value = data.description || '';
+        form.querySelector('#event-start-date').value = formatDate(data.startDate);
+        form.querySelector('#event-end-date').value = formatDate(data.endDate);
+        // ▼▼▼ 이 줄이 추가되었습니다 ▼▼▼
+        form.querySelector('#event-is-published').checked = data.isPublished === true;
+    }
+});
 
         generateIdBtn.addEventListener('click', () => {
             const type = form.querySelector('#event-type').value;
@@ -698,26 +700,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const eventId = form.querySelector('#event-id').value.trim();
-            if (!eventId) return;
-            const startDate = new Date(form.querySelector('#event-start-date').value);
-            const endDate = new Date(form.querySelector('#event-end-date').value);
-            const duration = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
-            const eventData = {
-                title: form.querySelector('#event-title').value,
-                type: form.querySelector('#event-type').value,
-                description: form.querySelector('#event-description').value,
-                startDate: firebase.firestore.Timestamp.fromDate(startDate),
-                endDate: firebase.firestore.Timestamp.fromDate(endDate),
-                date: form.querySelector('#event-start-date').value,
-                duration: duration > 0 ? duration : 1,
-            };
-            await db.collection("events").doc(eventId).set(eventData, { merge: true });
-            alert('이벤트 저장 완료');
-            form.reset();
-            loadEventsList();
-        });
+    e.preventDefault();
+    const eventId = form.querySelector('#event-id').value.trim();
+    if (!eventId) return;
+    const startDate = new Date(form.querySelector('#event-start-date').value);
+    const endDate = new Date(form.querySelector('#event-end-date').value);
+    const duration = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
+    const eventData = {
+        title: form.querySelector('#event-title').value,
+        type: form.querySelector('#event-type').value,
+        description: form.querySelector('#event-description').value,
+        startDate: firebase.firestore.Timestamp.fromDate(startDate),
+        endDate: firebase.firestore.Timestamp.fromDate(endDate),
+        date: form.querySelector('#event-start-date').value,
+        duration: duration > 0 ? duration : 1,
+        // ▼▼▼ 이 줄이 추가되었습니다 ▼▼▼
+        isPublished: form.querySelector('#event-is-published').checked,
+    };
+    await db.collection("events").doc(eventId).set(eventData, { merge: true });
+    alert('이벤트 저장 완료');
+    form.reset();
+    loadEventsList();
+});
 
         deleteBtn.addEventListener('click', async () => {
             const eventId = form.querySelector('#event-id').value.trim();

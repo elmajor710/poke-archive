@@ -175,38 +175,37 @@ async function fetchAndRenderPopularDecks() {
         popularDeckList.innerHTML = '<li>오류가 발생했습니다.</li>';
     }
 }
-// ▲▲▲ [추가] 인기글 목록 렌더링 함수 ▲▲▲
+async function fetchAllDataFromFirebase() {
+    const collectionsToFetch = {
+        notice: db.collection('notice').where("isPublished", "==", true),
+        pokemon: db.collection('pokemon').where("isPublished", "==", true),
+        items: db.collection('items').where("isPublished", "==", true),
+        runeAndChips: db.collection('runeAndChips').where("isPublished", "==", true),
+        tips: db.collection('tips').where("isPublished", "==", true),
+        recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true),
+        // ▼▼▼ 이 줄이 수정되었습니다 ▼▼▼
+        events: db.collection('events').where("isPublished", "==", true),
+    };
+    const promises = Object.values(collectionsToFetch).map(query => query.get());
+    const [noticeSnapshot, pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot] = await Promise.all(promises);
+    
+    const snapshotToMap = (snapshot) => {
+        const dataMap = {};
+        snapshot.forEach(doc => { dataMap[doc.id] = { id: doc.id, ...doc.data() }; });
+        return dataMap;
+    };
 
-    async function fetchAllDataFromFirebase() {
-        const collectionsToFetch = {
-            notice: db.collection('notice').where("isPublished", "==", true),
-            pokemon: db.collection('pokemon').where("isPublished", "==", true),
-            items: db.collection('items').where("isPublished", "==", true),
-            runeAndChips: db.collection('runeAndChips').where("isPublished", "==", true),
-            tips: db.collection('tips').where("isPublished", "==", true),
-            recommendedDecks: db.collection('recommendedDecks').where("isPublished", "==", true),
-            events: db.collection('events'),
-        };
-        const promises = Object.values(collectionsToFetch).map(query => query.get());
-        const [noticeSnapshot, pokemonSnapshot, itemsSnapshot, runeAndChipsSnapshot, tipsSnapshot, decksSnapshot, eventsSnapshot] = await Promise.all(promises);
-        
-        const snapshotToMap = (snapshot) => {
-            const dataMap = {};
-            snapshot.forEach(doc => { dataMap[doc.id] = { id: doc.id, ...doc.data() }; });
-            return dataMap;
-        };
-
-        DB.notice.lev3 = snapshotToMap(noticeSnapshot);
-        DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
-        DB.item.lev4 = snapshotToMap(itemsSnapshot);
-        DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
-        DB.tips.lev3 = snapshotToMap(tipsSnapshot);
-        DB.deck.lev4 = snapshotToMap(decksSnapshot);
-        
-        if(DB.calendar && DB.calendar.lev2) {
-            DB.calendar.lev2.events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        }
+    DB.notice.lev3 = snapshotToMap(noticeSnapshot);
+    DB.pokemonType.lev4 = snapshotToMap(pokemonSnapshot);
+    DB.item.lev4 = snapshotToMap(itemsSnapshot);
+    DB.runeAndChip.lev4 = snapshotToMap(runeAndChipsSnapshot);
+    DB.tips.lev3 = snapshotToMap(tipsSnapshot);
+    DB.deck.lev4 = snapshotToMap(decksSnapshot);
+    
+    if(DB.calendar && DB.calendar.lev2) {
+        DB.calendar.lev2.events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     }
+}
     
     /* script.js 파일에서 기존 setupSideMenuData 함수를 찾아 아래 코드로 전체 교체하세요 */
 function setupSideMenuData() {
