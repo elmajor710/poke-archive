@@ -1484,11 +1484,10 @@ function showListPage(menuId, subMenuId = null) {
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
 
     mainPlaceholder.style.display = 'none';
-    if(mobileMenuBtn) mobileMenuBtn.style.display = 'none'; // 햄버거 버튼 숨기기
+    if(mobileMenuBtn) mobileMenuBtn.style.display = 'none';
     listPage.style.display = 'flex';
     setTimeout(() => listPage.classList.add('visible'), 10);
 
-    // 1. 어떤 데이터를 보여줄지 결정
     let dataList = [];
     let title = '';
     const menuInfo = DB.sidebarMenu.find(item => item.id === menuId);
@@ -1522,9 +1521,15 @@ function showListPage(menuId, subMenuId = null) {
             break;
     }
     
-    // 2. 제목 설정 및 목록 렌더링
     listPageTitle.textContent = title;
-    renderListPage(dataList, menuId); // 새로운 렌더링 함수 호출
+
+    // ▼▼▼ [핵심 수정] 어떤 목록을 보여줄지 결정하는 '교통정리' 로직 ▼▼▼
+    const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
+    if (cardLayoutMenus.includes(menuId)) {
+        renderListPage(dataList, menuId); // [이미지] | [텍스트] 카드 목록
+    } else {
+        renderSimpleListPage(dataList, menuId); // 간단한 텍스트 목록
+    }
 }
 
 // ▼▼▼ [수정] 3단계: 새로운 페이지를 숨기는 함수 (햄버거 버튼 다시 보이기) ▼▼▼
@@ -1588,6 +1593,31 @@ function renderListPage(data, menuId) {
                 </div>
             </div>
         `;
+    }).join('');
+
+    listContent.innerHTML = listHTML;
+}
+
+// ▼▼▼ [추가] 3단계: 간단한 텍스트 목록을 그리는 함수 ▼▼▼
+function renderSimpleListPage(data, menuId) {
+    const listContent = document.getElementById('list-page-content');
+    if (!data || data.length === 0) {
+        listContent.innerHTML = '<p class="list-empty-message">표시할 데이터가 없습니다.</p>';
+        return;
+    }
+
+    // 이름 또는 제목순으로 정렬
+    data.sort((a, b) => {
+        const nameA = a.name || a.title || '';
+        const nameB = b.name || b.title || '';
+        return nameA.localeCompare(nameB, 'ko');
+    });
+
+    const listHTML = data.map(item => {
+        const name = item.name || item.title;
+        const newBadge = isNew(item.updatedAt) || isNew(item.createdAt) ? '<span class="new-badge-list">New</span>' : '';
+        // 기존 슬라이드 패널에서 사용하던 'list-item' 클래스를 재사용
+        return `<button class="list-item" data-id="${item.id}" data-menu-id="${menuId}">${name} ${newBadge}</button>`;
     }).join('');
 
     listContent.innerHTML = listHTML;
