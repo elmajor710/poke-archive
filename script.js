@@ -368,13 +368,37 @@ function renderSidebar() {
         }
     }
 
-/* script.js 파일에서 기존 addEventListeners 함수를 찾아 아래 코드로 전체 교체하세요 */
 function addEventListeners() {
     document.body.addEventListener('click', (e) => {
         if (e.target.closest('.ad-container')) adBlockManager.recordClick();
     });
 
     document.body.addEventListener('click', e => {
+        // ▼▼▼ [추가] 새로운 그리드 메뉴 버튼 클릭 처리 ▼▼▼
+        const gridBtn = e.target.closest('.grid-menu-btn');
+        if (gridBtn) {
+            e.preventDefault();
+            const menuId = gridBtn.dataset.menuId;
+            const itemId = gridBtn.dataset.itemId; // '룬', '칩', '인기 덱' 등에 사용
+
+            const lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
+            if (lev1_btn) {
+                handleMenuClick(lev1_btn);
+
+                // itemId가 있는 경우, 한 단계 더 들어갑니다.
+                if (itemId) {
+                    setTimeout(() => {
+                        const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="${itemId}"]`);
+                        if (lev2_btn) {
+                            handleMenuClick(lev2_btn);
+                        }
+                    }, 50); // 패널이 그려질 시간을 줍니다.
+                }
+            }
+            return; // 그리드 버튼 처리는 여기서 종료
+        }
+        // ▲▲▲ [추가] 여기까지 ▲▲▲
+
         const likeBtn = e.target.closest('.like-btn');
         if (likeBtn) {
             handleLikeClick(likeBtn);
