@@ -43,17 +43,27 @@ const DB = {
     },
 
         pokemonType: {
-        lev2: [ 
-            { id: 'normal', name: '노말', color: '#A8A878' }, { id: 'fire', name: '불', color: '#F08030' },
-            { id: 'water', name: '물', color: '#6890F0' }, { id: 'grass', name: '풀', color: '#78C850' },
-            { id: 'electric', name: '전기', color: '#F8D030' }, { id: 'ice', name: '얼음', color: '#98D8D8' },
-            { id: 'fighting', name: '격투', color: '#C03028' }, { id: 'poison', name: '독', color: '#A040A0' },
-            { id: 'ground', name: '땅', color: '#E0C068' }, { id: 'flying', name: '비행', color: '#A890F0' },
-            { id: 'psychic', name: '에스퍼', color: '#F85888' }, { id: 'bug', name: '벌레', color: '#A8B820' },
-            { id: 'rock', name: '바위', color: '#B8A038' }, { id: 'ghost', name: '유령', color: '#705898' },
-            { id: 'dragon', name: '드래곤', color: '#7038F8' }, { id: 'dark', name: '악', color: '#705848' },
-            { id: 'steel', name: '강철', color: '#B8B8D0' }, { id: 'fairy', name: '페어리', color: '#EE99AC' },
-        ],
+        // DB.pokemonType 내부의 lev2 배열을 아래 내용으로 교체
+lev2: [ 
+    { id: 'normal', name: '노말', color: '#A8A878', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Normal.png' }, 
+    { id: 'fire', name: '불', color: '#F08030', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Fire.png' },
+    { id: 'water', name: '물', color: '#6890F0', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Water.png' }, 
+    { id: 'grass', name: '풀', color: '#78C850', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Grass.png' },
+    { id: 'electric', name: '전기', color: '#F8D030', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Electric.png' }, 
+    { id: 'ice', name: '얼음', color: '#98D8D8', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Ice.png' },
+    { id: 'fighting', name: '격투', color: '#C03028', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Fighting.png' }, 
+    { id: 'poison', name: '독', color: '#A040A0', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Poison.png' },
+    { id: 'ground', name: '땅', color: '#E0C068', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Ground.png' }, 
+    { id: 'flying', name: '비행', color: '#A890F0', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Flying.png' },
+    { id: 'psychic', name: '에스퍼', color: '#F85888', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Psychic.png' }, 
+    { id: 'bug', name: '벌레', color: '#A8B820', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Bug.png' },
+    { id: 'rock', name: '바위', color: '#B8A038', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Rock.png' }, 
+    { id: 'ghost', name: '유령', color: '#705898', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Ghost.png' },
+    { id: 'dragon', name: '드래곤', color: '#7038F8', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Dragon.png' }, 
+    { id: 'dark', name: '악', color: '#705848', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Dark.png' },
+    { id: 'steel', name: '강철', color: '#B8B8D0', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Steel.png' }, 
+    { id: 'fairy', name: '페어리', color: '#EE99AC', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/types/Fairy.png' },
+],
         lev3: { },
         lev4: { }
     },

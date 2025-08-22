@@ -1489,29 +1489,27 @@ function showListPage(menuId, subMenuId = null) {
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const filtersContainer = document.getElementById('list-page-filters');
 
-    // 1. 필요한 메뉴에서만 필터 영역을 보여줍니다.
     const menusWithFilters = ['pokemonType', 'pokemonGrade', 'item'];
     if (menusWithFilters.includes(menuId)) {
         filtersContainer.style.display = 'block';
+        renderFilters(menuId); // ▼▼▼ [추가] 필터 UI를 그리는 함수 호출
     } else {
         filtersContainer.style.display = 'none';
+        filtersContainer.innerHTML = ''; // 필터가 없는 메뉴는 내용을 비웁니다.
     }
 
-    // 2. 페이지를 화면에 표시합니다.
     mainPlaceholder.style.display = 'none';
     if(mobileMenuBtn) mobileMenuBtn.style.display = 'none';
     listPage.style.display = 'flex';
     setTimeout(() => listPage.classList.add('visible'), 10);
 
-    // 3. 어떤 데이터를 보여줄지 결정합니다.
     let dataList = [];
     let title = '';
     const menuInfo = DB.sidebarMenu.find(item => item.id === menuId);
     if(menuInfo) title = menuInfo.name;
 
     switch (menuId) {
-        case 'pokemonType':
-        case 'pokemonGrade':
+        case 'pokemonType': case 'pokemonGrade':
             dataList = Object.values(DB.pokemonType.lev4);
             title = '포켓몬';
             break;
@@ -1531,20 +1529,17 @@ function showListPage(menuId, subMenuId = null) {
              dataList = Object.values(DB.deck.lev4);
              title = '추천 덱';
             break;
-        case 'tips':
-        case 'notice':
+        case 'tips': case 'notice':
             dataList = Object.values(DB[menuId].lev3);
             break;
     }
     
-    // 4. 페이지 제목을 설정하고, 올바른 목록 형태를 렌더링합니다.
     listPageTitle.textContent = title;
-
     const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
     if (cardLayoutMenus.includes(menuId)) {
-        renderListPage(dataList, menuId); // [이미지] | [텍스트] 카드 목록
+        renderListPage(dataList, menuId);
     } else {
-        renderSimpleListPage(dataList, menuId); // 간단한 텍스트 목록
+        renderSimpleListPage(dataList, menuId);
     }
 }
 
@@ -1637,6 +1632,37 @@ function renderSimpleListPage(data, menuId) {
     }).join('');
 
     listContent.innerHTML = listHTML;
+}
+
+// ▼▼▼ [추가] 필터 UI를 그리는 함수 ▼▼▼
+function renderFilters(menuId) {
+    const filtersContainer = document.getElementById('list-page-filters');
+    let filtersHTML = '';
+
+    if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
+        // 포켓몬 등급 필터
+        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
+        DB.pokemonGrade.lev2.forEach(grade => {
+            filtersHTML += `<button class="filter-button" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
+        });
+        filtersHTML += '</div></div>';
+
+        // 포켓몬 타입 필터
+        filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
+        DB.pokemonType.lev2.forEach(type => {
+            filtersHTML += `<button class="type-icon-button" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}"><img src="${type.iconURL}" alt="${type.name}"></button>`;
+        });
+        filtersHTML += '</div></div>';
+    } else if (menuId === 'item') {
+        // 아이템 등급 필터
+        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
+        DB.item.lev2.forEach(grade => {
+            filtersHTML += `<button class="filter-button" data-filter-type="grade" data-filter-value="${grade.id}">${grade.name}</button>`;
+        });
+        filtersHTML += '</div></div>';
+    }
+    
+    filtersContainer.innerHTML = filtersHTML;
 }
 
 // ▼▼▼ [추가] 상세 페이지를 보여주는 전용 함수 ▼▼▼
