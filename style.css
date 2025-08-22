@@ -939,15 +939,68 @@ header h1 {
     }
 }
 
-/* --- ▼▼▼ 1단계: 추천덱 UI 개선 스타일 ▼▼▼ --- */
+/* style.css 파일에서 .four-by-four-table 관련 스타일을 찾아 아래 코드로 전체 교체하세요 */
 
 .four-by-four-table {
-    border-spacing: 2px;
+    width: 100%;
+    max-width: 400px;
+    border-collapse: separate;
+    border-spacing: 5px;
+    margin: 20px auto;
+    /* ▼▼▼ [핵심] 모든 열의 너비를 내용물과 상관없이 동일하게 강제합니다. ▼▼▼ */
+    table-layout: fixed; 
+}
+.four-by-four-table td {
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    text-align: center;
+    vertical-align: top;
+    width: 25%;
+    height: 0;
+    padding-bottom: 25%; /* 정사각형 비율 유지를 위한 트릭 */
+    position: relative;
+    border-radius: 8px;
+}
+.four-by-four-table td > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+}
+.four-by-four-table .deck-pokemon-cell {
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 2px; /* 이미지 주변의 미세한 여백 */
+}
+.four-by-four-table .deck-pokemon-cell:hover {
+    background-color: #e9ecef;
 }
 .four-by-four-table .deck-pokemon-cell img {
-    width: 95%; /* 이미지가 셀의 95%를 차지하도록 설정 */
-    height: 95%;
+    /* ▼▼▼ [수정] 이미지가 셀에 꽉 차도록 크기를 100%로 조정합니다. ▼▼▼ */
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* 이미지 비율을 유지하면서 채웁니다. */
+}
+.four-by-four-table .deck-pokemon-cell .pkm-name {
+    display: none; /* 이름은 숨김 처리 */
+}
+.four-by-four-table .header-cell {
+    background-color: #e9f5ff;
+}
+.four-by-four-table .header-cell img {
+    width: 70%;
+    height: 70%;
     object-fit: contain;
+}
+.four-by-four-table .empty-cell {
+    background-color: #f0f0f0;
+    border-style: dashed;
 }
 .four-by-four-table tfoot td {
     border: none;
@@ -957,10 +1010,6 @@ header h1 {
     padding-top: 5px;
     color: #555;
     vertical-align: middle;
-}
-.four-by-four-table .deck-pokemon-cell .pkm-name {
-    display: none; /* 기존 포켓몬 이름 숨기기 */
-}
-.four-by-four-table .deck-pokemon-cell {
-    padding: 2px;
+    height: auto; /* tfoot은 높이 자동 조절 */
+    padding-bottom: 0;
 }
