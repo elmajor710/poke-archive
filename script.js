@@ -133,11 +133,9 @@ async function initialize() {
         renderSidebar();
         renderMainNoticeList();
         fetchAndRenderPopularDecks(); 
-        // ▼▼▼ [추가] 모바일 광고 설정 함수 호출 ▼▼▼
         setupMobileAds();
-        // ▲▲▲ [추가] 모바일 광고 설정 함수 호출 ▲▲▲
         addEventListeners();
-        setupAdObservers();
+        // setupAdObservers(); // <--- 이렇게 맨 앞에 //를 붙여서 잠시 비활성화합니다.
     } catch (error) {
         console.error("초기화 중 심각한 오류 발생:", error);
         document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다. Firebase 연결 또는 데이터 구조를 확인해주세요.";
