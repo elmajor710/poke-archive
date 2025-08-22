@@ -1114,8 +1114,8 @@ header h1 {
     display: grid;
 }
 
-/* PC (너비 1200px 이상) 상태: 모바일용은 숨기고 PC용을 보여줌 */
-@media (min-width: 1200px) {
+/* PC (너비 992px 이상) 상태: 모바일용은 숨기고 PC용을 보여줌 */
+@media (min-width: 992px) { /* <--- 이 부분이 1200px에서 992px로 변경되었습니다. */
     .mobile-grid-menu.mobile-only {
         display: none;
     }
