@@ -1,3 +1,4 @@
+// [수정 완료] Nirvana Pokedex script.js - 모바일 내비게이션 로직 적용
 document.addEventListener('DOMContentLoaded', () => {
     console.log('스크립트 초기화 완료. Nirvana Pokedex 좋아요 기능 추가');
 
@@ -80,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchAndRenderPopularDecks(); 
             setupMobileAds();
             addEventListeners();
-            setupAdObservers(); // [최종 수정] 주석 제거하여 기능 활성화
+            setupAdObservers();
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다.";
@@ -347,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPanelContent(nextLevel, nextData, menuId, id);
     }
         
-    // [최종 수정] 중복된 함수를 하나로 정리
     function handleMainButtonClick() {
         mainPlaceholder.style.display = 'flex';
         appContainer.classList.remove('menu-active');
@@ -1086,10 +1086,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function showListPage(menuId, subMenuId = null) {
         const mainPlaceholder = document.getElementById('main-placeholder');
         const listPage = document.getElementById('list-filter-page');
-        const listPageTitle = document.getElementById('list-page-title');
+        const listPageHeader = document.getElementById('list-page-header');
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const filtersContainer = document.getElementById('list-page-filters');
         const menusWithFilters = ['pokemonType', 'pokemonGrade', 'item'];
+
         if (menusWithFilters.includes(menuId)) {
             filtersContainer.style.display = 'block';
             renderFilters(menuId);
@@ -1097,14 +1098,17 @@ document.addEventListener('DOMContentLoaded', () => {
             filtersContainer.style.display = 'none';
             filtersContainer.innerHTML = '';
         }
+
         mainPlaceholder.style.display = 'none';
         if(mobileMenuBtn) mobileMenuBtn.style.display = 'none';
         listPage.style.display = 'flex';
         setTimeout(() => listPage.classList.add('visible'), 10);
+
         let dataList = [];
         let title = '';
         const menuInfo = DB.sidebarMenu.find(item => item.id === menuId);
         if(menuInfo) title = menuInfo.name;
+
         switch (menuId) {
             case 'pokemonType': case 'pokemonGrade':
                 dataList = Object.values(DB.pokemonType.lev4);
@@ -1130,8 +1134,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 dataList = Object.values(DB[menuId].lev3);
                 break;
         }
-        listPageTitle.textContent = title;
-        listPageTitle.dataset.menuId = menuId;
+
+        if (listPageHeader) {
+            listPageHeader.innerHTML = ''; 
+
+            const backToMainBtn = document.createElement('button');
+            backToMainBtn.className = 'back-to-main-btn';
+            backToMainBtn.textContent = '메인으로';
+            backToMainBtn.addEventListener('click', hideListPage);
+            
+            const titleElement = document.createElement('h2');
+            titleElement.id = 'list-page-title';
+            titleElement.textContent = title;
+            titleElement.dataset.menuId = menuId;
+
+            listPageHeader.prepend(backToMainBtn);
+            listPageHeader.appendChild(titleElement);
+        }
+
         const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
         if (cardLayoutMenus.includes(menuId)) {
             renderListPage(dataList, menuId);
@@ -1264,8 +1284,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const detailPanel = document.getElementById('lev4-panel');
         const contentDiv = detailPanel.querySelector('.panel-content');
         const itemData = DB[menuId]?.lev4?.[itemId] || DB[menuId]?.lev3?.[itemId];
-        if (menuId === 'calendar') {
-            renderCalendarView(contentDiv, DB.calendar.lev2);
+
+        contentDiv.innerHTML = '';
+        if (menuId === 'calendar' && itemId === 'calendar') {
+             renderCalendarView(contentDiv, DB.calendar.lev2);
         } else if (itemData) {
             if (menuId === 'deck' && itemData.composition) renderDeckView(contentDiv, itemData);
             else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, itemData, menuId);
@@ -1274,20 +1296,126 @@ document.addEventListener('DOMContentLoaded', () => {
             contentDiv.innerHTML = '<p>데이터를 불러오는 데 실패했습니다.</p>';
             return;
         }
+
         const panelHeader = detailPanel.querySelector('.panel-header');
-        const existingMainBtn = panelHeader.querySelector('.main-btn');
-        if (existingMainBtn) existingMainBtn.remove();
-        const mainButton = document.createElement('button');
-        mainButton.className = 'main-btn';
-        mainButton.textContent = '메인';
-        panelHeader.appendChild(mainButton);
-        mainButton.addEventListener('click', () => {
+        panelHeader.innerHTML = ''; 
+
+        const backButton = document.createElement('button');
+        backButton.className = 'back-btn';
+        backButton.textContent = '← 뒤로';
+        panelHeader.appendChild(backButton);
+
+        backButton.addEventListener('click', () => {
             detailPanel.classList.remove('visible');
-            setTimeout(() => hideListPage(), 50);
+            if (menuId === 'calendar') {
+                hideListPage(); 
+            } else {
+                if(listPage) listPage.classList.add('visible');
+            }
         }, { once: true });
+
         if (listPage) listPage.classList.remove('visible');
         detailPanel.classList.add('visible');
-        sessionStorage.setItem('isFromMobileList', 'true');
+    }
+
+    // --- 이벤트 리스너 설정 ---
+    function addEventListeners() {
+        if(mobileMenuBtn && sidebar) {
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('visible');
+            });
+        }
+
+        document.body.addEventListener('click', (e) => {
+            const adLink = e.target.closest('a[href*="ads"]');
+            if (adLink) {
+                 adBlockManager.recordClick();
+            }
+
+            // === [로직 수정 지점 1] ===
+            // 1단계 메뉴(사이드바) 클릭 처리
+            const menuItem = e.target.closest('.menu-item[data-level="1"]');
+            if (menuItem) {
+                const menuId = menuItem.dataset.id;
+                
+                if (isMobile()) {
+                     sidebar.classList.remove('visible');
+                     // 캘린더는 목록 없이 바로 상세 페이지로
+                    if (menuId === 'calendar') {
+                        showDetailPage('calendar', 'calendar');
+                    } else {
+                        // 그 외 모든 메뉴는 목록 페이지를 먼저 보여줌
+                        showListPage(menuId);
+                    }
+                } else {
+                    // 데스크톱일 경우 기존 패널 방식 유지
+                    handleMenuClick(menuItem);
+                }
+                return;
+            }
+
+            // 패널 내부의 리스트 아이템 클릭 처리 (데스크톱 전용)
+            const listItem = e.target.closest('.list-item, .menu-item');
+            if (listItem && !listItem.closest('#sidebar')) {
+                if(!isMobile()) handleMenuClick(listItem);
+            }
+
+            // 목록 페이지의 카드 아이템 클릭 처리 (모바일 전용)
+            const listItemCard = e.target.closest('.list-item-card, .list-item');
+            if(listItemCard && listItemCard.closest('#list-filter-page')){
+                const itemId = listItemCard.dataset.id;
+                const menuId = listItemCard.dataset.menuId;
+                showDetailPage(itemId, menuId);
+            }
+            
+            // 메인 페이지의 바로가기 링크 클릭 처리
+            const mainShortcut = e.target.closest('#main-notice-list a, #popular-deck-list a');
+            if (mainShortcut) {
+                e.preventDefault();
+                const menuId = mainShortcut.dataset.menuId;
+                const itemId = mainShortcut.dataset.itemId;
+                sessionStorage.setItem('fromMainPageShortcut', 'true');
+                if (isMobile()) {
+                    showDetailPage(itemId, menuId);
+                } else {
+                    const level1Button = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
+                    if (level1Button) {
+                        handleMenuClick(level1Button);
+                        setTimeout(() => {
+                            const level2Button = panels.lev2.querySelector(`button[data-id="${itemId}"]`);
+                            if (level2Button) {
+                                handleMenuClick(level2Button);
+                            }
+                        }, 50);
+                    }
+                }
+            }
+            
+            // 좋아요 버튼 클릭 처리
+            const likeBtn = e.target.closest('.like-btn');
+            if (likeBtn) {
+                handleLikeClick(likeBtn);
+            }
+            
+            // 메인으로 가는 버튼 또는 헤더 로고 클릭 처리
+            const mainButton = e.target.closest('.main-btn, .header-logo');
+             if(mainButton) {
+                handleMainButtonClick();
+             }
+
+             // 필터 모달 열기 버튼
+            const openFilterBtn = e.target.closest('#open-filter-modal-btn');
+            if (openFilterBtn) {
+                openFilterModal();
+            }
+
+            // 필터 모달 닫기
+            const filterModalOverlay = e.target.closest('#filter-modal-overlay');
+            const closeFilterBtn = e.target.closest('.filter-modal-close-btn');
+            if ((filterModalOverlay && e.target === filterModalOverlay) || closeFilterBtn) {
+                 closeFilterModal();
+            }
+        });
     }
 
     // --- 페이지 실행 ---
