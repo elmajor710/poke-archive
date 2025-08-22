@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     adContainers.forEach(container => {
         // 빈 광고 컨테이너만 관찰 대상으로 추가
-        if (!container.hasChildNodes() || container.innerHTML.trim() === '') {
+        if (container.querySelector('ins.adsbygoogle') && container.querySelector('ins.adsbygoogle').innerHTML.trim() === '') {
              adObserver.observe(container);
         }
     });
