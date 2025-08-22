@@ -257,25 +257,32 @@
     <section class="content-section">
         <h2>이벤트 추가/수정</h2>
         <form id="calendar-form">
-            <div class="form-group"><label for="event-id">고유 ID</label><div style="display: flex; gap: 10px;"><input type="text" id="event-id"><button type="button" id="generate-event-id-btn" class="btn">ID 자동생성</button></div></div>
-            <div class="form-grid">
-                <div class="form-group"><label for="event-title">이벤트 제목</label><input type="text" id="event-title"></div>
-                <div class="form-group"><label for="event-type">이벤트 종류</label><select id="event-type"><option value="ranking">랭킹뽑기</option><option value="limited">한정뽑기</option><option value="luckycat">복냥이</option></select></div>
-                <div class="form-group"><label for="event-start-date">시작 날짜</label><input type="date" id="event-start-date"></div>
-                <div class="form-group"><label for="event-end-date">종료 날짜</label><input type="date" id="event-end-date"></div>
+    <div class="form-group"><label for="event-id">고유 ID</label><div style="display: flex; gap: 10px;"><input type="text" id="event-id"><button type="button" id="generate-event-id-btn" class="btn">ID 자동생성</button></div></div>
+    <div class="form-grid">
+        <div class="form-group"><label for="event-title">이벤트 제목</label><input type="text" id="event-title"></div>
+        <div class="form-group"><label for="event-type">이벤트 종류</label>
+            <select id="event-type">
+                <option value="ranking">랭킹뽑기</option>
+                <option value="limited">한정뽑기</option>
+                <option value="luckycat">복냥이</option>
+                <option value="carnival">카니발</option>
+                <option value="season">시즌</option>
+                <option value="etc">기타</option>
+            </select>
             </div>
-            <div class="form-group form-group-span-2" style="margin-top: 20px;"><label for="event-description">상세 내용</label><textarea id="event-description" rows="5"></textarea></div>
-            
-            <div class="form-group">
-                <label>공개 여부</label>
-                <label class="checkbox-wrapper"><input type="checkbox" id="event-is-published"><span>웹사이트에 즉시 공개</span></label>
-            </div>
-            
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">저장하기</button>
-                <button id="delete-event-btn" type="button" class="btn btn-danger">삭제하기</button>
-            </div>
-        </form>
+        <div class="form-group"><label for="event-start-date">시작 날짜</label><input type="date" id="event-start-date"></div>
+        <div class="form-group"><label for="event-end-date">종료 날짜</label><input type="date" id="event-end-date"></div>
+    </div>
+    <div class="form-group form-group-span-2" style="margin-top: 20px;"><label for="event-description">상세 내용</label><textarea id="event-description" rows="5"></textarea></div>
+    <div class="form-group">
+        <label>공개 여부</label>
+        <label class="checkbox-wrapper"><input type="checkbox" id="event-is-published"><span>웹사이트에 즉시 공개</span></label>
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">저장하기</button>
+        <button id="delete-event-btn" type="button" class="btn btn-danger">삭제하기</button>
+    </div>
+</form>
     </section>
 </div>
 

@@ -17,6 +17,9 @@
     --event-luckycat-color: #4caf50;
     --main-pastel: #e8f5e9; 
     --assist-pastel: #e3f2fd;
+    --event-carnival-color: #9c27b0; /* 카니발 (보라) */
+    --event-season-color: #ff5722;   /* 시즌 (주황) */
+    --event-etc-color: #607d8b;      /* 기타 (회색) */
 }
 
 *, *::before, *::after {
@@ -330,6 +333,9 @@ header h1 {
 .event-type-ranking { background-color: var(--event-ranking-color); }
 .event-type-limited { background-color: var(--event-limited-color); }
 .event-type-luckycat { background-color: var(--event-luckycat-color); }
+.event-type-carnival { background-color: var(--event-carnival-color); }
+.event-type-season { background-color: var(--event-season-color); }
+.event-type-etc { background-color: var(--event-etc-color); }
 .calendar-grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .calendar-grid th { text-align: center; padding-bottom: 10px; font-weight: 600; color: #666; font-size: 0.9em; }
 .calendar-grid td { border: 1px solid var(--border-color); vertical-align: top; padding: 4px; height: 100px; }
