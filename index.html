@@ -36,29 +36,35 @@
             <aside id="sidebar"></aside>
             <main id="content-area">
                 <div id="main-placeholder">
-                    <div class="mobile-main-buttons mobile-only">
-                        <button class="main-action-btn" data-menu-id="notice">📢 공지사항</button>
-                        <button class="main-action-btn" data-menu-id="popular">🔥 인기글</button>
-                    </div>
+    <div class="mobile-grid-menu mobile-only">
+        <button class="grid-menu-btn" data-menu-id="notice">📢 공지사항</button>
+        <button class="grid-menu-btn" data-menu-id="deck" data-item-id="recommended">🔥 인기 덱</button>
+        <button class="grid-menu-btn" data-menu-id="pokemonType">포켓몬</button>
+        <button class="grid-menu-btn" data-menu-id="item">아이템</button>
+        <button class="grid-menu-btn" data-menu-id="runeAndChip" data-item-id="rune">룬</button>
+        <button class="grid-menu-btn" data-menu-id="runeAndChip" data-item-id="chip">칩</button>
+        <button class="grid-menu-btn" data-menu-id="calendar">캘린더</button>
+        <button class="grid-menu-btn" data-menu-id="deck">추천 덱</button>
+        <button class="grid-menu-btn" data-menu-id="tips">팁&노하우</button>
+    </div>
 
-                    <div class="main-content-grid pc-only">
-                       <div class="main-content-box notice-box">
-                           <h3>📢 공지사항</h3>
-                           <ul id="main-notice-list">
-                               <!-- 공지사항이 여기에 동적으로 추가됩니다 -->
-                           </ul>
-                       </div>
-                       <div class="main-content-box popular-posts-box">
-                           <h3>🔥 인기글</h3>
-<ul id="popular-deck-list">
-    </ul>
-                       </div>
-                    </div>
-                    
-                    <div class="main-welcome-area">
-                        <img src="https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/taecho-three.jpg" alt="Welcome to the Poke-Archive">
-                        <p>좌측 메뉴에서 궁금한 정보를 선택해주세요!</p>
-                    </div>
+    <div class="main-content-grid pc-only">
+       <div class="main-content-box notice-box">
+           <h3>📢 공지사항</h3>
+           <ul id="main-notice-list">
+               </ul>
+       </div>
+       <div class="main-content-box popular-posts-box">
+           <h3>🔥 인기글</h3>
+            <ul id="popular-deck-list"></ul>
+       </div>
+    </div>
+    
+    <div class="main-welcome-area pc-only">
+        <img src="https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/taecho-three.jpg" alt="Welcome to the Poke-Archive">
+        <p>좌측 메뉴에서 궁금한 정보를 선택해주세요!</p>
+    </div>
+</div>
                 </div>
                 <section id="lev2-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
                 <section id="lev3-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
