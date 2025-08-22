@@ -368,34 +368,36 @@ function renderSidebar() {
         }
     }
 
-function addEventListeners() {
+    function addEventListeners() {
     document.body.addEventListener('click', (e) => {
         if (e.target.closest('.ad-container')) adBlockManager.recordClick();
     });
 
     document.body.addEventListener('click', e => {
-        // ▼▼▼ [추가] 새로운 그리드 메뉴 버튼 클릭 처리 ▼▼▼
+        // ▼▼▼ [수정] 새로운 그리드 메뉴 버튼 클릭 시 '통합 목록 페이지'를 보여주는 로직 ▼▼▼
         const gridBtn = e.target.closest('.grid-menu-btn');
         if (gridBtn) {
             e.preventDefault();
             const menuId = gridBtn.dataset.menuId;
-            const itemId = gridBtn.dataset.itemId; // '룬', '칩', '인기 덱' 등에 사용
+            const subMenuId = gridBtn.dataset.itemId;
 
-            const lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
-            if (lev1_btn) {
-                handleMenuClick(lev1_btn);
-
-                // itemId가 있는 경우, 한 단계 더 들어갑니다.
-                if (itemId) {
-                    setTimeout(() => {
-                        const lev2_btn = panels.lev2.querySelector(`.list-item[data-id="${itemId}"]`);
-                        if (lev2_btn) {
-                            handleMenuClick(lev2_btn);
-                        }
-                    }, 50); // 패널이 그려질 시간을 줍니다.
-                }
+            // '캘린더'는 기존 방식을 유지 (페이지 전환 없이 바로 표시)
+            if (menuId === 'calendar') {
+                 const lev1_btn = sidebar.querySelector(`.menu-item[data-id="calendar"]`);
+                 if(lev1_btn) handleMenuClick(lev1_btn);
+                 return;
             }
-            return; // 그리드 버튼 처리는 여기서 종료
+
+            // 새로운 통합 목록 페이지를 보여주는 함수 호출
+            showListPage(menuId, subMenuId);
+            return;
+        }
+
+        // ▼▼▼ [추가] 새로운 페이지의 '메인으로' 버튼 클릭 처리 ▼▼▼
+        const backToGridBtn = e.target.closest('.back-to-grid-btn');
+        if (backToGridBtn) {
+            hideListPage(); // 새로운 페이지를 숨기는 함수 호출
+            return;
         }
         // ▲▲▲ [추가] 여기까지 ▲▲▲
 
@@ -414,9 +416,7 @@ function addEventListeners() {
             } else if (button.classList.contains('main-btn')) {
                 handleMainButtonClick();
             } else if (button.classList.contains('main-action-btn')) {
-                // ▼▼▼ [수정] 모바일 첫 화면 버튼 클릭 시 메모 남기기 ▼▼▼
                 sessionStorage.setItem('fromMainPageShortcut', 'true');
-                
                 if (button.dataset.menuId === 'popular') {
                     const lev1_btn = sidebar.querySelector(`.menu-item[data-id="deck"]`);
                     if (lev1_btn) {
@@ -440,9 +440,7 @@ function addEventListeners() {
         const noticeLink = e.target.closest('#main-notice-list a');
         if (noticeLink) {
             e.preventDefault();
-            // ▼▼▼ [수정] PC 첫 화면 공지사항 클릭 시 메모 남기기 ▼▼▼
             sessionStorage.setItem('fromMainPageShortcut', 'true');
-            
             const menuId = noticeLink.dataset.menuId;
             const itemId = noticeLink.dataset.itemId;
 
@@ -459,12 +457,9 @@ function addEventListeners() {
         const popularDeckLink = e.target.closest('#popular-deck-list a');
         if (popularDeckLink) {
             e.preventDefault();
-            // ▼▼▼ [수정] PC 첫 화면 인기글 클릭 시 메모 남기기 ▼▼▼
             sessionStorage.setItem('fromMainPageShortcut', 'true');
-            
             const menuId = popularDeckLink.dataset.menuId;
             const itemId = popularDeckLink.dataset.itemId;
-
             const lev1_btn = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
             if (lev1_btn) {
                 handleMenuClick(lev1_btn);
@@ -481,7 +476,7 @@ function addEventListeners() {
             }
         }
     });
-}    
+}
 
     // ▼▼▼ [추가] 좋아요 기능 관련 함수 ▼▼▼
 
@@ -1487,4 +1482,44 @@ function renderCalendarView(contentDiv, data) {
     }
     setScreenHeight();
     window.addEventListener('resize', setScreenHeight);
+
+    // ▼▼▼ [추가] 3단계: 새로운 페이지를 보여주는 함수 ▼▼▼
+function showListPage(menuId, subMenuId = null) {
+    const mainPlaceholder = document.getElementById('main-placeholder');
+    const listPage = document.getElementById('list-filter-page');
+    const listPageTitle = document.getElementById('list-page-title');
+    const listContent = document.getElementById('list-page-content');
+
+    mainPlaceholder.style.display = 'none';
+    listPage.style.display = 'flex';
+    setTimeout(() => listPage.classList.add('visible'), 10); // 슬라이드 인 효과
+
+    // 페이지 제목 설정
+    let title = '';
+    const menuInfo = DB.sidebarMenu.find(item => item.id === menuId);
+    if (menuInfo) {
+        title = menuInfo.name;
+        if (subMenuId === 'rune') title = '룬';
+        if (subMenuId === 'chip') title = '칩';
+        if (subMenuId === 'recommended') title = '추천 덱';
+    }
+    listPageTitle.textContent = title;
+
+    // TODO: 다음 단계에서 실제 목록을 여기에 채울 것입니다.
+    listContent.innerHTML = `<p style="padding: 20px; text-align: center;">${title} 목록을 불러오는 중...</p>`;
+}
+
+// ▼▼▼ [추가] 3단계: 새로운 페이지를 숨기는 함수 ▼▼▼
+function hideListPage() {
+    const mainPlaceholder = document.getElementById('main-placeholder');
+    const listPage = document.getElementById('list-filter-page');
+    
+    listPage.classList.remove('visible'); // 슬라이드 아웃 효과
+    // 애니메이션이 끝난 후 완전히 숨김
+    setTimeout(() => {
+        listPage.style.display = 'none';
+        mainPlaceholder.style.display = 'flex';
+    }, 350);
+}
 });
+
