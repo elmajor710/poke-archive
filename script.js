@@ -360,7 +360,7 @@ function renderSidebar() {
         }
     }
 
-   function addEventListeners() {
+  function addEventListeners() {
     document.body.addEventListener('click', e => {
         // --- 광고 클릭 처리 ---
         if (e.target.closest('.ad-container')) {
@@ -373,20 +373,24 @@ function renderSidebar() {
         if (gridBtn) {
             e.preventDefault();
             const menuId = gridBtn.dataset.menuId;
+            // 캘린더: 바로 최종 본문으로 이동
             if (menuId === 'calendar') {
                 showDetailPage(null, menuId);
                 return;
             }
+            // 나머지: 목록 페이지로 이동
             showListPage(menuId, gridBtn.dataset.itemId);
             return;
         }
 
+        // 목록 페이지에서 '< 메인' 버튼 클릭 시
         const backToGridBtn = e.target.closest('.back-to-grid-btn');
         if (backToGridBtn) {
             hideListPage();
             return;
         }
 
+        // 목록의 항목 클릭 시 최종 본문으로 이동
         const listItem = e.target.closest('#list-page-content .list-item, #list-page-content .list-item-card');
         if (listItem) {
             e.preventDefault();
@@ -394,11 +398,9 @@ function renderSidebar() {
             return;
         }
 
+        // 필터 팝업 열기/닫기
         const openFilterBtn = e.target.closest('#open-filter-modal-btn');
-        if (openFilterBtn) {
-            openFilterModal();
-            return;
-        }
+        if (openFilterBtn) { openFilterModal(); return; }
         if (e.target.closest('#filter-modal-close-btn') || e.target.closest('#filter-apply-btn')) {
             closeFilterModal();
             return;
@@ -416,7 +418,7 @@ function renderSidebar() {
             else if (button.dataset.level) handleMenuClick(button); 
         }
     });
-}
+} 
 
     // ▼▼▼ [추가] 좋아요 기능 관련 함수 ▼▼▼
 
@@ -525,17 +527,20 @@ function handleBackClick(button) {
     const parentPanel = button.closest('.panel');
     if (!parentPanel) return;
 
-    // 모바일 목록 -> 상세 보기 -> 뒤로가기
+    // ▼▼▼ 새로운 모바일 흐름을 위한 뒤로가기 로직 ▼▼▼
     if (sessionStorage.getItem('isFromMobileList') === 'true') {
         parentPanel.classList.remove('visible');
         
+        // 캘린더 본문에서는 바로 메인 그리드로 이동
         if (parentPanel.querySelector('.calendar-view')) {
             hideListPage();
         } else {
+            // 나머지 본문에서는 목록 페이지로 이동
             document.getElementById('list-filter-page').classList.add('visible');
         }
         
         sessionStorage.removeItem('isFromMobileList');
+        // 상세 페이지 내용을 깨끗하게 비워서 다음을 준비
         setTimeout(() => {
             parentPanel.querySelector('.panel-content').innerHTML = '';
             const mainBtn = parentPanel.querySelector('.main-btn');
@@ -543,6 +548,7 @@ function handleBackClick(button) {
         }, 350);
         return;
     }
+    // ▲▲▲ 여기까지 ▲▲▲
 
     // --- 이하 기존의 PC용 스마트 뒤로가기 로직 (수정 없음) ---
     const fromShortcut = sessionStorage.getItem('fromMainPageShortcut');
@@ -1596,36 +1602,7 @@ function renderFilters(menuId) {
     `;
 }
 
-// ▼▼▼ [추가] 상세 페이지를 보여주는 전용 함수 ▼▼▼
-function showDetailPage(detailPanel) {
-    const listPage = document.getElementById('list-filter-page');
-    const panelHeader = detailPanel.querySelector('.panel-header');
-    
-    // 헤더 정리: 기존 '메인' 버튼이 있으면 지우고 새로 추가
-    const existingMainBtn = panelHeader.querySelector('.main-btn');
-    if (existingMainBtn) existingMainBtn.remove();
-    const mainButton = document.createElement('button');
-    mainButton.className = 'main-btn';
-    mainButton.textContent = '메인';
-    panelHeader.appendChild(mainButton);
-    
-    // '메인' 버튼 클릭 시, 그리드 메뉴로 바로 돌아가는 기능
-    mainButton.addEventListener('click', () => {
-        detailPanel.classList.remove('visible');
-        hideListPage();
-    }, { once: true }); // 이벤트 리스너가 한 번만 실행되도록 설정
 
-    // 페이지 전환
-    listPage.classList.remove('visible');
-    detailPanel.classList.add('visible');
-    
-    // 캘린더인지 아닌지 메모 남기기
-    if (detailPanel.querySelector('.calendar-view')) {
-        sessionStorage.setItem('isCalendarView', 'true');
-    } else {
-        sessionStorage.removeItem('isCalendarView');
-    }
-}
 
 // ▼▼▼ [추가] 필터 팝업을 열고 내용을 채우는 함수 ▼▼▼
 function openFilterModal() {
@@ -1678,9 +1655,10 @@ function showDetailPage(itemId, menuId) {
         else renderSimpleView(contentDiv, itemData, menuId);
     } else {
         contentDiv.innerHTML = '<p>데이터를 불러오는 데 실패했습니다.</p>';
+        return;
     }
 
-    // 헤더에 '메인' 버튼 추가
+    // 헤더에 '메인' 버튼 추가 및 이벤트 연결
     const panelHeader = detailPanel.querySelector('.panel-header');
     const existingMainBtn = panelHeader.querySelector('.main-btn');
     if (existingMainBtn) existingMainBtn.remove();
@@ -1696,7 +1674,7 @@ function showDetailPage(itemId, menuId) {
     // 페이지 전환
     if (listPage) listPage.classList.remove('visible');
     detailPanel.classList.add('visible');
-    sessionStorage.setItem('isFromMobileList', 'true');
+    sessionStorage.setItem('isFromMobileList', 'true'); // 모바일 목록에서 왔다는 메모 남기기
 }
 
 });
