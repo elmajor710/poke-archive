@@ -1301,3 +1301,30 @@ header h1 {
     height: 100%;
     object-fit: contain;
 }
+
+/* --- ▼▼▼ 3단계: 필터 팝업(모달) 스타일 ▼▼▼ --- */
+.filter-trigger-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+}
+.modal-footer .btn {
+    padding: 8px 20px;
+    font-size: 1em;
+}

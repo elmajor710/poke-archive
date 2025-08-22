@@ -371,52 +371,56 @@ function renderSidebar() {
             e.preventDefault();
             const menuId = gridBtn.dataset.menuId;
             const subMenuId = gridBtn.dataset.itemId;
-            // 캘린더는 목록 없이 바로 최종 본문을 보여줍니다.
             if (menuId === 'calendar') {
                  const detailPanel = document.getElementById('lev4-panel');
                  const contentDiv = detailPanel.querySelector('.panel-content');
                  renderCalendarView(contentDiv, DB.calendar.lev2);
-                 showDetailPage(detailPanel); // 상세 페이지를 바로 보여주는 새 함수 호출
+                 showDetailPage(detailPanel);
                  return;
             }
-            // 나머지 메뉴는 목록 페이지를 보여줍니다.
             showListPage(menuId, subMenuId);
             return;
         }
 
-        const backToGridBtn = e.target.closest('.back-to-grid-btn');
-        if (backToGridBtn) {
-            hideListPage();
+        // ▼▼▼ [추가] 필터 팝업 열기/닫기 로직 ▼▼▼
+        const openFilterBtn = e.target.closest('#open-filter-modal-btn');
+        if (openFilterBtn) {
+            openFilterModal();
             return;
         }
+        const closeFilterBtn = e.target.closest('#filter-modal-close-btn');
+        if (closeFilterBtn) {
+            closeFilterModal();
+            return;
+        }
+        const applyFilterBtn = e.target.closest('#filter-apply-btn');
+        if(applyFilterBtn) {
+            // TODO: 다음 단계에서 실제 필터링 로직 추가
+            closeFilterModal();
+            return;
+        }
+        // ▲▲▲ [추가] 여기까지 ▲▲▲
 
-        // ▼▼▼ [최종 수정] 새로운 목록의 항목 클릭 시, 무조건 최종 상세 페이지만을 보여주는 로직 ▼▼▼
+        const backToGridBtn = e.target.closest('.back-to-grid-btn');
+        if (backToGridBtn) { hideListPage(); return; }
+
         const listItem = e.target.closest('#list-page-content .list-item, #list-page-content .list-item-card');
         if (listItem) {
             e.preventDefault();
             const menuId = listItem.dataset.menuId;
             const itemId = listItem.dataset.id;
             const itemData = DB[menuId]?.lev4?.[itemId] || DB[menuId]?.lev3?.[itemId];
-
             if (itemData) {
                 const detailPanel = document.getElementById('lev4-panel');
                 const contentDiv = detailPanel.querySelector('.panel-content');
-                
-                // menuId에 따라 적절한 최종 뷰 렌더링 함수를 직접 호출
-                if (menuId === 'deck' && itemData.composition) {
-                    renderDeckView(contentDiv, itemData);
-                } else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
-                    renderPokemonView(contentDiv, itemData, menuId);
-                } else { // 공지, 팁, 아이템, 룬, 칩
-                    renderSimpleView(contentDiv, itemData, menuId);
-                }
-                showDetailPage(detailPanel); // 목록 페이지 숨기고 상세 페이지 표시
+                if (menuId === 'deck' && itemData.composition) renderDeckView(contentDiv, itemData);
+                else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, itemData, menuId);
+                else renderSimpleView(contentDiv, itemData, menuId);
+                showDetailPage(detailPanel);
             }
             return;
         }
-        // ▲▲▲ [최종 수정] 여기까지 ▲▲▲
 
-        // --- 이하 기존의 PC화면용 이벤트 리스너 (수정 없음) ---
         const likeBtn = e.target.closest('.like-btn');
         if (likeBtn) { handleLikeClick(likeBtn); return; }
 
@@ -1481,7 +1485,6 @@ function renderCalendarView(contentDiv, data) {
     setScreenHeight();
     window.addEventListener('resize', setScreenHeight);
 
-    // ▼▼▼ [추가] 3단계: 새로운 페이지를 보여주는 함수 ▼▼▼
 function showListPage(menuId, subMenuId = null) {
     const mainPlaceholder = document.getElementById('main-placeholder');
     const listPage = document.getElementById('list-filter-page');
@@ -1492,10 +1495,10 @@ function showListPage(menuId, subMenuId = null) {
     const menusWithFilters = ['pokemonType', 'pokemonGrade', 'item'];
     if (menusWithFilters.includes(menuId)) {
         filtersContainer.style.display = 'block';
-        renderFilters(menuId); // ▼▼▼ [추가] 필터 UI를 그리는 함수 호출
+        renderFilters(menuId);
     } else {
         filtersContainer.style.display = 'none';
-        filtersContainer.innerHTML = ''; // 필터가 없는 메뉴는 내용을 비웁니다.
+        filtersContainer.innerHTML = '';
     }
 
     mainPlaceholder.style.display = 'none';
@@ -1535,6 +1538,8 @@ function showListPage(menuId, subMenuId = null) {
     }
     
     listPageTitle.textContent = title;
+    listPageTitle.dataset.menuId = menuId; // ▼▼▼ [추가] 현재 메뉴 ID를 기록
+
     const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
     if (cardLayoutMenus.includes(menuId)) {
         renderListPage(dataList, menuId);
@@ -1637,32 +1642,15 @@ function renderSimpleListPage(data, menuId) {
 // ▼▼▼ [추가] 필터 UI를 그리는 함수 ▼▼▼
 function renderFilters(menuId) {
     const filtersContainer = document.getElementById('list-page-filters');
-    let filtersHTML = '';
-
-    if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
-        // 포켓몬 등급 필터
-        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
-        DB.pokemonGrade.lev2.forEach(grade => {
-            filtersHTML += `<button class="filter-button" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
-        });
-        filtersHTML += '</div></div>';
-
-        // 포켓몬 타입 필터
-        filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
-        DB.pokemonType.lev2.forEach(type => {
-            filtersHTML += `<button class="type-icon-button" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}"><img src="${type.iconURL}" alt="${type.name}"></button>`;
-        });
-        filtersHTML += '</div></div>';
-    } else if (menuId === 'item') {
-        // 아이템 등급 필터
-        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
-        DB.item.lev2.forEach(grade => {
-            filtersHTML += `<button class="filter-button" data-filter-type="grade" data-filter-value="${grade.id}">${grade.name}</button>`;
-        });
-        filtersHTML += '</div></div>';
-    }
-    
-    filtersContainer.innerHTML = filtersHTML;
+    // 깔때기 아이콘(SVG)과 '필터' 텍스트를 포함한 버튼 하나만 생성합니다.
+    filtersContainer.innerHTML = `
+        <button id="open-filter-modal-btn" class="filter-trigger-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.74.439L7 12.439V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/>
+            </svg>
+            필터
+        </button>
+    `;
 }
 
 // ▼▼▼ [추가] 상세 페이지를 보여주는 전용 함수 ▼▼▼
@@ -1695,5 +1683,42 @@ function showDetailPage(detailPanel) {
         sessionStorage.removeItem('isCalendarView');
     }
 }
+
+// ▼▼▼ [추가] 필터 팝업을 열고 내용을 채우는 함수 ▼▼▼
+function openFilterModal() {
+    const modalOverlay = document.getElementById('filter-modal-overlay');
+    const modalBody = document.getElementById('filter-modal-body');
+    const menuId = document.getElementById('list-page-title').dataset.menuId; // 현재 메뉴 ID 가져오기
+    
+    let filtersHTML = '';
+    if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
+        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
+        DB.pokemonGrade.lev2.forEach(grade => {
+            filtersHTML += `<button class="filter-button" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
+        });
+        filtersHTML += '</div></div>';
+        filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
+        DB.pokemonType.lev2.forEach(type => {
+            filtersHTML += `<button class="type-icon-button" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}"><img src="${type.iconURL}" alt="${type.name}"></button>`;
+        });
+        filtersHTML += '</div></div>';
+    } else if (menuId === 'item') {
+        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
+        DB.item.lev2.forEach(grade => {
+            filtersHTML += `<button class="filter-button" data-filter-type="grade" data-filter-value="${grade.id}">${grade.name}</button>`;
+        });
+        filtersHTML += '</div></div>';
+    }
+    
+    modalBody.innerHTML = filtersHTML;
+    modalOverlay.style.display = 'flex';
+}
+
+// ▼▼▼ [추가] 필터 팝업을 닫는 함수 ▼▼▼
+function closeFilterModal() {
+    const modalOverlay = document.getElementById('filter-modal-overlay');
+    modalOverlay.style.display = 'none';
+}
+
 });
 
