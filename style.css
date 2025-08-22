@@ -1237,3 +1237,67 @@ header h1 {
     display: flex;
     gap: 6px;
 }
+
+/* --- ▼▼▼ 3단계: 필터 UI 스타일 ▼▼▼ --- */
+.page-filters {
+    padding: 10px 15px;
+}
+.filter-group {
+    margin-bottom: 10px;
+}
+.filter-group:last-child {
+    margin-bottom: 0;
+}
+.filter-group h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.9em;
+    color: #6c757d;
+}
+.filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.filter-button {
+    padding: 6px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    background-color: #fff;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+.filter-button.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    font-weight: bold;
+}
+.type-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 8px;
+}
+.type-icon-button {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    padding: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+}
+.type-icon-button:hover {
+    border-color: #888;
+}
+.type-icon-button.active {
+    border-color: var(--primary-color);
+    border-width: 2px;
+    transform: scale(1.1);
+}
+.type-icon-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
