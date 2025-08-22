@@ -1187,7 +1187,17 @@ function renderCalendarView(contentDiv, data) {
                 else break;
             }
         });
-        let html = `<div class="calendar-header"><span class="calendar-title">${year}년 ${month + 1}월</span><div class="calendar-nav"><button id="cal-prev-btn">&lt; 이전</button><button id="cal-today-btn">Today</button><button id="cal-next-btn">다음 &gt;</button></div></div><div class="calendar-legend"><div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div><div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div><div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div></div><table class="calendar-grid"><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody>`;
+        let html = `<div class="calendar-header"><span class="calendar-title">${year}년 ${month + 1}월</span><div class="calendar-nav"><button id="cal-prev-btn">&lt; 이전</button><button id="cal-today-btn">Today</button><button id="cal-next-btn">다음 &gt;</button></div></div>
+    
+    <div class="calendar-legend">
+        <div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div>
+        <div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div>
+        <div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div>
+        <div class="legend-item"><span class="legend-dot event-type-carnival"></span> 카니발</div>
+        <div class="legend-item"><span class="legend-dot event-type-season"></span> 시즌</div>
+        <div class="legend-item"><span class="legend-dot event-type-etc"></span> 기타</div>
+    </div>
+    <table class="calendar-grid"><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody>`;
         let dateCounter = 1;
         const startDay = firstDay.getDay();
         const daysInMonth = lastDay.getDate();
