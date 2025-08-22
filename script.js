@@ -1476,42 +1476,121 @@ function renderCalendarView(contentDiv, data) {
     window.addEventListener('resize', setScreenHeight);
 
     // ▼▼▼ [추가] 3단계: 새로운 페이지를 보여주는 함수 ▼▼▼
+// ▼▼▼ [수정] 3단계: 새로운 페이지를 보여주는 함수 (데이터 로딩 기능 추가) ▼▼▼
 function showListPage(menuId, subMenuId = null) {
     const mainPlaceholder = document.getElementById('main-placeholder');
     const listPage = document.getElementById('list-filter-page');
     const listPageTitle = document.getElementById('list-page-title');
-    const listContent = document.getElementById('list-page-content');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
 
     mainPlaceholder.style.display = 'none';
+    if(mobileMenuBtn) mobileMenuBtn.style.display = 'none'; // 햄버거 버튼 숨기기
     listPage.style.display = 'flex';
-    setTimeout(() => listPage.classList.add('visible'), 10); // 슬라이드 인 효과
+    setTimeout(() => listPage.classList.add('visible'), 10);
 
-    // 페이지 제목 설정
+    // 1. 어떤 데이터를 보여줄지 결정
+    let dataList = [];
     let title = '';
     const menuInfo = DB.sidebarMenu.find(item => item.id === menuId);
-    if (menuInfo) {
-        title = menuInfo.name;
-        if (subMenuId === 'rune') title = '룬';
-        if (subMenuId === 'chip') title = '칩';
-        if (subMenuId === 'recommended') title = '추천 덱';
-    }
-    listPageTitle.textContent = title;
+    if(menuInfo) title = menuInfo.name;
 
-    // TODO: 다음 단계에서 실제 목록을 여기에 채울 것입니다.
-    listContent.innerHTML = `<p style="padding: 20px; text-align: center;">${title} 목록을 불러오는 중...</p>`;
+    switch (menuId) {
+        case 'pokemonType':
+        case 'pokemonGrade':
+            dataList = Object.values(DB.pokemonType.lev4);
+            title = '포켓몬';
+            break;
+        case 'item':
+            dataList = Object.values(DB.item.lev4);
+            break;
+        case 'runeAndChip':
+            if (subMenuId === 'rune') {
+                dataList = Object.values(DB.runeAndChip.lev4).filter(d => d.type === 'rune');
+                title = '룬';
+            } else if (subMenuId === 'chip') {
+                dataList = Object.values(DB.runeAndChip.lev4).filter(d => d.type === 'chip');
+                title = '칩';
+            }
+            break;
+        case 'deck':
+             dataList = Object.values(DB.deck.lev4);
+             title = '추천 덱';
+            break;
+        case 'tips':
+        case 'notice':
+            dataList = Object.values(DB[menuId].lev3);
+            break;
+    }
+    
+    // 2. 제목 설정 및 목록 렌더링
+    listPageTitle.textContent = title;
+    renderListPage(dataList, menuId); // 새로운 렌더링 함수 호출
 }
 
-// ▼▼▼ [추가] 3단계: 새로운 페이지를 숨기는 함수 ▼▼▼
+// ▼▼▼ [수정] 3단계: 새로운 페이지를 숨기는 함수 (햄버거 버튼 다시 보이기) ▼▼▼
 function hideListPage() {
     const mainPlaceholder = document.getElementById('main-placeholder');
     const listPage = document.getElementById('list-filter-page');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     
-    listPage.classList.remove('visible'); // 슬라이드 아웃 효과
-    // 애니메이션이 끝난 후 완전히 숨김
+    listPage.classList.remove('visible');
     setTimeout(() => {
         listPage.style.display = 'none';
+        if(mobileMenuBtn) mobileMenuBtn.style.display = 'block'; // 햄버거 버튼 다시 보이기
         mainPlaceholder.style.display = 'flex';
     }, 350);
+}
+
+// ▼▼▼ [추가] 3단계: 목록 데이터를 HTML로 변환하여 페이지에 그리는 함수 ▼▼▼
+function renderListPage(data, menuId) {
+    const listContent = document.getElementById('list-page-content');
+    if (!data || data.length === 0) {
+        listContent.innerHTML = '<p class="list-empty-message">표시할 데이터가 없습니다.</p>';
+        return;
+    }
+
+    // 이름순 (ㄱ,ㄴ,ㄷ)으로 정렬
+    data.sort((a, b) => {
+        const nameA = a.name_ko || a.name || a.title || '';
+        const nameB = b.name_ko || b.name || b.title || '';
+        return nameA.localeCompare(nameB, 'ko');
+    });
+
+    const listHTML = data.map(item => {
+        const name = item.name_ko || item.name || item.title;
+        const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
+        
+        // 텍스트 정보 (등급, 타입 등) HTML 생성
+        let infoHTML = '';
+        if (item.grade) {
+            const gradeClass = `grade-${item.grade.toLowerCase().replace('+', '-plus')}`;
+            infoHTML += `<span class="grade-badge ${gradeClass}">${item.grade}</span>`;
+        }
+        if (item.types && item.types.length > 0) {
+            infoHTML += '<div class="type-badges-container">';
+            item.types.forEach(typeId => {
+                const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+                if (typeInfo) {
+                    infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
+                }
+            });
+            infoHTML += '</div>';
+        }
+
+        return `
+            <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}">
+                <div class="item-card-image">
+                    <img src="${imageURL}" alt="${name}" loading="lazy">
+                </div>
+                <div class="item-card-info">
+                    <strong class="item-card-name">${name}</strong>
+                    <div class="item-card-details">${infoHTML}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    listContent.innerHTML = listHTML;
 }
 });
 
