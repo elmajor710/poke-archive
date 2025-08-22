@@ -1,4 +1,4 @@
-// [수정 완료] Nirvana Pokedex script.js - 모바일 내비게이션 로직 적용
+// [최종 수정 완료] Nirvana Pokedex script.js - index.html 구조에 완벽히 맞춤
 document.addEventListener('DOMContentLoaded', () => {
     console.log('스크립트 초기화 완료. Nirvana Pokedex 좋아요 기능 추가');
 
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderSidebar();
             renderMainNoticeList();
             fetchAndRenderPopularDecks(); 
-            setupMobileAds();
+            // setupMobileAds(); // 이 함수는 원본 코드에 정의되지 않아 주석 처리
             addEventListeners();
             setupAdObservers();
         } catch (error) {
@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(sidebar) {
             sidebar.innerHTML = '';
             sidebar.appendChild(sidebarContent);
-            sidebar.appendChild(adContainer);
+            // sidebar.appendChild(adContainer); // PC 화면에서는 다른 곳에서 렌더링되므로 중복 제거
         }
     }
 
@@ -395,15 +395,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentDiv = targetPanel.querySelector('.panel-content');
         if (!contentDiv) return;
         const panelHeader = targetPanel.querySelector('.panel-header');
-        const existingMainBtn = panelHeader.querySelector('.main-btn');
-        if (existingMainBtn) existingMainBtn.remove();
+        
+        // 기존 헤더 내용 초기화 (뒤로가기 버튼 유지 위해 버튼 외 내용만 삭제 필요)
+        const headerTitle = panelHeader.querySelector('h2');
+        if(headerTitle) headerTitle.remove();
+
         contentDiv.innerHTML = '';
         contentDiv.scrollTop = 0;
         if (clickedId === 'deckBuilder') {
-            const mainButton = document.createElement('button');
-            mainButton.className = 'main-btn';
-            mainButton.textContent = '메인';
-            panelHeader.appendChild(mainButton);
             if (isMobile()) {
                 contentDiv.innerHTML = `<div class="pc-only-message"><h3>기능 안내</h3><p>배치툴 기능은 화면이 넓은 PC 환경에 최적화되어 있습니다.<br>PC에서 접속하여 이용해주세요.</p></div>`;
             } else {
@@ -416,10 +415,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
             const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
             if (isFinalView) {
-                const mainButton = document.createElement('button');
-                mainButton.className = 'main-btn';
-                mainButton.textContent = '메인';
-                panelHeader.appendChild(mainButton);
                 if (menuId === 'deck' && data.composition) renderDeckView(contentDiv, data);
                 else if(menuId === 'calendar') renderCalendarView(contentDiv, DB.calendar.lev2);
                 else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
@@ -443,12 +438,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showModal(title, contentElement) {
-        const existingModal = document.querySelector('.modal-overlay');
+        const existingModal = document.querySelector('.modal-overlay.custom-modal');
         if (existingModal) {
             existingModal.remove();
         }
         const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'modal-overlay';
+        modalOverlay.className = 'modal-overlay custom-modal';
         const modalContent = document.createElement('div');
         modalContent.className = 'modal-content';
         const modalHeader = document.createElement('div');
@@ -1083,14 +1078,16 @@ document.addEventListener('DOMContentLoaded', () => {
         applyFilters();
     }
 
+    // [수정 2] HTML 구조에 맞게 함수 수정
     function showListPage(menuId, subMenuId = null) {
         const mainPlaceholder = document.getElementById('main-placeholder');
         const listPage = document.getElementById('list-filter-page');
-        const listPageHeader = document.getElementById('list-page-header');
+        const listPageTitle = document.getElementById('list-page-title');
+        const backToGridBtn = listPage.querySelector('.back-to-grid-btn');
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const filtersContainer = document.getElementById('list-page-filters');
         const menusWithFilters = ['pokemonType', 'pokemonGrade', 'item'];
-
+        
         if (menusWithFilters.includes(menuId)) {
             filtersContainer.style.display = 'block';
             renderFilters(menuId);
@@ -1135,21 +1132,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
         }
 
-        if (listPageHeader) {
-            listPageHeader.innerHTML = ''; 
-
-            const backToMainBtn = document.createElement('button');
-            backToMainBtn.className = 'back-to-main-btn';
-            backToMainBtn.textContent = '메인으로';
-            backToMainBtn.addEventListener('click', hideListPage);
-            
-            const titleElement = document.createElement('h2');
-            titleElement.id = 'list-page-title';
-            titleElement.textContent = title;
-            titleElement.dataset.menuId = menuId;
-
-            listPageHeader.prepend(backToMainBtn);
-            listPageHeader.appendChild(titleElement);
+        if (listPageTitle) {
+            listPageTitle.textContent = title;
+            listPageTitle.dataset.menuId = menuId;
+        }
+        
+        if (backToGridBtn) {
+            // 기존 이벤트 리스너가 있다면 제거하고 새로 추가 (중복 방지)
+            const newBtn = backToGridBtn.cloneNode(true);
+            backToGridBtn.parentNode.replaceChild(newBtn, backToGridBtn);
+            newBtn.addEventListener('click', hideListPage);
         }
 
         const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
@@ -1164,7 +1156,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const mainPlaceholder = document.getElementById('main-placeholder');
         const listPage = document.getElementById('list-filter-page');
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const detailPanel = document.getElementById('lev4-panel');
+
         listPage.classList.remove('visible');
+        detailPanel.classList.remove('visible'); // 상세 페이지도 함께 닫기
+        
         setTimeout(() => {
             listPage.style.display = 'none';
             if(mobileMenuBtn) mobileMenuBtn.style.display = 'block';
@@ -1332,37 +1328,36 @@ document.addEventListener('DOMContentLoaded', () => {
                  adBlockManager.recordClick();
             }
 
-            // === [로직 수정 지점 1] ===
-            // 1단계 메뉴(사이드바) 클릭 처리
-            const menuItem = e.target.closest('.menu-item[data-level="1"]');
-            if (menuItem) {
-                const menuId = menuItem.dataset.id;
+            // [수정 1] 모바일 그리드 메뉴 버튼 클릭 처리
+            const gridMenuBtn = e.target.closest('.grid-menu-btn');
+            if (gridMenuBtn) {
+                const menuId = gridMenuBtn.dataset.menuId;
+                const subMenuId = gridMenuBtn.dataset.itemId;
                 
-                if (isMobile()) {
-                     sidebar.classList.remove('visible');
-                     // 캘린더는 목록 없이 바로 상세 페이지로
-                    if (menuId === 'calendar') {
-                        showDetailPage('calendar', 'calendar');
-                    } else {
-                        // 그 외 모든 메뉴는 목록 페이지를 먼저 보여줌
-                        showListPage(menuId);
-                    }
+                if (menuId === 'calendar') {
+                    showDetailPage('calendar', 'calendar');
                 } else {
-                    // 데스크톱일 경우 기존 패널 방식 유지
-                    handleMenuClick(menuItem);
+                    showListPage(menuId, subMenuId);
                 }
                 return;
             }
 
+            // 데스크톱 사이드바 메뉴 클릭 처리
+            const sidebarMenuItem = e.target.closest('#sidebar .menu-item[data-level="1"]');
+            if(sidebarMenuItem && !isMobile()){
+                handleMenuClick(sidebarMenuItem);
+                return;
+            }
+            
             // 패널 내부의 리스트 아이템 클릭 처리 (데스크톱 전용)
             const listItem = e.target.closest('.list-item, .menu-item');
-            if (listItem && !listItem.closest('#sidebar')) {
-                if(!isMobile()) handleMenuClick(listItem);
+            if (listItem && !listItem.closest('#sidebar') && !isMobile()) {
+                handleMenuClick(listItem);
             }
 
-            // 목록 페이지의 카드 아이템 클릭 처리 (모바일 전용)
-            const listItemCard = e.target.closest('.list-item-card, .list-item');
-            if(listItemCard && listItemCard.closest('#list-filter-page')){
+            // 목록 페이지의 카드/리스트 아이템 클릭 처리 (모바일/PC 공용)
+            const listItemCard = e.target.closest('#list-page-content .list-item-card, #list-page-content .list-item');
+            if(listItemCard){
                 const itemId = listItemCard.dataset.id;
                 const menuId = listItemCard.dataset.menuId;
                 showDetailPage(itemId, menuId);
@@ -1397,11 +1392,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleLikeClick(likeBtn);
             }
             
-            // 메인으로 가는 버튼 또는 헤더 로고 클릭 처리
-            const mainButton = e.target.closest('.main-btn, .header-logo');
-             if(mainButton) {
-                handleMainButtonClick();
-             }
+            // 데스크톱 패널 뒤로가기 버튼
+            const panelBackBtn = e.target.closest('.panel .back-btn');
+            if (panelBackBtn && !isMobile()) {
+                const currentPanel = panelBackBtn.closest('.panel');
+                const level = parseInt(Object.keys(panels).find(key => panels[key] === currentPanel)?.replace('lev', '') || '0');
+                if (level > 2) {
+                    currentPanel.classList.remove('visible');
+                    panels[`lev${level-1}`].classList.remove('is-hidden');
+                    if(activeButtons[level-1]) activeButtons[level-1].click();
+                } else {
+                    handleMainButtonClick();
+                }
+            }
 
              // 필터 모달 열기 버튼
             const openFilterBtn = e.target.closest('#open-filter-modal-btn');
@@ -1409,9 +1412,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 openFilterModal();
             }
 
-            // 필터 모달 닫기
+            // 필터 모달 닫기 및 적용/초기화
             const filterModalOverlay = e.target.closest('#filter-modal-overlay');
-            const closeFilterBtn = e.target.closest('.filter-modal-close-btn');
+            const closeFilterBtn = e.target.closest('#filter-modal-close-btn');
             if ((filterModalOverlay && e.target === filterModalOverlay) || closeFilterBtn) {
                  closeFilterModal();
             }
