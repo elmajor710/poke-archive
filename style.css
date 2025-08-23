@@ -1465,3 +1465,9 @@ body.mobile-view #page-body {
     background-color: #f0f2f5;
 }
 /* ▲▲▲ [미션 2&3] 여기까지 ▲▲▲ */
+
+@media (min-width: 992px) {
+    .pc-main-content.pc-only {
+        display: block; /* PC 화면에서 보이도록 강제 */
+    }
+}
