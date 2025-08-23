@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>운영자 모드 - Nirvana's Poke-Archive</title>
     <link rel="stylesheet" href="admin.css">
-
-    <script src="plq2ivlk48y6lwr05fytbhi2f5r2gn54uysbin72f7gsgo07" referrerpolicy="origin"></script>
-    </head>
+    
+    <script src="https://cdn.tiny.cloud/1/plq2ivlk48y6lwr05fytbhi2f5r2gn54uysbin72f7gsgo07/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+</head>
 <body>
     <div id="login-container" class="login-container">
         <div class="login-box">
@@ -374,15 +374,16 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBEPDK4VMVjEshWthL9Kajan-2EKfuLvZ0",
-            authDomain: "poke-archive-d8e29.firebaseapp.com",
-            projectId: "poke-archive-d8e29",
-            storageBucket: "poke-archive-d8e29.firebasestorage.app",
-            messagingSenderId: "1012379289991",
-            appId: "1:1012379289991:web:5c33d4ac7536672d956b22"
-        };
+      const firebaseConfig = {
+          apiKey: "AIzaSyBEPDK4VMVjEshWthL9Kajan-2EKfuLvZ0",
+          authDomain: "poke-archive-d8e29.firebaseapp.com",
+          projectId: "poke-archive-d8e29",
+          storageBucket: "poke-archive-d8e29.firebasestorage.app",
+          messagingSenderId: "1012379289991",
+          appId: "1:1012379289991:web:5c33d4ac7536672d956b22"
+      };
       firebase.initializeApp(firebaseConfig);
       window.db = firebase.firestore();
       window.auth = firebase.auth();
