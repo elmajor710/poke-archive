@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("관리자 패널이 모든 데이터를 준비하고 초기화되었습니다.");
         } catch (error) {
             console.error("관리자 패널 초기화 중 오류:", error);
-            alert("관리자 패널 초기화에 실패했습니다.");
+            alert("관리자 패널 초기화 중 오류 발생:\n\n" + error.message);
         }
     }
 
