@@ -454,47 +454,57 @@ function setupMobileAds() {
                 else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
                 else renderSimpleView(contentDiv, data, menuId); 
             } else {
-            const listHTML = data.map(item => {
-    let itemData = item;
-    // 포켓몬 타입/등급 목록의 경우, lev4에서 상세 데이터를 가져와야 함
-    if ((menuId === 'pokemonType' || menuId === 'pokemonGrade') && DB.pokemonType.lev4[item.id]) {
-        itemData = DB.pokemonType.lev4[item.id];
-    }
+    // 카드 UI를 적용할 메뉴 ID 목록
+    const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
 
-    const name = itemData.name_ko || itemData.name || itemData.title;
-    const imageURL = itemData.faceImageURL || itemData.imageURL || 'https://via.placeholder.com/64';
+    if (cardLayoutMenus.includes(menuId)) {
+        // 카드 UI 렌더링
+        const listHTML = data.map(item => {
+            let itemData = DB[menuId]?.lev4?.[item.id] || DB[menuId]?.lev3?.[item.id] || item;
+            const name = itemData.name_ko || itemData.name || itemData.title;
+            const imageURL = itemData.faceImageURL || itemData.imageURL || 'https://via.placeholder.com/64';
 
-    let infoHTML = '';
-    if (itemData.grade) {
-        const gradeClass = `grade-${itemData.grade.toLowerCase().replace('+', '-plus')}`;
-        infoHTML += `<span class="grade-badge ${gradeClass}">${itemData.grade}</span>`;
-    }
-    if (itemData.types && itemData.types.length > 0) {
-        infoHTML += '<div class="type-badges-container">';
-        itemData.types.forEach(typeId => {
-            const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-            if (typeInfo) {
-                infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
+            let infoHTML = '';
+            if (itemData.grade) {
+                const gradeClass = `grade-${itemData.grade.toLowerCase().replace('+', '-plus')}`;
+                infoHTML += `<span class="grade-badge ${gradeClass}">${itemData.grade}</span>`;
             }
+            if (itemData.types && itemData.types.length > 0) {
+                infoHTML += '<div class="type-badges-container">';
+                itemData.types.forEach(typeId => {
+                    const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+                    if (typeInfo) infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
+                });
+                infoHTML += '</div>';
+            }
+            const newBadge = isNew(itemData.updatedAt) || isNew(itemData.createdAt) ? '<span class="new-badge-list">New</span>' : '';
+
+            return `<button class="list-item-card" data-id="${item.id}" data-level="${level}" data-menu-id="${menuId}">
+                        <div class="item-card-image"><img src="${imageURL}" alt="${name}" loading="lazy"></div>
+                        <div class="item-card-info">
+                            <strong class="item-card-name">${name} ${newBadge}</strong>
+                            <div class="item-card-details">${infoHTML}</div>
+                        </div>
+                    </button>`;
+        }).join('');
+        contentDiv.innerHTML = listHTML;
+    } else {
+        // 그 외 메뉴는 기존의 단순 텍스트 버튼으로 렌더링
+        data.forEach(item => {
+            const button = document.createElement('button');
+            button.className = 'list-item'; // <--- 이 클래스가 중요합니다.
+            button.dataset.id = item.id;
+            button.dataset.level = level;
+            button.dataset.menuId = menuId;
+            let itemHTML = item.name;
+            if (isNew(item.updatedAt) || isNew(item.createdAt)) {
+                itemHTML += '<span class="new-badge-list">New</span>';
+            }
+            button.innerHTML = itemHTML;
+            contentDiv.appendChild(button);
         });
-        infoHTML += '</div>';
     }
-    const newBadge = isNew(itemData.updatedAt) || isNew(itemData.createdAt) ? '<span class="new-badge-list">New</span>' : '';
-
-    return `
-        <button class="list-item-card" data-id="${item.id}" data-level="${level}" data-menu-id="${menuId}">
-            <div class="item-card-image">
-                <img src="${imageURL}" alt="${name}" loading="lazy">
-            </div>
-            <div class="item-card-info">
-                <strong class="item-card-name">${name} ${newBadge}</strong>
-                <div class="item-card-details">${infoHTML}</div>
-            </div>
-        </button>
-    `;
-}).join('');
-contentDiv.innerHTML = listHTML;    
-            }
+}
         }
     }
 
@@ -1350,12 +1360,17 @@ function openFilterModal() {
         filtersHTML += '</div></div>';
         } else if (menuId === 'item') {
     filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
-    DB.item.lev2.forEach(grade => {
-        const isActive = activeFilters.grade.includes(grade.id) ? 'active' : '';
-        filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.id}">${grade.name}</button>`;
+    // God, Legendary, Epic 순서로 정렬
+    const gradeOrder = { "God": 1, "Legendary": 2, "Epic": 3 };
+    const sortedGrades = DB.item.lev2.sort((a, b) => gradeOrder[a.name.split('(')[1].replace(')', '')] - gradeOrder[b.name.split('(')[1].replace(')', '')]);
+
+    sortedGrades.forEach(grade => {
+        const gradeValue = grade.name.split('(')[1].replace(')', ''); // God, Legendary, Epic 추출
+        const isActive = activeFilters.grade.includes(gradeValue) ? 'active' : '';
+        filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${gradeValue}">${gradeValue}</button>`;
     });
     filtersHTML += '</div></div>';
-    }
+}
 
     modalBody.innerHTML = filtersHTML;
     modalOverlay.style.display = 'flex';
@@ -1371,7 +1386,7 @@ function applyFiltersAndRender() {
     }
 
     const filteredData = dataList.filter(item => {
-        const gradeMatch = activeFilters.grade.length === 0 || activeFilters.grade.includes(item.grade);
+        const gradeMatch = activeFilters.grade.length === 0 || (item.grade && activeFilters.grade.includes(item.grade));
         const typeMatch = activeFilters.type.length === 0 || activeFilters.type.every(type => item.types?.includes(type));
         return gradeMatch && typeMatch;
     });
@@ -1460,7 +1475,7 @@ function closeFilterModal() {
             }
             
             // 패널 내부의 리스트 아이템 클릭 처리 (데스크톱 전용)
-            const listItem = e.target.closest('.list-item, .menu-item');
+            const listItem = e.target.closest('.list-item, .list-item-card, .menu-item');
             if (listItem && !listItem.closest('#sidebar') && !isMobile()) {
                 handleMenuClick(listItem);
             }
