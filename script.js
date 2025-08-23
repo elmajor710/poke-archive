@@ -454,19 +454,46 @@ function setupMobileAds() {
                 else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
                 else renderSimpleView(contentDiv, data, menuId); 
             } else {
-                data.forEach(item => {
-                    const button = document.createElement('button');
-                    button.className = 'list-item';
-                    button.dataset.id = item.id;
-                    button.dataset.level = level;
-                    button.dataset.menuId = menuId;
-                    let itemHTML = item.name;
-                    if (isNew(item.updatedAt) || isNew(item.createdAt)) {
-                        itemHTML += '<span class="new-badge-list">New</span>';
-                    }
-                    button.innerHTML = itemHTML;
-                    contentDiv.appendChild(button);
-                });
+            const listHTML = data.map(item => {
+    let itemData = item;
+    // 포켓몬 타입/등급 목록의 경우, lev4에서 상세 데이터를 가져와야 함
+    if ((menuId === 'pokemonType' || menuId === 'pokemonGrade') && DB.pokemonType.lev4[item.id]) {
+        itemData = DB.pokemonType.lev4[item.id];
+    }
+
+    const name = itemData.name_ko || itemData.name || itemData.title;
+    const imageURL = itemData.faceImageURL || itemData.imageURL || 'https://via.placeholder.com/64';
+
+    let infoHTML = '';
+    if (itemData.grade) {
+        const gradeClass = `grade-${itemData.grade.toLowerCase().replace('+', '-plus')}`;
+        infoHTML += `<span class="grade-badge ${gradeClass}">${itemData.grade}</span>`;
+    }
+    if (itemData.types && itemData.types.length > 0) {
+        infoHTML += '<div class="type-badges-container">';
+        itemData.types.forEach(typeId => {
+            const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+            if (typeInfo) {
+                infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
+            }
+        });
+        infoHTML += '</div>';
+    }
+    const newBadge = isNew(itemData.updatedAt) || isNew(itemData.createdAt) ? '<span class="new-badge-list">New</span>' : '';
+
+    return `
+        <button class="list-item-card" data-id="${item.id}" data-level="${level}" data-menu-id="${menuId}">
+            <div class="item-card-image">
+                <img src="${imageURL}" alt="${name}" loading="lazy">
+            </div>
+            <div class="item-card-info">
+                <strong class="item-card-name">${name} ${newBadge}</strong>
+                <div class="item-card-details">${infoHTML}</div>
+            </div>
+        </button>
+    `;
+}).join('');
+contentDiv.innerHTML = listHTML;    
             }
         }
     }
@@ -1321,8 +1348,13 @@ function openFilterModal() {
             filtersHTML += `<button class="type-icon-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}"><img src="${type.iconURL}" alt="${type.name}"></button>`;
         });
         filtersHTML += '</div></div>';
-    } else if (menuId === 'item') {
-        // 아이템 필터는 단일 선택 유지
+        } else if (menuId === 'item') {
+    filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
+    DB.item.lev2.forEach(grade => {
+        const isActive = activeFilters.grade.includes(grade.id) ? 'active' : '';
+        filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.id}">${grade.name}</button>`;
+    });
+    filtersHTML += '</div></div>';
     }
 
     modalBody.innerHTML = filtersHTML;
@@ -1472,17 +1504,24 @@ function closeFilterModal() {
             
             // 데스크톱 패널 뒤로가기 버튼
             const panelBackBtn = e.target.closest('.panel .back-btn');
-            if (panelBackBtn && !isMobile()) {
-                const currentPanel = panelBackBtn.closest('.panel');
-                const level = parseInt(Object.keys(panels).find(key => panels[key] === currentPanel)?.replace('lev', '') || '0');
-                if (level > 2) {
-                    currentPanel.classList.remove('visible');
-                    panels[`lev${level-1}`].classList.remove('is-hidden');
-                    if(activeButtons[level-1]) activeButtons[level-1].click();
-                } else {
-                    handleMainButtonClick();
-                }
-            }
+if (panelBackBtn && !isMobile()) {
+    const currentPanel = panelBackBtn.closest('.panel');
+    const level = parseInt(Object.keys(panels).find(key => panels[key] === currentPanel)?.replace('lev', '') || '0');
+
+    if (level > 2) {
+        currentPanel.classList.remove('visible');
+        const prevPanel = panels[`lev${level-1}`];
+        if (prevPanel) {
+            prevPanel.classList.remove('is-hidden');
+            prevPanel.classList.add('visible');
+        }
+         // active 버튼 상태도 이전으로 돌림
+        if(activeButtons[level]) activeButtons[level].classList.remove('active');
+        activeButtons[level] = null;
+    } else {
+        handleMainButtonClick();
+    }
+}
 
             const openFilterBtn = e.target.closest('#open-filter-modal-btn');
 if (openFilterBtn) {
