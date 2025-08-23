@@ -45,32 +45,33 @@ document.addEventListener('DOMContentLoaded', () => {
     logoutBtn.addEventListener('click', () => auth.signOut());
 
     let isPanelInitialized = false;
+    
     async function initializeAdminPanel() {
-        if (isPanelInitialized) return;
-        isPanelInitialized = true;
+    if (isPanelInitialized) return;
+    isPanelInitialized = true;
 
-        try {
-            await initializeAdminData();
-            
-            setupTabSwitching();
-            setupPublishManagement();
-            setupPokemonManagement();
-            setupItemManagement();
-            setupRuneChipManagement();
-            setupNoticeManagement();
-            setupTipsManagement();
-            setupCalendarManagement();
-            setupDeckManagement();
-            // ▼▼▼ [2. 추가] 에디터 실행 코드 ▼▼▼
+    try {
+        await initializeAdminData();
+
+        setupTabSwitching();
+        setupPublishManagement();
+        setupPokemonManagement();
+        setupItemManagement();
+        setupRuneChipManagement();
+        setupNoticeManagement();
+        setupTipsManagement();
+        setupCalendarManagement();
+        setupDeckManagement();
+
         initializeEditor();
-        // ▲▲▲ [2. 추가] 여기까지 ▲▲▲
-            
-            console.log("관리자 패널이 모든 데이터를 준비하고 초기화되었습니다.");
-        } catch (error) {
-            console.error("관리자 패널 초기화 중 오류:", error);
-            alert("관리자 패널 초기화에 실패했습니다.");
-        }
+
+        console.log("관리자 패널이 모든 데이터를 준비하고 초기화되었습니다.");
+    } catch (error) {
+        console.error("관리자 패널 초기화 중 오류:", error);
+        // 아래 팝업 메시지가 실제 오류 내용을 보여줄 겁니다.
+        alert("관리자 패널 초기화 중 오류 발생:\n\n" + error.message);
     }
+}
 
     async function initializeAdminData() {
         console.log("initializeAdminData: Firestore에서 모든 데이터 로딩 시작...");
