@@ -1,4 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // ▼▼▼ [1. 추가] 에디터 초기화 함수 ▼▼▼
+    function initializeEditor() {
+        tinymce.init({
+            selector: '#notice-content, #tip-content', // 에디터를 적용할 textarea의 ID
+            plugins: 'lists link image table code help wordcount',
+            toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | code | help'
+        });
+    }
+    // ▲▲▲ [1. 추가] 여기까지 ▲▲▲
     if (!window.db || !window.auth) {
         console.error("Firebase 객체를 찾을 수 없습니다.");
         alert("Firebase가 로드되지 않았습니다.");
@@ -52,6 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
             setupTipsManagement();
             setupCalendarManagement();
             setupDeckManagement();
+            // ▼▼▼ [2. 추가] 에디터 실행 코드 ▼▼▼
+        initializeEditor();
+        // ▲▲▲ [2. 추가] 여기까지 ▲▲▲
             
             console.log("관리자 패널이 모든 데이터를 준비하고 초기화되었습니다.");
         } catch (error) {
@@ -594,14 +606,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        loadBtn.addEventListener('click', () => {
-            const data = DB.notice.lev3[selectList.value];
-            if(!data) return;
-            form.querySelector('#notice-id').value = data.id || '';
-            form.querySelector('#notice-title').value = data.title || '';
-            form.querySelector('#notice-content').value = data.htmlContent || '';
-            form.querySelector('#notice-is-published').checked = data.isPublished === true;
-        });
+        // [5. 교체] 공지사항 불러오기 로직
+loadBtn.addEventListener('click', () => {
+    const data = DB.notice.lev3[selectList.value];
+    if(!data) return;
+    form.querySelector('#notice-id').value = data.id || '';
+    form.querySelector('#notice-title').value = data.title || '';
+    tinymce.get('notice-content').setContent(data.htmlContent || ''); // 에디터에 내용 채우기
+    form.querySelector('#notice-is-published').checked = data.isPublished === true;
+});
         
         generateIdBtn.addEventListener('click', () => {
             const title = form.querySelector('#notice-title').value.trim().toLowerCase()
@@ -614,26 +627,28 @@ document.addEventListener('DOMContentLoaded', () => {
             form.querySelector('#notice-id').value = newId;
         });
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const noticeId = form.querySelector('#notice-id').value.trim();
-            if (!noticeId) {
-                alert('고유 ID를 입력하거나 자동생성 버튼을 눌러주세요.');
-                return;
-            }
-            
-            const noticeData = {
-                title: form.querySelector('#notice-title').value,
-                htmlContent: form.querySelector('#notice-content').value,
-                isPublished: form.querySelector('#notice-is-published').checked,
-            };
+        // [3. 교체] 공지사항 저장 로직
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const noticeId = form.querySelector('#notice-id').value.trim();
+    if (!noticeId) {
+        alert('고유 ID를 입력하거나 자동생성 버튼을 눌러주세요.');
+        return;
+    }
 
-            await saveDataWithTimestamp("notice", noticeId, noticeData);
-            alert('저장 완료');
-            form.reset();
-            await initializeAdminData();
-            loadNoticesList();
-        });
+    const noticeData = {
+        title: form.querySelector('#notice-title').value,
+        htmlContent: tinymce.get('notice-content').getContent(), // 에디터 내용 가져오기
+        isPublished: form.querySelector('#notice-is-published').checked,
+    };
+
+    await saveDataWithTimestamp("notice", noticeId, noticeData);
+    alert('저장 완료');
+    form.reset();
+    tinymce.get('notice-content').setContent(''); // 에디터 내용 비우기
+    await initializeAdminData();
+    loadNoticesList();
+});
 
         deleteBtn.addEventListener('click', async () => {
             const noticeId = form.querySelector('#notice-id').value.trim();
@@ -666,14 +681,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        loadBtn.addEventListener('click', () => {
-            const data = DB.tips.lev3[selectList.value];
-            if(!data) return;
-            form.querySelector('#tip-id').value = data.id || '';
-            form.querySelector('#tip-title').value = data.name || data.title || '';
-            form.querySelector('#tip-content').value = data.htmlContent || '';
-            form.querySelector('#tip-is-published').checked = data.isPublished === true;
-        });
+        // [6. 교체] 팁&노하우 불러오기 로직
+loadBtn.addEventListener('click', () => {
+    const data = DB.tips.lev3[selectList.value];
+    if(!data) return;
+    form.querySelector('#tip-id').value = data.id || '';
+    form.querySelector('#tip-title').value = data.name || data.title || '';
+    tinymce.get('tip-content').setContent(data.htmlContent || ''); // 에디터에 내용 채우기
+    form.querySelector('#tip-is-published').checked = data.isPublished === true;
+});
         
         generateIdBtn.addEventListener('click', () => {
             const title = form.querySelector('#tip-title').value.trim().toLowerCase()
@@ -686,25 +702,27 @@ document.addEventListener('DOMContentLoaded', () => {
             form.querySelector('#tip-id').value = newId;
         });
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const tipId = form.querySelector('#tip-id').value.trim();
-            if (!tipId) {
-                alert('고유 ID를 입력하거나 자동생성 버튼을 눌러주세요.');
-                return;
-            }
-            const tipData = {
-                name: form.querySelector('#tip-title').value,
-                title: form.querySelector('#tip-title').value,
-                htmlContent: form.querySelector('#tip-content').value,
-                isPublished: form.querySelector('#tip-is-published').checked,
-            };
-            await saveDataWithTimestamp("tips", tipId, tipData);
-            alert('저장 완료');
-            form.reset();
-            await initializeAdminData();
-            loadTipsList();
-        });
+        // [4. 교체] 팁&노하우 저장 로직
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const tipId = form.querySelector('#tip-id').value.trim();
+    if (!tipId) {
+        alert('고유 ID를 입력하거나 자동생성 버튼을 눌러주세요.');
+        return;
+    }
+    const tipData = {
+        name: form.querySelector('#tip-title').value,
+        title: form.querySelector('#tip-title').value,
+        htmlContent: tinymce.get('tip-content').getContent(), // 에디터 내용 가져오기
+        isPublished: form.querySelector('#tip-is-published').checked,
+    };
+    await saveDataWithTimestamp("tips", tipId, tipData);
+    alert('저장 완료');
+    form.reset();
+    tinymce.get('tip-content').setContent(''); // 에디터 내용 비우기
+    await initializeAdminData();
+    loadTipsList();
+});
 
         deleteBtn.addEventListener('click', async () => {
             const tipId = form.querySelector('#tip-id').value.trim();
