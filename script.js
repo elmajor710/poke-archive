@@ -1284,49 +1284,74 @@ for (const type in recommendTypes) {
         listContent.innerHTML = listHTML;
     }
 
-    function renderFilters(menuId) {
-        const filtersContainer = document.getElementById('list-page-filters');
-        filtersContainer.innerHTML = `
-            <button id="open-filter-modal-btn" class="filter-trigger-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.74.439L7 12.439V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/>
-                </svg>
-                필터
-            </button>
-        `;
+    // ▼▼▼ [미션 2] 필터 관련 함수 전체 교체 ▼▼▼
+let activeFilters = {
+    grade: [],
+    type: []
+};
+
+function renderFilters(menuId) {
+    const filtersContainer = document.getElementById('list-page-filters');
+    filtersContainer.innerHTML = `
+        <button id="open-filter-modal-btn" class="filter-trigger-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.74.439L7 12.439V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/>
+            </svg>
+            필터
+        </button>
+    `;
+}
+
+function openFilterModal() {
+    const modalOverlay = document.getElementById('filter-modal-overlay');
+    const modalBody = document.getElementById('filter-modal-body');
+    const menuId = document.getElementById('list-page-title').dataset.menuId;
+
+    let filtersHTML = '';
+    if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
+        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
+        DB.pokemonGrade.lev2.forEach(grade => {
+            const isActive = activeFilters.grade.includes(grade.name) ? 'active' : '';
+            filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
+        });
+        filtersHTML += '</div></div>';
+        filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
+        DB.pokemonType.lev2.forEach(type => {
+            const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
+            filtersHTML += `<button class="type-icon-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}"><img src="${type.iconURL}" alt="${type.name}"></button>`;
+        });
+        filtersHTML += '</div></div>';
+    } else if (menuId === 'item') {
+        // 아이템 필터는 단일 선택 유지
     }
 
-    function openFilterModal() {
-        const modalOverlay = document.getElementById('filter-modal-overlay');
-        const modalBody = document.getElementById('filter-modal-body');
-        const menuId = document.getElementById('list-page-title').dataset.menuId;
-        let filtersHTML = '';
-        if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
-            filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
-            DB.pokemonGrade.lev2.forEach(grade => {
-                filtersHTML += `<button class="filter-button" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
-            });
-            filtersHTML += '</div></div>';
-            filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
-            DB.pokemonType.lev2.forEach(type => {
-                filtersHTML += `<button class="type-icon-button" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}"><img src="${type.iconURL}" alt="${type.name}"></button>`;
-            });
-            filtersHTML += '</div></div>';
-        } else if (menuId === 'item') {
-            filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
-            DB.item.lev2.forEach(grade => {
-                filtersHTML += `<button class="filter-button" data-filter-type="grade" data-filter-value="${grade.id}">${grade.name}</button>`;
-            });
-            filtersHTML += '</div></div>';
-        }
-        modalBody.innerHTML = filtersHTML;
-        modalOverlay.style.display = 'flex';
+    modalBody.innerHTML = filtersHTML;
+    modalOverlay.style.display = 'flex';
+}
+
+function applyFiltersAndRender() {
+    const menuId = document.getElementById('list-page-title').dataset.menuId;
+    let dataList = [];
+    if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
+        dataList = Object.values(DB.pokemonType.lev4);
+    } else if (menuId === 'item') {
+        dataList = Object.values(DB.item.lev4);
     }
 
-    function closeFilterModal() {
-        const modalOverlay = document.getElementById('filter-modal-overlay');
-        modalOverlay.style.display = 'none';
-    }
+    const filteredData = dataList.filter(item => {
+        const gradeMatch = activeFilters.grade.length === 0 || activeFilters.grade.includes(item.grade);
+        const typeMatch = activeFilters.type.length === 0 || activeFilters.type.every(type => item.types?.includes(type));
+        return gradeMatch && typeMatch;
+    });
+
+    renderListPage(filteredData, menuId);
+    closeFilterModal();
+}
+
+function closeFilterModal() {
+    document.getElementById('filter-modal-overlay').style.display = 'none';
+}
+// ▲▲▲ [미션 2] 여기까지 ▲▲▲
 
     function showDetailPage(itemId, menuId) {
         const listPage = document.getElementById('list-filter-page');
@@ -1351,7 +1376,7 @@ for (const type in recommendTypes) {
 
         const backButton = document.createElement('button');
         backButton.className = 'back-btn';
-        backButton.textContent = '← 뒤로';
+        backButton.innerHTML = '&lt; 뒤로';
         panelHeader.appendChild(backButton);
 
         backButton.addEventListener('click', () => {
@@ -1459,18 +1484,45 @@ for (const type in recommendTypes) {
                 }
             }
 
-             // 필터 모달 열기 버튼
             const openFilterBtn = e.target.closest('#open-filter-modal-btn');
-            if (openFilterBtn) {
-                openFilterModal();
-            }
+if (openFilterBtn) {
+    openFilterModal();
+}
 
-            // 필터 모달 닫기 및 적용/초기화
-            const filterModalOverlay = e.target.closest('#filter-modal-overlay');
-            const closeFilterBtn = e.target.closest('#filter-modal-close-btn');
-            if ((filterModalOverlay && e.target === filterModalOverlay) || closeFilterBtn) {
-                 closeFilterModal();
-            }
+const filterModalOverlay = e.target.closest('#filter-modal-overlay');
+const closeFilterBtn = e.target.closest('#filter-modal-close-btn');
+if ((filterModalOverlay && e.target === filterModalOverlay) || closeFilterBtn) {
+     closeFilterModal();
+}
+
+// 필터 모달 내부 버튼 클릭 이벤트
+const filterButton = e.target.closest('.filter-button, .type-icon-button');
+if (filterButton) {
+    const { filterType, filterValue } = filterButton.dataset;
+    filterButton.classList.toggle('active');
+
+    if (!activeFilters[filterType]) activeFilters[filterType] = [];
+
+    const index = activeFilters[filterType].indexOf(filterValue);
+    if (index > -1) {
+        activeFilters[filterType].splice(index, 1);
+    } else {
+        activeFilters[filterType].push(filterValue);
+    }
+}
+
+// 필터 적용 및 초기화 버튼
+const applyFilterBtn = e.target.closest('#filter-apply-btn');
+if(applyFilterBtn) {
+    applyFiltersAndRender();
+}
+const resetFilterBtn = e.target.closest('#filter-reset-btn');
+if(resetFilterBtn) {
+    activeFilters.grade = [];
+    activeFilters.type = [];
+    applyFiltersAndRender();
+}
+
         });
     }
 

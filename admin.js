@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
             itemElement.className = 'recommend-item-entry';
             itemElement.dataset.id = id;
             itemElement.innerHTML = `
-                <span class="item-name">${name}</span>
+                <span>${name}</span>
                 <input type="number" class="item-count" value="${count}" min="1" max="99">
                 <button type="button" class="btn btn-danger btn-small remove-item-btn">×</button>
             `;
