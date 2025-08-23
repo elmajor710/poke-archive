@@ -1484,3 +1484,19 @@ body.mobile-view #page-body {
 .type-icon-button.active {
     background-color: white !important; /* 아이콘 배경은 흰색 유지 */
 }
+
+/* ▼▼▼ [수정] 필터 활성화 스타일 (빨간색 테마) ▼▼▼ */
+.filter-button.active {
+    background-color: #e74c3c !important;
+    color: white !important;
+    border-color: #c0392b !important;
+    font-weight: bold;
+}
+
+.type-icon-button.active {
+    border-color: #e74c3c !important;
+    border-width: 3px;
+    transform: scale(1.1);
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+}
+/* ▲▲▲ 여기까지 ▲▲▲ */
