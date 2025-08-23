@@ -1471,3 +1471,16 @@ body.mobile-view #page-body {
         display: block; /* PC 화면에서 보이도록 강제 */
     }
 }
+
+/* ▼▼▼ [수정] 필터 활성화 스타일 ▼▼▼ */
+.filter-button.active, .type-icon-button.active {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    border-color: var(--primary-color) !important;
+    font-weight: bold;
+    transform: scale(1.05);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+.type-icon-button.active {
+    background-color: white !important; /* 아이콘 배경은 흰색 유지 */
+}

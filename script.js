@@ -383,20 +383,21 @@ function setupMobileAds() {
     }
         
     function handleMainButtonClick() {
-        mainPlaceholder.style.display = 'flex';
-        appContainer.classList.remove('menu-active');
-        if (isMobile()) {
-            const bottomAd = document.getElementById('ad-container-bottom');
-            if (bottomAd) bottomAd.style.display = 'block';
-        }
-        Object.values(panels).forEach((panel, index) => {
-            if (index > 0) panel.classList.remove('visible', 'is-hidden');
-        });
-        setActive(0, null);
-        if (isMobile()) {
-            sidebar.classList.remove('visible', 'is-hidden');
-        }
+    sessionStorage.removeItem('returnToMain'); // 상태 초기화
+    mainPlaceholder.style.display = 'flex';
+    appContainer.classList.remove('menu-active');
+    if (isMobile()) {
+        const bottomAd = document.getElementById('ad-container-bottom');
+        if (bottomAd) bottomAd.style.display = 'block';
     }
+    Object.values(panels).forEach((panel, index) => {
+        if (index > 0) panel.classList.remove('visible', 'is-hidden');
+    });
+    setActive(0, null);
+    if (isMobile()) {
+        sidebar.classList.remove('visible', 'is-hidden');
+    }
+}
 
     function setActive(level, target) {
         for (let i = level; i <= 4; i++) {
@@ -454,14 +455,14 @@ function setupMobileAds() {
                 else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
                 else renderSimpleView(contentDiv, data, menuId); 
             } else {
-    // 카드 UI를 적용할 메뉴 ID 목록
+    // 카드 UI를 적용할 메뉴 ID 목록 (Lev.3 이상에서만 적용)
     const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
 
-    if (cardLayoutMenus.includes(menuId)) {
+    if (level > 2 && cardLayoutMenus.includes(menuId)) {
         // 카드 UI 렌더링
         const listHTML = data.map(item => {
-            let itemData = DB[menuId]?.lev4?.[item.id] || DB[menuId]?.lev3?.[item.id] || item;
-            const name = itemData.name_ko || itemData.name || itemData.title;
+            const itemData = DB[menuId]?.lev4?.[item.id] || DB.pokemonType.lev4?.[item.id] || item;
+            const name = itemData.name_ko || itemData.name || '이름 없음';
             const imageURL = itemData.faceImageURL || itemData.imageURL || 'https://via.placeholder.com/64';
 
             let infoHTML = '';
@@ -469,38 +470,31 @@ function setupMobileAds() {
                 const gradeClass = `grade-${itemData.grade.toLowerCase().replace('+', '-plus')}`;
                 infoHTML += `<span class="grade-badge ${gradeClass}">${itemData.grade}</span>`;
             }
-            if (itemData.types && itemData.types.length > 0) {
-                infoHTML += '<div class="type-badges-container">';
-                itemData.types.forEach(typeId => {
+            if (itemData.types) {
+                infoHTML += itemData.types.map(typeId => {
                     const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-                    if (typeInfo) infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
-                });
-                infoHTML += '</div>';
+                    return typeInfo ? `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>` : '';
+                }).join('');
             }
-            const newBadge = isNew(itemData.updatedAt) || isNew(itemData.createdAt) ? '<span class="new-badge-list">New</span>' : '';
 
             return `<button class="list-item-card" data-id="${item.id}" data-level="${level}" data-menu-id="${menuId}">
-                        <div class="item-card-image"><img src="${imageURL}" alt="${name}" loading="lazy"></div>
+                        <div class="item-card-image"><img src="${imageURL}" alt="${name}"></div>
                         <div class="item-card-info">
-                            <strong class="item-card-name">${name} ${newBadge}</strong>
+                            <strong class="item-card-name">${name}</strong>
                             <div class="item-card-details">${infoHTML}</div>
                         </div>
                     </button>`;
         }).join('');
         contentDiv.innerHTML = listHTML;
     } else {
-        // 그 외 메뉴는 기존의 단순 텍스트 버튼으로 렌더링
+        // 그 외 메뉴(Lev.2 카테고리 등)는 기존의 단순 텍스트 버튼으로 렌더링
         data.forEach(item => {
             const button = document.createElement('button');
-            button.className = 'list-item'; // <--- 이 클래스가 중요합니다.
+            button.className = 'list-item';
             button.dataset.id = item.id;
             button.dataset.level = level;
             button.dataset.menuId = menuId;
-            let itemHTML = item.name;
-            if (isNew(item.updatedAt) || isNew(item.createdAt)) {
-                itemHTML += '<span class="new-badge-list">New</span>';
-            }
-            button.innerHTML = itemHTML;
+            button.innerHTML = item.name || '이름 없음';
             contentDiv.appendChild(button);
         });
     }
@@ -1353,11 +1347,12 @@ function openFilterModal() {
         });
         filtersHTML += '</div></div>';
         filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
-        DB.pokemonType.lev2.forEach(type => {
-            const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
-            filtersHTML += `<button class="type-icon-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}"><img src="${type.iconURL}" alt="${type.name}"></button>`;
-        });
-        filtersHTML += '</div></div>';
+DB.pokemonType.lev2.forEach(type => {
+    const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
+    // 아이콘만 보이도록 span 태그 제거
+    filtersHTML += `<button class="type-icon-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}"><img src="${type.iconURL}" alt="${type.name}"></button>`;
+});
+filtersHTML += '</div></div>';
         } else if (menuId === 'item') {
     filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
     // God, Legendary, Epic 순서로 정렬
@@ -1427,13 +1422,18 @@ function closeFilterModal() {
         panelHeader.appendChild(backButton);
 
         backButton.addEventListener('click', () => {
-            detailPanel.classList.remove('visible');
-            if (menuId === 'calendar') {
-                hideListPage(); 
-            } else {
-                if(listPage) listPage.classList.add('visible');
-            }
-        }, { once: true });
+    // 메인에서 바로 왔다면, 뒤로가기 시 메인으로 돌아감
+    if (sessionStorage.getItem('returnToMain')) {
+        handleMainButtonClick();
+    } else {
+        detailPanel.classList.remove('visible');
+        if (menuId === 'calendar') {
+            hideListPage(); 
+        } else {
+            if(listPage) listPage.classList.add('visible');
+        }
+    }
+}, { once: true });
 
         if (listPage) listPage.classList.remove('visible');
         detailPanel.classList.add('visible');
@@ -1489,27 +1489,38 @@ function closeFilterModal() {
             }
             
             // 메인 페이지의 바로가기 링크 클릭 처리
-            const mainShortcut = e.target.closest('#main-notice-list a, #popular-deck-list a');
-            if (mainShortcut) {
-                e.preventDefault();
-                const menuId = mainShortcut.dataset.menuId;
-                const itemId = mainShortcut.dataset.itemId;
-                sessionStorage.setItem('fromMainPageShortcut', 'true');
-                if (isMobile()) {
-                    showDetailPage(itemId, menuId);
-                } else {
-                    const level1Button = sidebar.querySelector(`.menu-item[data-id="${menuId}"]`);
-                    if (level1Button) {
-                        handleMenuClick(level1Button);
-                        setTimeout(() => {
-                            const level2Button = panels.lev2.querySelector(`button[data-id="${itemId}"]`);
-                            if (level2Button) {
-                                handleMenuClick(level2Button);
-                            }
-                        }, 50);
-                    }
-                }
-            }
+const mainShortcut = e.target.closest('#main-notice-list a, #popular-deck-list a');
+if (mainShortcut) {
+    e.preventDefault();
+    const menuId = mainShortcut.dataset.menuId;
+    const itemId = mainShortcut.dataset.itemId;
+
+    // "뒤로가기" 시 메인 화면으로 돌아오도록 상태 저장
+    sessionStorage.setItem('returnToMain', 'true'); 
+
+    if (isMobile()) {
+        showDetailPage(itemId, menuId);
+    } else {
+        // PC에서는 상세 패널을 직접 열어줌
+        mainPlaceholder.style.display = 'none';
+        appContainer.classList.add('menu-active');
+
+        const detailPanel = panels.lev4;
+        const contentDiv = detailPanel.querySelector('.panel-content');
+
+        let data;
+        if (menuId === 'deck') data = DB.deck.lev4[itemId];
+        else if (menuId === 'notice') data = DB.notice.lev3[itemId];
+
+        if (data) {
+            if (menuId === 'deck') renderDeckView(contentDiv, data);
+            else renderSimpleView(contentDiv, data, menuId);
+        }
+
+        Object.values(panels).forEach(p => p.classList.remove('visible'));
+        detailPanel.classList.add('visible');
+    }
+}
             
             // 좋아요 버튼 클릭 처리
             const likeBtn = e.target.closest('.like-btn');
