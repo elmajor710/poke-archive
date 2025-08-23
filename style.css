@@ -1328,3 +1328,70 @@ header h1 {
     padding: 8px 20px;
     font-size: 1em;
 }
+
+/* ▼▼▼ [미션 1] 추천 빌드 표시 스타일 ▼▼▼ */
+.recommend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8f9fa;
+    padding: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid #eee;
+    flex-shrink: 0;
+}
+.recommend-item img {
+    width: 40px;
+    height: 40px;
+}
+.recommend-item-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.recommend-item-name {
+    font-size: 14px;
+    font-weight: 500;
+}
+.recommend-item-count {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+/* ▲▲▲ [미션 1] 추천 빌드 표시 스타일 ▲▲▲ */
+
+/* ▼▼▼ [미션 2] 모바일 광고 스타일 ▼▼▼ */
+body.mobile-view #page-body {
+    padding-bottom: 90px; /* 하단 광고의 높이만큼 여백 추가 */
+}
+
+#mobile-ad-top {
+    display: none; /* JS로 제어하므로 기본 숨김 */
+}
+#ad-container-bottom {
+    display: none; /* JS로 제어하므로 기본 숨김 */
+}
+
+@media (max-width: 1199px) {
+    /* PC용 상단 애드센스 숨기기 */
+    #ad-container-top { display: none !important; }
+    /* 사이드바/PC메인의 블로그 광고 숨기기 */
+    #sidebar #sidebar-ad-container, .main-ad-area { display: none; }
+
+    /* 모바일 전용 광고 보이기 */
+    #mobile-ad-top { display: block; padding: 5px; background-color: #f1f1f1; }
+    #ad-container-bottom {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+        border-top: 1px solid #e0e0e0;
+        background-color: #ffffff;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        z-index: 25;
+    }
+}
+/* ▲▲▲ [미션 2] 모바일 광고 스타일 ▲▲▲ */

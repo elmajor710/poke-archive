@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderSidebar();
             renderMainNoticeList();
             fetchAndRenderPopularDecks(); 
-            // setupMobileAds(); // 이 함수는 원본 코드에 정의되지 않아 주석 처리
+            setupMobileAds(); // 이 함수는 원본 코드에 정의되지 않아 주석 처리
             addEventListeners();
             setupAdObservers();
         } catch (error) {
@@ -87,6 +87,40 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다.";
         }
     }
+    // ▼▼▼ [미션 2] 모바일 광고 배치 함수 추가 ▼▼▼
+function setupMobileAds() {
+    if (!isMobile()) return;
+
+    const topAdContainer = document.getElementById('mobile-ad-top');
+    if (topAdContainer) {
+        topAdContainer.innerHTML = `
+            <ins class="adsbygoogle"
+                 style="display:block; text-align:center;"
+                 data-ad-layout="in-article"
+                 data-ad-format="fluid"
+                 data-ad-client="ca-pub-2125965839205311"
+                 data-ad-slot="6920735136"></ins>
+        `;
+    }
+
+    const bottomAdContainer = document.getElementById('ad-container-bottom');
+    if (bottomAdContainer) {
+        bottomAdContainer.innerHTML = `
+            <div class="blog-ad-box">
+                <a href="https://index001.elmajor710.com" target="_blank" class="custom-ad-banner">
+                    <div class="ad-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3c0 .35.07.69.18 1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zM8 4h8a1 1 0 0 1 1 1c0 .34-.07.66-.18 1H7.18C7.07 5.66 7 5.34 7 5a1 1 0 0 1 1-1zm12 15H4V8h16v11z"/><path d="M12 17a4 4 0 0 0 4-4h-2a2 2 0 0 1-2 2 2 2 0 0 1-2-2H8a4 4 0 0 0 4 4zm0-6a1 1 0 0 0 1-1V9a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1z"/></svg>
+                    </div>
+                    <div class="ad-text">
+                        <strong>나라지원금 Info.</strong>
+                        <span>놓치면 손해! 혜택 확인하기</span>
+                    </div>
+                </a>
+            </div>
+        `;
+    }
+}
+// ▲▲▲ [미션 2] 모바일 광고 배치 함수 추가 ▲▲▲
 
     async function fetchAndRenderPopularDecks() {
         const popularDeckList = document.getElementById('popular-deck-list');
@@ -514,21 +548,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 hasBuildInfo = true;
             }
         }
-        const recommendTypes = { recommendedItems: '추천 아이템', recommendedRunes: '추천 룬', recommendedChips: '추천 칩' };
-        for (const type in recommendTypes) {
-            if (data[type] && data[type].length > 0) {
-                hasBuildInfo = true;
-                buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
-                data[type].forEach(id => {
-                    const dbKey = (type === 'recommendedRunes' || type === 'recommendedChips') ? 'runeAndChip' : 'item';
-                    const itemData = DB[dbKey]?.lev4?.[id];
-                    if (itemData) {
-                         buildHTML += `<div class="recommend-item" data-item-id="${id}" data-item-type="${dbKey}">${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}</div>`;
-                    }
-                });
-                buildHTML += `</div>`;
+        const recommendTypes = { 
+    recommendedItems: '추천 아이템', 
+    recommendedRunes: '추천 룬', 
+    recommendedChips: '추천 칩' 
+};
+
+for (const type in recommendTypes) {
+    if (data[type] && data[type].length > 0) {
+        hasBuildInfo = true;
+        buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
+
+        data[type].forEach(item => {
+            const isObject = typeof item === 'object' && item !== null;
+            const id = isObject ? item.id : item;
+            const count = isObject ? item.count : null;
+
+            const dbKey = (type === 'recommendedRunes' || type === 'recommendedChips') ? 'runeAndChip' : 'item';
+            const itemData = DB[dbKey]?.lev4?.[id];
+
+            if (itemData) {
+                const countHTML = count ? `<span class="recommend-item-count">x${count}</span>` : '';
+                 buildHTML += `
+                    <div class="recommend-item" data-item-id="${id}" data-item-type="${dbKey}">
+                        ${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}
+                        <div class="recommend-item-info">
+                            <span class="recommend-item-name">${itemData.name}</span>
+                            ${countHTML}
+                        </div>
+                    </div>`;
             }
-        }
+        });
+        buildHTML += `</div>`;
+    }
+}
         if (!hasBuildInfo) {
             buildHTML = '<h4>추천 빌드</h4><p>등록된 추천 빌드 정보가 없습니다.</p>';
         }

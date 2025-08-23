@@ -111,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!doc.exists) {
             dataToSave.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-            // [추가] '좋아요' 기능이 있는 데이터 타입의 경우 likeCount 초기화
             if (['recommendedDecks'].includes(collectionName)) {
                 dataToSave.likeCount = 0;
             }
@@ -207,17 +206,25 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (panel.classList.contains('active')) loadDrafts();
     }
-
+    
     function setupPokemonManagement() {
         const form = document.getElementById('pokemon-form');
         const selectList = document.getElementById('pokemon-select-list');
         const loadBtn = document.getElementById('load-pokemon-btn');
         const deleteBtn = document.getElementById('delete-pokemon-btn');
+        
         const typesContainer = form.querySelector('#pkm-types-container');
         const naturesContainer = form.querySelector('#pkm-natures-container');
-        const itemsSelect = form.querySelector('#pkm-items');
-        const runesSelect = form.querySelector('#pkm-runes');
-        const chipsSelect = form.querySelector('#pkm-chips');
+        const itemsSelect = form.querySelector('#pkm-items-select');
+        
+        const runesSourceSelect = form.querySelector('#pkm-runes-source-select');
+        const addRuneBtn = form.querySelector('#add-rune-btn');
+        const runesContainer = form.querySelector('#pkm-runes-container');
+
+        const chipsSourceSelect = form.querySelector('#pkm-chips-source-select');
+        const addChipBtn = form.querySelector('#add-chip-btn');
+        const chipsContainer = form.querySelector('#pkm-chips-container');
+        
         const skillsContainer = form.querySelector('#skills-container');
         const addSkillBtn = form.querySelector('#add-skill-btn');
         const statInputs = form.querySelectorAll('.stat-input');
@@ -231,10 +238,10 @@ document.addEventListener('DOMContentLoaded', () => {
             itemsSelect.innerHTML = allItems.map(item => `<option value="${item.id}">${item.name} (${item.id})</option>`).join('');
 
             const allRunes = Object.values(DB.runeAndChip.lev4).filter(rc => rc.type === 'rune').sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ko'));
-            runesSelect.innerHTML = allRunes.map(rune => `<option value="${rune.id}">${rune.name} (${rune.id})</option>`).join('');
+            runesSourceSelect.innerHTML = '<option value="">-- 룬 선택 --</option>' + allRunes.map(rune => `<option value="${rune.id}">${rune.name}</option>`).join('');
 
             const allChips = Object.values(DB.runeAndChip.lev4).filter(rc => rc.type === 'chip').sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ko'));
-            chipsSelect.innerHTML = allChips.map(chip => `<option value="${chip.id}">${chip.name} (${chip.id})</option>`).join('');
+            chipsSourceSelect.innerHTML = '<option value="">-- 칩 선택 --</option>' + allChips.map(chip => `<option value="${chip.id}">${chip.name}</option>`).join('');
         }
 
         function loadPokemonList() {
@@ -246,6 +253,22 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        function addRecommendItem(container, id, name, count = 1) {
+            if (container.querySelector(`[data-id="${id}"]`)) {
+                alert('이미 추가된 항목입니다.');
+                return;
+            }
+            const itemElement = document.createElement('div');
+            itemElement.className = 'recommend-item-entry';
+            itemElement.dataset.id = id;
+            itemElement.innerHTML = `
+                <span class="item-name">${name}</span>
+                <input type="number" class="item-count" value="${count}" min="1" max="99">
+                <button type="button" class="btn btn-danger btn-small remove-item-btn">×</button>
+            `;
+            container.appendChild(itemElement);
+        }
+        
         loadBtn.addEventListener('click', () => {
             const selectedId = selectList.value;
             if (!selectedId) { alert('불러올 포켓몬을 선택해주세요.'); return; }
@@ -254,6 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             form.reset();
             skillsContainer.innerHTML = '';
+            runesContainer.innerHTML = '';
+            chipsContainer.innerHTML = '';
+
             form.querySelector('#pkm-id').value = data.id || '';
             form.querySelector('#pkm-name-ko').value = data.name_ko || '';
             form.querySelector('#pkm-name-en').value = data.name_en || '';
@@ -267,8 +293,15 @@ document.addEventListener('DOMContentLoaded', () => {
             data.recommendedNatures?.forEach(id => { const cb = form.querySelector(`input[name="natures"][value="${id}"]`); if(cb) cb.checked = true; });
             
             Array.from(itemsSelect.options).forEach(opt => opt.selected = data.recommendedItems?.includes(opt.value));
-            Array.from(runesSelect.options).forEach(opt => opt.selected = data.recommendedRunes?.includes(opt.value));
-            Array.from(chipsSelect.options).forEach(opt => opt.selected = data.recommendedChips?.includes(opt.value));
+            
+            data.recommendedRunes?.forEach(item => {
+                const runeData = DB.runeAndChip.lev4[item.id];
+                if(runeData) addRecommendItem(runesContainer, item.id, runeData.name, item.count);
+            });
+            data.recommendedChips?.forEach(item => {
+                const chipData = DB.runeAndChip.lev4[item.id];
+                if(chipData) addRecommendItem(chipsContainer, item.id, chipData.name, item.count);
+            });
 
             if (data.stats) {
                 form.querySelector('#pkm-stat-hp').value = data.stats.HP || 0;
@@ -317,8 +350,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 })),
                 recommendedNatures: Array.from(form.querySelectorAll('input[name="natures"]:checked')).map(cb => cb.value),
                 recommendedItems: Array.from(itemsSelect.selectedOptions).map(opt => opt.value),
-                recommendedRunes: Array.from(runesSelect.selectedOptions).map(opt => opt.value),
-                recommendedChips: Array.from(chipsSelect.selectedOptions).map(opt => opt.value)
+                recommendedRunes: Array.from(runesContainer.querySelectorAll('.recommend-item-entry')).map(entry => ({
+                    id: entry.dataset.id,
+                    count: parseInt(entry.querySelector('.item-count').value) || 1
+                })),
+                recommendedChips: Array.from(chipsContainer.querySelectorAll('.recommend-item-entry')).map(entry => ({
+                    id: entry.dataset.id,
+                    count: parseInt(entry.querySelector('.item-count').value) || 1
+                }))
             };
             
             await saveDataWithTimestamp("pokemon", pkmId, pokemonData);
@@ -335,12 +374,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert(`'${pkmId}' 데이터가 성공적으로 삭제되었습니다.`);
                 form.reset();
                 skillsContainer.innerHTML = '';
+                runesContainer.innerHTML = '';
+                chipsContainer.innerHTML = '';
                 addSkillRow();
                 await initializeAdminData();
                 loadPokemonList();
             }
         });
 
+        addRuneBtn.addEventListener('click', () => {
+            const selectedId = runesSourceSelect.value;
+            if (selectedId) {
+                const selectedName = runesSourceSelect.options[runesSourceSelect.selectedIndex].text;
+                addRecommendItem(runesContainer, selectedId, selectedName);
+            }
+        });
+        addChipBtn.addEventListener('click', () => {
+            const selectedId = chipsSourceSelect.value;
+            if (selectedId) {
+                const selectedName = chipsSourceSelect.options[chipsSourceSelect.selectedIndex].text;
+                addRecommendItem(chipsContainer, selectedId, selectedName);
+            }
+        });
+
+        runesContainer.addEventListener('click', e => {
+            if (e.target.classList.contains('remove-item-btn')) {
+                e.target.closest('.recommend-item-entry').remove();
+            }
+        });
+        chipsContainer.addEventListener('click', e => {
+            if (e.target.classList.contains('remove-item-btn')) {
+                e.target.closest('.recommend-item-entry').remove();
+            }
+        });
+        
         let skillCount = 0;
         function addSkillRow(skillData = {}) {
             skillCount++;
@@ -392,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadPokemonList();
         addSkillRow();
     }
-
+    
     function setupItemManagement() {
         const form = document.getElementById('item-form');
         const selectList = document.getElementById('item-select-list');
@@ -688,7 +755,6 @@ document.addEventListener('DOMContentLoaded', () => {
         form.querySelector('#event-description').value = data.description || '';
         form.querySelector('#event-start-date').value = formatDate(data.startDate);
         form.querySelector('#event-end-date').value = formatDate(data.endDate);
-        // ▼▼▼ 이 줄이 추가되었습니다 ▼▼▼
         form.querySelector('#event-is-published').checked = data.isPublished === true;
     }
 });
@@ -714,7 +780,6 @@ document.addEventListener('DOMContentLoaded', () => {
         endDate: firebase.firestore.Timestamp.fromDate(endDate),
         date: form.querySelector('#event-start-date').value,
         duration: duration > 0 ? duration : 1,
-        // ▼▼▼ 이 줄이 추가되었습니다 ▼▼▼
         isPublished: form.querySelector('#event-is-published').checked,
     };
     await db.collection("events").doc(eventId).set(eventData, { merge: true });
@@ -807,9 +872,7 @@ document.addEventListener('DOMContentLoaded', () => {
         form.querySelector('#deck-name').value = data.name || '';
         form.querySelector('#deck-description').value = data.description || '';
         weatherSelect.value = data.weather || '';
-        // ▼▼▼ [추가] 좋아요 수 표시 ▼▼▼
         form.querySelector('#deck-like-count').value = data.likeCount || 0;
-        // ▲▲▲ [추가] 좋아요 수 표시 ▲▲▲
         form.querySelector('#deck-is-published').checked = data.isPublished === true;
         if (data.composition) {
             data.composition.forEach(member => {
@@ -826,14 +889,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const deckId = form.querySelector('#deck-id').value.trim();
         if (!deckId) return;
         
-        // ▼▼▼ [수정] likeCount 필드 추가 ▼▼▼
         const existingData = DB.deck.lev4[deckId];
         const deckData = {
             name: form.querySelector('#deck-name').value,
             description: form.querySelector('#deck-description').value,
             weather: weatherSelect.value,
             isPublished: form.querySelector('#deck-is-published').checked,
-            likeCount: existingData ? existingData.likeCount || 0 : 0, // 기존 값이 있으면 유지, 없으면 0으로 초기화
+            likeCount: existingData ? existingData.likeCount || 0 : 0, 
             composition: Array.from(pokemonSelects)
                 .filter(s => s.value)
                 .map(s => ({
@@ -842,7 +904,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     pokemonId: s.value
                 }))
         };
-        // ▲▲▲ [수정] likeCount 필드 추가 ▲▲▲
 
         await saveDataWithTimestamp("recommendedDecks", deckId, deckData);
         alert('저장 완료');
