@@ -1472,20 +1472,16 @@ body.mobile-view #page-body {
     }
 }
 
-/* ▼▼▼ [수정] 필터 활성화 스타일 ▼▼▼ */
-.filter-button.active, .type-icon-button.active {
-    background-color: var(--primary-color) !important;
-    color: white !important;
-    border-color: var(--primary-color) !important;
-    font-weight: bold;
-    transform: scale(1.05);
-    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
-}
-.type-icon-button.active {
-    background-color: white !important; /* 아이콘 배경은 흰색 유지 */
+/* ▼▼▼ [최종 수정] 덱 레이아웃, 필터, PC 목록 아이콘 스타일 ▼▼▼ */
+
+/* 덱 구성표 이미지 일관성 확보 */
+.four-by-four-table .deck-pokemon-cell img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* 이미지 비율 유지하며 꽉 채우기 */
 }
 
-/* ▼▼▼ [수정] 필터 활성화 스타일 (빨간색 테마) ▼▼▼ */
+/* 필터 활성화 시각 효과 (빨간색) */
 .filter-button.active {
     background-color: #e74c3c !important;
     color: white !important;
@@ -1498,5 +1494,18 @@ body.mobile-view #page-body {
     border-width: 3px;
     transform: scale(1.1);
     box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+}
+
+/* PC 타입 목록 아이콘 스타일 */
+.list-item-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.list-item {
+    display: flex;
+    align-items: center;
 }
 /* ▲▲▲ 여기까지 ▲▲▲ */

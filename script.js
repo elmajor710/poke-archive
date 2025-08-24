@@ -498,6 +498,7 @@ function setupMobileAds() {
 }
 
 
+
     function showModal(title, contentElement) {
         const existingModal = document.querySelector('.modal-overlay.custom-modal');
         if (existingModal) {
