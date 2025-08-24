@@ -429,22 +429,14 @@ function setupMobileAds() {
     if (!targetPanel) return;
     const contentDiv = targetPanel.querySelector('.panel-content');
     if (!contentDiv) return;
-    const panelHeader = targetPanel.querySelector('.panel-header');
     
-    // 기존 헤더 내용 초기화 (뒤로가기 버튼은 유지)
-    const existingMainBtn = panelHeader.querySelector('.main-btn');
-    if (existingMainBtn) existingMainBtn.remove();
-    const headerTitle = panelHeader.querySelector('h2');
-    if(headerTitle) headerTitle.remove();
+    const panelHeader = targetPanel.querySelector('.panel-header');
+    panelHeader.innerHTML = '<button class="back-btn">&lt; 뒤로</button>';
 
     contentDiv.innerHTML = '';
     contentDiv.scrollTop = 0;
 
     if (clickedId === 'deckBuilder') {
-        const mainButton = document.createElement('button');
-        mainButton.className = 'main-btn';
-        mainButton.textContent = '메인';
-        panelHeader.appendChild(mainButton);
         if (isMobile()) {
             contentDiv.innerHTML = `<div class="pc-only-message"><h3>기능 안내</h3><p>배치툴 기능은 화면이 넓은 PC 환경에 최적화되어 있습니다.<br>PC에서 접속하여 이용해주세요.</p></div>`;
         } else {
@@ -456,27 +448,17 @@ function setupMobileAds() {
     } else {
         const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
         const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
-        
-        if (isFinalView) {
-            // 최종 상세 페이지 렌더링
-            const mainButton = document.createElement('button');
-            mainButton.className = 'main-btn';
-            mainButton.textContent = '메인';
-            panelHeader.appendChild(mainButton);
 
+        if (isFinalView) {
             if (menuId === 'deck' && data.composition) renderDeckView(contentDiv, data);
             else if(menuId === 'calendar') renderCalendarView(contentDiv, DB.calendar.lev2);
             else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
             else renderSimpleView(contentDiv, data, menuId); 
         } else {
-            // 중간 목록 페이지 렌더링
             const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
-
             if (level > 2 && cardLayoutMenus.includes(menuId)) {
-                // Lev.3 이상 카드 UI
                 renderListPage(data, menuId, contentDiv, level);
             } else {
-                // Lev.2 텍스트/아이콘 UI
                 data.forEach(item => {
                     const button = document.createElement('button');
                     button.className = 'list-item';
@@ -1334,7 +1316,7 @@ function openFilterModal() {
     const modalOverlay = document.getElementById('filter-modal-overlay');
     const modalBody = document.getElementById('filter-modal-body');
     const menuId = document.getElementById('list-page-title').dataset.menuId;
-
+    
     let filtersHTML = '';
     if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
         filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
@@ -1343,26 +1325,31 @@ function openFilterModal() {
             filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
         });
         filtersHTML += '</div></div>';
-        filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
-DB.pokemonType.lev2.forEach(type => {
-    const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
-    filtersHTML += `<button class="type-icon-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}"><img src="${type.iconURL}" alt="${type.name}"></button>`;
-});
-filtersHTML += '</div></div>';
-        } else if (menuId === 'item') {
-    filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
-    // God, Legendary, Epic 순서로 정렬
-    const gradeOrder = { "God": 1, "Legendary": 2, "Epic": 3 };
-    const sortedGrades = DB.item.lev2.sort((a, b) => gradeOrder[a.name.split('(')[1].replace(')', '')] - gradeOrder[b.name.split('(')[1].replace(')', '')]);
+        
+        // 임시 텍스트 버튼으로 표시
+        filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="filter-options">';
+        DB.pokemonType.lev2.forEach(type => {
+            const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
+            filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}">${type.name}</button>`;
+        });
+        filtersHTML += '</div></div>';
 
-    sortedGrades.forEach(grade => {
-        const gradeValue = grade.name.split('(')[1].replace(')', ''); // God, Legendary, Epic 추출
-        const isActive = activeFilters.grade.includes(gradeValue) ? 'active' : '';
-        filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${gradeValue}">${gradeValue}</button>`;
-    });
-    filtersHTML += '</div></div>';
-}
-
+    } else if (menuId === 'item') {
+        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
+        const gradeOrder = { "God": 1, "Legendary": 2, "Epic": 3 };
+        const sortedGrades = [...DB.item.lev2].sort((a, b) => {
+            const gradeA = a.name.match(/\((.*?)\)/)[1];
+            const gradeB = b.name.match(/\((.*?)\)/)[1];
+            return (gradeOrder[gradeA] || 99) - (gradeOrder[gradeB] || 99);
+        });
+        sortedGrades.forEach(grade => {
+            const gradeValue = grade.name.match(/\((.*?)\)/)[1];
+            const isActive = activeFilters.grade.includes(gradeValue) ? 'active' : '';
+            filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${gradeValue}">${gradeValue}</button>`;
+        });
+        filtersHTML += '</div></div>';
+    }
+    
     modalBody.innerHTML = filtersHTML;
     modalOverlay.style.display = 'flex';
 }
@@ -1437,163 +1424,143 @@ function closeFilterModal() {
 
     // --- 이벤트 리스너 설정 ---
     function addEventListeners() {
-        if(mobileMenuBtn && sidebar) {
-            mobileMenuBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('visible');
-            });
-        }
-
-        document.body.addEventListener('click', (e) => {
-            const adLink = e.target.closest('a[href*="ads"]');
-            if (adLink) {
-                 adBlockManager.recordClick();
-            }
-
-            // [수정 1] 모바일 그리드 메뉴 버튼 클릭 처리
-            const gridMenuBtn = e.target.closest('.grid-menu-btn');
-            if (gridMenuBtn) {
-                const menuId = gridMenuBtn.dataset.menuId;
-                const subMenuId = gridMenuBtn.dataset.itemId;
-                
-                if (menuId === 'calendar') {
-                    showDetailPage('calendar', 'calendar');
-                } else {
-                    showListPage(menuId, subMenuId);
-                }
-                return;
-            }
-
-            // 데스크톱 사이드바 메뉴 클릭 처리
-            const sidebarMenuItem = e.target.closest('#sidebar .menu-item[data-level="1"]');
-            if(sidebarMenuItem && !isMobile()){
-                handleMenuClick(sidebarMenuItem);
-                return;
-            }
-            
-            // 패널 내부의 리스트 아이템 클릭 처리 (데스크톱 전용)
-            const listItem = e.target.closest('.list-item, .list-item-card, .menu-item');
-            if (listItem && !listItem.closest('#sidebar') && !isMobile()) {
-                handleMenuClick(listItem);
-            }
-
-            // 목록 페이지의 카드/리스트 아이템 클릭 처리 (모바일/PC 공용)
-            const listItemCard = e.target.closest('#list-page-content .list-item-card, #list-page-content .list-item');
-            if(listItemCard){
-                const itemId = listItemCard.dataset.id;
-                const menuId = listItemCard.dataset.menuId;
-                showDetailPage(itemId, menuId);
-            }
-            
-            // 메인 페이지의 바로가기 링크 클릭 처리
-const mainShortcut = e.target.closest('#main-notice-list a, #popular-deck-list a');
-if (mainShortcut) {
-    e.preventDefault();
-    const menuId = mainShortcut.dataset.menuId;
-    const itemId = mainShortcut.dataset.itemId;
-
-    sessionStorage.setItem('returnToMain', 'true'); // 메인으로 돌아가기 플래그 설정
-
-    if (isMobile()) {
-        showDetailPage(itemId, menuId);
-    } else {
-        mainPlaceholder.style.display = 'none';
-        appContainer.classList.add('menu-active');
-
-        const detailPanel = panels.lev4;
-        const contentDiv = detailPanel.querySelector('.panel-content');
-        const panelHeader = detailPanel.querySelector('.panel-header');
-
-        let data;
-        if (menuId === 'deck') data = DB.deck.lev4[itemId];
-        else if (menuId === 'notice') data = DB.notice.lev3[itemId];
-
-        if (data) {
-            if (menuId === 'deck') renderDeckView(contentDiv, data);
-            else renderSimpleView(contentDiv, data, menuId);
-        }
-
-        // 뒤로가기 버튼 생성 및 이벤트 핸들러
-        panelHeader.innerHTML = '';
-        const backButton = document.createElement('button');
-        backButton.className = 'back-btn';
-        backButton.innerHTML = '&lt; 뒤로';
-        backButton.addEventListener('click', handleMainButtonClick, { once: true });
-        panelHeader.appendChild(backButton);
-
-        Object.values(panels).forEach(p => p.classList.remove('visible'));
-        detailPanel.classList.add('visible');
-    }
-}
-
-            
-            // 좋아요 버튼 클릭 처리
-            const likeBtn = e.target.closest('.like-btn');
-            if (likeBtn) {
-                handleLikeClick(likeBtn);
-            }
-            
-            // 데스크톱 패널 뒤로가기 버튼
-            const panelBackBtn = e.target.closest('.panel .back-btn');
-if (panelBackBtn && !isMobile()) {
-    const currentPanel = panelBackBtn.closest('.panel');
-    const level = parseInt(Object.keys(panels).find(key => panels[key] === currentPanel)?.replace('lev', '') || '0');
-
-    if (level > 2) {
-        currentPanel.classList.remove('visible');
-        const prevPanel = panels[`lev${level-1}`];
-        if (prevPanel) {
-            prevPanel.classList.remove('is-hidden');
-            prevPanel.classList.add('visible');
-        }
-         // active 버튼 상태도 이전으로 돌림
-        if(activeButtons[level]) activeButtons[level].classList.remove('active');
-        activeButtons[level] = null;
-    } else {
-        handleMainButtonClick();
-    }
-}
-
-            const openFilterBtn = e.target.closest('#open-filter-modal-btn');
-if (openFilterBtn) {
-    openFilterModal();
-}
-
-const filterModalOverlay = e.target.closest('#filter-modal-overlay');
-const closeFilterBtn = e.target.closest('#filter-modal-close-btn');
-if ((filterModalOverlay && e.target === filterModalOverlay) || closeFilterBtn) {
-     closeFilterModal();
-}
-
-// 필터 모달 내부 버튼 클릭 이벤트
-const filterButton = e.target.closest('.filter-button, .type-icon-button');
-if (filterButton) {
-    const { filterType, filterValue } = filterButton.dataset;
-    filterButton.classList.toggle('active');
-
-    if (!activeFilters[filterType]) activeFilters[filterType] = [];
-
-    const index = activeFilters[filterType].indexOf(filterValue);
-    if (index > -1) {
-        activeFilters[filterType].splice(index, 1);
-    } else {
-        activeFilters[filterType].push(filterValue);
-    }
-}
-
-// 필터 적용 및 초기화 버튼
-const applyFilterBtn = e.target.closest('#filter-apply-btn');
-if(applyFilterBtn) {
-    applyFiltersAndRender();
-}
-const resetFilterBtn = e.target.closest('#filter-reset-btn');
-if(resetFilterBtn) {
-    activeFilters.grade = [];
-    activeFilters.type = [];
-    applyFiltersAndRender();
-}
-
+    if(mobileMenuBtn && sidebar) {
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('visible');
         });
     }
+
+    document.body.addEventListener('click', (e) => {
+        const adLink = e.target.closest('a[href*="ads"]');
+        if (adLink) {
+             adBlockManager.recordClick();
+        }
+
+        const gridMenuBtn = e.target.closest('.grid-menu-btn');
+        if (gridMenuBtn) {
+            const menuId = gridMenuBtn.dataset.menuId;
+            const subMenuId = gridMenuBtn.dataset.itemId;
+            if (menuId === 'calendar') {
+                showDetailPage('calendar', 'calendar');
+            } else {
+                showListPage(menuId, subMenuId);
+            }
+            return;
+        }
+
+        const sidebarMenuItem = e.target.closest('#sidebar .menu-item[data-level="1"]');
+        if(sidebarMenuItem && !isMobile()){
+            handleMenuClick(sidebarMenuItem);
+            return;
+        }
+        
+        const listItem = e.target.closest('.panel-content .list-item, .panel-content .list-item-card');
+        if (listItem && !isMobile()) {
+            handleMenuClick(listItem);
+        }
+
+        const mobileListItemCard = e.target.closest('#list-page-content .list-item-card, #list-page-content .list-item');
+        if(mobileListItemCard){
+            const itemId = mobileListItemCard.dataset.id;
+            const menuId = mobileListItemCard.dataset.menuId;
+            showDetailPage(itemId, menuId);
+        }
+        
+        const mainShortcut = e.target.closest('#main-notice-list a, #popular-deck-list a');
+        if (mainShortcut) {
+            e.preventDefault();
+            const menuId = mainShortcut.dataset.menuId;
+            const itemId = mainShortcut.dataset.itemId;
+            sessionStorage.setItem('returnToMain', 'true');
+            if (isMobile()) {
+                showDetailPage(itemId, menuId);
+            } else {
+                mainPlaceholder.style.display = 'none';
+                appContainer.classList.add('menu-active');
+                const detailPanel = panels.lev4;
+                const contentDiv = detailPanel.querySelector('.panel-content');
+                const panelHeader = detailPanel.querySelector('.panel-header');
+                let data;
+                if (menuId === 'deck') data = DB.deck.lev4[itemId];
+                else if (menuId === 'notice') data = DB.notice.lev3[itemId];
+                if (data) {
+                    if (menuId === 'deck') renderDeckView(contentDiv, data);
+                    else renderSimpleView(contentDiv, data, menuId);
+                }
+                panelHeader.innerHTML = '';
+                const backButton = document.createElement('button');
+                backButton.className = 'back-btn';
+                backButton.innerHTML = '&lt; 뒤로';
+                backButton.addEventListener('click', handleMainButtonClick, { once: true });
+                panelHeader.appendChild(backButton);
+                Object.values(panels).forEach(p => p.classList.remove('visible'));
+                detailPanel.classList.add('visible');
+            }
+        }
+        
+        const likeBtn = e.target.closest('.like-btn');
+        if (likeBtn) {
+            handleLikeClick(likeBtn);
+        }
+        
+        const panelBackBtn = e.target.closest('.panel .back-btn');
+        if (panelBackBtn && !isMobile()) {
+            const currentPanel = panelBackBtn.closest('.panel');
+            if(currentPanel.id === 'lev4-panel' && sessionStorage.getItem('returnToMain')) {
+                handleMainButtonClick();
+                return;
+            }
+            const level = parseInt(Object.keys(panels).find(key => panels[key] === currentPanel)?.replace('lev', '') || '0');
+            if (level > 2) {
+                currentPanel.classList.remove('visible');
+                const prevPanel = panels[`lev${level-1}`];
+                if (prevPanel) {
+                    prevPanel.classList.remove('is-hidden');
+                    prevPanel.classList.add('visible');
+                }
+                if(activeButtons[level]) activeButtons[level].classList.remove('active');
+                activeButtons[level] = null;
+            } else {
+                handleMainButtonClick();
+            }
+        }
+
+        const openFilterBtn = e.target.closest('#open-filter-modal-btn');
+        if (openFilterBtn) {
+            openFilterModal();
+        }
+
+        const filterModalOverlay = e.target.closest('#filter-modal-overlay');
+        const closeFilterBtn = e.target.closest('#filter-modal-close-btn');
+        if ((filterModalOverlay && e.target === filterModalOverlay) || closeFilterBtn) {
+             closeFilterModal();
+        }
+
+        const filterButton = e.target.closest('.filter-button, .type-icon-button');
+        if (filterButton && filterButton.closest('#filter-modal-body')) {
+            const { filterType, filterValue } = filterButton.dataset;
+            filterButton.classList.toggle('active');
+            if (!activeFilters[filterType]) activeFilters[filterType] = [];
+            const index = activeFilters[filterType].indexOf(filterValue);
+            if (index > -1) {
+                activeFilters[filterType].splice(index, 1);
+            } else {
+                activeFilters[filterType].push(filterValue);
+            }
+        }
+
+        const applyFilterBtn = e.target.closest('#filter-apply-btn');
+        if(applyFilterBtn) {
+            applyFiltersAndRender();
+        }
+        const resetFilterBtn = e.target.closest('#filter-reset-btn');
+        if(resetFilterBtn) {
+            activeFilters.grade = [];
+            activeFilters.type = [];
+            openFilterModal(); // Reset visually by re-opening the modal
+        }
+    });
+}
 
     // --- 페이지 실행 ---
     adBlockManager.checkAndApplyBlock();
