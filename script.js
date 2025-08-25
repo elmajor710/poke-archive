@@ -1490,7 +1490,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const backButton = document.createElement('button');
                     backButton.className = 'back-btn';
                     backButton.innerHTML = '&lt; 뒤로';
-                    backButton.addEventListener('click', handleMainButtonClick, { once: true });
+                    // 수정할 코드
+backButton.addEventListener('click', (e) => {
+    e.stopPropagation(); // 이벤트 중복 실행 방지
+    handleMainButtonClick();
+}, { once: true });
                     panelHeader.appendChild(backButton);
                     Object.values(panels).forEach(p => p.classList.remove('visible'));
                     detailPanel.classList.add('visible');
