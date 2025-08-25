@@ -210,13 +210,13 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.values(grades).forEach(gradeList => gradeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
         DB.pokemonGrade.lev3 = grades;
         
-        const itemGrades = { god: [], legendary: [], epic: [] };
-        Object.values(DB.item.lev4).forEach(item => {
-            const gradeKey = item.grade?.toLowerCase();
-            if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name });
-        });
-        Object.values(itemGrades).forEach(g => g.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
-        DB.item.lev3 = itemGrades;
+        // 수정할 코드
+const itemGrades = { god: [], legendary: [], epic: [] };
+Object.values(DB.item.lev4).forEach(item => {
+    const gradeKey = item.grade?.toLowerCase();
+    if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name, imageURL: item.imageURL });
+});
+DB.item.lev3 = itemGrades;
         
         const gradeOrder = { 'god': 1, 'legendary': 2, 'epic': 3 };
         if (DB.item && DB.item.lev2 && Array.isArray(DB.item.lev2)) {
