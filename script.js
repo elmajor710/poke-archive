@@ -210,25 +210,23 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.values(grades).forEach(gradeList => gradeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
         DB.pokemonGrade.lev3 = grades;
         
-        // 수정할 코드
-const itemGrades = { god: [], legendary: [], epic: [] };
-Object.values(DB.item.lev4).forEach(item => {
-    const gradeKey = item.grade?.toLowerCase();
-    if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name, imageURL: item.imageURL });
-});
-DB.item.lev3 = itemGrades;
+        const itemGrades = { god: [], legendary: [], epic: [] };
+        Object.values(DB.item.lev4).forEach(item => {
+            const gradeKey = item.grade?.toLowerCase();
+            if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name, imageURL: item.imageURL });
+        });
+        DB.item.lev3 = itemGrades;
         
         const gradeOrder = { 'god': 1, 'legendary': 2, 'epic': 3 };
         if (DB.item && DB.item.lev2 && Array.isArray(DB.item.lev2)) {
             DB.item.lev2.sort((a, b) => (gradeOrder[a.id] || 99) - (gradeOrder[b.id] || 99));
         }
         
-        // 수정할 코드
-const runeAndChipTypes = { rune: [], chip: [] };
-Object.values(DB.runeAndChip.lev4).forEach(rc => {
-    if(rc.type && runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name, imageURL: rc.imageURL });
-});
-DB.runeAndChip.lev3 = runeAndChipTypes;
+        const runeAndChipTypes = { rune: [], chip: [] };
+        Object.values(DB.runeAndChip.lev4).forEach(rc => {
+            if(rc.type && runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name, imageURL: rc.imageURL });
+        });
+        DB.runeAndChip.lev3 = runeAndChipTypes;
 
         DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ 
             id: data.id, 
@@ -349,8 +347,9 @@ DB.runeAndChip.lev3 = runeAndChipTypes;
     }
 
     function handleMenuClick(button) {
-        if (button.dataset.level === 1) {
-            sessionStorage.removeItem('fromMainPageShortcut');
+        // ▼▼▼ [수정] 스마트 뒤로가기 상태를 초기화하는 로직 ▼▼▼
+        if (parseInt(button.dataset.level) === 1) {
+            sessionStorage.removeItem('returnToMain');
         }
         if (isMobile()) sidebar.classList.remove('visible');
         mainPlaceholder.style.display = 'none';
@@ -421,12 +420,9 @@ DB.runeAndChip.lev3 = runeAndChipTypes;
         return null;
     }
 
-    // ▼▼▼ [신규] PC/모바일 공용으로 사용될 카드 목록 렌더링 함수 ▼▼▼
     function renderCardList(data, menuId, container) {
-        // 데이터가 객체(포켓몬 목록 등)일 경우 배열로 변환
         const dataArray = Array.isArray(data) ? data : Object.values(data);
 
-        // 이름순으로 정렬
         dataArray.sort((a, b) => {
             const nameA = a.name_ko || a.name || a.title || '';
             const nameB = b.name_ko || b.name || b.title || '';
@@ -438,12 +434,10 @@ DB.runeAndChip.lev3 = runeAndChipTypes;
             const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
             
             let infoHTML = '';
-            // 등급 표시 (포켓몬, 아이템)
             if (item.grade) {
                 const gradeClass = `grade-${item.grade.toLowerCase().replace('+', '-plus')}`;
                 infoHTML += `<span class="grade-badge ${gradeClass}">${item.grade}</span>`;
             }
-            // 타입 표시 (포켓몬)
             if (item.types && item.types.length > 0) {
                 infoHTML += '<div class="type-badges-container">';
                 item.types.forEach(typeId => {
@@ -470,7 +464,6 @@ DB.runeAndChip.lev3 = runeAndChipTypes;
         container.innerHTML = listHTML;
     }
 
-    // ▼▼▼ [수정] PC 패널 렌더링 함수 로직 변경 ▼▼▼
     function renderPanelContent(level, data, menuId, clickedId) {
         const targetPanel = panels[`lev${level}`];
         if (!targetPanel) return;
@@ -504,11 +497,9 @@ DB.runeAndChip.lev3 = runeAndChipTypes;
             } else {
                 const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
                 
-                // Lev.3 에서 카드 UI를 사용할 메뉴인지 확인
                 if (level === 3 && cardLayoutMenus.includes(menuId)) {
                     renderCardList(data, menuId, contentDiv);
                 } else {
-                    // 그 외의 경우 (Lev.2 등)는 기존의 단순 버튼 목록 사용
                     data.forEach(item => {
                         const button = document.createElement('button');
                         button.className = 'list-item';
@@ -1322,6 +1313,7 @@ DB.runeAndChip.lev3 = runeAndChipTypes;
         `;
     }
 
+    // ▼▼▼ [수정] 모바일 필터 UI를 아이콘으로 표시하도록 변경 ▼▼▼
     function openFilterModal() {
         const modalOverlay = document.getElementById('filter-modal-overlay');
         const modalBody = document.getElementById('filter-modal-body');
@@ -1336,10 +1328,14 @@ DB.runeAndChip.lev3 = runeAndChipTypes;
             });
             filtersHTML += '</div></div>';
             
-            filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="filter-options">';
+            filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
             DB.pokemonType.lev2.forEach(type => {
                 const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
-                filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}">${type.name}</button>`;
+                filtersHTML += `
+                    <button class="type-icon-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}">
+                        <img src="${type.iconURL}" alt="${type.name}">
+                    </button>
+                `;
             });
             filtersHTML += '</div></div>';
 
@@ -1474,7 +1470,7 @@ DB.runeAndChip.lev3 = runeAndChipTypes;
                 e.preventDefault();
                 const menuId = mainShortcut.dataset.menuId;
                 const itemId = mainShortcut.dataset.itemId;
-                sessionStorage.setItem('returnToMain', 'true');
+                sessionStorage.setItem('returnToMain', 'true'); // 스마트 뒤로가기 상태 저장
                 if (isMobile()) {
                     showDetailPage(itemId, menuId);
                 } else {
