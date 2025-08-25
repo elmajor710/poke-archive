@@ -1448,17 +1448,17 @@ function closeFilterModal() {
             return;
         }
 
-        const sidebarMenuItem = e.target.closest('#sidebar .menu-item[data-level="1"]');
-        if(sidebarMenuItem && !isMobile()){
-            handleMenuClick(sidebarMenuItem);
-            return;
+        // ▼▼▼ [수정] PC 화면의 메뉴/목록 클릭 이벤트 핸들러 통합 ▼▼▼
+        const pcListItem = e.target.closest('#sidebar .menu-item, #lev2-panel .list-item, #lev3-panel .list-item, #lev3-panel .list-item-card');
+        if (pcListItem && !isMobile()) {
+            // 모바일 전용 목록 페이지의 아이템과 겹치지 않도록 방지
+            if (!pcListItem.closest('#list-filter-page')) {
+                handleMenuClick(pcListItem);
+                return; // 다른 핸들러와의 중복 실행 방지
+            }
         }
+        // ▲▲▲ [수정] 여기까지 ▲▲▲
         
-        const listItem = e.target.closest('.panel-content .list-item, .panel-content .list-item-card');
-        if (listItem && !isMobile()) {
-            handleMenuClick(listItem);
-        }
-
         const mobileListItemCard = e.target.closest('#list-page-content .list-item-card, #list-page-content .list-item');
         if(mobileListItemCard){
             const itemId = mobileListItemCard.dataset.id;
