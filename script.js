@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderSidebar();
             renderMainNoticeList();
             fetchAndRenderPopularDecks(); 
-            setupMobileAds(); // 이 함수는 원본 코드에 정의되지 않아 주석 처리
+            setupMobileAds();
             addEventListeners();
             setupAdObservers();
         } catch (error) {
@@ -87,40 +87,39 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다.";
         }
     }
-    // ▼▼▼ [미션 2] 모바일 광고 배치 함수 추가 ▼▼▼
-function setupMobileAds() {
-    if (!isMobile()) return;
 
-    const topAdContainer = document.getElementById('mobile-ad-top');
-    if (topAdContainer) {
-        topAdContainer.innerHTML = `
-            <ins class="adsbygoogle"
-                 style="display:block; text-align:center;"
-                 data-ad-layout="in-article"
-                 data-ad-format="fluid"
-                 data-ad-client="ca-pub-2125965839205311"
-                 data-ad-slot="6920735136"></ins>
-        `;
-    }
+    function setupMobileAds() {
+        if (!isMobile()) return;
 
-    const bottomAdContainer = document.getElementById('ad-container-bottom');
-    if (bottomAdContainer) {
-        bottomAdContainer.innerHTML = `
-            <div class="blog-ad-box">
-                <a href="https://index001.elmajor710.com" target="_blank" class="custom-ad-banner">
-                    <div class="ad-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3c0 .35.07.69.18 1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zM8 4h8a1 1 0 0 1 1 1c0 .34-.07.66-.18 1H7.18C7.07 5.66 7 5.34 7 5a1 1 0 0 1 1-1zm12 15H4V8h16v11z"/><path d="M12 17a4 4 0 0 0 4-4h-2a2 2 0 0 1-2 2 2 2 0 0 1-2-2H8a4 4 0 0 0 4 4zm0-6a1 1 0 0 0 1-1V9a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1z"/></svg>
-                    </div>
-                    <div class="ad-text">
-                        <strong>나라지원금 Info.</strong>
-                        <span>놓치면 손해! 혜택 확인하기</span>
-                    </div>
-                </a>
-            </div>
-        `;
+        const topAdContainer = document.getElementById('mobile-ad-top');
+        if (topAdContainer) {
+            topAdContainer.innerHTML = `
+                <ins class="adsbygoogle"
+                     style="display:block; text-align:center;"
+                     data-ad-layout="in-article"
+                     data-ad-format="fluid"
+                     data-ad-client="ca-pub-2125965839205311"
+                     data-ad-slot="6920735136"></ins>
+            `;
+        }
+
+        const bottomAdContainer = document.getElementById('ad-container-bottom');
+        if (bottomAdContainer) {
+            bottomAdContainer.innerHTML = `
+                <div class="blog-ad-box">
+                    <a href="https://index001.elmajor710.com" target="_blank" class="custom-ad-banner">
+                        <div class="ad-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3c0 .35.07.69.18 1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zM8 4h8a1 1 0 0 1 1 1c0 .34-.07.66-.18 1H7.18C7.07 5.66 7 5.34 7 5a1 1 0 0 1 1-1zm12 15H4V8h16v11z"/><path d="M12 17a4 4 0 0 0 4-4h-2a2 2 0 0 1-2 2 2 2 0 0 1-2-2H8a4 4 0 0 0 4 4zm0-6a1 1 0 0 0 1-1V9a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1z"/></svg>
+                        </div>
+                        <div class="ad-text">
+                            <strong>나라지원금 Info.</strong>
+                            <span>놓치면 손해! 혜택 확인하기</span>
+                        </div>
+                    </a>
+                </div>
+            `;
+        }
     }
-}
-// ▲▲▲ [미션 2] 모바일 광고 배치 함수 추가 ▲▲▲
 
     async function fetchAndRenderPopularDecks() {
         const popularDeckList = document.getElementById('popular-deck-list');
@@ -294,7 +293,6 @@ function setupMobileAds() {
         if(sidebar) {
             sidebar.innerHTML = '';
             sidebar.appendChild(sidebarContent);
-            // sidebar.appendChild(adContainer); // PC 화면에서는 다른 곳에서 렌더링되므로 중복 제거
         }
     }
 
@@ -383,21 +381,21 @@ function setupMobileAds() {
     }
         
     function handleMainButtonClick() {
-    sessionStorage.removeItem('returnToMain'); // 상태 초기화
-    mainPlaceholder.style.display = 'flex';
-    appContainer.classList.remove('menu-active');
-    if (isMobile()) {
-        const bottomAd = document.getElementById('ad-container-bottom');
-        if (bottomAd) bottomAd.style.display = 'block';
+        sessionStorage.removeItem('returnToMain');
+        mainPlaceholder.style.display = 'flex';
+        appContainer.classList.remove('menu-active');
+        if (isMobile()) {
+            const bottomAd = document.getElementById('ad-container-bottom');
+            if (bottomAd) bottomAd.style.display = 'block';
+        }
+        Object.values(panels).forEach((panel, index) => {
+            if (index > 0) panel.classList.remove('visible', 'is-hidden');
+        });
+        setActive(0, null);
+        if (isMobile()) {
+            sidebar.classList.remove('visible', 'is-hidden');
+        }
     }
-    Object.values(panels).forEach((panel, index) => {
-        if (index > 0) panel.classList.remove('visible', 'is-hidden');
-    });
-    setActive(0, null);
-    if (isMobile()) {
-        sidebar.classList.remove('visible', 'is-hidden');
-    }
-}
 
     function setActive(level, target) {
         for (let i = level; i <= 4; i++) {
@@ -424,62 +422,113 @@ function setupMobileAds() {
         return null;
     }
 
-    function renderPanelContent(level, data, menuId, clickedId) {
-    const targetPanel = panels[`lev${level}`];
-    if (!targetPanel) return;
-    const contentDiv = targetPanel.querySelector('.panel-content');
-    if (!contentDiv) return;
-    
-    const panelHeader = targetPanel.querySelector('.panel-header');
-    panelHeader.innerHTML = '<button class="back-btn">&lt; 뒤로</button>';
+    // ▼▼▼ [신규] PC/모바일 공용으로 사용될 카드 목록 렌더링 함수 ▼▼▼
+    function renderCardList(data, menuId, container) {
+        // 데이터가 객체(포켓몬 목록 등)일 경우 배열로 변환
+        const dataArray = Array.isArray(data) ? data : Object.values(data);
 
-    contentDiv.innerHTML = '';
-    contentDiv.scrollTop = 0;
+        // 이름순으로 정렬
+        dataArray.sort((a, b) => {
+            const nameA = a.name_ko || a.name || a.title || '';
+            const nameB = b.name_ko || b.name || b.title || '';
+            return nameA.localeCompare(nameB, 'ko');
+        });
 
-    if (clickedId === 'deckBuilder') {
-        if (isMobile()) {
-            contentDiv.innerHTML = `<div class="pc-only-message"><h3>기능 안내</h3><p>배치툴 기능은 화면이 넓은 PC 환경에 최적화되어 있습니다.<br>PC에서 접속하여 이용해주세요.</p></div>`;
-        } else {
-            renderDeckBuilder(contentDiv);
-        }
-        return; 
-    } else if (!data) {
-        contentDiv.innerHTML = "데이터를 불러오지 못했습니다.";
-    } else {
-        const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
-        const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
-
-        if (isFinalView) {
-            if (menuId === 'deck' && data.composition) renderDeckView(contentDiv, data);
-            else if(menuId === 'calendar') renderCalendarView(contentDiv, DB.calendar.lev2);
-            else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
-            else renderSimpleView(contentDiv, data, menuId); 
-        } else {
-            const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
-            if (level > 2 && cardLayoutMenus.includes(menuId)) {
-                renderListPage(data, menuId, contentDiv, level);
-            } else {
-                data.forEach(item => {
-                    const button = document.createElement('button');
-                    button.className = 'list-item';
-                    button.dataset.id = item.id;
-                    button.dataset.level = level;
-                    button.dataset.menuId = menuId;
-                    
-                    let itemHTML = `<span>${item.name || '이름 없음'}</span>`;
-                    if (menuId === 'pokemonType' && item.iconURL) {
-                        itemHTML = `<img src="${item.iconURL}" class="list-item-icon">${itemHTML}`;
+        const listHTML = dataArray.map(item => {
+            const name = item.name_ko || item.name || item.title;
+            const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
+            
+            let infoHTML = '';
+            // 등급 표시 (포켓몬, 아이템)
+            if (item.grade) {
+                const gradeClass = `grade-${item.grade.toLowerCase().replace('+', '-plus')}`;
+                infoHTML += `<span class="grade-badge ${gradeClass}">${item.grade}</span>`;
+            }
+            // 타입 표시 (포켓몬)
+            if (item.types && item.types.length > 0) {
+                infoHTML += '<div class="type-badges-container">';
+                item.types.forEach(typeId => {
+                    const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+                    if (typeInfo) {
+                        infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
                     }
-                    const newBadge = isNew(item.updatedAt) || isNew(item.createdAt) ? '<span class="new-badge-list">New</span>' : '';
-                    button.innerHTML = itemHTML + newBadge;
-                    contentDiv.appendChild(button);
                 });
+                infoHTML += '</div>';
+            }
+
+            return `
+                <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}" data-level="3">
+                    <div class="item-card-image">
+                        <img src="${imageURL}" alt="${name}" loading="lazy">
+                    </div>
+                    <div class="item-card-info">
+                        <strong class="item-card-name">${name}</strong>
+                        <div class="item-card-details">${infoHTML}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        container.innerHTML = listHTML;
+    }
+
+    // ▼▼▼ [수정] PC 패널 렌더링 함수 로직 변경 ▼▼▼
+    function renderPanelContent(level, data, menuId, clickedId) {
+        const targetPanel = panels[`lev${level}`];
+        if (!targetPanel) return;
+        const contentDiv = targetPanel.querySelector('.panel-content');
+        if (!contentDiv) return;
+        
+        const panelHeader = targetPanel.querySelector('.panel-header');
+        panelHeader.innerHTML = '<button class="back-btn">&lt; 뒤로</button>';
+
+        contentDiv.innerHTML = '';
+        contentDiv.scrollTop = 0;
+
+        if (clickedId === 'deckBuilder') {
+            if (isMobile()) {
+                contentDiv.innerHTML = `<div class="pc-only-message"><h3>기능 안내</h3><p>배치툴 기능은 화면이 넓은 PC 환경에 최적화되어 있습니다.<br>PC에서 접속하여 이용해주세요.</p></div>`;
+            } else {
+                renderDeckBuilder(contentDiv);
+            }
+            return; 
+        } else if (!data) {
+            contentDiv.innerHTML = "데이터를 불러오지 못했습니다.";
+        } else {
+            const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
+            const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
+
+            if (isFinalView) {
+                if (menuId === 'deck' && data.composition) renderDeckView(contentDiv, data);
+                else if(menuId === 'calendar') renderCalendarView(contentDiv, DB.calendar.lev2);
+                else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
+                else renderSimpleView(contentDiv, data, menuId); 
+            } else {
+                const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
+                
+                // Lev.3 에서 카드 UI를 사용할 메뉴인지 확인
+                if (level === 3 && cardLayoutMenus.includes(menuId)) {
+                    renderCardList(data, menuId, contentDiv);
+                } else {
+                    // 그 외의 경우 (Lev.2 등)는 기존의 단순 버튼 목록 사용
+                    data.forEach(item => {
+                        const button = document.createElement('button');
+                        button.className = 'list-item';
+                        button.dataset.id = item.id;
+                        button.dataset.level = level;
+                        button.dataset.menuId = menuId;
+                        
+                        let itemHTML = `<span>${item.name || '이름 없음'}</span>`;
+                        if (menuId === 'pokemonType' && item.iconURL) {
+                            itemHTML = `<img src="${item.iconURL}" class="list-item-icon">${itemHTML}`;
+                        }
+                        const newBadge = isNew(item.updatedAt) || isNew(item.createdAt) ? '<span class="new-badge-list">New</span>' : '';
+                        button.innerHTML = itemHTML + newBadge;
+                        contentDiv.appendChild(button);
+                    });
+                }
             }
         }
     }
-}
-
-
 
     function showModal(title, contentElement) {
         const existingModal = document.querySelector('.modal-overlay.custom-modal');
@@ -559,39 +608,39 @@ function setupMobileAds() {
             }
         }
         const recommendTypes = { 
-    recommendedItems: '추천 아이템', 
-    recommendedRunes: '추천 룬', 
-    recommendedChips: '추천 칩' 
-};
+            recommendedItems: '추천 아이템', 
+            recommendedRunes: '추천 룬', 
+            recommendedChips: '추천 칩' 
+        };
 
-for (const type in recommendTypes) {
-    if (data[type] && data[type].length > 0) {
-        hasBuildInfo = true;
-        buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
+        for (const type in recommendTypes) {
+            if (data[type] && data[type].length > 0) {
+                hasBuildInfo = true;
+                buildHTML += `<h4>${recommendTypes[type]}</h4><div class="recommend-list">`;
 
-        data[type].forEach(item => {
-            const isObject = typeof item === 'object' && item !== null;
-            const id = isObject ? item.id : item;
-            const count = isObject ? item.count : null;
+                data[type].forEach(item => {
+                    const isObject = typeof item === 'object' && item !== null;
+                    const id = isObject ? item.id : item;
+                    const count = isObject ? item.count : null;
 
-            const dbKey = (type === 'recommendedRunes' || type === 'recommendedChips') ? 'runeAndChip' : 'item';
-            const itemData = DB[dbKey]?.lev4?.[id];
+                    const dbKey = (type === 'recommendedRunes' || type === 'recommendedChips') ? 'runeAndChip' : 'item';
+                    const itemData = DB[dbKey]?.lev4?.[id];
 
-            if (itemData) {
-                const countHTML = count ? `<span class="recommend-item-count">x${count}</span>` : '';
-                 buildHTML += `
-                    <div class="recommend-item" data-item-id="${id}" data-item-type="${dbKey}">
-                        ${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}
-                        <div class="recommend-item-info">
-                            <span class="recommend-item-name">${itemData.name}</span>
-                            ${countHTML}
-                        </div>
-                    </div>`;
+                    if (itemData) {
+                        const countHTML = count ? `<span class="recommend-item-count">x${count}</span>` : '';
+                        buildHTML += `
+                            <div class="recommend-item" data-item-id="${id}" data-item-type="${dbKey}">
+                                ${itemData.imageURL ? `<img src="${itemData.imageURL}" alt="${itemData.name}">` : ''}
+                                <div class="recommend-item-info">
+                                    <span class="recommend-item-name">${itemData.name}</span>
+                                    ${countHTML}
+                                </div>
+                            </div>`;
+                    }
+                });
+                buildHTML += `</div>`;
             }
-        });
-        buildHTML += `</div>`;
-    }
-}
+        }
         if (!hasBuildInfo) {
             buildHTML = '<h4>추천 빌드</h4><p>등록된 추천 빌드 정보가 없습니다.</p>';
         }
@@ -1141,7 +1190,6 @@ for (const type in recommendTypes) {
         applyFilters();
     }
 
-    // [수정 2] HTML 구조에 맞게 함수 수정
     function showListPage(menuId, subMenuId = null) {
         const mainPlaceholder = document.getElementById('main-placeholder');
         const listPage = document.getElementById('list-filter-page');
@@ -1201,7 +1249,6 @@ for (const type in recommendTypes) {
         }
         
         if (backToGridBtn) {
-            // 기존 이벤트 리스너가 있다면 제거하고 새로 추가 (중복 방지)
             const newBtn = backToGridBtn.cloneNode(true);
             backToGridBtn.parentNode.replaceChild(newBtn, backToGridBtn);
             newBtn.addEventListener('click', hideListPage);
@@ -1222,7 +1269,7 @@ for (const type in recommendTypes) {
         const detailPanel = document.getElementById('lev4-panel');
 
         listPage.classList.remove('visible');
-        detailPanel.classList.remove('visible'); // 상세 페이지도 함께 닫기
+        detailPanel.classList.remove('visible');
         
         setTimeout(() => {
             listPage.style.display = 'none';
@@ -1237,42 +1284,7 @@ for (const type in recommendTypes) {
             listContent.innerHTML = '<p class="list-empty-message">표시할 데이터가 없습니다.</p>';
             return;
         }
-        data.sort((a, b) => {
-            const nameA = a.name_ko || a.name || a.title || '';
-            const nameB = b.name_ko || b.name || b.title || '';
-            return nameA.localeCompare(nameB, 'ko');
-        });
-        const listHTML = data.map(item => {
-            const name = item.name_ko || item.name || item.title;
-            const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
-            let infoHTML = '';
-            if (item.grade) {
-                const gradeClass = `grade-${item.grade.toLowerCase().replace('+', '-plus')}`;
-                infoHTML += `<span class="grade-badge ${gradeClass}">${item.grade}</span>`;
-            }
-            if (item.types && item.types.length > 0) {
-                infoHTML += '<div class="type-badges-container">';
-                item.types.forEach(typeId => {
-                    const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-                    if (typeInfo) {
-                        infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
-                    }
-                });
-                infoHTML += '</div>';
-            }
-            return `
-                <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}">
-                    <div class="item-card-image">
-                        <img src="${imageURL}" alt="${name}" loading="lazy">
-                    </div>
-                    <div class="item-card-info">
-                        <strong class="item-card-name">${name}</strong>
-                        <div class="item-card-details">${infoHTML}</div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-        listContent.innerHTML = listHTML;
+        renderCardList(data, menuId, listContent);
     }
 
     function renderSimpleListPage(data, menuId) {
@@ -1294,89 +1306,86 @@ for (const type in recommendTypes) {
         listContent.innerHTML = listHTML;
     }
 
-    // ▼▼▼ [미션 2] 필터 관련 함수 전체 교체 ▼▼▼
-let activeFilters = {
-    grade: [],
-    type: []
-};
+    let activeFilters = {
+        grade: [],
+        type: []
+    };
 
-function renderFilters(menuId) {
-    const filtersContainer = document.getElementById('list-page-filters');
-    filtersContainer.innerHTML = `
-        <button id="open-filter-modal-btn" class="filter-trigger-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.74.439L7 12.439V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/>
-            </svg>
-            필터
-        </button>
-    `;
-}
+    function renderFilters(menuId) {
+        const filtersContainer = document.getElementById('list-page-filters');
+        filtersContainer.innerHTML = `
+            <button id="open-filter-modal-btn" class="filter-trigger-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.74.439L7 12.439V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/>
+                </svg>
+                필터
+            </button>
+        `;
+    }
 
-function openFilterModal() {
-    const modalOverlay = document.getElementById('filter-modal-overlay');
-    const modalBody = document.getElementById('filter-modal-body');
-    const menuId = document.getElementById('list-page-title').dataset.menuId;
-    
-    let filtersHTML = '';
-    if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
-        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
-        DB.pokemonGrade.lev2.forEach(grade => {
-            const isActive = activeFilters.grade.includes(grade.name) ? 'active' : '';
-            filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
-        });
-        filtersHTML += '</div></div>';
+    function openFilterModal() {
+        const modalOverlay = document.getElementById('filter-modal-overlay');
+        const modalBody = document.getElementById('filter-modal-body');
+        const menuId = document.getElementById('list-page-title').dataset.menuId;
         
-        // 임시 텍스트 버튼으로 표시
-        filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="filter-options">';
-        DB.pokemonType.lev2.forEach(type => {
-            const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
-            filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}">${type.name}</button>`;
-        });
-        filtersHTML += '</div></div>';
+        let filtersHTML = '';
+        if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
+            filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
+            DB.pokemonGrade.lev2.forEach(grade => {
+                const isActive = activeFilters.grade.includes(grade.name) ? 'active' : '';
+                filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
+            });
+            filtersHTML += '</div></div>';
+            
+            filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="filter-options">';
+            DB.pokemonType.lev2.forEach(type => {
+                const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
+                filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}">${type.name}</button>`;
+            });
+            filtersHTML += '</div></div>';
 
-    } else if (menuId === 'item') {
-        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
-        const gradeOrder = { "God": 1, "Legendary": 2, "Epic": 3 };
-        const sortedGrades = [...DB.item.lev2].sort((a, b) => {
-            const gradeA = a.name.match(/\((.*?)\)/)[1];
-            const gradeB = b.name.match(/\((.*?)\)/)[1];
-            return (gradeOrder[gradeA] || 99) - (gradeOrder[gradeB] || 99);
-        });
-        sortedGrades.forEach(grade => {
-            const gradeValue = grade.name.match(/\((.*?)\)/)[1];
-            const isActive = activeFilters.grade.includes(gradeValue) ? 'active' : '';
-            filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${gradeValue}">${gradeValue}</button>`;
-        });
-        filtersHTML += '</div></div>';
+        } else if (menuId === 'item') {
+            filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
+            const gradeOrder = { "God": 1, "Legendary": 2, "Epic": 3 };
+            const sortedGrades = [...DB.item.lev2].sort((a, b) => {
+                const gradeA = a.name.match(/\((.*?)\)/)[1];
+                const gradeB = b.name.match(/\((.*?)\)/)[1];
+                return (gradeOrder[gradeA] || 99) - (gradeOrder[gradeB] || 99);
+            });
+            sortedGrades.forEach(grade => {
+                const gradeValue = grade.name.match(/\((.*?)\)/)[1];
+                const isActive = activeFilters.grade.includes(gradeValue) ? 'active' : '';
+                filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${gradeValue}">${gradeValue}</button>`;
+            });
+            filtersHTML += '</div></div>';
+        }
+        
+        modalBody.innerHTML = filtersHTML;
+        modalOverlay.style.display = 'flex';
     }
-    
-    modalBody.innerHTML = filtersHTML;
-    modalOverlay.style.display = 'flex';
-}
 
-function applyFiltersAndRender() {
-    const menuId = document.getElementById('list-page-title').dataset.menuId;
-    let dataList = [];
-    if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
-        dataList = Object.values(DB.pokemonType.lev4);
-    } else if (menuId === 'item') {
-        dataList = Object.values(DB.item.lev4);
+    function applyFiltersAndRender() {
+        const menuId = document.getElementById('list-page-title').dataset.menuId;
+        let dataList = [];
+        if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
+            dataList = Object.values(DB.pokemonType.lev4);
+        } else if (menuId === 'item') {
+            dataList = Object.values(DB.item.lev4);
+        }
+
+        const filteredData = dataList.filter(item => {
+            const gradeMatch = activeFilters.grade.length === 0 || (item.grade && activeFilters.grade.includes(item.grade));
+            const typeMatch = activeFilters.type.length === 0 || activeFilters.type.every(type => item.types?.includes(type));
+            return gradeMatch && typeMatch;
+        });
+
+        renderListPage(filteredData, menuId);
+        closeFilterModal();
     }
 
-    const filteredData = dataList.filter(item => {
-        const gradeMatch = activeFilters.grade.length === 0 || (item.grade && activeFilters.grade.includes(item.grade));
-        const typeMatch = activeFilters.type.length === 0 || activeFilters.type.every(type => item.types?.includes(type));
-        return gradeMatch && typeMatch;
-    });
-
-    renderListPage(filteredData, menuId);
-    closeFilterModal();
-}
-
-function closeFilterModal() {
-    document.getElementById('filter-modal-overlay').style.display = 'none';
-}
-// ▲▲▲ [미션 2] 여기까지 ▲▲▲
+    function closeFilterModal() {
+        document.getElementById('filter-modal-overlay').style.display = 'none';
+    }
 
     function showDetailPage(itemId, menuId) {
         const listPage = document.getElementById('list-filter-page');
@@ -1405,164 +1414,158 @@ function closeFilterModal() {
         panelHeader.appendChild(backButton);
 
         backButton.addEventListener('click', () => {
-    // 메인에서 바로 왔다면, 뒤로가기 시 메인으로 돌아감
-    if (sessionStorage.getItem('returnToMain')) {
-        handleMainButtonClick();
-    } else {
-        detailPanel.classList.remove('visible');
-        if (menuId === 'calendar') {
-            hideListPage(); 
-        } else {
-            if(listPage) listPage.classList.add('visible');
-        }
-    }
-}, { once: true });
+            if (sessionStorage.getItem('returnToMain')) {
+                handleMainButtonClick();
+            } else {
+                detailPanel.classList.remove('visible');
+                if (menuId === 'calendar') {
+                    hideListPage(); 
+                } else {
+                    if(listPage) listPage.classList.add('visible');
+                }
+            }
+        }, { once: true });
 
         if (listPage) listPage.classList.remove('visible');
         detailPanel.classList.add('visible');
     }
 
-    // --- 이벤트 리스너 설정 ---
     function addEventListeners() {
-    if(mobileMenuBtn && sidebar) {
-        mobileMenuBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('visible');
+        if(mobileMenuBtn && sidebar) {
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('visible');
+            });
+        }
+
+        document.body.addEventListener('click', (e) => {
+            const adLink = e.target.closest('a[href*="ads"]');
+            if (adLink) {
+                adBlockManager.recordClick();
+            }
+
+            const gridMenuBtn = e.target.closest('.grid-menu-btn');
+            if (gridMenuBtn) {
+                const menuId = gridMenuBtn.dataset.menuId;
+                const subMenuId = gridMenuBtn.dataset.itemId;
+                if (menuId === 'calendar') {
+                    showDetailPage('calendar', 'calendar');
+                } else {
+                    showListPage(menuId, subMenuId);
+                }
+                return;
+            }
+
+            const pcListItem = e.target.closest('#sidebar .menu-item, .panel .list-item, .panel .list-item-card');
+            if (pcListItem && !isMobile()) {
+                if (!pcListItem.closest('#list-filter-page')) {
+                    handleMenuClick(pcListItem);
+                    return;
+                }
+            }
+            
+            const mobileListItemCard = e.target.closest('#list-page-content .list-item-card, #list-page-content .list-item');
+            if(mobileListItemCard){
+                const itemId = mobileListItemCard.dataset.id;
+                const menuId = mobileListItemCard.dataset.menuId;
+                showDetailPage(itemId, menuId);
+            }
+            
+            const mainShortcut = e.target.closest('#main-notice-list a, #popular-deck-list a');
+            if (mainShortcut) {
+                e.preventDefault();
+                const menuId = mainShortcut.dataset.menuId;
+                const itemId = mainShortcut.dataset.itemId;
+                sessionStorage.setItem('returnToMain', 'true');
+                if (isMobile()) {
+                    showDetailPage(itemId, menuId);
+                } else {
+                    mainPlaceholder.style.display = 'none';
+                    appContainer.classList.add('menu-active');
+                    const detailPanel = panels.lev4;
+                    const contentDiv = detailPanel.querySelector('.panel-content');
+                    const panelHeader = detailPanel.querySelector('.panel-header');
+                    let data;
+                    if (menuId === 'deck') data = DB.deck.lev4[itemId];
+                    else if (menuId === 'notice') data = DB.notice.lev3[itemId];
+                    if (data) {
+                        if (menuId === 'deck') renderDeckView(contentDiv, data);
+                        else renderSimpleView(contentDiv, data, menuId);
+                    }
+                    panelHeader.innerHTML = '';
+                    const backButton = document.createElement('button');
+                    backButton.className = 'back-btn';
+                    backButton.innerHTML = '&lt; 뒤로';
+                    backButton.addEventListener('click', handleMainButtonClick, { once: true });
+                    panelHeader.appendChild(backButton);
+                    Object.values(panels).forEach(p => p.classList.remove('visible'));
+                    detailPanel.classList.add('visible');
+                }
+            }
+            
+            const likeBtn = e.target.closest('.like-btn');
+            if (likeBtn) {
+                handleLikeClick(likeBtn);
+            }
+            
+            const panelBackBtn = e.target.closest('.panel .back-btn');
+            if (panelBackBtn && !isMobile()) {
+                const currentPanel = panelBackBtn.closest('.panel');
+                if(currentPanel.id === 'lev4-panel' && sessionStorage.getItem('returnToMain')) {
+                    handleMainButtonClick();
+                    return;
+                }
+                const level = parseInt(Object.keys(panels).find(key => panels[key] === currentPanel)?.replace('lev', '') || '0');
+                if (level > 2) {
+                    currentPanel.classList.remove('visible');
+                    const prevPanel = panels[`lev${level-1}`];
+                    if (prevPanel) {
+                        prevPanel.classList.remove('is-hidden');
+                        prevPanel.classList.add('visible');
+                    }
+                    if(activeButtons[level]) activeButtons[level].classList.remove('active');
+                    activeButtons[level] = null;
+                } else {
+                    handleMainButtonClick();
+                }
+            }
+
+            const openFilterBtn = e.target.closest('#open-filter-modal-btn');
+            if (openFilterBtn) {
+                openFilterModal();
+            }
+
+            const filterModalOverlay = e.target.closest('#filter-modal-overlay');
+            const closeFilterBtn = e.target.closest('#filter-modal-close-btn');
+            if ((filterModalOverlay && e.target === filterModalOverlay) || closeFilterBtn) {
+                 closeFilterModal();
+            }
+
+            const filterButton = e.target.closest('.filter-button, .type-icon-button');
+            if (filterButton && filterButton.closest('#filter-modal-body')) {
+                const { filterType, filterValue } = filterButton.dataset;
+                filterButton.classList.toggle('active');
+                if (!activeFilters[filterType]) activeFilters[filterType] = [];
+                const index = activeFilters[filterType].indexOf(filterValue);
+                if (index > -1) {
+                    activeFilters[filterType].splice(index, 1);
+                } else {
+                    activeFilters[filterType].push(filterValue);
+                }
+            }
+
+            const applyFilterBtn = e.target.closest('#filter-apply-btn');
+            if(applyFilterBtn) {
+                applyFiltersAndRender();
+            }
+            const resetFilterBtn = e.target.closest('#filter-reset-btn');
+            if(resetFilterBtn) {
+                activeFilters.grade = [];
+                activeFilters.type = [];
+                openFilterModal();
+            }
         });
     }
 
-    document.body.addEventListener('click', (e) => {
-        const adLink = e.target.closest('a[href*="ads"]');
-        if (adLink) {
-             adBlockManager.recordClick();
-        }
-
-        const gridMenuBtn = e.target.closest('.grid-menu-btn');
-        if (gridMenuBtn) {
-            const menuId = gridMenuBtn.dataset.menuId;
-            const subMenuId = gridMenuBtn.dataset.itemId;
-            if (menuId === 'calendar') {
-                showDetailPage('calendar', 'calendar');
-            } else {
-                showListPage(menuId, subMenuId);
-            }
-            return;
-        }
-
-        // ▼▼▼ [수정] PC 화면의 메뉴/목록 클릭 이벤트 핸들러 통합 ▼▼▼
-        const pcListItem = e.target.closest('#sidebar .menu-item, #lev2-panel .list-item, #lev3-panel .list-item, #lev3-panel .list-item-card');
-        if (pcListItem && !isMobile()) {
-            // 모바일 전용 목록 페이지의 아이템과 겹치지 않도록 방지
-            if (!pcListItem.closest('#list-filter-page')) {
-                handleMenuClick(pcListItem);
-                return; // 다른 핸들러와의 중복 실행 방지
-            }
-        }
-        // ▲▲▲ [수정] 여기까지 ▲▲▲
-        
-        const mobileListItemCard = e.target.closest('#list-page-content .list-item-card, #list-page-content .list-item');
-        if(mobileListItemCard){
-            const itemId = mobileListItemCard.dataset.id;
-            const menuId = mobileListItemCard.dataset.menuId;
-            showDetailPage(itemId, menuId);
-        }
-        
-        const mainShortcut = e.target.closest('#main-notice-list a, #popular-deck-list a');
-        if (mainShortcut) {
-            e.preventDefault();
-            const menuId = mainShortcut.dataset.menuId;
-            const itemId = mainShortcut.dataset.itemId;
-            sessionStorage.setItem('returnToMain', 'true');
-            if (isMobile()) {
-                showDetailPage(itemId, menuId);
-            } else {
-                mainPlaceholder.style.display = 'none';
-                appContainer.classList.add('menu-active');
-                const detailPanel = panels.lev4;
-                const contentDiv = detailPanel.querySelector('.panel-content');
-                const panelHeader = detailPanel.querySelector('.panel-header');
-                let data;
-                if (menuId === 'deck') data = DB.deck.lev4[itemId];
-                else if (menuId === 'notice') data = DB.notice.lev3[itemId];
-                if (data) {
-                    if (menuId === 'deck') renderDeckView(contentDiv, data);
-                    else renderSimpleView(contentDiv, data, menuId);
-                }
-                panelHeader.innerHTML = '';
-                const backButton = document.createElement('button');
-                backButton.className = 'back-btn';
-                backButton.innerHTML = '&lt; 뒤로';
-                backButton.addEventListener('click', handleMainButtonClick, { once: true });
-                panelHeader.appendChild(backButton);
-                Object.values(panels).forEach(p => p.classList.remove('visible'));
-                detailPanel.classList.add('visible');
-            }
-        }
-        
-        const likeBtn = e.target.closest('.like-btn');
-        if (likeBtn) {
-            handleLikeClick(likeBtn);
-        }
-        
-        const panelBackBtn = e.target.closest('.panel .back-btn');
-        if (panelBackBtn && !isMobile()) {
-            const currentPanel = panelBackBtn.closest('.panel');
-            if(currentPanel.id === 'lev4-panel' && sessionStorage.getItem('returnToMain')) {
-                handleMainButtonClick();
-                return;
-            }
-            const level = parseInt(Object.keys(panels).find(key => panels[key] === currentPanel)?.replace('lev', '') || '0');
-            if (level > 2) {
-                currentPanel.classList.remove('visible');
-                const prevPanel = panels[`lev${level-1}`];
-                if (prevPanel) {
-                    prevPanel.classList.remove('is-hidden');
-                    prevPanel.classList.add('visible');
-                }
-                if(activeButtons[level]) activeButtons[level].classList.remove('active');
-                activeButtons[level] = null;
-            } else {
-                handleMainButtonClick();
-            }
-        }
-
-        const openFilterBtn = e.target.closest('#open-filter-modal-btn');
-        if (openFilterBtn) {
-            openFilterModal();
-        }
-
-        const filterModalOverlay = e.target.closest('#filter-modal-overlay');
-        const closeFilterBtn = e.target.closest('#filter-modal-close-btn');
-        if ((filterModalOverlay && e.target === filterModalOverlay) || closeFilterBtn) {
-             closeFilterModal();
-        }
-
-        const filterButton = e.target.closest('.filter-button, .type-icon-button');
-        if (filterButton && filterButton.closest('#filter-modal-body')) {
-            const { filterType, filterValue } = filterButton.dataset;
-            filterButton.classList.toggle('active');
-            if (!activeFilters[filterType]) activeFilters[filterType] = [];
-            const index = activeFilters[filterType].indexOf(filterValue);
-            if (index > -1) {
-                activeFilters[filterType].splice(index, 1);
-            } else {
-                activeFilters[filterType].push(filterValue);
-            }
-        }
-
-        const applyFilterBtn = e.target.closest('#filter-apply-btn');
-        if(applyFilterBtn) {
-            applyFiltersAndRender();
-        }
-        const resetFilterBtn = e.target.closest('#filter-reset-btn');
-        if(resetFilterBtn) {
-            activeFilters.grade = [];
-            activeFilters.type = [];
-            openFilterModal(); // Reset visually by re-opening the modal
-        }
-    });
-}
-
-    // --- 페이지 실행 ---
     adBlockManager.checkAndApplyBlock();
     initialize();
     function setScreenHeight() {
