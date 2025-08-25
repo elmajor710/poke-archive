@@ -223,13 +223,12 @@ DB.item.lev3 = itemGrades;
             DB.item.lev2.sort((a, b) => (gradeOrder[a.id] || 99) - (gradeOrder[b.id] || 99));
         }
         
-        const runeAndChipTypes = { rune: [], chip: [] };
-        Object.values(DB.runeAndChip.lev4).forEach(rc => {
-            if(rc.type && runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name });
-        });
-        runeAndChipTypes.rune.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-        runeAndChipTypes.chip.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-        DB.runeAndChip.lev3 = runeAndChipTypes;
+        // 수정할 코드
+const runeAndChipTypes = { rune: [], chip: [] };
+Object.values(DB.runeAndChip.lev4).forEach(rc => {
+    if(rc.type && runeAndChipTypes[rc.type]) runeAndChipTypes[rc.type].push({ id: rc.id, name: rc.name, imageURL: rc.imageURL });
+});
+DB.runeAndChip.lev3 = runeAndChipTypes;
 
         DB.tips.lev2 = Object.values(DB.tips.lev3).map(data => ({ 
             id: data.id, 
