@@ -108,7 +108,6 @@ header h1 {
     overflow: hidden;
 }
 
-/* style.css 파일에서 이 부분을 찾아서 아래 내용으로 수정하세요 */
 #sidebar {
     width: var(--sidebar-width);
     border-right: 1px solid var(--border-color);
@@ -118,7 +117,6 @@ header h1 {
     background-color: #fff;
     transition: transform var(--slide-duration) ease-in-out;
     z-index: 10;
-    /* ▼▼▼ [추가] Flexbox 레이아웃 적용 ▼▼▼ */
     display: flex;
     flex-direction: column;
 }
@@ -263,7 +261,7 @@ header h1 {
 
 .panel.visible { transform: translateX(0); visibility: visible; z-index: 5; }
 #lev3-panel.visible { z-index: 6; }
-#lev4-panel.visible { z-index: 11; } /* 숫자를 7에서 11로 변경 */
+#lev4-panel.visible { z-index: 11; } 
 
 .panel-header { 
     padding: 10px 15px; 
@@ -274,15 +272,31 @@ header h1 {
     align-items: center; 
 }
 
-/* style.css 파일에서 이 부분을 찾아서 아래 내용으로 수정하세요 */
 .panel-content { 
     padding: 10px; 
     overflow-y: auto; 
     -webkit-overflow-scrolling: touch;
-    }
+}
 .back-btn, .main-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border-color); background-color: #f8f9fa; cursor: pointer; }
 .main-btn { padding: 5px 12px; border-radius: 5px; background-color: #6c757d; color: white; border: 1px solid #6c757d; cursor: pointer; }
-.menu-item, .list-item { display: block; width: 100%; text-align: left; padding: 12px; margin-bottom: 5px; border: 1px solid #eee; background: #f9f9f9; border-radius: 6px; font-size: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+
+/* ▼▼▼ [수정] 이 부분의 justify-content 속성을 제거합니다. ▼▼▼ */
+.menu-item, .list-item { 
+    display: block; 
+    width: 100%; 
+    text-align: left; 
+    padding: 12px; 
+    margin-bottom: 5px; 
+    border: 1px solid #eee; 
+    background: #f9f9f9; 
+    border-radius: 6px; 
+    font-size: 16px; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+}
+/* ▲▲▲ [수정] 여기까지 ▲▲▲ */
+
 .menu-item.active, .list-item.active { background-color: var(--active-color); border-left: 4px solid var(--primary-color); font-weight: 600; }
 .item-description { white-space: pre-wrap; line-height: 1.7; background-color: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 14px; color: #333; }
 .stats-table { border-collapse: collapse; margin: 10px 0; width: 100%; max-width: 500px;  }
@@ -583,7 +597,6 @@ header h1 {
     border-style: dashed;
 }
 
-/* [추가] 좋아요 버튼 스타일 */
 .like-container {
     display: flex;
     justify-content: flex-end;
@@ -626,18 +639,13 @@ header h1 {
     color: #fa383e;
 }
 
-
-/* --- 미디어 쿼리 --- */
 @media (max-width: 1199px) {
     .mobile-only { display: block; }
     .pc-only { display: none; }
     
-   /* style.css 파일의 @media (max-width: 1199px) 블록 내부를 찾으세요 */
-
-#sidebar, .panel { 
+   #sidebar, .panel { 
     position: absolute; 
     width: 100%;
-    /* ▼▼▼ [추가] 모바일 화면 높이에 맞춤 ▼▼▼ */
     height: 100%; 
 }
     #sidebar.is-hidden, .panel.is-hidden { 
@@ -761,9 +769,6 @@ header h1 {
     margin: 1em 0;
 }
 
-/* ▼▼▼ [추가] 인기글 및 좋아요 기능 스타일 ▼▼▼ */
-
-/* 메인페이지 인기글 목록 스타일 (공지사항과 유사하게) */
 #popular-deck-list {
     list-style: none;
     padding: 0;
@@ -786,7 +791,6 @@ header h1 {
     text-decoration: underline;
 }
 
-/* 추천덱 상세 보기 헤더 */
 .deck-header {
     display: flex;
     justify-content: space-between;
@@ -796,7 +800,7 @@ header h1 {
     margin-bottom: 10px;
 }
 .deck-header h2 {
-    margin: 0; /* h2 태그의 기본 마진 제거 */
+    margin: 0;
 }
 .deck-description {
     color: #555;
@@ -805,14 +809,11 @@ header h1 {
     border-radius: 5px;
 }
 
-
-/* 좋아요 버튼 컨테이너 */
 .like-container {
     display: flex;
     align-items: center;
 }
 
-/* 좋아요 버튼 */
 .like-btn {
     display: flex;
     align-items: center;
@@ -828,38 +829,33 @@ header h1 {
     background-color: #e4e6eb;
 }
 
-/* 하트 아이콘 */
 .heart-icon {
     font-size: 20px;
-    color: #8a919f; /* 기본 회색 */
+    color: #8a919f;
 }
 
-/* 좋아요 수 */
 .like-count {
     font-size: 16px;
     font-weight: 600;
     color: #495057;
 }
 
-/* '좋아요'를 누른 상태의 버튼 스타일 */
 .like-btn.liked .heart-icon {
-    color: #e74c3c; /* 빨간색 하트 */
+    color: #e74c3c;
 }
 .like-btn.liked {
     background-color: #ffebee;
     border-color: #e57373;
 }
-/* ▲▲▲ [추가] 인기글 및 좋아요 기능 스타일 ▲▲▲ */
 
-/* --- ▼▼▼ 신규 광고 영역 스타일 ▼▼▼ --- */
 #sidebar-ad-container {
-    margin-top: 20px; /* 메뉴 목록과의 간격 */
-    padding-top: 20px; /* 광고 영역 상단 패딩 */
-    border-top: 2px solid #f0f2f5; /* 메뉴와 광고를 구분하는 선 */
-    flex-shrink: 0; /* 컨테이너 크기가 줄어들지 않도록 설정 */
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #f0f2f5;
+    flex-shrink: 0;
 }
 .coupang-ad-box {
-    margin-bottom: 20px; /* 블로그 광고와의 간격 조정 */
+    margin-bottom: 20px;
     text-align: center;
 }
 .ad-notice {
@@ -876,15 +872,15 @@ header h1 {
     display: flex;
     align-items: center;
     padding: 15px;
-    background: linear-gradient(135deg, #e3f2fd, #f0f7ff); /* 은은한 그라데이션 배경 */
+    background: linear-gradient(135deg, #e3f2fd, #f0f7ff);
     border: 1px solid #b3e5fc;
     border-radius: 8px;
     text-decoration: none;
     transition: all 0.2s ease-in-out;
 }
 .blog-ad-box a.custom-ad-banner:hover {
-    transform: translateY(-2px); /* 살짝 떠오르는 효과 */
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1); /* 그림자 효과 */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
     border-color: #81d4fa;
 }
 .ad-icon {
@@ -903,47 +899,40 @@ header h1 {
     display: block;
     font-size: 15px;
     font-weight: bold;
-    color: #0d47a1; /* 진한 파란색 텍스트 */
+    color: #0d47a1;
 }
 .ad-text span {
     font-size: 12px;
-    color: #546e7a; /* 부드러운 회색 텍스트 */
+    color: #546e7a;
 }
 
-/* --- ▼▼▼ 신규 모바일 광고 스타일 ▼▼▼ --- */
 #mobile-ad-top {
-    display: none; /* 평소엔 숨김 */
+    display: none;
     padding: 15px;
     background-color: #fff;
     border-bottom: 1px solid #e0e0e0;
 }
 
 #ad-container-bottom {
-    display: none; /* 평소엔 숨김 */
+    display: none;
     padding: 20px 15px;
     border-top: 1px solid #e0e0e0;
     background-color: #fff;
 }
 
-/* --- ▼▼▼ 미디어 쿼리 수정 (모바일 광고 제어) ▼▼▼ --- */
 @media (max-width: 1199px) {
-    /* 기존 상단 애드센스 숨기기 */
     #ad-container-top {
         display: none !important;
     }
 
-    /* 사이드바에 추가했던 광고 숨기기 */
     #sidebar-ad-container {
         display: none;
     }
 
-    /* 모바일 전용 상/하단 광고 보이기 */
     #mobile-ad-top, #ad-container-bottom {
         display: block;
     }
 }
-
-/* style.css 파일에서 .four-by-four-table 관련 스타일을 찾아 아래 코드로 전체 교체하세요 */
 
 .four-by-four-table {
     width: 100%;
@@ -951,7 +940,6 @@ header h1 {
     border-collapse: separate;
     border-spacing: 5px;
     margin: 20px auto;
-    /* ▼▼▼ [핵심] 모든 열의 너비를 내용물과 상관없이 동일하게 강제합니다. ▼▼▼ */
     table-layout: fixed; 
 }
 .four-by-four-table td {
@@ -961,7 +949,7 @@ header h1 {
     vertical-align: top;
     width: 25%;
     height: 0;
-    padding-bottom: 25%; /* 정사각형 비율 유지를 위한 트릭 */
+    padding-bottom: 25%;
     position: relative;
     border-radius: 8px;
 }
@@ -980,19 +968,18 @@ header h1 {
 .four-by-four-table .deck-pokemon-cell {
     cursor: pointer;
     transition: background-color 0.2s;
-    padding: 2px; /* 이미지 주변의 미세한 여백 */
+    padding: 2px;
 }
 .four-by-four-table .deck-pokemon-cell:hover {
     background-color: #e9ecef;
 }
 .four-by-four-table .deck-pokemon-cell img {
-    /* ▼▼▼ [수정] 이미지가 셀에 꽉 차도록 크기를 100%로 조정합니다. ▼▼▼ */
     width: 100%;
     height: 100%;
-    object-fit: contain; /* 이미지 비율을 유지하면서 채웁니다. */
+    object-fit: contain;
 }
 .four-by-four-table .deck-pokemon-cell .pkm-name {
-    display: none; /* 이름은 숨김 처리 */
+    display: none;
 }
 .four-by-four-table .header-cell {
     background-color: #e9f5ff;
@@ -1014,60 +1001,18 @@ header h1 {
     padding-top: 5px;
     color: #555;
     vertical-align: middle;
-    height: auto; /* tfoot은 높이 자동 조절 */
+    height: auto;
     padding-bottom: 0;
 }
 
-/* --- ▼▼▼ 2단계: 모바일 그리드 메뉴 스타일 ▼▼▼ --- */
-
-/* 기본적으로 PC용 콘텐츠 숨기기 */
 .pc-only {
     display: none;
 }
 
 .mobile-grid-menu {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 2열 그리드 */
-    gap: 10px; /* 버튼 사이의 간격 */
-    width: 100%;
-    max-width: 500px; /* 최대 너비 제한 */
-    padding: 15px;
-}
-
-.grid-menu-btn {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    padding: 20px 10px;
-    font-size: 1.1em;
-    font-weight: bold;
-    color: #333;
-    background-color: #fff;
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    transition: background-color 0.2s, transform 0.2s;
-    text-align: center;
-    min-height: 80px; /* 버튼의 최소 높이 */
-}
-
-.grid-menu-btn:hover {
-    background-color: #f8f9fa;
-}
-
-.grid-menu-btn:active {
-    transform: scale(0.97);
-}
-
-/* --- ▼▼▼ 2단계: 모바일 그리드 & PC/모바일 분기 처리 (최종) ▼▼▼ --- */
-
-/* 1. 모바일 그리드 메뉴 기본 스타일 */
-.mobile-grid-menu {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* 2열 그리드 */
-    gap: 10px; /* 버튼 사이의 간격 */
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
     width: 100%;
     max-width: 500px;
     padding: 15px;
@@ -1100,10 +1045,6 @@ header h1 {
     transform: scale(0.97);
 }
 
-
-/* 2. 화면 크기에 따른 표시/숨김 규칙 */
-
-/* 기본 (모바일) 상태: PC용은 숨기고 모바일용을 보여줌 */
 .main-content-grid.pc-only,
 .main-welcome-area.pc-only {
     display: none;
@@ -1112,8 +1053,7 @@ header h1 {
     display: grid;
 }
 
-/* PC (너비 992px 이상) 상태: 모바일용은 숨기고 PC용을 보여줌 */
-@media (min-width: 992px) { /* <--- 이 부분이 1200px에서 992px로 변경되었습니다. */
+@media (min-width: 992px) {
     .mobile-grid-menu.mobile-only {
         display: none;
     }
@@ -1125,23 +1065,22 @@ header h1 {
     }
 }
 
-/* --- ▼▼▼ 3단계: 통합 필터링 목록 페이지 스타일 ▼▼▼ --- */
 .page-view {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #f8f9fa; /* 배경색 변경 */
+    background-color: #f8f9fa;
     z-index: 10;
     display: flex;
     flex-direction: column;
-    transform: translateX(100%); /* 오른쪽에서 슬라이드 인 효과 준비 */
+    transform: translateX(100%);
     transition: transform 0.35s ease-in-out;
 }
 
 .page-view.visible {
-    transform: translateX(0); /* 페이지 보이기 */
+    transform: translateX(0);
 }
 
 .page-header {
@@ -1166,7 +1105,7 @@ header h1 {
     border: 1px solid var(--border-color);
     background-color: #f8f9fa;
     cursor: pointer;
-    position: absolute; /* 헤더 왼쪽에 고정 */
+    position: absolute;
 }
 
 .page-filters {
@@ -1182,7 +1121,6 @@ header h1 {
     padding: 10px;
 }
 
-/* --- ▼▼▼ 3단계: 통합 목록 페이지 리스트 스타일 ▼▼▼ --- */
 .list-item-card {
     display: flex;
     align-items: center;
@@ -1204,7 +1142,7 @@ header h1 {
     flex-shrink: 0;
     margin-right: 15px;
     background-color: #f8f9fa;
-    border-radius: 50%; /* 원형 이미지 */
+    border-radius: 50%;
     overflow: hidden;
     display: flex;
     justify-content: center;
@@ -1238,7 +1176,6 @@ header h1 {
     gap: 6px;
 }
 
-/* --- ▼▼▼ 3단계: 필터 UI 스타일 ▼▼▼ --- */
 .page-filters {
     padding: 10px 15px;
 }
@@ -1302,7 +1239,6 @@ header h1 {
     object-fit: contain;
 }
 
-/* --- ▼▼▼ 3단계: 필터 팝업(모달) 스타일 ▼▼▼ --- */
 .filter-trigger-btn {
     display: flex;
     align-items: center;
@@ -1329,7 +1265,6 @@ header h1 {
     font-size: 1em;
 }
 
-/* ▼▼▼ [미션 1] 추천 빌드 표시 스타일 ▼▼▼ */
 .recommend-item {
     display: flex;
     align-items: center;
@@ -1359,27 +1294,22 @@ header h1 {
     font-weight: bold;
     color: var(--primary-color);
 }
-/* ▲▲▲ [미션 1] 추천 빌드 표시 스타일 ▲▲▲ */
 
-/* ▼▼▼ [미션 2] 모바일 광고 스타일 ▼▼▼ */
 body.mobile-view #page-body {
-    padding-bottom: 90px; /* 하단 광고의 높이만큼 여백 추가 */
+    padding-bottom: 90px;
 }
 
 #mobile-ad-top {
-    display: none; /* JS로 제어하므로 기본 숨김 */
+    display: none;
 }
 #ad-container-bottom {
-    display: none; /* JS로 제어하므로 기본 숨김 */
+    display: none;
 }
 
 @media (max-width: 1199px) {
-    /* PC용 상단 애드센스 숨기기 */
     #ad-container-top { display: none !important; }
-    /* 사이드바/PC메인의 블로그 광고 숨기기 */
     #sidebar #sidebar-ad-container, .main-ad-area { display: none; }
 
-    /* 모바일 전용 광고 보이기 */
     #mobile-ad-top { display: block; padding: 5px; background-color: #f1f1f1; }
     #ad-container-bottom {
         display: block;
@@ -1394,11 +1324,7 @@ body.mobile-view #page-body {
         z-index: 25;
     }
 }
-/* ▲▲▲ [미션 2] 모바일 광고 스타일 ▲▲▲ */
 
-/* ▼▼▼ [미션 2&3] 모바일 광고, PC 목록 UI, 필터 아이콘 스타일 추가 ▼▼▼ */
-
-/* --- 모바일 광고 레이아웃 --- */
 @media (max-width: 1199px) {
     #mobile-ad-top {
         height: 80px;
@@ -1411,13 +1337,11 @@ body.mobile-view #page-body {
         padding: 5px;
         overflow: hidden;
     }
-    /* 하단 광고 높이만큼 본문에 여백 추가 */
     #page-body {
         padding-bottom: 80px;
     }
 }
 
-/* --- 필터 아이콘 UI --- */
 .type-filter-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
@@ -1447,7 +1371,6 @@ body.mobile-view #page-body {
     object-fit: contain;
 }
 
-/* --- PC 목록 카드 UI --- */
 .panel-content .list-item-card {
     display: flex;
     align-items: center;
@@ -1464,24 +1387,19 @@ body.mobile-view #page-body {
 .panel-content .list-item-card:hover {
     background-color: #f0f2f5;
 }
-/* ▲▲▲ [미션 2&3] 여기까지 ▲▲▲ */
 
 @media (min-width: 992px) {
     .pc-main-content.pc-only {
-        display: block; /* PC 화면에서 보이도록 강제 */
+        display: block;
     }
 }
 
-/* ▼▼▼ [최종 수정] 덱 레이아웃, 필터, PC 목록 아이콘 스타일 ▼▼▼ */
-
-/* 덱 구성표 이미지 일관성 확보 */
 .four-by-four-table .deck-pokemon-cell img {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* 이미지 비율 유지하며 꽉 채우기 */
+    object-fit: contain;
 }
 
-/* 필터 활성화 시각 효과 (빨간색) */
 .filter-button.active {
     background-color: #e74c3c !important;
     color: white !important;
@@ -1496,7 +1414,6 @@ body.mobile-view #page-body {
     box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
 }
 
-/* PC 타입 목록 아이콘 스타일 */
 .list-item-icon {
     width: 24px;
     height: 24px;
@@ -1508,4 +1425,3 @@ body.mobile-view #page-body {
     display: flex;
     align-items: center;
 }
-/* ▲▲▲ 여기까지 ▲▲▲ */
