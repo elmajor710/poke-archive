@@ -569,29 +569,27 @@ header h1 {
 .four-by-four-table .deck-pokemon-cell:hover {
     background-color: #e9ecef;
 }
-.four-by-four-table .deck-pokemon-cell img {
-    width: 65%;
-    height: 65%;
+
+/* 새로 추가할 코드 */
+.four-by-four-table .deck-pokemon-cell img,
+.four-by-four-table .header-cell img,
+.four-by-four-table .header-cell .header-emoji {
+    width: 100%;
+    height: 100%;
     object-fit: contain;
-    margin-bottom: 4px;
+    font-size: 3.5em; /* 이모지 크기를 키웁니다 */
 }
 .four-by-four-table .deck-pokemon-cell .pkm-name {
-    font-size: 11px;
-    font-weight: 500;
-    color: #333;
-    line-height: 1.2;
+    display: none; /* 이름은 깔끔하게 숨깁니다 */
 }
+
 .four-by-four-table .header-cell {
     background-color: #e9f5ff;
 }
 .four-by-four-table .header-cell .header-emoji {
     font-size: 2.5em;
 }
-.four-by-four-table .header-cell img {
-    width: 70%;
-    height: 70%;
-    object-fit: contain;
-}
+
 .four-by-four-table .empty-cell {
     background-color: #f0f0f0;
     border-style: dashed;
