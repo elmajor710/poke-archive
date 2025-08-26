@@ -1,4 +1,4 @@
-// [최종 수정 완료] Nirvana Pokedex script.js - index.html 구조에 완벽히 맞춤
+// [최종 수정본] Nirvana Pokedex script.js
 document.addEventListener('DOMContentLoaded', () => {
     console.log('스크립트 초기화 완료. Nirvana Pokedex 좋아요 기능 추가');
 
@@ -290,7 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(sidebar) {
             sidebar.innerHTML = '';
             sidebar.appendChild(sidebarContent);
-            sidebar.appendChild(adContainer);
         }
     }
 
@@ -808,231 +807,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
     
-    // ▼▼▼ [미션 2] 추천 덱 보기 함수 (수정됨) ▼▼▼
-    function renderDeckView(contentDiv, data) {
-        const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
-        const likedDecks = getLikedDecks();
-        const isLiked = likedDecks.includes(data.id);
-        
-        const likeButtonHTML = `
-            <div class="like-container">
-                <button class="like-btn ${isLiked ? 'liked' : ''}" data-deck-id="${data.id}">
-                    <span class="heart-icon">${isLiked ? '❤️' : '♡'}</span>
-                    <span class="like-count">${data.likeCount || 0}</span>
-                </button>
-            </div>
-        `;
-
-        let html = `<div class="deck-detail-view">
-                        <div class="deck-header">
-                            <h2>${data.name}</h2>
-                            ${likeButtonHTML}
-                        </div>`;
-        if (data.description) { html += `<p class="deck-description">${data.description}</p>`; }
-        html += `<h4>덱 배치</h4>`;
-
-        // 그리드 데이터를 먼저 빈 상태로 초기화 (4x4)
-        const grid = Array(4).fill(null).map(() => Array(4).fill({ type: 'empty' }));
-
-        const positionMap = {
-            'assist_4': [1, 0], 'assist_5': [2, 0], 'assist_6': [3, 0], 
-            'assist_1': [1, 1], 'assist_2': [2, 1], 'assist_3': [3, 1],
-            'main_4': [1, 2], 'main_5': [2, 2], 'main_6': [3, 2], 
-            'main_1': [1, 3], 'main_2': [2, 3], 'main_3': [3, 3]
-        };
-
-        // 데이터가 있을 때만 해당 위치를 덮어씀
-        if (data.weather && weatherToEmoji[data.weather]) {
-            grid[0][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather, colspan: 2 };
-            grid[0][1] = null; // colspan으로 인해 비워짐
-        }
-
-        const mainPokemonIds = data.composition.filter(m => m.role === 'main').map(m => m.pokemonId);
-        const synergy = calculateSynergy(mainPokemonIds);
-        if (synergy) {
-             grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}" alt="${synergy.name}">`, label: synergy.name, colspan: 2 };
-             grid[0][3] = null; // colspan으로 인해 비워짐
-        }
-        
-        data.composition.forEach(member => { 
-            const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
-            if (!pkmData) return; 
-            const key = `${member.role}_${member.position}`;
-            if(positionMap[key]) {
-                const [row, col] = positionMap[key];
-                grid[row][col] = { type: 'pokemon', ...pkmData };
-            }
-        });
-
-        // HTML 테이블 생성
-        html += `<table class="four-by-four-table"><tbody>`;
-        for (let i = 0; i < 4; i++) {
-            html += '<tr>';
-            for (let j = 0; j < 4; j++) {
-                const cell = grid[i][j];
-                if (cell === null) continue; // colspan 처리된 셀은 건너뛰기
-
-                if (cell.type === 'pokemon') {
-                    html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"></div></td>`;
-                } else if (cell.type === 'header') {
-                    html += `<td class="header-cell" colspan="${cell.colspan || 1}" title="${cell.label}"><div>${cell.content}</div></td>`;
-                } else { // cell.type === 'empty'
-                    html += `<td class="empty-cell"></td>`;
-                }
-            }
-            html += '</tr>';
-        }
-        html += `</tbody><tfoot><tr>
-                    <td colspan="2">어시스트 #1~#6</td>
-                    <td colspan="2">메인덱 #1~#6</td>
-                 </tr></tfoot></table></div>`;
-        
-        contentDiv.innerHTML = html;
-
-        contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
-            cell.addEventListener('click', () => {
-                const pokemonId = cell.dataset.pokemonId;
-                const pkmData = DB.pokemonType.lev4[pokemonId];
-                if (pkmData) {
-                    let badgesHTML = '';
-                    if (pkmData.grade) {
-                        const gradeClass = `grade-${pkmData.grade.toLowerCase().replace('+', '-plus')}`;
-                        badgesHTML += `<span class="grade-badge ${gradeClass}">${pkmData.grade}</span>`;
-                    }
-                    if (pkmData.types && pkmData.types.length > 0) {
-                        pkmData.types.forEach(typeId => {
-                            const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-                            if (typeInfo) badgesHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
-                        });
-                    }
-                    const popupContent = document.createElement('div');
-                    popupContent.innerHTML = `<div class="badge-container" style="justify-content: center; margin-top: 10px;">${badgesHTML}</div>`;
-                    showModal(pkmData.name_ko, popupContent);
-                }
-            });
-        });
-    }
-
-    function renderCalendarView(contentDiv, data) {
-        let currentCalendarDate = new Date();
-        function buildCalendar(year, month) {
-            const calendarView = document.createElement('div');
-            calendarView.className = 'calendar-view';
-            const monthEvents = {};
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const addEvent = (event, eventDate) => {
-                const day = eventDate.getDate();
-                if (!monthEvents[day]) monthEvents[day] = [];
-                const startDate = event.startDate.toDate ? event.startDate.toDate() : new Date(event.startDate);
-                const endDate = new Date(startDate);
-                endDate.setDate(startDate.getDate() + (event.duration - 1));
-                monthEvents[day].push({ ...event, startDate, endDate });
-            };
-            (data.events || []).forEach(event => {
-                if (!event.startDate) return;
-                const startDate = event.startDate.toDate ? event.startDate.toDate() : new Date(event.startDate);
-                for (let i = 0; i < (event.duration || 1); i++) {
-                    const eventDate = new Date(startDate);
-                    eventDate.setDate(eventDate.getDate() + i);
-                    if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
-                        addEvent({...event, date: startDate.toISOString().split('T')[0]}, eventDate);
-                    }
-                }
-            });
-            (data.recurringEvents || []).forEach(re => {
-                 let currentDate = new Date(re.startDate + 'T00:00:00');
-                 while (currentDate.getFullYear() < year + 2) {
-                    if (currentDate.getFullYear() > year || (currentDate.getFullYear() === year && currentDate.getMonth() > month)) break;
-                    for (let i = 0; i < (re.duration || 1); i++) {
-                        const eventDate = new Date(currentDate);
-                        eventDate.setDate(eventDate.getDate() + i);
-                         if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
-                            addEvent({ ...re, date: currentDate.toISOString().split('T')[0], startDate: currentDate }, eventDate);
-                        }
-                    }
-                    if (re.interval === '4_weeks') currentDate.setDate(currentDate.getDate() + 28);
-                    else break;
-                }
-            });
-            let html = `<div class="calendar-header"><span class="calendar-title">${year}년 ${month + 1}월</span><div class="calendar-nav"><button id="cal-prev-btn">&lt; 이전</button><button id="cal-today-btn">Today</button><button id="cal-next-btn">다음 &gt;</button></div></div>
-        <div class="calendar-legend">
-            <div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div>
-            <div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div>
-            <div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div>
-            <div class="legend-item"><span class="legend-dot event-type-carnival"></span> 카니발</div>
-            <div class="legend-item"><span class="legend-dot event-type-season"></span> 시즌</div>
-            <div class="legend-item"><span class="legend-dot event-type-etc"></span> 기타</div>
-        </div>
-        <table class="calendar-grid"><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody>`;
-            let dateCounter = 1;
-            const startDay = firstDay.getDay();
-            const daysInMonth = lastDay.getDate();
-            for (let i = 0; i < 6; i++) {
-                html += '<tr>';
-                for (let j = 0; j < 7; j++) {
-                    if (i === 0 && j < startDay || dateCounter > daysInMonth) {
-                        html += '<td class="day-other-month"></td>';
-                    } else {
-                        const today = new Date();
-                        const isToday = (dateCounter === today.getDate() && month === today.getMonth() && year === today.getFullYear());
-                        const eventsOnDay = monthEvents[dateCounter];
-                        let cellClass = 'day-current-month';
-                        if (isToday) cellClass += ' day-today';
-                        if (eventsOnDay) cellClass += ' has-events';
-                        html += `<td class="${cellClass}" data-day="${dateCounter}"><div class="date-number">${dateCounter}</div>`;
-                        if (eventsOnDay) {
-                            html += `<div class="event-markers">${eventsOnDay.map(event => `<div class="event-marker event-type-${event.type}">${event.title || event.name}</div>`).join('')}</div>`;
-                        }
-                        html += '</td>';
-                        dateCounter++;
-                    }
-                }
-                html += '</tr>';
-                if (dateCounter > daysInMonth) break;
-            }
-            html += `</tbody></table>`;
-            calendarView.innerHTML = html;
-            calendarView.addEventListener('click', (e) => {
-                const target = e.target;
-                if(target.id === 'cal-prev-btn') {
-                    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
-                    updateCalendar();
-                } else if (target.id === 'cal-next-btn') {
-                    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
-                    updateCalendar();
-                } else if (target.id === 'cal-today-btn') {
-                    currentCalendarDate = new Date();
-                    updateCalendar();
-                } else {
-                    const cell = target.closest('.has-events');
-                    if (cell) {
-                        const day = parseInt(cell.dataset.day);
-                        const events = monthEvents[day];
-                        if(events && events.length > 0) {
-                            const eventContent = events.map(evt => {
-                                const duration = evt.duration || 1;
-                                const startStr = evt.startDate.toISOString().split('T')[0];
-                                const endStr = evt.endDate.toISOString().split('T')[0];
-                                const period = duration > 1 ? `${startStr} ~ ${endStr} (${duration}일간)` : startStr;
-                                return `<h4>${evt.title || evt.name}</h4><p><strong>기간:</strong> ${period}</p><p>${evt.description}</p>`;
-                            }).join('<hr>');
-                            const popupContent = document.createElement('div');
-                            popupContent.innerHTML = eventContent;
-                            showModal(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')} 이벤트`, popupContent);
-                        }
-                    }
-                }
-            });
-            return calendarView;
-        }
-        function updateCalendar() {
-            contentDiv.innerHTML = '';
-            contentDiv.appendChild(buildCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth()));
-        }
-        updateCalendar();
-    }
-
     function renderDeckBuilder(contentDiv) {
         let html = `
             <div class="deck-builder-view">
@@ -1323,53 +1097,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // ▼▼▼ [미션 1-1] 필터 팝업 생성 함수 (수정됨) ▼▼▼
-    function openFilterModal() {
-        const modalOverlay = document.getElementById('filter-modal-overlay');
-        const modalBody = document.getElementById('filter-modal-body');
-        const menuId = document.getElementById('list-page-title').dataset.menuId;
-        
-        let filtersHTML = '';
-        if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
-            filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
-            DB.pokemonGrade.lev2.forEach(grade => {
-                const isActive = activeFilters.grade.includes(grade.name) ? 'active' : '';
-                filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
-            });
-            filtersHTML += '</div></div>';
-            
-            filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
-            DB.pokemonType.lev2.forEach(type => {
-                const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
-                // 이미지 태그가 포함되도록 수정
-                filtersHTML += `
-                    <button class="type-icon-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}">
-                        <img src="${type.iconURL}" alt="${type.name}">
-                    </button>
-                `;
-            });
-            filtersHTML += '</div></div>';
-
-        } else if (menuId === 'item') {
-            filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
-            const gradeOrder = { "God": 1, "Legendary": 2, "Epic": 3 };
-            const sortedGrades = [...DB.item.lev2].sort((a, b) => {
-                const gradeA = a.name.match(/\((.*?)\)/)[1];
-                const gradeB = b.name.match(/\((.*?)\)/)[1];
-                return (gradeOrder[gradeA] || 99) - (gradeOrder[gradeB] || 99);
-            });
-            sortedGrades.forEach(grade => {
-                const gradeValue = grade.name.match(/\((.*?)\)/)[1];
-                const isActive = activeFilters.grade.includes(gradeValue) ? 'active' : '';
-                filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${gradeValue}">${gradeValue}</button>`;
-            });
-            filtersHTML += '</div></div>';
-        }
-        
-        modalBody.innerHTML = filtersHTML;
-        modalOverlay.style.display = 'flex';
-    }
-
     function applyFiltersAndRender() {
         const menuId = document.getElementById('list-page-title').dataset.menuId;
         let dataList = [];
@@ -1549,7 +1276,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  closeFilterModal();
             }
             
-            // ▼▼▼ [미션 1-2] 필터 클릭 이벤트 로직 (수정됨) ▼▼▼
+            // ▼▼▼ [최종 수정] 필터 클릭 이벤트 로직 ▼▼▼
             const filterButton = e.target.closest('.filter-button, .type-icon-button');
             if (filterButton && filterButton.closest('#filter-modal-body')) {
                 const { filterType, filterValue } = filterButton.dataset;
@@ -1560,29 +1287,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!activeFilters[filterType]) activeFilters[filterType] = [];
                 const index = activeFilters[filterType].indexOf(filterValue);
 
-                if (index > -1) {
-                    // 필터 제거
-                    activeFilters[filterType].splice(index, 1);
-                } else {
-                    // 필터 추가
-                    activeFilters[filterType].push(filterValue);
-                }
-                // *** 직접 스타일 제어 (CSS 충돌 방지) ***
                 if (filterButton.classList.contains('active')) {
-                    filterButton.style.borderColor = '#c0392b';
-                    filterButton.style.backgroundColor = '#e74c3c';
-                    if(filterButton.classList.contains('filter-button')){
-                        filterButton.style.color = 'white';
-                    }
-                    if(filterButton.classList.contains('type-icon-button')){
-                        filterButton.style.borderWidth = '3px';
-                    }
+                    if (index === -1) activeFilters[filterType].push(filterValue);
                 } else {
-                    // 기본 스타일로 복원
-                    filterButton.style.borderColor = '';
-                    filterButton.style.backgroundColor = '';
-                    filterButton.style.color = '';
-                    filterButton.style.borderWidth = '';
+                    if (index > -1) activeFilters[filterType].splice(index, 1);
                 }
             }
 
@@ -1594,7 +1302,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if(resetFilterBtn) {
                 activeFilters.grade = [];
                 activeFilters.type = [];
-                // 모달을 다시 열어 시각적으로 초기화된 것을 보여줌
                 openFilterModal();
             }
         });
