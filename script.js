@@ -1,4 +1,4 @@
-// [최종 복구 및 수정 버전] Nirvana Pokedex script.js
+// [최종 복구 및 재수정 버전] Nirvana Pokedex script.js
 document.addEventListener('DOMContentLoaded', () => {
     console.log('스크립트 초기화 완료. 모든 기능 복구 및 미션 3 재수정');
 
@@ -71,6 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let activeButtons = {};
     const isMobile = () => window.innerWidth <= 991;
+    let activeFilters = {
+        grade: [],
+        type: []
+    };
 
     async function initialize() {
         try {
@@ -272,21 +276,6 @@ document.addEventListener('DOMContentLoaded', () => {
             button.innerHTML = buttonHTML;
             sidebarContent.appendChild(button);
         });
-        const adContainer = document.createElement('div');
-        adContainer.id = 'sidebar-ad-container';
-        adContainer.innerHTML = `
-            <div class="blog-ad-box">
-                <a href="https://index001.elmajor710.com" target="_blank" class="custom-ad-banner">
-                    <div class="ad-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3c0 .35.07.69.18 1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zM8 4h8a1 1 0 0 1 1 1c0 .34-.07.66-.18 1H7.18C7.07 5.66 7 5.34 7 5a1 1 0 0 1 1-1zm12 15H4V8h16v11z"/><path d="M12 17a4 4 0 0 0 4-4h-2a2 2 0 0 1-2 2 2 2 0 0 1-2-2H8a4 4 0 0 0 4 4zm0-6a1 1 0 0 0 1-1V9a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1z"/></svg>
-                    </div>
-                    <div class="ad-text">
-                        <strong>나라지원금 Info.</strong>
-                        <span>놓치면 손해! 혜택 확인하기</span>
-                    </div>
-                </a>
-            </div>
-        `;
         if(sidebar) {
             sidebar.innerHTML = '';
             sidebar.appendChild(sidebarContent);
@@ -1080,11 +1069,6 @@ document.addEventListener('DOMContentLoaded', () => {
         listContent.innerHTML = listHTML;
     }
 
-    let activeFilters = {
-        grade: [],
-        type: []
-    };
-
     function renderFilters(menuId) {
         const filtersContainer = document.getElementById('list-page-filters');
         filtersContainer.innerHTML = `
@@ -1276,7 +1260,6 @@ document.addEventListener('DOMContentLoaded', () => {
                  closeFilterModal();
             }
             
-            // ▼▼▼ [최종 수정] 필터 클릭 이벤트 로직 ▼▼▼
             const filterButton = e.target.closest('.filter-button, .type-icon-button');
             if (filterButton && filterButton.closest('#filter-modal-body')) {
                 const { filterType, filterValue } = filterButton.dataset;
