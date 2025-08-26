@@ -290,6 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(sidebar) {
             sidebar.innerHTML = '';
             sidebar.appendChild(sidebarContent);
+            sidebar.appendChild(adContainer);
         }
     }
 
@@ -347,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleMenuClick(button) {
-        // ▼▼▼ [수정] 스마트 뒤로가기 상태를 초기화하는 로직 ▼▼▼
         if (parseInt(button.dataset.level) === 1) {
             sessionStorage.removeItem('returnToMain');
         }
@@ -808,10 +808,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
     
+    // ▼▼▼ [미션 2] 추천 덱 보기 함수 (수정됨) ▼▼▼
     function renderDeckView(contentDiv, data) {
         const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
         const likedDecks = getLikedDecks();
         const isLiked = likedDecks.includes(data.id);
+        
         const likeButtonHTML = `
             <div class="like-container">
                 <button class="like-btn ${isLiked ? 'liked' : ''}" data-deck-id="${data.id}">
@@ -820,6 +822,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </div>
         `;
+
         let html = `<div class="deck-detail-view">
                         <div class="deck-header">
                             <h2>${data.name}</h2>
@@ -827,21 +830,30 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>`;
         if (data.description) { html += `<p class="deck-description">${data.description}</p>`; }
         html += `<h4>덱 배치</h4>`;
-        const grid = Array(4).fill(null).map(() => Array(4).fill(null));
+
+        // 그리드 데이터를 먼저 빈 상태로 초기화 (4x4)
+        const grid = Array(4).fill(null).map(() => Array(4).fill({ type: 'empty' }));
+
         const positionMap = {
             'assist_4': [1, 0], 'assist_5': [2, 0], 'assist_6': [3, 0], 
             'assist_1': [1, 1], 'assist_2': [2, 1], 'assist_3': [3, 1],
             'main_4': [1, 2], 'main_5': [2, 2], 'main_6': [3, 2], 
             'main_1': [1, 3], 'main_2': [2, 3], 'main_3': [3, 3]
         };
+
+        // 데이터가 있을 때만 해당 위치를 덮어씀
         if (data.weather && weatherToEmoji[data.weather]) {
             grid[0][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather, colspan: 2 };
+            grid[0][1] = null; // colspan으로 인해 비워짐
         }
+
         const mainPokemonIds = data.composition.filter(m => m.role === 'main').map(m => m.pokemonId);
         const synergy = calculateSynergy(mainPokemonIds);
         if (synergy) {
              grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}" alt="${synergy.name}">`, label: synergy.name, colspan: 2 };
+             grid[0][3] = null; // colspan으로 인해 비워짐
         }
+        
         data.composition.forEach(member => { 
             const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
             if (!pkmData) return; 
@@ -851,34 +863,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 grid[row][col] = { type: 'pokemon', ...pkmData };
             }
         });
+
+        // HTML 테이블 생성
         html += `<table class="four-by-four-table"><tbody>`;
         for (let i = 0; i < 4; i++) {
             html += '<tr>';
             for (let j = 0; j < 4; j++) {
-                if (grid[i][j] === undefined) continue;
                 const cell = grid[i][j];
-                if (cell) {
-                    if (cell.type === 'pokemon') {
-                        html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"></div></td>`;
-                    } else if (cell.type === 'header') {
-                        html += `<td class="header-cell" colspan="${cell.colspan || 1}" title="${cell.label}"><div>${cell.content}</div></td>`;
-                        if (cell.colspan > 1) {
-                            for (let k = 1; k < cell.colspan; k++) grid[i][j+k] = undefined;
-                        }
-                    }
-                } else {
+                if (cell === null) continue; // colspan 처리된 셀은 건너뛰기
+
+                if (cell.type === 'pokemon') {
+                    html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"></div></td>`;
+                } else if (cell.type === 'header') {
+                    html += `<td class="header-cell" colspan="${cell.colspan || 1}" title="${cell.label}"><div>${cell.content}</div></td>`;
+                } else { // cell.type === 'empty'
                     html += `<td class="empty-cell"></td>`;
                 }
             }
             html += '</tr>';
         }
-        html += `</tbody>`;
-        html += `<tfoot><tr>
+        html += `</tbody><tfoot><tr>
                     <td colspan="2">어시스트 #1~#6</td>
                     <td colspan="2">메인덱 #1~#6</td>
-                 </tr></tfoot>`;
-        html += `</table></div>`;
+                 </tr></tfoot></table></div>`;
+        
         contentDiv.innerHTML = html;
+
         contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
             cell.addEventListener('click', () => {
                 const pokemonId = cell.dataset.pokemonId;
@@ -1313,7 +1323,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // ▼▼▼ [수정] 모바일 필터 UI를 아이콘으로 표시하도록 변경 ▼▼▼
+    // ▼▼▼ [미션 1-1] 필터 팝업 생성 함수 (수정됨) ▼▼▼
     function openFilterModal() {
         const modalOverlay = document.getElementById('filter-modal-overlay');
         const modalBody = document.getElementById('filter-modal-body');
@@ -1331,6 +1341,7 @@ document.addEventListener('DOMContentLoaded', () => {
             filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
             DB.pokemonType.lev2.forEach(type => {
                 const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
+                // 이미지 태그가 포함되도록 수정
                 filtersHTML += `
                     <button class="type-icon-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}">
                         <img src="${type.iconURL}" alt="${type.name}">
@@ -1470,7 +1481,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 const menuId = mainShortcut.dataset.menuId;
                 const itemId = mainShortcut.dataset.itemId;
-                sessionStorage.setItem('returnToMain', 'true'); // 스마트 뒤로가기 상태 저장
+                sessionStorage.setItem('returnToMain', 'true');
                 if (isMobile()) {
                     showDetailPage(itemId, menuId);
                 } else {
@@ -1491,7 +1502,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     backButton.className = 'back-btn';
                     backButton.innerHTML = '&lt; 뒤로';
                     backButton.addEventListener('click', (e) => {
-                        e.stopPropagation(); // 이벤트 중복 실행 방지
+                        e.stopPropagation();
                         handleMainButtonClick();
                     }, { once: true });
                     panelHeader.appendChild(backButton);
@@ -1537,17 +1548,41 @@ document.addEventListener('DOMContentLoaded', () => {
             if ((filterModalOverlay && e.target === filterModalOverlay) || closeFilterBtn) {
                  closeFilterModal();
             }
-
+            
+            // ▼▼▼ [미션 1-2] 필터 클릭 이벤트 로직 (수정됨) ▼▼▼
             const filterButton = e.target.closest('.filter-button, .type-icon-button');
             if (filterButton && filterButton.closest('#filter-modal-body')) {
                 const { filterType, filterValue } = filterButton.dataset;
+                
+                // active 클래스 토글
                 filterButton.classList.toggle('active');
+
                 if (!activeFilters[filterType]) activeFilters[filterType] = [];
                 const index = activeFilters[filterType].indexOf(filterValue);
+
                 if (index > -1) {
+                    // 필터 제거
                     activeFilters[filterType].splice(index, 1);
                 } else {
+                    // 필터 추가
                     activeFilters[filterType].push(filterValue);
+                }
+                // *** 직접 스타일 제어 (CSS 충돌 방지) ***
+                if (filterButton.classList.contains('active')) {
+                    filterButton.style.borderColor = '#c0392b';
+                    filterButton.style.backgroundColor = '#e74c3c';
+                    if(filterButton.classList.contains('filter-button')){
+                        filterButton.style.color = 'white';
+                    }
+                    if(filterButton.classList.contains('type-icon-button')){
+                        filterButton.style.borderWidth = '3px';
+                    }
+                } else {
+                    // 기본 스타일로 복원
+                    filterButton.style.borderColor = '';
+                    filterButton.style.backgroundColor = '';
+                    filterButton.style.color = '';
+                    filterButton.style.borderWidth = '';
                 }
             }
 
@@ -1559,6 +1594,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(resetFilterBtn) {
                 activeFilters.grade = [];
                 activeFilters.type = [];
+                // 모달을 다시 열어 시각적으로 초기화된 것을 보여줌
                 openFilterModal();
             }
         });
