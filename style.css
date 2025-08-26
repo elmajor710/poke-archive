@@ -1,6 +1,6 @@
 :root {
     --sidebar-width: 240px;
-    --right-ad-width: 240px;
+    --right-ad-width: 240px; /* PC 우측 광고 너비 */
     --primary-color: #007bff;
     --active-color: #e6f7ff;
     --border-color: #dee2e6;
@@ -17,9 +17,9 @@
     --event-luckycat-color: #4caf50;
     --main-pastel: #e8f5e9; 
     --assist-pastel: #e3f2fd;
-    --event-carnival-color: #9c27b0;
-    --event-season-color: #ff5722;
-    --event-etc-color: #607d8b;
+    --event-carnival-color: #9c27b0; /* 카니발 (보라) */
+    --event-season-color: #ff5722;   /* 시즌 (주황) */
+    --event-etc-color: #607d8b;      /* 기타 (회색) */
 }
 
 *, *::before, *::after {
@@ -140,6 +140,31 @@ header h1 {
     align-items: center;
 }
 
+.mobile-main-buttons {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.main-action-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: #fff;
+    transition: background-color 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.main-action-btn:hover {
+    background-color: #f8f9fa;
+}
+
 .main-content-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -188,6 +213,13 @@ header h1 {
 }
 .main-content-box a:hover {
     text-decoration: underline;
+}
+
+.popular-like-count {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-left: 10px;
+    flex-shrink: 0;
 }
 
 .main-welcome-area {
@@ -403,6 +435,7 @@ header h1 {
 .filter-group:last-child { margin-bottom: 0; }
 .filter-group h4 { margin: 0 0 8px 0; font-size: 0.9em; color: #6c757d; }
 .filter-options { display: flex; flex-wrap: wrap; gap: 8px; }
+
 .filter-button { padding: 6px 12px; border: 1px solid #ced4da; border-radius: 20px; background-color: #fff; font-size: 0.9em; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
 .type-filter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 8px; }
 .type-icon-button { width: 40px; height: 40px; border: 2px solid var(--border-color); border-radius: 50%; padding: 5px; background-color: #fff; cursor: pointer; transition: border-color 0.2s, transform 0.2s; }
@@ -448,16 +481,16 @@ header h1 {
 }
 
 /* ----- 피드백 3: 필터 선택 시각 효과 (빨간색) ----- */
-/* 기존 파란색 효과 삭제 후 새로운 효과 적용 */
-.filter-button.active {
-    background-color: #e74c3c;
-    color: white;
-    border-color: #c0392b;
+.filter-button.active,
+.type-icon-button.active {
+    background-color: #e74c3c !important;
+    border-color: #c0392b !important;
+    color: white !important;
     font-weight: bold;
 }
 
+/* 아이콘 버튼 추가 효과 */
 .type-icon-button.active {
-    border-color: #e74c3c;
     border-width: 3px;
     transform: scale(1.1);
     box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
