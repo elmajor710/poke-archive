@@ -553,7 +553,7 @@ header h1 {
 .four-by-four-table td::before {
     content: "";
     display: block;
-    padding-top: 100%; /* 1:1 비율 유지를 위한 트릭 */
+    padding-top: 100%; /* 1:1 비율 유지 */
 }
 .four-by-four-table td > div {
     position: absolute;
@@ -565,10 +565,6 @@ header h1 {
     justify-content: center;
     align-items: center;
     padding: 0;
-}
-.four-by-four-table .deck-pokemon-cell {
-    cursor: pointer;
-    transition: background-color 0.2s;
 }
 .four-by-four-table .deck-pokemon-cell:hover {
     background-color: #e9ecef;
@@ -601,7 +597,7 @@ header h1 {
     padding-bottom: 0;
 }
 .four-by-four-table tfoot td::before {
-    padding-top: 0;
+    padding-top: 0; /* 푸터는 비율 유지 안 함 */
 }
 /* ▲▲▲ [최종 수정] 여기까지 ▲▲▲ */
 
@@ -1167,15 +1163,15 @@ header h1 {
 
 /* ▼▼▼ [최종 수정] 필터 활성화 스타일 ▼▼▼ */
 .filter-button.active {
-    background-color: var(--active-red-color) !important;
-    color: white !important;
-    border-color: var(--active-red-border) !important;
+    background-color: var(--active-red-color);
+    color: white;
+    border-color: var(--active-red-border);
     font-weight: bold;
 }
 
 .type-icon-button.active {
-    border-color: var(--active-red-color) !important;
-    border-width: 3px !important;
+    border-color: var(--active-red-color);
+    border-width: 3px;
     transform: scale(1.1);
     box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
 }

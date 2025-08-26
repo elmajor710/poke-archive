@@ -1,6 +1,6 @@
-// [최종 수정본] Nirvana Pokedex script.js
+// [최종 복구 및 수정 버전] Nirvana Pokedex script.js
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 좋아요 기능 추가');
+    console.log('스크립트 초기화 완료. 모든 기능 복구 및 미션 3 재수정');
 
     function setupAdObservers() {
         const adContainers = document.querySelectorAll('.ad-container');
@@ -1281,16 +1281,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (filterButton && filterButton.closest('#filter-modal-body')) {
                 const { filterType, filterValue } = filterButton.dataset;
                 
-                // active 클래스 토글
                 filterButton.classList.toggle('active');
 
                 if (!activeFilters[filterType]) activeFilters[filterType] = [];
                 const index = activeFilters[filterType].indexOf(filterValue);
 
                 if (filterButton.classList.contains('active')) {
-                    if (index === -1) activeFilters[filterType].push(filterValue);
+                    if (index === -1) {
+                        activeFilters[filterType].push(filterValue);
+                    }
                 } else {
-                    if (index > -1) activeFilters[filterType].splice(index, 1);
+                    if (index > -1) {
+                        activeFilters[filterType].splice(index, 1);
+                    }
                 }
             }
 
