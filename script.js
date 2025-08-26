@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.values(DB.pokemonType.lev4).forEach(pokemon => {
             if (pokemon.types && Array.isArray(pokemon.types)) {
                 pokemon.types.forEach(typeId => {
-                    if (types[typeId]) types[typeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
+                    if (types[typeId]) types[typeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name, grade: pokemon.grade, types: pokemon.types, faceImageURL: pokemon.faceImageURL });
                 });
             }
         });
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.values(DB.pokemonType.lev4).forEach(pokemon => {
             if (pokemon && pokemon.grade) {
                 const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id;
-                if (gradeId && grades[gradeId]) grades[gradeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
+                if (gradeId && grades[gradeId]) grades[gradeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name, grade: pokemon.grade, types: pokemon.types, faceImageURL: pokemon.faceImageURL });
             }
         });
         Object.values(grades).forEach(gradeList => gradeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
@@ -213,8 +213,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const itemGrades = { god: [], legendary: [], epic: [] };
         Object.values(DB.item.lev4).forEach(item => {
             const gradeKey = item.grade?.toLowerCase();
-            if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name, imageURL: item.imageURL });
+            if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name, imageURL: item.imageURL, grade: item.grade });
         });
+        Object.values(itemGrades).forEach(g => g.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
         DB.item.lev3 = itemGrades;
         
         const gradeOrder = { 'god': 1, 'legendary': 2, 'epic': 3 };
@@ -347,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleMenuClick(button) {
-        // ▼▼▼ [수정] 스마트 뒤로가기 상태를 초기화하는 로직 ▼▼▼
         if (parseInt(button.dataset.level) === 1) {
             sessionStorage.removeItem('returnToMain');
         }
@@ -835,7 +835,9 @@ document.addEventListener('DOMContentLoaded', () => {
             'main_1': [1, 3], 'main_2': [2, 3], 'main_3': [3, 3]
         };
         if (data.weather && weatherToEmoji[data.weather]) {
-            grid[0][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather, colspan: 2 };
+            // ▼▼▼ [수정] 이모지에 CSS 클래스 추가 ▼▼▼
+            const weatherContent = `<span class="header-emoji">${weatherToEmoji[data.weather]}</span>`;
+            grid[0][0] = { type: 'header', content: weatherContent, label: data.weather, colspan: 2 };
         }
         const mainPokemonIds = data.composition.filter(m => m.role === 'main').map(m => m.pokemonId);
         const synergy = calculateSynergy(mainPokemonIds);
@@ -1313,7 +1315,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // ▼▼▼ [수정] 모바일 필터 UI를 아이콘으로 표시하도록 변경 ▼▼▼
     function openFilterModal() {
         const modalOverlay = document.getElementById('filter-modal-overlay');
         const modalBody = document.getElementById('filter-modal-body');
@@ -1468,9 +1469,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const mainShortcut = e.target.closest('#main-notice-list a, #popular-deck-list a');
             if (mainShortcut) {
                 e.preventDefault();
+                sessionStorage.setItem('returnToMain', 'true');
                 const menuId = mainShortcut.dataset.menuId;
                 const itemId = mainShortcut.dataset.itemId;
-                sessionStorage.setItem('returnToMain', 'true'); // 스마트 뒤로가기 상태 저장
                 if (isMobile()) {
                     showDetailPage(itemId, menuId);
                 } else {
@@ -1490,11 +1491,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const backButton = document.createElement('button');
                     backButton.className = 'back-btn';
                     backButton.innerHTML = '&lt; 뒤로';
-                    // 수정할 코드
-backButton.addEventListener('click', (e) => {
-    e.stopPropagation(); // 이벤트 중복 실행 방지
-    handleMainButtonClick();
-}, { once: true });
+                    backButton.addEventListener('click', (e) => {
+                        e.stopPropagation(); 
+                        handleMainButtonClick();
+                    }, { once: true });
                     panelHeader.appendChild(backButton);
                     Object.values(panels).forEach(p => p.classList.remove('visible'));
                     detailPanel.classList.add('visible');
