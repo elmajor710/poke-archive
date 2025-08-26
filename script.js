@@ -835,7 +835,6 @@ document.addEventListener('DOMContentLoaded', () => {
             'main_1': [1, 3], 'main_2': [2, 3], 'main_3': [3, 3]
         };
         if (data.weather && weatherToEmoji[data.weather]) {
-            // ▼▼▼ [수정] 이모지에 CSS 클래스 추가 ▼▼▼
             const weatherContent = `<span class="header-emoji">${weatherToEmoji[data.weather]}</span>`;
             grid[0][0] = { type: 'header', content: weatherContent, label: data.weather, colspan: 2 };
         }
