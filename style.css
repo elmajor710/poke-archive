@@ -280,7 +280,6 @@ header h1 {
 .back-btn, .main-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border-color); background-color: #f8f9fa; cursor: pointer; }
 .main-btn { padding: 5px 12px; border-radius: 5px; background-color: #6c757d; color: white; border: 1px solid #6c757d; cursor: pointer; }
 
-/* ▼▼▼ [수정] 이 부분의 justify-content 속성을 제거합니다. ▼▼▼ */
 .menu-item, .list-item { 
     display: block; 
     width: 100%; 
@@ -295,7 +294,6 @@ header h1 {
     display: flex; 
     align-items: center; 
 }
-/* ▲▲▲ [수정] 여기까지 ▲▲▲ */
 
 .menu-item.active, .list-item.active { background-color: var(--active-color); border-left: 4px solid var(--primary-color); font-weight: 600; }
 .item-description { white-space: pre-wrap; line-height: 1.7; background-color: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 14px; color: #333; }
@@ -531,6 +529,7 @@ header h1 {
     margin-left: 8px;
 }
 
+/* ▼▼▼ [미션 2-1] 추천 덱 그리드 스타일 수정 ▼▼▼ */
 .four-by-four-table {
     width: 100%;
     max-width: 400px;
@@ -543,7 +542,7 @@ header h1 {
     border: 1px solid #ddd;
     background-color: #f9f9f9;
     text-align: center;
-    vertical-align: top;
+    vertical-align: middle; /* 세로 중앙 정렬 */
     width: 25%;
     height: 0;
     padding-bottom: 25%;
@@ -560,7 +559,7 @@ header h1 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 5px;
+    padding: 0; /* 내부 여백 제거 */
 }
 .four-by-four-table .deck-pokemon-cell {
     cursor: pointer;
@@ -573,28 +572,41 @@ header h1 {
     width: 100%;
     height: 100%;
     object-fit: contain;
+    padding: 4px; /* 이미지 자체에 약간의 여백 부여 */
+    box-sizing: border-box;
 }
 .four-by-four-table .deck-pokemon-cell .pkm-name {
-    font-size: 11px;
-    font-weight: 500;
-    color: #333;
-    line-height: 1.2;
+    display: none;
 }
 .four-by-four-table .header-cell {
     background-color: #e9f5ff;
-}
-.four-by-four-table .header-cell .header-emoji {
-    font-size: 2.5em;
+    font-size: 5vh; /* 셀 크기에 비례하여 폰트 크기 조절 */
+    line-height: 1;
 }
 .four-by-four-table .header-cell img {
     width: 100%;
     height: 100%;
     object-fit: contain;
+    padding: 8px; /* 아이콘 이미지에 여백 부여 */
+    box-sizing: border-box;
 }
 .four-by-four-table .empty-cell {
     background-color: #f0f0f0;
     border-style: dashed;
 }
+.four-by-four-table tfoot td {
+    border: none;
+    background-color: transparent;
+    font-weight: bold;
+    font-size: 14px;
+    padding-top: 5px;
+    color: #555;
+    vertical-align: middle;
+    height: auto;
+    padding-bottom: 0;
+}
+/* ▲▲▲ [미션 2-1] 여기까지 ▲▲▲ */
+
 
 .like-container {
     display: flex;
@@ -933,77 +945,6 @@ header h1 {
     }
 }
 
-.four-by-four-table {
-    width: 100%;
-    max-width: 400px;
-    border-collapse: separate;
-    border-spacing: 5px;
-    margin: 20px auto;
-    table-layout: fixed; 
-}
-.four-by-four-table td {
-    border: 1px solid #ddd;
-    background-color: #f9f9f9;
-    text-align: center;
-    vertical-align: top;
-    width: 25%;
-    height: 0;
-    padding-bottom: 25%;
-    position: relative;
-    border-radius: 8px;
-}
-.four-by-four-table td > * {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 5px;
-}
-.four-by-four-table .deck-pokemon-cell {
-    cursor: pointer;
-    transition: background-color 0.2s;
-    padding: 2px;
-}
-.four-by-four-table .deck-pokemon-cell:hover {
-    background-color: #e9ecef;
-}
-.four-by-four-table .deck-pokemon-cell img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-.four-by-four-table .deck-pokemon-cell .pkm-name {
-    display: none;
-}
-.four-by-four-table .header-cell {
-    background-color: #e9f5ff;
-}
-.four-by-four-table .header-cell img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-.four-by-four-table .empty-cell {
-    background-color: #f0f0f0;
-    border-style: dashed;
-}
-.four-by-four-table tfoot td {
-    border: none;
-    background-color: transparent;
-    font-weight: bold;
-    font-size: 14px;
-    padding-top: 5px;
-    color: #555;
-    vertical-align: middle;
-    height: auto;
-    padding-bottom: 0;
-}
-
 .pc-only {
     display: none;
 }
@@ -1060,6 +1001,9 @@ header h1 {
         display: grid;
     }
     .main-welcome-area.pc-only {
+        display: block;
+    }
+    .pc-main-content.pc-only {
         display: block;
     }
 }
@@ -1201,14 +1145,9 @@ header h1 {
     background-color: #fff;
     font-size: 0.9em;
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
-.filter-button.active {
-    background-color: #e74c3c;
-    color: white;
-    border-color: #c0392b;
-    font-weight: bold;
-}
+
 .type-filter-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
@@ -1217,27 +1156,33 @@ header h1 {
 .type-icon-button {
     width: 40px;
     height: 40px;
-    border: 1px solid var(--border-color);
+    border: 2px solid var(--border-color);
     border-radius: 50%;
     padding: 5px;
     background-color: #fff;
     cursor: pointer;
-    transition: border-color 0.2s, transform 0.2s;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 .type-icon-button:hover {
     border-color: #888;
 }
-.type-icon-button.active {
+
+/* ▼▼▼ [미션 1] 필터 활성화 스타일 수정 ▼▼▼ */
+#filter-modal-body .filter-button.active {
+    background-color: #e74c3c;
+    color: white;
+    border-color: #c0392b;
+    font-weight: bold;
+}
+
+#filter-modal-body .type-icon-button.active {
     border-color: #e74c3c;
     border-width: 3px;
     transform: scale(1.1);
     box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
 }
-.type-icon-button img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
+/* ▲▲▲ [미션 1] 여기까지 ▲▲▲ */
+
 
 .filter-trigger-btn {
     display: flex;
@@ -1342,38 +1287,6 @@ body.mobile-view #page-body {
     }
 }
 
-.type-filter-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-    gap: 8px;
-}
-.type-icon-button {
-    width: 40px;
-    height: 40px;
-    border: 2px solid var(--border-color);
-    border-radius: 50%;
-    padding: 5px;
-    background-color: #fff;
-    cursor: pointer;
-    transition: border-color 0.2s, transform 0.2s;
-}
-.type-icon-button:hover {
-    border-color: #888;
-}
-
-.type-icon-button.active {
-    border-color: #e74c3c;
-    border-width: 3px;
-    transform: scale(1.1);
-    box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
-}
-
-.type-icon-button img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
 .panel-content .list-item-card {
     display: flex;
     align-items: center;
@@ -1391,11 +1304,6 @@ body.mobile-view #page-body {
     background-color: #f0f2f5;
 }
 
-@media (min-width: 992px) {
-    .pc-main-content.pc-only {
-        display: block;
-    }
-}
 
 .list-item-icon {
     width: 24px;
