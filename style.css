@@ -1190,6 +1190,8 @@ header h1 {
     font-size: 0.9em;
     color: #6c757d;
 }
+
+/* 기존 filter 관련 스타일(.filter-options ~ .filter-trigger-btn)을 이 코드로 교체하세요 */
 .filter-options {
     display: flex;
     flex-wrap: wrap;
@@ -1204,12 +1206,69 @@ header h1 {
     cursor: pointer;
     transition: background-color 0.2s, color 0.2s;
 }
+.type-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 8px;
+}
+.type-icon-button {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    padding: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+}
+.type-icon-button:hover {
+    border-color: #888;
+}
+.type-icon-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}
+.filter-trigger-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+}
+.filter-group {
+    margin-bottom: 10px;
+}
+.filter-group:last-child {
+    margin-bottom: 0;
+}
+.filter-group h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+/* 최종 수정된 활성화 스타일 */
 .filter-button.active {
-    background-color: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
+    background-color: #e74c3c !important;
+    color: white !important;
+    border-color: #c0392b !important;
     font-weight: bold;
 }
+
+.type-icon-button.active {
+    border-color: #e74c3c !important;
+    border-width: 3px !important;
+    transform: scale(1.1);
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+}
+
 .type-filter-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
@@ -1394,78 +1453,36 @@ body.mobile-view #page-body {
     }
 }
 
-.four-by-four-table .deck-pokemon-cell img {
+/* 기존 .four-by-four-table 관련 모든 스타일을 이 코드로 교체하세요 */
+.four-by-four-table {
+    table-layout: fixed;
     width: 100%;
-    height: 100%;
-    object-fit: contain;
+    max-width: 350px; /* 이 값을 조절하여 전체 크기/높이 변경 */
+    border-collapse: separate;
+    border-spacing: 5px;
+    margin: 20px auto;
 }
-
-.filter-button.active {
-    background-color: #e74c3c !important;
-    color: white !important;
-    border-color: #c0392b !important;
-    font-weight: bold;
-}
-
-.type-icon-button.active {
-    border-color: #e74c3c !important;
-    border-width: 3px;
-    transform: scale(1.1);
-    box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
-}
-
-.list-item-icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 10px;
-    vertical-align: middle;
-}
-
-.list-item {
-    display: flex;
-    align-items: center;
-}
-
-/* [미션 3 최종 수정 스타일] */
-
-/* 1. 필터 활성화 스타일 (빨간색) */
-.filter-button.active {
-    background-color: #e74c3c;
-    color: white;
-    border-color: #c0392b;
-    font-weight: bold;
-}
-
-.type-icon-button.active {
-    border-color: #e74c3c;
-    border-width: 3px;
-    transform: scale(1.1);
-}
-
-/* 2. 덱 그리드 깨짐 방지 및 이미지 채우기 스타일 */
 .four-by-four-table td {
-    vertical-align: middle;
+    width: 25%;
+    border: 1px solid var(--border-color);
+    background-color: #f9f9f9;
     position: relative;
+    border-radius: 8px;
+    vertical-align: middle;
 }
-
 .four-by-four-table td::before {
     content: "";
     display: block;
-    padding-top: 100%; /* 1:1 비율 유지 */
+    padding-top: 100%;
 }
-
 .four-by-four-table td > div {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0;
 }
-
 .four-by-four-table .deck-pokemon-cell img,
 .four-by-four-table .header-cell img {
     width: 100%;
@@ -1474,44 +1491,29 @@ body.mobile-view #page-body {
     padding: 4px;
     box-sizing: border-box;
 }
-
 .four-by-four-table .header-cell {
+    background-color: #e9f5ff;
     font-size: 5vh;
     line-height: 1;
 }
-
+.four-by-four-table .empty-cell {
+    background-color: #f0f0f0;
+    border-style: dashed;
+}
+.four-by-four-table tfoot td {
+    border: none;
+    background: transparent;
+    font-weight: bold;
+    padding-top: 5px;
+    height: auto;
+}
 .four-by-four-table tfoot td::before {
     display: none;
 }
 
-/* [미션 3 최종 완성 스타일] */
 
-/* 1. 추천 덱 그리드 깨짐 방지 및 크기 조절 최종 수정 */
-.four-by-four-table {
-    table-layout: fixed; /* 테이블 레이아웃을 고정하여 colspan 영향 최소화 */
-    
-    /* 기존의 100%에서 최대 넓이를 350px로 제한합니다. */
-    /* 이 값을 320px, 300px 등으로 조절하여 원하시는 높이를 찾으시면 됩니다. */
-    max-width: 350px; 
-}
-.four-by-four-table td {
-    width: 25%; /* 모든 칸의 너비를 25%로 명시적 고정 */
-}
-.four-by-four-table .header-cell[colspan="2"] {
-    width: 50%; /* 2칸을 합친 셀은 너비를 50%로 고정 */
-}
 
-/* 2. 필터 활성화 스타일 (강제 적용) */
-.filter-button.active {
-    background-color: #e74c3c !important;
-    color: white !important;
-    border-color: #c0392b !important;
-    font-weight: bold;
-}
 
-.type-icon-button.active {
-    border-color: #e74c3c !important;
-    border-width: 3px !important;
-    transform: scale(1.1);
-    box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
-}
+
+
+
