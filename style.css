@@ -1512,77 +1512,74 @@ body.mobile-view #page-body {
 }
 
 /* ===================================================== */
-/* [미션 3 최종 수정] - 추천 덱 그리드 스타일           */
+/* [미션 3 최종 수정] - 새로운 CSS Grid 방식의 덱 스타일   */
 /* ===================================================== */
 
-.four-by-four-table {
-    table-layout: fixed;
-    width: 100%;
-    /* 1. 전체 가로폭을 280px로 설정 (이 값을 직접 조절하셔도 됩니다) */
-    max-width: 280px; 
-    border-collapse: separate;
-    border-spacing: 5px;
-    margin: 20px auto;
+.deck-grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 75px); /* 75px 너비의 4개 열 */
+    grid-template-rows: repeat(4, 75px) auto; /* 75px 높이의 4개 행 + 자동 높이 푸터 */
+    gap: 5px; /* 칸 사이의 간격 */
+    justify-content: center; /* 그리드 전체를 중앙 정렬 */
+
+    /* 그리드 영역 이름 정의 */
+    grid-template-areas:
+        "r1c1 r1c1 r1c2 r1c2"
+        "r2c1 r2c2 r2c3 r2c4"
+        "r3c1 r3c2 r3c3 r3c4"
+        "r4c1 r4c2 r4c3 r4c4"
+        "r5c1 r5c1 r5c2 r5c2";
 }
 
-.four-by-four-table td {
-    width: 25%;
+.grid-item {
     border: 1px solid var(--border-color);
     background-color: #f9f9f9;
-    position: relative;
     border-radius: 8px;
-    vertical-align: middle;
-}
-
-/* 2. 정사각형 비율을 유지하는 핵심 코드 */
-.four-by-four-table td::before {
-    content: "";
-    display: block;
-    padding-top: 100%;
-}
-
-.four-by-four-table td > div {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* 3. 이미지가 칸의 95%를 차지하도록 하는 코드 */
-.four-by-four-table .deck-pokemon-cell img,
-.four-by-four-table .header-cell img {
+.grid-header-item {
+    background-color: #e9f5ff;
+    font-size: 38px; /* 이모지 크기 고정 */
+    line-height: 1;
+}
+
+.grid-empty-cell {
+    background-color: #f0f0f0;
+    border-style: dashed;
+}
+
+.grid-item img {
     width: 95%;
     height: 95%;
     object-fit: contain;
 }
 
-.four-by-four-table .header-cell {
-    background-color: #e9f5ff;
-    font-size: 5vh;
-    line-height: 1;
-}
-
-.four-by-four-table .header-cell[colspan="2"] {
-    width: 50%;
-}
-
-.four-by-four-table .empty-cell {
-    background-color: #f0f0f0;
-    border-style: dashed;
-}
-
-.four-by-four-table tfoot td {
-    border: none;
-    background: transparent;
+.grid-footer {
+    grid-column: span 2; /* 2칸 병합 */
+    text-align: center;
     font-weight: bold;
+    font-size: 14px;
     padding-top: 5px;
-    height: auto;
+    color: #555;
 }
 
-.four-by-four-table tfoot td::before {
-    display: none;
+/* 모바일 화면 대응 */
+@media (max-width: 350px) {
+    .deck-grid-container {
+        /* 350px보다 좁은 화면에서는 비율에 맞춰 축소 */
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(4, 0) auto;
+        padding-bottom: 100%; /* 1:1 비율 유지를 위한 트릭 */
+        position: relative;
+        height: 0;
+    }
+    .deck-grid-container > div {
+        position: absolute;
+    }
+     /* 각 grid-area에 대해 절대 위치 설정 필요 (생략) */
 }
 
 
