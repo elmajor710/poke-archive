@@ -421,25 +421,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderCardList(data, menuId, container) {
-    const dataArray = Array.isArray(data) ? data : Object.values(data);
+        const dataArray = Array.isArray(data) ? data : Object.values(data);
 
-    dataArray.sort((a, b) => {
-        const nameA = a.name_ko || a.name || a.title || '';
-        const nameB = b.name_ko || b.name || b.title || '';
-        return nameA.localeCompare(nameB, 'ko');
-    });
+        dataArray.sort((a, b) => {
+            const nameA = a.name_ko || a.name || a.title || '';
+            const nameB = b.name_ko || b.name || b.title || '';
+            return nameA.localeCompare(nameB, 'ko');
+        });
 
-    // PC일 경우에만 지연 로딩을 적용하고, 모바일은 즉시 로딩합니다.
-    if (!isMobile()) {
-        // PC: 애니메이션과의 충돌을 피하기 위해 지연 로딩
         const listHTML = dataArray.map(item => {
             const name = item.name_ko || item.name || item.title;
             const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
+            
             let infoHTML = '';
             if (item.grade) {
-                infoHTML += `<span class="grade-badge grade-${item.grade.toLowerCase().replace('+', '-plus')}">${item.grade}</span>`;
+                const gradeClass = `grade-${item.grade.toLowerCase().replace('+', '-plus')}`;
+                infoHTML += `<span class="grade-badge ${gradeClass}">${item.grade}</span>`;
             }
-            if (item.types) {
+            if (item.types && item.types.length > 0) {
                 infoHTML += '<div class="type-badges-container">';
                 item.types.forEach(typeId => {
                     const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
@@ -451,61 +450,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             return `
-                <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}">
+                <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}" data-level="3">
                     <div class="item-card-image">
-                        <img data-src="${imageURL}" alt="${name}">
+                        <img src="${imageURL}" alt="${name}" loading="lazy">
                     </div>
                     <div class="item-card-info">
                         <strong class="item-card-name">${name}</strong>
                         <div class="item-card-details">${infoHTML}</div>
                     </div>
-                </div>`;
-        }).join('');
-
-        container.innerHTML = listHTML;
-
-        setTimeout(() => {
-            container.querySelectorAll('.item-card-image img').forEach(img => {
-                if (img.dataset.src) {
-                    img.src = img.dataset.src;
-                }
-            });
-        }, 400); // 0.4초 후 이미지 로딩
-
-    } else {
-        // 모바일: 기존처럼 즉시 로딩
-        const listHTML = dataArray.map(item => {
-            const name = item.name_ko || item.name || item.title;
-            const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
-            let infoHTML = '';
-            if (item.grade) {
-                infoHTML += `<span class="grade-badge grade-${item.grade.toLowerCase().replace('+', '-plus')}">${item.grade}</span>`;
-            }
-            if (item.types) {
-                infoHTML += '<div class="type-badges-container">';
-                item.types.forEach(typeId => {
-                    const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-                    if (typeInfo) {
-                        infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
-                    }
-                });
-                infoHTML += '</div>';
-            }
-
-            return `
-                <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}">
-                    <div class="item-card-image">
-                        <img src="${imageURL}" alt="${name}">
-                    </div>
-                    <div class="item-card-info">
-                        <strong class="item-card-name">${name}</strong>
-                        <div class="item-card-details">${infoHTML}</div>
-                    </div>
-                </div>`;
+                </div>
+            `;
         }).join('');
         container.innerHTML = listHTML;
     }
-}
 
     function renderPanelContent(level, data, menuId, clickedId) {
         const targetPanel = panels[`lev${level}`];
@@ -513,52 +470,47 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentDiv = targetPanel.querySelector('.panel-content');
         if (!contentDiv) return;
         
-        const panelHeader = targetPanel.querySelector('.panel-header');
-        panelHeader.innerHTML = '<button class="back-btn">&lt; 뒤로</button>';
-
+        targetPanel.querySelector('.panel-header').innerHTML = '<button class="back-btn">&lt; 뒤로</button>';
         contentDiv.innerHTML = '';
         contentDiv.scrollTop = 0;
 
-        if (clickedId === 'deckBuilder') {
-            if (isMobile()) {
-                contentDiv.innerHTML = `<div class="pc-only-message"><h3>기능 안내</h3><p>배치툴 기능은 화면이 넓은 PC 환경에 최적화되어 있습니다.<br>PC에서 접속하여 이용해주세요.</p></div>`;
-            } else {
-                renderDeckBuilder(contentDiv);
-            }
-            return; 
-        } else if (!data) {
+        if (!data) {
             contentDiv.innerHTML = "데이터를 불러오지 못했습니다.";
-        } else {
-            const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
-            const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
+            return;
+        }
 
-            if (isFinalView) {
-                if (menuId === 'deck' && data.composition) renderDeckView(contentDiv, data);
-                else if(menuId === 'calendar') renderCalendarView(contentDiv, DB.calendar.lev2);
-                else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
-                else renderSimpleView(contentDiv, data, menuId); 
+        const categoryInfo = DB.sidebarMenu.find(item => item.id === menuId);
+        const isFinalView = (level === (categoryInfo ? categoryInfo.levels : 0));
+
+        if (isFinalView) {
+            if (menuId === 'deck' && data.composition) renderDeckView(contentDiv, data);
+            else if (menuId === 'calendar') renderCalendarView(contentDiv, DB.calendar.lev2);
+            else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, data, menuId); 
+            else renderSimpleView(contentDiv, data, menuId); 
+        } else {
+            const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
+            
+            // ▼▼▼ 핵심 수정 부분 ▼▼▼
+            // PC/모바일 구분 없이, 포켓몬/아이템 등 카드 목록이 필요한 메뉴는 항상 renderCardList를 호출하도록 변경
+            if (level === 3 && cardLayoutMenus.includes(menuId)) {
+                renderCardList(data, menuId, contentDiv);
             } else {
-                const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
-                
-                if (level === 3 && cardLayoutMenus.includes(menuId)) {
-                    renderCardList(data, menuId, contentDiv);
-                } else {
-                    data.forEach(item => {
-                        const button = document.createElement('button');
-                        button.className = 'list-item';
-                        button.dataset.id = item.id;
-                        button.dataset.level = level;
-                        button.dataset.menuId = menuId;
-                        
-                        let itemHTML = `<span>${item.name || '이름 없음'}</span>`;
-                        if (menuId === 'pokemonType' && item.iconURL) {
-                            itemHTML = `<img src="${item.iconURL}" class="list-item-icon">${itemHTML}`;
-                        }
-                        const newBadge = isNew(item.updatedAt) || isNew(item.createdAt) ? '<span class="new-badge-list">New</span>' : '';
-                        button.innerHTML = itemHTML + newBadge;
-                        contentDiv.appendChild(button);
-                    });
-                }
+                // 그 외의 경우에만 단순 리스트를 렌더링
+                data.forEach(item => {
+                    const button = document.createElement('button');
+                    button.className = 'list-item';
+                    button.dataset.id = item.id;
+                    button.dataset.level = level;
+                    button.dataset.menuId = menuId;
+                    
+                    let itemHTML = `<span>${item.name || '이름 없음'}</span>`;
+                    if (menuId === 'pokemonType' && item.iconURL) {
+                        itemHTML = `<img src="${item.iconURL}" class="list-item-icon">${itemHTML}`;
+                    }
+                    const newBadge = isNew(item.updatedAt) || isNew(item.createdAt) ? '<span class="new-badge-list">New</span>' : '';
+                    button.innerHTML = itemHTML + newBadge;
+                    contentDiv.appendChild(button);
+                });
             }
         }
     }
