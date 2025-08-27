@@ -820,87 +820,61 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </div>
         `;
-        let html = `<div class="deck-detail-view">
-                        <div class="deck-header">
-                            <h2>${data.name}</h2>
-                            ${likeButtonHTML}
-                        </div>`;
+
+        let html = `<div class="deck-detail-view"><div class="deck-header"><h2>${data.name}</h2>${likeButtonHTML}</div>`;
         if (data.description) { html += `<p class="deck-description">${data.description}</p>`; }
         html += `<h4>덱 배치</h4>`;
-        const grid = Array(4).fill(null).map(() => Array(4).fill(null));
+
+        // 1. 그리드 배열을 항상 4x4 빈 칸으로 먼저 생성
+        const grid = Array(4).fill(null).map(() => Array(4).fill({ type: 'empty' }));
+
         const positionMap = {
             'assist_4': [1, 0], 'assist_5': [2, 0], 'assist_6': [3, 0], 
             'assist_1': [1, 1], 'assist_2': [2, 1], 'assist_3': [3, 1],
             'main_4': [1, 2], 'main_5': [2, 2], 'main_6': [3, 2], 
             'main_1': [1, 3], 'main_2': [2, 3], 'main_3': [3, 3]
         };
+
+        // 2. 데이터가 있을 경우에만 해당 칸의 정보를 덮어쓰기
         if (data.weather && weatherToEmoji[data.weather]) {
             grid[0][0] = { type: 'header', content: weatherToEmoji[data.weather], label: data.weather, colspan: 2 };
+            grid[0][1] = null; // colspan으로 합쳐질 셀은 null로 표시
         }
         const mainPokemonIds = data.composition.filter(m => m.role === 'main').map(m => m.pokemonId);
         const synergy = calculateSynergy(mainPokemonIds);
         if (synergy) {
              grid[0][2] = { type: 'header', content: `<img src="${synergy.imageURL}" alt="${synergy.name}">`, label: synergy.name, colspan: 2 };
+             grid[0][3] = null; // colspan으로 합쳐질 셀은 null로 표시
         }
+        
         data.composition.forEach(member => { 
             const pkmData = DB.pokemonType.lev4[member.pokemonId]; 
-            if (!pkmData) return; 
-            const key = `${member.role}_${member.position}`;
-            if(positionMap[key]) {
-                const [row, col] = positionMap[key];
+            if (pkmData) {
+                const [row, col] = positionMap[`${member.role}_${member.position}`];
                 grid[row][col] = { type: 'pokemon', ...pkmData };
             }
         });
+
+        // 3. 완성된 grid 배열을 기반으로 HTML 테이블 생성
         html += `<table class="four-by-four-table"><tbody>`;
         for (let i = 0; i < 4; i++) {
             html += '<tr>';
             for (let j = 0; j < 4; j++) {
-                if (grid[i][j] === undefined) continue;
                 const cell = grid[i][j];
-                if (cell) {
-                    if (cell.type === 'pokemon') {
-                        html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"></div></td>`;
-                    } else if (cell.type === 'header') {
-                        html += `<td class="header-cell" colspan="${cell.colspan || 1}" title="${cell.label}"><div>${cell.content}</div></td>`;
-                        if (cell.colspan > 1) {
-                            for (let k = 1; k < cell.colspan; k++) grid[i][j+k] = undefined;
-                        }
-                    }
-                } else {
+                if (cell === null) continue; // null인 칸은 건너뛰어 colspan 구현
+
+                if (cell.type === 'pokemon') {
+                    html += `<td><div class="deck-pokemon-cell" data-pokemon-id="${cell.id}"><img src="${cell.faceImageURL}" alt="${cell.name_ko}"></div></td>`;
+                } else if (cell.type === 'header') {
+                    html += `<td class="header-cell" colspan="${cell.colspan || 1}" title="${cell.label}"><div>${cell.content}</div></td>`;
+                } else { // 'empty' 타입
                     html += `<td class="empty-cell"></td>`;
                 }
             }
             html += '</tr>';
         }
-        html += `</tbody>`;
-        html += `<tfoot><tr>
-                    <td colspan="2">어시스트 #1~#6</td>
-                    <td colspan="2">메인덱 #1~#6</td>
-                 </tr></tfoot>`;
-        html += `</table></div>`;
+        html += `</tbody><tfoot><tr><td colspan="2">어시스트 #1~#6</td><td colspan="2">메인덱 #1~#6</td></tr></tfoot></table></div>`;
         contentDiv.innerHTML = html;
-        contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
-            cell.addEventListener('click', () => {
-                const pokemonId = cell.dataset.pokemonId;
-                const pkmData = DB.pokemonType.lev4[pokemonId];
-                if (pkmData) {
-                    let badgesHTML = '';
-                    if (pkmData.grade) {
-                        const gradeClass = `grade-${pkmData.grade.toLowerCase().replace('+', '-plus')}`;
-                        badgesHTML += `<span class="grade-badge ${gradeClass}">${pkmData.grade}</span>`;
-                    }
-                    if (pkmData.types && pkmData.types.length > 0) {
-                        pkmData.types.forEach(typeId => {
-                            const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-                            if (typeInfo) badgesHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
-                        });
-                    }
-                    const popupContent = document.createElement('div');
-                    popupContent.innerHTML = `<div class="badge-container" style="justify-content: center; margin-top: 10px;">${badgesHTML}</div>`;
-                    showModal(pkmData.name_ko, popupContent);
-                }
-            });
-        });
     }
 
     function renderCalendarView(contentDiv, data) {
