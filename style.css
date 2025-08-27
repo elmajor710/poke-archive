@@ -1512,35 +1512,77 @@ body.mobile-view #page-body {
 }
 
 /* ===================================================== */
-/* [미션 3 최종 수정] - 이 코드를 style.css 맨 아래에 추가하세요 */
+/* [미션 3 최종 수정] - 추천 덱 그리드 스타일           */
 /* ===================================================== */
 
-/* 1. 추천 덱 그리드 깨짐 방지 및 크기/높이 조절 */
 .four-by-four-table {
-    table-layout: fixed; /* 테이블 레이아웃을 고정하여 colspan 영향 최소화 */
-    max-width: 350px;    /* 이 값을 조절하여 전체 크기/높이 변경 */
+    table-layout: fixed;
+    width: 100%;
+    /* 1. 전체 가로폭을 280px로 설정 (이 값을 직접 조절하셔도 됩니다) */
+    max-width: 280px; 
+    border-collapse: separate;
+    border-spacing: 5px;
+    margin: 20px auto;
 }
+
 .four-by-four-table td {
-    width: 25%; /* 모든 칸의 너비를 25%로 명시적 고정 */
+    width: 25%;
+    border: 1px solid var(--border-color);
+    background-color: #f9f9f9;
+    position: relative;
+    border-radius: 8px;
+    vertical-align: middle;
 }
-/* 2칸을 합친 셀은 너비를 50%로 고정 (가장 핵심적인 수정) */
+
+/* 2. 정사각형 비율을 유지하는 핵심 코드 */
+.four-by-four-table td::before {
+    content: "";
+    display: block;
+    padding-top: 100%;
+}
+
+.four-by-four-table td > div {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 3. 이미지가 칸의 95%를 차지하도록 하는 코드 */
+.four-by-four-table .deck-pokemon-cell img,
+.four-by-four-table .header-cell img {
+    width: 95%;
+    height: 95%;
+    object-fit: contain;
+}
+
+.four-by-four-table .header-cell {
+    background-color: #e9f5ff;
+    font-size: 5vh;
+    line-height: 1;
+}
+
 .four-by-four-table .header-cell[colspan="2"] {
     width: 50%;
 }
 
-
-/* 2. 필터 활성화 스타일 (최우선 적용) */
-/* ID 선택자(#)를 사용하여 다른 스타일에 덮어씌워지지 않도록 함 */
-#filter-modal-body .filter-button.active {
-    background-color: #e74c3c;
-    color: white;
-    border-color: #c0392b;
-    font-weight: bold;
+.four-by-four-table .empty-cell {
+    background-color: #f0f0f0;
+    border-style: dashed;
 }
-#filter-modal-body .type-icon-button.active {
-    border-color: #e74c3c;
-    border-width: 3px;
-    transform: scale(1.1);
+
+.four-by-four-table tfoot td {
+    border: none;
+    background: transparent;
+    font-weight: bold;
+    padding-top: 5px;
+    height: auto;
+}
+
+.four-by-four-table tfoot td::before {
+    display: none;
 }
 
 
