@@ -1483,3 +1483,35 @@ body.mobile-view #page-body {
 .four-by-four-table tfoot td::before {
     display: none;
 }
+
+/* [미션 3 최종 완성 스타일] */
+
+/* 1. 추천 덱 그리드 깨짐 방지 및 크기 조절 최종 수정 */
+.four-by-four-table {
+    table-layout: fixed; /* 테이블 레이아웃을 고정하여 colspan 영향 최소화 */
+    
+    /* 기존의 100%에서 최대 넓이를 350px로 제한합니다. */
+    /* 이 값을 320px, 300px 등으로 조절하여 원하시는 높이를 찾으시면 됩니다. */
+    max-width: 350px; 
+}
+.four-by-four-table td {
+    width: 25%; /* 모든 칸의 너비를 25%로 명시적 고정 */
+}
+.four-by-four-table .header-cell[colspan="2"] {
+    width: 50%; /* 2칸을 합친 셀은 너비를 50%로 고정 */
+}
+
+/* 2. 필터 활성화 스타일 (강제 적용) */
+.filter-button.active {
+    background-color: #e74c3c !important;
+    color: white !important;
+    border-color: #c0392b !important;
+    font-weight: bold;
+}
+
+.type-icon-button.active {
+    border-color: #e74c3c !important;
+    border-width: 3px !important;
+    transform: scale(1.1);
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+}
