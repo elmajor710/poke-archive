@@ -452,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return `
                 <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}" data-level="3">
                     <div class="item-card-image">
-                        <img src="${imageURL}" alt="${name}" loading="lazy">
+                        <img src="${imageURL}" alt="${name}">
                     </div>
                     <div class="item-card-info">
                         <strong class="item-card-name">${name}</strong>
