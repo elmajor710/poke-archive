@@ -1511,7 +1511,37 @@ body.mobile-view #page-body {
     display: none;
 }
 
+/* ===================================================== */
+/* [미션 3 최종 수정] - 이 코드를 style.css 맨 아래에 추가하세요 */
+/* ===================================================== */
 
+/* 1. 추천 덱 그리드 깨짐 방지 및 크기/높이 조절 */
+.four-by-four-table {
+    table-layout: fixed; /* 테이블 레이아웃을 고정하여 colspan 영향 최소화 */
+    max-width: 350px;    /* 이 값을 조절하여 전체 크기/높이 변경 */
+}
+.four-by-four-table td {
+    width: 25%; /* 모든 칸의 너비를 25%로 명시적 고정 */
+}
+/* 2칸을 합친 셀은 너비를 50%로 고정 (가장 핵심적인 수정) */
+.four-by-four-table .header-cell[colspan="2"] {
+    width: 50%;
+}
+
+
+/* 2. 필터 활성화 스타일 (최우선 적용) */
+/* ID 선택자(#)를 사용하여 다른 스타일에 덮어씌워지지 않도록 함 */
+#filter-modal-body .filter-button.active {
+    background-color: #e74c3c;
+    color: white;
+    border-color: #c0392b;
+    font-weight: bold;
+}
+#filter-modal-body .type-icon-button.active {
+    border-color: #e74c3c;
+    border-width: 3px;
+    transform: scale(1.1);
+}
 
 
 
