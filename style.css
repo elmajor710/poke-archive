@@ -1582,6 +1582,13 @@ body.mobile-view #page-body {
      /* 각 grid-area에 대해 절대 위치 설정 필요 (생략) */
 }
 
+/* 타입 이모지(아이콘) 크기 복구 */
+.list-item-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
 
 
 
