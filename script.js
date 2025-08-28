@@ -183,28 +183,38 @@ document.addEventListener('DOMContentLoaded', () => {
             name: data.title,
             createdAt: data.createdAt,
             updatedAt: data.updatedAt
-        }));
-        DB.notice.lev2.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+        })).sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
 
         DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-        const types = {};
-        DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
+        
+        const types = DB.pokemonType.lev2.reduce((acc, type) => ({...acc, [type.id]: [] }), {});
         Object.values(DB.pokemonType.lev4).forEach(pokemon => {
             if (pokemon.types && Array.isArray(pokemon.types)) {
                 pokemon.types.forEach(typeId => {
-                    if (types[typeId]) types[typeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
+                    if (types[typeId]) {
+                        types[typeId].push({ 
+                            id: pokemon.id, 
+                            name: pokemon.name_ko || pokemon.name,
+                            faceImageURL: pokemon.faceImageURL
+                        });
+                    }
                 });
             }
         });
         Object.values(types).forEach(typeList => typeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
         DB.pokemonType.lev3 = types;
 
-        const grades = {};
-        DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
+        const grades = DB.pokemonGrade.lev2.reduce((acc, grade) => ({...acc, [grade.id]: [] }), {});
         Object.values(DB.pokemonType.lev4).forEach(pokemon => {
             if (pokemon && pokemon.grade) {
                 const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id;
-                if (gradeId && grades[gradeId]) grades[gradeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
+                if (gradeId && grades[gradeId]) {
+                    grades[gradeId].push({ 
+                        id: pokemon.id, 
+                        name: pokemon.name_ko || pokemon.name,
+                        faceImageURL: pokemon.faceImageURL
+                    });
+                }
             }
         });
         Object.values(grades).forEach(gradeList => gradeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
@@ -216,11 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name, imageURL: item.imageURL });
         });
         DB.item.lev3 = itemGrades;
-        
-        const gradeOrder = { 'god': 1, 'legendary': 2, 'epic': 3 };
-        if (DB.item && DB.item.lev2 && Array.isArray(DB.item.lev2)) {
-            DB.item.lev2.sort((a, b) => (gradeOrder[a.id] || 99) - (gradeOrder[b.id] || 99));
-        }
         
         const runeAndChipTypes = { rune: [], chip: [] };
         Object.values(DB.runeAndChip.lev4).forEach(rc => {
@@ -235,8 +240,9 @@ document.addEventListener('DOMContentLoaded', () => {
             updatedAt: data.updatedAt
         }));
         
-        DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name, likeCount: deck.likeCount || 0 }));
-        DB.deck.lev3.builder = [{ id: 'deckBuilder', name: '배치툴' }];
+        DB.deck.lev3 = {
+            recommended: Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name, likeCount: deck.likeCount || 0 }))
+        };
     }
 
     function isNew(timestamp) {
@@ -347,33 +353,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleMenuClick(button) {
-        // ▼▼▼ [수정] 스마트 뒤로가기 상태를 초기화하는 로직 ▼▼▼
         if (parseInt(button.dataset.level) === 1) {
             sessionStorage.removeItem('returnToMain');
         }
-        if (isMobile()) sidebar.classList.remove('visible');
+        
         mainPlaceholder.style.display = 'none';
         appContainer.classList.add('menu-active');
-        if (isMobile()) {
-            const bottomAd = document.getElementById('ad-container-bottom');
-            if (bottomAd) {
-                bottomAd.style.display = 'none';
-            }
-        }
+        
         const level = parseInt(button.dataset.level);
         const id = button.dataset.id;
         const menuId = button.dataset.menuId || id;
         const nextLevel = level + 1;
         const nextData = getNextData(level, id, menuId); 
-        const currentPanel = panels[`lev${level}`] || sidebar;
         const nextPanel = panels[`lev${nextLevel}`];
+
         if (!nextPanel) return;
-        if (isMobile()) currentPanel.classList.add('is-hidden');
-        Object.values(panels).forEach((panel, index) => {
-            if(index > 0 && panel !== nextPanel) panel.classList.remove('visible');
-        });
-        nextPanel.classList.remove('is-hidden');
+        
+        Object.values(panels).forEach(p => p.classList.remove('visible'));
+        
         nextPanel.classList.add('visible');
+        
         setActive(level, button);
         renderPanelContent(nextLevel, nextData, menuId, id);
     }
@@ -420,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
-    function renderCardList(data, menuId, container) {
+    function renderCardList(data, menuId, container, level) { // level 매개변수 추가
         const dataArray = Array.isArray(data) ? data : Object.values(data);
 
         dataArray.sort((a, b) => {
@@ -429,39 +428,79 @@ document.addEventListener('DOMContentLoaded', () => {
             return nameA.localeCompare(nameB, 'ko');
         });
 
-        const listHTML = dataArray.map(item => {
-            const name = item.name_ko || item.name || item.title;
-            const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
-            
-            let infoHTML = '';
-            if (item.grade) {
-                const gradeClass = `grade-${item.grade.toLowerCase().replace('+', '-plus')}`;
-                infoHTML += `<span class="grade-badge ${gradeClass}">${item.grade}</span>`;
-            }
-            if (item.types && item.types.length > 0) {
-                infoHTML += '<div class="type-badges-container">';
-                item.types.forEach(typeId => {
-                    const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-                    if (typeInfo) {
-                        infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
+        if (isMobile()) {
+            const listHTML = dataArray.map(item => {
+                const name = item.name_ko || item.name || item.title;
+                const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
+                let infoHTML = '';
+                if (item.grade) {
+                    infoHTML += `<span class="grade-badge grade-${item.grade.toLowerCase().replace('+', '-plus')}">${item.grade}</span>`;
+                }
+                if (item.types) {
+                    infoHTML += '<div class="type-badges-container">';
+                    item.types.forEach(typeId => {
+                        const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+                        if (typeInfo) {
+                            infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
+                        }
+                    });
+                    infoHTML += '</div>';
+                }
+
+                return `
+                    <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}" data-level="${level}">
+                        <div class="item-card-image">
+                            <img src="${imageURL}" alt="${name}">
+                        </div>
+                        <div class="item-card-info">
+                            <strong class="item-card-name">${name}</strong>
+                            <div class="item-card-details">${infoHTML}</div>
+                        </div>
+                    </div>`;
+            }).join('');
+            container.innerHTML = listHTML;
+
+        } else {
+            const listHTML = dataArray.map(item => {
+                const name = item.name_ko || item.name || item.title;
+                const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
+                let infoHTML = '';
+                if (item.grade) {
+                    infoHTML += `<span class="grade-badge grade-${item.grade.toLowerCase().replace('+', '-plus')}">${item.grade}</span>`;
+                }
+                if (item.types) {
+                    infoHTML += '<div class="type-badges-container">';
+                    item.types.forEach(typeId => {
+                        const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+                        if (typeInfo) {
+                            infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
+                        }
+                    });
+                    infoHTML += '</div>';
+                }
+
+                return `
+                    <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}" data-level="${level}">
+                        <div class="item-card-image">
+                            <img data-src="${imageURL}" alt="${name}">
+                        </div>
+                        <div class="item-card-info">
+                            <strong class="item-card-name">${name}</strong>
+                            <div class="item-card-details">${infoHTML}</div>
+                        </div>
+                    </div>`;
+            }).join('');
+
+            container.innerHTML = listHTML;
+
+            setTimeout(() => {
+                container.querySelectorAll('.item-card-image img').forEach(img => {
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
                     }
                 });
-                infoHTML += '</div>';
-            }
-
-            return `
-                <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}" data-level="3">
-                    <div class="item-card-image">
-                        <img src="${imageURL}" alt="${name}" loading="lazy">
-                    </div>
-                    <div class="item-card-info">
-                        <strong class="item-card-name">${name}</strong>
-                        <div class="item-card-details">${infoHTML}</div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-        container.innerHTML = listHTML;
+            }, 100); 
+        }
     }
 
     function renderPanelContent(level, data, menuId, clickedId) {
@@ -490,12 +529,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
             
-            // ▼▼▼ 핵심 수정 부분 ▼▼▼
-            // PC/모바일 구분 없이, 포켓몬/아이템 등 카드 목록이 필요한 메뉴는 항상 renderCardList를 호출하도록 변경
             if (level === 3 && cardLayoutMenus.includes(menuId)) {
-                renderCardList(data, menuId, contentDiv);
+                renderCardList(data, menuId, contentDiv, level); // level 값 전달
             } else {
-                // 그 외의 경우에만 단순 리스트를 렌더링
                 data.forEach(item => {
                     const button = document.createElement('button');
                     button.className = 'list-item';
@@ -813,7 +849,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (data.description) { html += `<p class="deck-description">${data.description}</p>`; }
     html += `<h4>덱 배치</h4>`;
 
-    // HTML 구조를 table에서 div 기반의 CSS Grid로 변경
     html += `<div class="deck-grid-container">`;
 
     const gridItems = {};
@@ -824,7 +859,6 @@ document.addEventListener('DOMContentLoaded', () => {
         'main_1':   'r2c4', 'main_2':   'r3c4', 'main_3':   'r4c4'
     };
     
-    // 1. 날씨 효과와 시너지 효과를 먼저 배치
     const weather = data.weather && weatherToEmoji[data.weather] ? { type: 'header', content: weatherToEmoji[data.weather], label: data.weather, area: 'r1c1' } : { type: 'empty', area: 'r1c1' };
     const mainPokemonIds = data.composition.filter(m => m.role === 'main').map(m => m.pokemonId);
     const synergy = calculateSynergy(mainPokemonIds);
@@ -833,7 +867,6 @@ document.addEventListener('DOMContentLoaded', () => {
     html += `<div class="grid-item grid-header-item" style="grid-area: ${weather.area};">${weather.type === 'header' ? weather.content : ''}</div>`;
     html += `<div class="grid-item grid-header-item" style="grid-area: ${synergyItem.area};">${synergyItem.type === 'header' ? synergyItem.content : ''}</div>`;
     
-    // 2. 포켓몬 데이터 채우기
     data.composition.forEach(member => {
         const pkmData = DB.pokemonType.lev4[member.pokemonId];
         if (pkmData) {
@@ -842,7 +875,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 3. 그리드 아이템 생성 (데이터가 없으면 빈 칸으로)
     for (let r = 2; r <= 4; r++) {
         for (let c = 1; c <= 4; c++) {
             const area = `r${r}c${c}`;
@@ -855,14 +887,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 4. 푸터(설명) 추가
     html += `<div class="grid-footer" style="grid-area: r5c1;">어시스트 #1~#6</div>`;
     html += `<div class="grid-footer" style="grid-area: r5c2;">메인덱 #1~#6</div>`;
 
-    html += `</div></div>`; // deck-grid-container, deck-detail-view 닫기
+    html += `</div></div>`;
     contentDiv.innerHTML = html;
 
-    // 포켓몬 클릭 시 팝업 이벤트 리스너 추가
     contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
         cell.addEventListener('click', () => {
             const pokemonId = cell.dataset.pokemonId;
@@ -1243,7 +1273,7 @@ document.addEventListener('DOMContentLoaded', () => {
             listContent.innerHTML = '<p class="list-empty-message">표시할 데이터가 없습니다.</p>';
             return;
         }
-        renderCardList(data, menuId, listContent);
+        renderCardList(data, menuId, listContent, 3); // 모바일 리스트는 항상 3단계이므로 level 3을 전달
     }
 
     function renderSimpleListPage(data, menuId) {
@@ -1282,7 +1312,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // ▼▼▼ [수정] 모바일 필터 UI를 아이콘으로 표시하도록 변경 ▼▼▼
     function openFilterModal() {
         const modalOverlay = document.getElementById('filter-modal-overlay');
         const modalBody = document.getElementById('filter-modal-body');
@@ -1324,7 +1353,14 @@ document.addEventListener('DOMContentLoaded', () => {
             filtersHTML += '</div></div>';
         }
         
-        modalBody.innerHTML = filtersHTML;
+        const modalFooterHTML = `
+            <div class="filter-modal-footer">
+                <button id="filter-reset-btn" class="modal-action-btn reset-btn">초기화</button>
+                <button id="filter-apply-btn" class="modal-action-btn apply-btn">적용</button>
+            </div>
+        `;
+
+        modalBody.innerHTML = filtersHTML + modalFooterHTML;
         modalOverlay.style.display = 'flex';
     }
 
@@ -1439,7 +1475,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 const menuId = mainShortcut.dataset.menuId;
                 const itemId = mainShortcut.dataset.itemId;
-                sessionStorage.setItem('returnToMain', 'true'); // 스마트 뒤로가기 상태 저장
+                sessionStorage.setItem('returnToMain', 'true');
                 if (isMobile()) {
                     showDetailPage(itemId, menuId);
                 } else {
@@ -1459,11 +1495,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const backButton = document.createElement('button');
                     backButton.className = 'back-btn';
                     backButton.innerHTML = '&lt; 뒤로';
-                    // 수정할 코드
-backButton.addEventListener('click', (e) => {
-    e.stopPropagation(); // 이벤트 중복 실행 방지
-    handleMainButtonClick();
-}, { once: true });
+                    backButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        handleMainButtonClick();
+                    }, { once: true });
                     panelHeader.appendChild(backButton);
                     Object.values(panels).forEach(p => p.classList.remove('visible'));
                     detailPanel.classList.add('visible');
