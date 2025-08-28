@@ -1512,18 +1512,15 @@ body.mobile-view #page-body {
 }
 
 /* ===================================================== */
-/* [수정 완료] - 하이브리드 방식의 새로운 덱 스타일      */
+/* [수정 제안 2] - 더 안전한 하이브리드 덱 스타일        */
 /* ===================================================== */
 
 .deck-grid-container {
     display: grid;
-    /* 대부분의 기기에서는 JT님이 설정하신 75px 고정 크기를 사용합니다. */
     grid-template-columns: repeat(4, 75px); 
     grid-template-rows: repeat(4, 75px) auto;
     gap: 5px;
     justify-content: center;
-
-    /* 그리드 영역 이름 정의 */
     grid-template-areas:
         "r1c1 r1c1 r1c2 r1c2"
         "r2c1 r2c2 r2c3 r2c4"
@@ -1532,15 +1529,15 @@ body.mobile-view #page-body {
         "r5c1 r5c1 r5c2 r5c2";
 }
 
-/* 화면 너비가 320px 이하로 매우 좁아질 때만 아래 스타일을 적용합니다. */
-@media (max-width: 320px) {
+/* ▼▼▼ 여기가 변경된 부분입니다! ▼▼▼ */
+/* 화면 너비 기준을 320px에서 360px로 더 여유있게 변경합니다. */
+@media (max-width: 360px) {
     .deck-grid-container {
-        /* 컬럼 너비를 비율(fr)로 바꿔서 화면에 꽉 차게 만듭니다. */
         grid-template-columns: repeat(4, 1fr);
     }
 }
 
-/* 이하 JT님이 작성하신 스타일은 그대로 유지합니다. */
+/* 이하 스타일은 모두 동일합니다. */
 .grid-item {
     border: 1px solid var(--border-color);
     background-color: #f9f9f9;
