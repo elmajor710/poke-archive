@@ -1449,14 +1449,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 sidebar.classList.toggle('visible');
             });
         }
-
+    
         document.body.addEventListener('click', (e) => {
-            const adLink = e.target.closest('a[href*="ads"]');
-            if (adLink) {
-                adBlockManager.recordClick();
+            const target = e.target;
+    
+            // 1. 카드 형태(.list-item-card) 클릭 처리: PC/모바일 공통으로 상세 보기(Lev.4)로 이동
+            const listItemCard = target.closest('.list-item-card');
+            if (listItemCard) {
+                const itemId = listItemCard.dataset.id;
+                const menuId = listItemCard.dataset.menuId;
+                showDetailPage(itemId, menuId);
+                return; // 여기서 처리를 끝냄
             }
-
-            const gridMenuBtn = e.target.closest('.grid-menu-btn');
+    
+            // 2. 단순 목록(.list-item) 또는 사이드바 메뉴(.menu-item) 클릭 처리: 다음 목록(Lev.2, Lev.3)으로 이동
+            const listItem = target.closest('.list-item, #sidebar .menu-item');
+            if (listItem) {
+                handleMenuClick(listItem);
+                return; // 여기서 처리를 끝냄
+            }
+    
+            // 3. 모바일 그리드 메뉴 버튼 클릭 처리
+            const gridMenuBtn = target.closest('.grid-menu-btn');
             if (gridMenuBtn) {
                 const menuId = gridMenuBtn.dataset.menuId;
                 const subMenuId = gridMenuBtn.dataset.itemId;
@@ -1467,97 +1481,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 return;
             }
-
-            const pcListItem = e.target.closest('#sidebar .menu-item, .panel .list-item, .panel .list-item-card');
-            if (pcListItem && !isMobile()) {
-                if (!pcListItem.closest('#list-filter-page')) {
-                    handleMenuClick(pcListItem);
-                    return;
-                }
-            }
             
-            const mobileListItemCard = e.target.closest('#list-page-content .list-item-card, #list-page-content .list-item');
-            if(mobileListItemCard){
-                const itemId = mobileListItemCard.dataset.id;
-                const menuId = mobileListItemCard.dataset.menuId;
-                showDetailPage(itemId, menuId);
-            }
-            
-            const mainShortcut = e.target.closest('#main-notice-list a, #popular-deck-list a');
+            // 4. 메인 화면 바로가기 링크 처리
+            const mainShortcut = target.closest('#main-notice-list a, #popular-deck-list a');
             if (mainShortcut) {
                 e.preventDefault();
                 const menuId = mainShortcut.dataset.menuId;
                 const itemId = mainShortcut.dataset.itemId;
-                sessionStorage.setItem('returnToMain', 'true'); // 스마트 뒤로가기 상태 저장
-                if (isMobile()) {
-                    showDetailPage(itemId, menuId);
-                } else {
-                    mainPlaceholder.style.display = 'none';
-                    appContainer.classList.add('menu-active');
-                    const detailPanel = panels.lev4;
-                    const contentDiv = detailPanel.querySelector('.panel-content');
-                    const panelHeader = detailPanel.querySelector('.panel-header');
-                    let data;
-                    if (menuId === 'deck') data = DB.deck.lev4[itemId];
-                    else if (menuId === 'notice') data = DB.notice.lev3[itemId];
-                    if (data) {
-                        if (menuId === 'deck') renderDeckView(contentDiv, data);
-                        else renderSimpleView(contentDiv, data, menuId);
-                    }
-                    panelHeader.innerHTML = '';
-                    const backButton = document.createElement('button');
-                    backButton.className = 'back-btn';
-                    backButton.innerHTML = '&lt; 뒤로';
-                    // 수정할 코드
-backButton.addEventListener('click', (e) => {
-    e.stopPropagation(); // 이벤트 중복 실행 방지
-    handleMainButtonClick();
-}, { once: true });
-                    panelHeader.appendChild(backButton);
-                    Object.values(panels).forEach(p => p.classList.remove('visible'));
-                    detailPanel.classList.add('visible');
-                }
+                sessionStorage.setItem('returnToMain', 'true');
+                showDetailPage(itemId, menuId);
+                return;
             }
             
-            const likeBtn = e.target.closest('.like-btn');
+            // 5. 기타 버튼들 (좋아요, 뒤로가기, 필터 등)
+            const likeBtn = target.closest('.like-btn');
             if (likeBtn) {
                 handleLikeClick(likeBtn);
+                return;
             }
             
-            const panelBackBtn = e.target.closest('.panel .back-btn');
-            if (panelBackBtn && !isMobile()) {
-                const currentPanel = panelBackBtn.closest('.panel');
-                if(currentPanel.id === 'lev4-panel' && sessionStorage.getItem('returnToMain')) {
+            const panelBackBtn = target.closest('.panel .back-btn');
+            if (panelBackBtn) {
+                if(sessionStorage.getItem('returnToMain')) {
                     handleMainButtonClick();
-                    return;
-                }
-                const level = parseInt(Object.keys(panels).find(key => panels[key] === currentPanel)?.replace('lev', '') || '0');
-                if (level > 2) {
-                    currentPanel.classList.remove('visible');
-                    const prevPanel = panels[`lev${level-1}`];
-                    if (prevPanel) {
-                        prevPanel.classList.remove('is-hidden');
-                        prevPanel.classList.add('visible');
-                    }
-                    if(activeButtons[level]) activeButtons[level].classList.remove('active');
-                    activeButtons[level] = null;
                 } else {
-                    handleMainButtonClick();
+                    window.history.back();
                 }
+                return;
             }
-
-            const openFilterBtn = e.target.closest('#open-filter-modal-btn');
+    
+            const openFilterBtn = target.closest('#open-filter-modal-btn');
             if (openFilterBtn) {
                 openFilterModal();
+                return;
             }
-
-            const filterModalOverlay = e.target.closest('#filter-modal-overlay');
-            const closeFilterBtn = e.target.closest('#filter-modal-close-btn');
-            if ((filterModalOverlay && e.target === filterModalOverlay) || closeFilterBtn) {
+    
+            if (target.closest('#filter-modal-overlay') && !target.closest('.modal-content') || target.closest('#filter-modal-close-btn')) {
                  closeFilterModal();
+                 return;
             }
-
-            const filterButton = e.target.closest('.filter-button, .type-icon-button');
+    
+            const filterButton = target.closest('.filter-button, .type-icon-button');
             if (filterButton && filterButton.closest('#filter-modal-body')) {
                 const { filterType, filterValue } = filterButton.dataset;
                 filterButton.classList.toggle('active');
@@ -1568,27 +1532,24 @@ backButton.addEventListener('click', (e) => {
                 } else {
                     activeFilters[filterType].push(filterValue);
                 }
+                return;
             }
-
-            const applyFilterBtn = e.target.closest('#filter-apply-btn');
+    
+            const applyFilterBtn = target.closest('#filter-apply-btn');
             if(applyFilterBtn) {
                 applyFiltersAndRender();
+                return;
             }
-            const resetFilterBtn = e.target.closest('#filter-reset-btn');
+            const resetFilterBtn = target.closest('#filter-reset-btn');
             if(resetFilterBtn) {
                 activeFilters.grade = [];
                 activeFilters.type = [];
                 openFilterModal();
+                return;
             }
         });
+    
+        document.querySelector('.back-to-grid-btn')?.addEventListener('click', hideListPage);
+        window.addEventListener('popstate', handleMainButtonClick);
     }
-
-    adBlockManager.checkAndApplyBlock();
-    initialize();
-    function setScreenHeight() {
-      let vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-    }
-    setScreenHeight();
-    window.addEventListener('resize', setScreenHeight);
 });
