@@ -418,24 +418,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderCardList(data, menuId, container) {
-        const dataArray = Array.isArray(data) ? data : Object.values(data);
+    const dataArray = Array.isArray(data) ? data : Object.values(data);
 
-        dataArray.sort((a, b) => {
-            const nameA = a.name_ko || a.name || a.title || '';
-            const nameB = b.name_ko || b.name || b.title || '';
-            return nameA.localeCompare(nameB, 'ko');
-        });
+    dataArray.sort((a, b) => {
+        const nameA = a.name_ko || a.name || a.title || '';
+        const nameB = b.name_ko || b.name || b.title || '';
+        return nameA.localeCompare(nameB, 'ko');
+    });
 
+    // PC일 경우와 모바일일 경우를 나누어 처리
+    if (isMobile()) {
+        // 모바일: 기존처럼 즉시 로딩 (정상 작동)
         const listHTML = dataArray.map(item => {
             const name = item.name_ko || item.name || item.title;
             const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
-            
             let infoHTML = '';
             if (item.grade) {
-                const gradeClass = `grade-${item.grade.toLowerCase().replace('+', '-plus')}`;
-                infoHTML += `<span class="grade-badge ${gradeClass}">${item.grade}</span>`;
+                infoHTML += `<span class="grade-badge grade-${item.grade.toLowerCase().replace('+', '-plus')}">${item.grade}</span>`;
             }
-            if (item.types && item.types.length > 0) {
+            if (item.types) {
                 infoHTML += '<div class="type-badges-container">';
                 item.types.forEach(typeId => {
                     const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
@@ -447,19 +448,62 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             return `
-                <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}" data-level="3">
+                <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}">
                     <div class="item-card-image">
-                        <img src="${imageURL}" alt="${name}" loading="lazy">
+                        <img src="${imageURL}" alt="${name}">
                     </div>
                     <div class="item-card-info">
                         <strong class="item-card-name">${name}</strong>
                         <div class="item-card-details">${infoHTML}</div>
                     </div>
-                </div>
-            `;
+                </div>`;
         }).join('');
         container.innerHTML = listHTML;
+
+    } else {
+        // PC: 지연 로딩으로 타이밍 문제 해결
+        const listHTML = dataArray.map(item => {
+            const name = item.name_ko || item.name || item.title;
+            const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
+            let infoHTML = '';
+            if (item.grade) {
+                infoHTML += `<span class="grade-badge grade-${item.grade.toLowerCase().replace('+', '-plus')}">${item.grade}</span>`;
+            }
+            if (item.types) {
+                infoHTML += '<div class="type-badges-container">';
+                item.types.forEach(typeId => {
+                    const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+                    if (typeInfo) {
+                        infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
+                    }
+                });
+                infoHTML += '</div>';
+            }
+
+            return `
+                <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}">
+                    <div class="item-card-image">
+                        <img data-src="${imageURL}" alt="${name}">
+                    </div>
+                    <div class="item-card-info">
+                        <strong class="item-card-name">${name}</strong>
+                        <div class="item-card-details">${infoHTML}</div>
+                    </div>
+                </div>`;
+        }).join('');
+
+        container.innerHTML = listHTML;
+
+        // 0.1초 후 이미지 로딩 시작 (패널이 완전히 표시된 후)
+        setTimeout(() => {
+            container.querySelectorAll('.item-card-image img').forEach(img => {
+                if (img.dataset.src) {
+                    img.src = img.dataset.src;
+                }
+            });
+        }, 100); 
     }
+}
 
     function renderPanelContent(level, data, menuId, clickedId) {
         const targetPanel = panels[`lev${level}`];
