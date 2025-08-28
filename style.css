@@ -1512,15 +1512,18 @@ body.mobile-view #page-body {
 }
 
 /* ===================================================== */
-/* [수정 제안 2] - 더 안전한 하이브리드 덱 스타일        */
+/* [최종 복구] - 하이브리드 방식 반응형 덱 스타일        */
 /* ===================================================== */
 
 .deck-grid-container {
     display: grid;
+    /* 대부분의 기기에서는 JT님이 설정하신 75px 고정 크기를 사용합니다. */
     grid-template-columns: repeat(4, 75px); 
     grid-template-rows: repeat(4, 75px) auto;
     gap: 5px;
     justify-content: center;
+
+    /* JavaScript와 연결되는 핵심 좌석 배치도입니다. */
     grid-template-areas:
         "r1c1 r1c1 r1c2 r1c2"
         "r2c1 r2c2 r2c3 r2c4"
@@ -1529,64 +1532,13 @@ body.mobile-view #page-body {
         "r5c1 r5c1 r5c2 r5c2";
 }
 
-/* ▼▼▼ 여기가 변경된 부분입니다! ▼▼▼ */
-/* 화면 너비 기준을 320px에서 360px로 더 여유있게 변경합니다. */
+/* Z-Fold 5 같은 좁은 화면을 위한 미디어 쿼리 */
+/* 화면 너비가 360px 이하일 때만 적용됩니다. */
 @media (max-width: 360px) {
     .deck-grid-container {
+        /* 컬럼 너비를 비율(fr)로 바꿔서 화면에 꽉 차게 만듭니다. */
         grid-template-columns: repeat(4, 1fr);
     }
-}
-
-/* 이하 스타일은 모두 동일합니다. */
-.grid-item {
-    border: 1px solid var(--border-color);
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.grid-header-item {
-    background-color: #e9f5ff;
-    font-size: 38px;
-    line-height: 1;
-}
-
-.grid-empty-cell {
-    background-color: #f0f0f0;
-    border-style: dashed;
-}
-
-.grid-item img {
-    width: 95%;
-    height: 95%;
-    object-fit: contain;
-}
-
-.grid-footer {
-    grid-column: span 2;
-    text-align: center;
-    font-weight: bold;
-    font-size: 14px;
-    padding-top: 5px;
-    color: #555;
-}
-
-/* 모바일 화면 대응 */
-@media (max-width: 350px) {
-    .deck-grid-container {
-        /* 350px보다 좁은 화면에서는 비율에 맞춰 축소 */
-        grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: repeat(4, 0) auto;
-        padding-bottom: 100%; /* 1:1 비율 유지를 위한 트릭 */
-        position: relative;
-        height: 0;
-    }
-    .deck-grid-container > div {
-        position: absolute;
-    }
-     /* 각 grid-area에 대해 절대 위치 설정 필요 (생략) */
 }
 
 /* 타입 이모지(아이콘) 크기 복구 */
