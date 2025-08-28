@@ -187,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         
-        // ▼▼▼ [수정된 부분 1] 포켓몬 타입별 목록에 faceImageURL 추가 ▼▼▼
         const types = DB.pokemonType.lev2.reduce((acc, type) => ({...acc, [type.id]: [] }), {});
         Object.values(DB.pokemonType.lev4).forEach(pokemon => {
             if (pokemon.types && Array.isArray(pokemon.types)) {
@@ -196,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         types[typeId].push({ 
                             id: pokemon.id, 
                             name: pokemon.name_ko || pokemon.name,
-                            faceImageURL: pokemon.faceImageURL // 이 줄이 추가되었습니다.
+                            faceImageURL: pokemon.faceImageURL
                         });
                     }
                 });
@@ -205,7 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.values(types).forEach(typeList => typeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
         DB.pokemonType.lev3 = types;
 
-        // ▼▼▼ [수정된 부분 2] 포켓몬 등급별 목록에 faceImageURL 추가 ▼▼▼
         const grades = DB.pokemonGrade.lev2.reduce((acc, grade) => ({...acc, [grade.id]: [] }), {});
         Object.values(DB.pokemonType.lev4).forEach(pokemon => {
             if (pokemon && pokemon.grade) {
@@ -214,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     grades[gradeId].push({ 
                         id: pokemon.id, 
                         name: pokemon.name_ko || pokemon.name,
-                        faceImageURL: pokemon.faceImageURL // 이 줄이 추가되었습니다.
+                        faceImageURL: pokemon.faceImageURL
                     });
                 }
             }
@@ -359,7 +357,6 @@ document.addEventListener('DOMContentLoaded', () => {
             sessionStorage.removeItem('returnToMain');
         }
         
-        // 메인 화면을 숨기고, 콘텐츠 영역을 활성화하는 것은 유지합니다.
         mainPlaceholder.style.display = 'none';
         appContainer.classList.add('menu-active');
         
@@ -372,11 +369,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!nextPanel) return;
         
-        // [최종 수정] 모든 패널의 'visible' 클래스를 제거하여 숨깁니다.
         Object.values(panels).forEach(p => p.classList.remove('visible'));
         
-        // 다음 레벨의 패널에만 'visible' 클래스를 추가하여 즉시 표시합니다.
-        // (슬라이드 애니메이션을 유발하는 is-hidden 클래스 제어 로직을 완전히 제거)
         nextPanel.classList.add('visible');
         
         setActive(level, button);
@@ -425,93 +419,89 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
-    function renderCardList(data, menuId, container) {
-    const dataArray = Array.isArray(data) ? data : Object.values(data);
+    function renderCardList(data, menuId, container, level) { // level 매개변수 추가
+        const dataArray = Array.isArray(data) ? data : Object.values(data);
 
-    dataArray.sort((a, b) => {
-        const nameA = a.name_ko || a.name || a.title || '';
-        const nameB = b.name_ko || b.name || b.title || '';
-        return nameA.localeCompare(nameB, 'ko');
-    });
+        dataArray.sort((a, b) => {
+            const nameA = a.name_ko || a.name || a.title || '';
+            const nameB = b.name_ko || b.name || b.title || '';
+            return nameA.localeCompare(nameB, 'ko');
+        });
 
-    // PC일 경우와 모바일일 경우를 나누어 처리
-    if (isMobile()) {
-        // 모바일: 기존처럼 즉시 로딩 (정상 작동)
-        const listHTML = dataArray.map(item => {
-            const name = item.name_ko || item.name || item.title;
-            const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
-            let infoHTML = '';
-            if (item.grade) {
-                infoHTML += `<span class="grade-badge grade-${item.grade.toLowerCase().replace('+', '-plus')}">${item.grade}</span>`;
-            }
-            if (item.types) {
-                infoHTML += '<div class="type-badges-container">';
-                item.types.forEach(typeId => {
-                    const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-                    if (typeInfo) {
-                        infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
-                    }
-                });
-                infoHTML += '</div>';
-            }
-
-            return `
-                <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}">
-                    <div class="item-card-image">
-                        <img src="${imageURL}" alt="${name}">
-                    </div>
-                    <div class="item-card-info">
-                        <strong class="item-card-name">${name}</strong>
-                        <div class="item-card-details">${infoHTML}</div>
-                    </div>
-                </div>`;
-        }).join('');
-        container.innerHTML = listHTML;
-
-    } else {
-        // PC: 지연 로딩으로 타이밍 문제 해결
-        const listHTML = dataArray.map(item => {
-            const name = item.name_ko || item.name || item.title;
-            const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
-            let infoHTML = '';
-            if (item.grade) {
-                infoHTML += `<span class="grade-badge grade-${item.grade.toLowerCase().replace('+', '-plus')}">${item.grade}</span>`;
-            }
-            if (item.types) {
-                infoHTML += '<div class="type-badges-container">';
-                item.types.forEach(typeId => {
-                    const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
-                    if (typeInfo) {
-                        infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
-                    }
-                });
-                infoHTML += '</div>';
-            }
-
-            return `
-                <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}">
-                    <div class="item-card-image">
-                        <img data-src="${imageURL}" alt="${name}">
-                    </div>
-                    <div class="item-card-info">
-                        <strong class="item-card-name">${name}</strong>
-                        <div class="item-card-details">${infoHTML}</div>
-                    </div>
-                </div>`;
-        }).join('');
-
-        container.innerHTML = listHTML;
-
-        // 0.1초 후 이미지 로딩 시작 (패널이 완전히 표시된 후)
-        setTimeout(() => {
-            container.querySelectorAll('.item-card-image img').forEach(img => {
-                if (img.dataset.src) {
-                    img.src = img.dataset.src;
+        if (isMobile()) {
+            const listHTML = dataArray.map(item => {
+                const name = item.name_ko || item.name || item.title;
+                const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
+                let infoHTML = '';
+                if (item.grade) {
+                    infoHTML += `<span class="grade-badge grade-${item.grade.toLowerCase().replace('+', '-plus')}">${item.grade}</span>`;
                 }
-            });
-        }, 100); 
+                if (item.types) {
+                    infoHTML += '<div class="type-badges-container">';
+                    item.types.forEach(typeId => {
+                        const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+                        if (typeInfo) {
+                            infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
+                        }
+                    });
+                    infoHTML += '</div>';
+                }
+
+                return `
+                    <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}" data-level="${level}">
+                        <div class="item-card-image">
+                            <img src="${imageURL}" alt="${name}">
+                        </div>
+                        <div class="item-card-info">
+                            <strong class="item-card-name">${name}</strong>
+                            <div class="item-card-details">${infoHTML}</div>
+                        </div>
+                    </div>`;
+            }).join('');
+            container.innerHTML = listHTML;
+
+        } else {
+            const listHTML = dataArray.map(item => {
+                const name = item.name_ko || item.name || item.title;
+                const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
+                let infoHTML = '';
+                if (item.grade) {
+                    infoHTML += `<span class="grade-badge grade-${item.grade.toLowerCase().replace('+', '-plus')}">${item.grade}</span>`;
+                }
+                if (item.types) {
+                    infoHTML += '<div class="type-badges-container">';
+                    item.types.forEach(typeId => {
+                        const typeInfo = DB.pokemonType.lev2.find(t => t.id === typeId);
+                        if (typeInfo) {
+                            infoHTML += `<span class="type-badge" style="background-color:${typeInfo.color};">${typeInfo.name}</span>`;
+                        }
+                    });
+                    infoHTML += '</div>';
+                }
+
+                return `
+                    <div class="list-item-card" data-id="${item.id}" data-menu-id="${menuId}" data-level="${level}">
+                        <div class="item-card-image">
+                            <img data-src="${imageURL}" alt="${name}">
+                        </div>
+                        <div class="item-card-info">
+                            <strong class="item-card-name">${name}</strong>
+                            <div class="item-card-details">${infoHTML}</div>
+                        </div>
+                    </div>`;
+            }).join('');
+
+            container.innerHTML = listHTML;
+
+            setTimeout(() => {
+                container.querySelectorAll('.item-card-image img').forEach(img => {
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                    }
+                });
+            }, 100); 
+        }
     }
-}
 
     function renderPanelContent(level, data, menuId, clickedId) {
         const targetPanel = panels[`lev${level}`];
@@ -539,12 +529,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
             
-            // ▼▼▼ 핵심 수정 부분 ▼▼▼
-            // PC/모바일 구분 없이, 포켓몬/아이템 등 카드 목록이 필요한 메뉴는 항상 renderCardList를 호출하도록 변경
             if (level === 3 && cardLayoutMenus.includes(menuId)) {
-                renderCardList(data, menuId, contentDiv);
+                renderCardList(data, menuId, contentDiv, level); // level 값 전달
             } else {
-                // 그 외의 경우에만 단순 리스트를 렌더링
                 data.forEach(item => {
                     const button = document.createElement('button');
                     button.className = 'list-item';
@@ -862,7 +849,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (data.description) { html += `<p class="deck-description">${data.description}</p>`; }
     html += `<h4>덱 배치</h4>`;
 
-    // HTML 구조를 table에서 div 기반의 CSS Grid로 변경
     html += `<div class="deck-grid-container">`;
 
     const gridItems = {};
@@ -873,7 +859,6 @@ document.addEventListener('DOMContentLoaded', () => {
         'main_1':   'r2c4', 'main_2':   'r3c4', 'main_3':   'r4c4'
     };
     
-    // 1. 날씨 효과와 시너지 효과를 먼저 배치
     const weather = data.weather && weatherToEmoji[data.weather] ? { type: 'header', content: weatherToEmoji[data.weather], label: data.weather, area: 'r1c1' } : { type: 'empty', area: 'r1c1' };
     const mainPokemonIds = data.composition.filter(m => m.role === 'main').map(m => m.pokemonId);
     const synergy = calculateSynergy(mainPokemonIds);
@@ -882,7 +867,6 @@ document.addEventListener('DOMContentLoaded', () => {
     html += `<div class="grid-item grid-header-item" style="grid-area: ${weather.area};">${weather.type === 'header' ? weather.content : ''}</div>`;
     html += `<div class="grid-item grid-header-item" style="grid-area: ${synergyItem.area};">${synergyItem.type === 'header' ? synergyItem.content : ''}</div>`;
     
-    // 2. 포켓몬 데이터 채우기
     data.composition.forEach(member => {
         const pkmData = DB.pokemonType.lev4[member.pokemonId];
         if (pkmData) {
@@ -891,7 +875,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 3. 그리드 아이템 생성 (데이터가 없으면 빈 칸으로)
     for (let r = 2; r <= 4; r++) {
         for (let c = 1; c <= 4; c++) {
             const area = `r${r}c${c}`;
@@ -904,14 +887,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 4. 푸터(설명) 추가
     html += `<div class="grid-footer" style="grid-area: r5c1;">어시스트 #1~#6</div>`;
     html += `<div class="grid-footer" style="grid-area: r5c2;">메인덱 #1~#6</div>`;
 
-    html += `</div></div>`; // deck-grid-container, deck-detail-view 닫기
+    html += `</div></div>`;
     contentDiv.innerHTML = html;
 
-    // 포켓몬 클릭 시 팝업 이벤트 리스너 추가
     contentDiv.querySelectorAll('.deck-pokemon-cell').forEach(cell => {
         cell.addEventListener('click', () => {
             const pokemonId = cell.dataset.pokemonId;
@@ -1292,7 +1273,7 @@ document.addEventListener('DOMContentLoaded', () => {
             listContent.innerHTML = '<p class="list-empty-message">표시할 데이터가 없습니다.</p>';
             return;
         }
-        renderCardList(data, menuId, listContent);
+        renderCardList(data, menuId, listContent, 3); // 모바일 리스트는 항상 3단계이므로 level 3을 전달
     }
 
     function renderSimpleListPage(data, menuId) {
@@ -1331,7 +1312,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // ▼▼▼ [수정] 모바일 필터 UI를 아이콘으로 표시하도록 변경 ▼▼▼
     function openFilterModal() {
         const modalOverlay = document.getElementById('filter-modal-overlay');
         const modalBody = document.getElementById('filter-modal-body');
@@ -1373,7 +1353,14 @@ document.addEventListener('DOMContentLoaded', () => {
             filtersHTML += '</div></div>';
         }
         
-        modalBody.innerHTML = filtersHTML;
+        const modalFooterHTML = `
+            <div class="filter-modal-footer">
+                <button id="filter-reset-btn" class="modal-action-btn reset-btn">초기화</button>
+                <button id="filter-apply-btn" class="modal-action-btn apply-btn">적용</button>
+            </div>
+        `;
+
+        modalBody.innerHTML = filtersHTML + modalFooterHTML;
         modalOverlay.style.display = 'flex';
     }
 
@@ -1449,28 +1436,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 sidebar.classList.toggle('visible');
             });
         }
-    
+
         document.body.addEventListener('click', (e) => {
-            const target = e.target;
-    
-            // 1. 카드 형태(.list-item-card) 클릭 처리: PC/모바일 공통으로 상세 보기(Lev.4)로 이동
-            const listItemCard = target.closest('.list-item-card');
-            if (listItemCard) {
-                const itemId = listItemCard.dataset.id;
-                const menuId = listItemCard.dataset.menuId;
-                showDetailPage(itemId, menuId);
-                return; // 여기서 처리를 끝냄
+            const adLink = e.target.closest('a[href*="ads"]');
+            if (adLink) {
+                adBlockManager.recordClick();
             }
-    
-            // 2. 단순 목록(.list-item) 또는 사이드바 메뉴(.menu-item) 클릭 처리: 다음 목록(Lev.2, Lev.3)으로 이동
-            const listItem = target.closest('.list-item, #sidebar .menu-item');
-            if (listItem) {
-                handleMenuClick(listItem);
-                return; // 여기서 처리를 끝냄
-            }
-    
-            // 3. 모바일 그리드 메뉴 버튼 클릭 처리
-            const gridMenuBtn = target.closest('.grid-menu-btn');
+
+            const gridMenuBtn = e.target.closest('.grid-menu-btn');
             if (gridMenuBtn) {
                 const menuId = gridMenuBtn.dataset.menuId;
                 const subMenuId = gridMenuBtn.dataset.itemId;
@@ -1481,47 +1454,96 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 return;
             }
+
+            const pcListItem = e.target.closest('#sidebar .menu-item, .panel .list-item, .panel .list-item-card');
+            if (pcListItem && !isMobile()) {
+                if (!pcListItem.closest('#list-filter-page')) {
+                    handleMenuClick(pcListItem);
+                    return;
+                }
+            }
             
-            // 4. 메인 화면 바로가기 링크 처리
-            const mainShortcut = target.closest('#main-notice-list a, #popular-deck-list a');
+            const mobileListItemCard = e.target.closest('#list-page-content .list-item-card, #list-page-content .list-item');
+            if(mobileListItemCard){
+                const itemId = mobileListItemCard.dataset.id;
+                const menuId = mobileListItemCard.dataset.menuId;
+                showDetailPage(itemId, menuId);
+            }
+            
+            const mainShortcut = e.target.closest('#main-notice-list a, #popular-deck-list a');
             if (mainShortcut) {
                 e.preventDefault();
                 const menuId = mainShortcut.dataset.menuId;
                 const itemId = mainShortcut.dataset.itemId;
                 sessionStorage.setItem('returnToMain', 'true');
-                showDetailPage(itemId, menuId);
-                return;
+                if (isMobile()) {
+                    showDetailPage(itemId, menuId);
+                } else {
+                    mainPlaceholder.style.display = 'none';
+                    appContainer.classList.add('menu-active');
+                    const detailPanel = panels.lev4;
+                    const contentDiv = detailPanel.querySelector('.panel-content');
+                    const panelHeader = detailPanel.querySelector('.panel-header');
+                    let data;
+                    if (menuId === 'deck') data = DB.deck.lev4[itemId];
+                    else if (menuId === 'notice') data = DB.notice.lev3[itemId];
+                    if (data) {
+                        if (menuId === 'deck') renderDeckView(contentDiv, data);
+                        else renderSimpleView(contentDiv, data, menuId);
+                    }
+                    panelHeader.innerHTML = '';
+                    const backButton = document.createElement('button');
+                    backButton.className = 'back-btn';
+                    backButton.innerHTML = '&lt; 뒤로';
+                    backButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        handleMainButtonClick();
+                    }, { once: true });
+                    panelHeader.appendChild(backButton);
+                    Object.values(panels).forEach(p => p.classList.remove('visible'));
+                    detailPanel.classList.add('visible');
+                }
             }
             
-            // 5. 기타 버튼들 (좋아요, 뒤로가기, 필터 등)
-            const likeBtn = target.closest('.like-btn');
+            const likeBtn = e.target.closest('.like-btn');
             if (likeBtn) {
                 handleLikeClick(likeBtn);
-                return;
             }
             
-            const panelBackBtn = target.closest('.panel .back-btn');
-            if (panelBackBtn) {
-                if(sessionStorage.getItem('returnToMain')) {
+            const panelBackBtn = e.target.closest('.panel .back-btn');
+            if (panelBackBtn && !isMobile()) {
+                const currentPanel = panelBackBtn.closest('.panel');
+                if(currentPanel.id === 'lev4-panel' && sessionStorage.getItem('returnToMain')) {
                     handleMainButtonClick();
-                } else {
-                    window.history.back();
+                    return;
                 }
-                return;
+                const level = parseInt(Object.keys(panels).find(key => panels[key] === currentPanel)?.replace('lev', '') || '0');
+                if (level > 2) {
+                    currentPanel.classList.remove('visible');
+                    const prevPanel = panels[`lev${level-1}`];
+                    if (prevPanel) {
+                        prevPanel.classList.remove('is-hidden');
+                        prevPanel.classList.add('visible');
+                    }
+                    if(activeButtons[level]) activeButtons[level].classList.remove('active');
+                    activeButtons[level] = null;
+                } else {
+                    handleMainButtonClick();
+                }
             }
-    
-            const openFilterBtn = target.closest('#open-filter-modal-btn');
+
+            const openFilterBtn = e.target.closest('#open-filter-modal-btn');
             if (openFilterBtn) {
                 openFilterModal();
-                return;
             }
-    
-            if (target.closest('#filter-modal-overlay') && !target.closest('.modal-content') || target.closest('#filter-modal-close-btn')) {
+
+            const filterModalOverlay = e.target.closest('#filter-modal-overlay');
+            const closeFilterBtn = e.target.closest('#filter-modal-close-btn');
+            if ((filterModalOverlay && e.target === filterModalOverlay) || closeFilterBtn) {
                  closeFilterModal();
-                 return;
             }
-    
-            const filterButton = target.closest('.filter-button, .type-icon-button');
+
+            const filterButton = e.target.closest('.filter-button, .type-icon-button');
             if (filterButton && filterButton.closest('#filter-modal-body')) {
                 const { filterType, filterValue } = filterButton.dataset;
                 filterButton.classList.toggle('active');
@@ -1532,24 +1554,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     activeFilters[filterType].push(filterValue);
                 }
-                return;
             }
-    
-            const applyFilterBtn = target.closest('#filter-apply-btn');
+
+            const applyFilterBtn = e.target.closest('#filter-apply-btn');
             if(applyFilterBtn) {
                 applyFiltersAndRender();
-                return;
             }
-            const resetFilterBtn = target.closest('#filter-reset-btn');
+            const resetFilterBtn = e.target.closest('#filter-reset-btn');
             if(resetFilterBtn) {
                 activeFilters.grade = [];
                 activeFilters.type = [];
                 openFilterModal();
-                return;
             }
         });
-    
-        document.querySelector('.back-to-grid-btn')?.addEventListener('click', hideListPage);
-        window.addEventListener('popstate', handleMainButtonClick);
     }
+
+    adBlockManager.checkAndApplyBlock();
+    initialize();
+    function setScreenHeight() {
+      let vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+    setScreenHeight();
+    window.addEventListener('resize', setScreenHeight);
 });
