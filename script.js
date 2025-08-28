@@ -183,28 +183,40 @@ document.addEventListener('DOMContentLoaded', () => {
             name: data.title,
             createdAt: data.createdAt,
             updatedAt: data.updatedAt
-        }));
-        DB.notice.lev2.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+        })).sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
 
         DB.pokemonType.lev2.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-        const types = {};
-        DB.pokemonType.lev2.forEach(type => { types[type.id] = []; });
+        
+        // ▼▼▼ [수정된 부분 1] 포켓몬 타입별 목록에 faceImageURL 추가 ▼▼▼
+        const types = DB.pokemonType.lev2.reduce((acc, type) => ({...acc, [type.id]: [] }), {});
         Object.values(DB.pokemonType.lev4).forEach(pokemon => {
             if (pokemon.types && Array.isArray(pokemon.types)) {
                 pokemon.types.forEach(typeId => {
-                    if (types[typeId]) types[typeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
+                    if (types[typeId]) {
+                        types[typeId].push({ 
+                            id: pokemon.id, 
+                            name: pokemon.name_ko || pokemon.name,
+                            faceImageURL: pokemon.faceImageURL // 이 줄이 추가되었습니다.
+                        });
+                    }
                 });
             }
         });
         Object.values(types).forEach(typeList => typeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
         DB.pokemonType.lev3 = types;
 
-        const grades = {};
-        DB.pokemonGrade.lev2.forEach(grade => { grades[grade.id] = []; });
+        // ▼▼▼ [수정된 부분 2] 포켓몬 등급별 목록에 faceImageURL 추가 ▼▼▼
+        const grades = DB.pokemonGrade.lev2.reduce((acc, grade) => ({...acc, [grade.id]: [] }), {});
         Object.values(DB.pokemonType.lev4).forEach(pokemon => {
             if (pokemon && pokemon.grade) {
                 const gradeId = DB.pokemonGrade.lev2.find(g => g.name === pokemon.grade)?.id;
-                if (gradeId && grades[gradeId]) grades[gradeId].push({ id: pokemon.id, name: pokemon.name_ko || pokemon.name });
+                if (gradeId && grades[gradeId]) {
+                    grades[gradeId].push({ 
+                        id: pokemon.id, 
+                        name: pokemon.name_ko || pokemon.name,
+                        faceImageURL: pokemon.faceImageURL // 이 줄이 추가되었습니다.
+                    });
+                }
             }
         });
         Object.values(grades).forEach(gradeList => gradeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
@@ -216,11 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name, imageURL: item.imageURL });
         });
         DB.item.lev3 = itemGrades;
-        
-        const gradeOrder = { 'god': 1, 'legendary': 2, 'epic': 3 };
-        if (DB.item && DB.item.lev2 && Array.isArray(DB.item.lev2)) {
-            DB.item.lev2.sort((a, b) => (gradeOrder[a.id] || 99) - (gradeOrder[b.id] || 99));
-        }
         
         const runeAndChipTypes = { rune: [], chip: [] };
         Object.values(DB.runeAndChip.lev4).forEach(rc => {
@@ -235,8 +242,9 @@ document.addEventListener('DOMContentLoaded', () => {
             updatedAt: data.updatedAt
         }));
         
-        DB.deck.lev3.recommended = Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name, likeCount: deck.likeCount || 0 }));
-        DB.deck.lev3.builder = [{ id: 'deckBuilder', name: '배치툴' }];
+        DB.deck.lev3 = {
+            recommended: Object.values(DB.deck.lev4).map(deck => ({ id: deck.id, name: deck.name, likeCount: deck.likeCount || 0 }))
+        };
     }
 
     function isNew(timestamp) {
