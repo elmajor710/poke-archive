@@ -1512,15 +1512,16 @@ body.mobile-view #page-body {
 }
 
 /* ===================================================== */
-/* [미션 3 최종 수정] - 새로운 CSS Grid 방식의 덱 스타일   */
+/* [수정 완료] - 하이브리드 방식의 새로운 덱 스타일      */
 /* ===================================================== */
 
 .deck-grid-container {
     display: grid;
-    grid-template-columns: repeat(4, 75px); /* 75px 너비의 4개 열 */
-    grid-template-rows: repeat(4, 75px) auto; /* 75px 높이의 4개 행 + 자동 높이 푸터 */
-    gap: 5px; /* 칸 사이의 간격 */
-    justify-content: center; /* 그리드 전체를 중앙 정렬 */
+    /* 대부분의 기기에서는 JT님이 설정하신 75px 고정 크기를 사용합니다. */
+    grid-template-columns: repeat(4, 75px); 
+    grid-template-rows: repeat(4, 75px) auto;
+    gap: 5px;
+    justify-content: center;
 
     /* 그리드 영역 이름 정의 */
     grid-template-areas:
@@ -1531,6 +1532,15 @@ body.mobile-view #page-body {
         "r5c1 r5c1 r5c2 r5c2";
 }
 
+/* 화면 너비가 320px 이하로 매우 좁아질 때만 아래 스타일을 적용합니다. */
+@media (max-width: 320px) {
+    .deck-grid-container {
+        /* 컬럼 너비를 비율(fr)로 바꿔서 화면에 꽉 차게 만듭니다. */
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* 이하 JT님이 작성하신 스타일은 그대로 유지합니다. */
 .grid-item {
     border: 1px solid var(--border-color);
     background-color: #f9f9f9;
@@ -1542,7 +1552,7 @@ body.mobile-view #page-body {
 
 .grid-header-item {
     background-color: #e9f5ff;
-    font-size: 38px; /* 이모지 크기 고정 */
+    font-size: 38px;
     line-height: 1;
 }
 
@@ -1558,7 +1568,7 @@ body.mobile-view #page-body {
 }
 
 .grid-footer {
-    grid-column: span 2; /* 2칸 병합 */
+    grid-column: span 2;
     text-align: center;
     font-weight: bold;
     font-size: 14px;
