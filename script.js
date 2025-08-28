@@ -347,33 +347,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleMenuClick(button) {
-        // ▼▼▼ [수정] 스마트 뒤로가기 상태를 초기화하는 로직 ▼▼▼
         if (parseInt(button.dataset.level) === 1) {
             sessionStorage.removeItem('returnToMain');
         }
-        if (isMobile()) sidebar.classList.remove('visible');
+        
+        // 메인 화면을 숨기고, 콘텐츠 영역을 활성화하는 것은 유지합니다.
         mainPlaceholder.style.display = 'none';
         appContainer.classList.add('menu-active');
-        if (isMobile()) {
-            const bottomAd = document.getElementById('ad-container-bottom');
-            if (bottomAd) {
-                bottomAd.style.display = 'none';
-            }
-        }
+        
         const level = parseInt(button.dataset.level);
         const id = button.dataset.id;
         const menuId = button.dataset.menuId || id;
         const nextLevel = level + 1;
         const nextData = getNextData(level, id, menuId); 
-        const currentPanel = panels[`lev${level}`] || sidebar;
         const nextPanel = panels[`lev${nextLevel}`];
+
         if (!nextPanel) return;
-        if (isMobile()) currentPanel.classList.add('is-hidden');
-        Object.values(panels).forEach((panel, index) => {
-            if(index > 0 && panel !== nextPanel) panel.classList.remove('visible');
-        });
-        nextPanel.classList.remove('is-hidden');
+        
+        // [최종 수정] 모든 패널의 'visible' 클래스를 제거하여 숨깁니다.
+        Object.values(panels).forEach(p => p.classList.remove('visible'));
+        
+        // 다음 레벨의 패널에만 'visible' 클래스를 추가하여 즉시 표시합니다.
+        // (슬라이드 애니메이션을 유발하는 is-hidden 클래스 제어 로직을 완전히 제거)
         nextPanel.classList.add('visible');
+        
         setActive(level, button);
         renderPanelContent(nextLevel, nextData, menuId, id);
     }
