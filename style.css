@@ -1511,6 +1511,27 @@ body.mobile-view #page-body {
     display: none;
 }
 
+
+
+/* 타입 이모지(아이콘) 크기 복구 */
+.list-item-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+/* [최종 수정] PC 슬라이드 애니메이션 완전 비활성화 */
+.panel {
+    transform: none; /* 슬라이드 효과를 위한 위치 이동 제거 */
+    transition: none; /* 슬라이드 애니메이션 효과 제거 */
+    display: none;    /* 기본적으로 패널을 보이지 않게 처리 */
+    visibility: visible; /* visibility는 항상 보이도록 유지 */
+}
+
+.panel.visible {
+    display: flex; /* 'visible' 클래스가 붙으면 보이도록 변경 */
+}
+
 /* ===================================================== */
 /* [최종 복구] - 하이브리드 방식 반응형 덱 스타일        */
 /* ===================================================== */
@@ -1539,25 +1560,6 @@ body.mobile-view #page-body {
         /* 컬럼 너비를 비율(fr)로 바꿔서 화면에 꽉 차게 만듭니다. */
         grid-template-columns: repeat(4, 1fr);
     }
-}
-
-/* 타입 이모지(아이콘) 크기 복구 */
-.list-item-icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 10px;
-}
-
-/* [최종 수정] PC 슬라이드 애니메이션 완전 비활성화 */
-.panel {
-    transform: none; /* 슬라이드 효과를 위한 위치 이동 제거 */
-    transition: none; /* 슬라이드 애니메이션 효과 제거 */
-    display: none;    /* 기본적으로 패널을 보이지 않게 처리 */
-    visibility: visible; /* visibility는 항상 보이도록 유지 */
-}
-
-.panel.visible {
-    display: flex; /* 'visible' 클래스가 붙으면 보이도록 변경 */
 }
 
 
