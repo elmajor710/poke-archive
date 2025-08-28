@@ -1589,6 +1589,18 @@ body.mobile-view #page-body {
     margin-right: 10px;
 }
 
+/* [최종 수정] PC 슬라이드 애니메이션 완전 비활성화 */
+.panel {
+    transform: none; /* 슬라이드 효과를 위한 위치 이동 제거 */
+    transition: none; /* 슬라이드 애니메이션 효과 제거 */
+    display: none;    /* 기본적으로 패널을 보이지 않게 처리 */
+    visibility: visible; /* visibility는 항상 보이도록 유지 */
+}
+
+.panel.visible {
+    display: flex; /* 'visible' 클래스가 붙으면 보이도록 변경 */
+}
+
 
 
 
