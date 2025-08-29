@@ -1556,61 +1556,64 @@ function applyFiltersAndRender() {
                 }
             }
 
-            const openFilterBtn = e.target.closest('#open-filter-modal-btn');
-            if (openFilterBtn) {
-                openFilterModal();
+        // =================================================================
+// ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ 아래 코드를 새로 붙여넣어 주세요 ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+
+        // [최종 해결책] 필터 전용 이벤트 리스너 (기존 body 리스너와 분리하여 안정성 확보)
+        
+        // --- 필터 모달 열기 ---
+        const openFilterBtn = e.target.closest('#open-filter-modal-btn');
+        if (openFilterBtn) {
+            // 모달이 열릴 때, 현재 필터 상태를 복사하여 임시 상태를 만듭니다.
+            tempActiveFilters = JSON.parse(JSON.stringify(activeFilters));
+            openFilterModal();
+        }
+
+        // --- 필터 모달 내부 클릭 이벤트 처리 ---
+        const modalContent = e.target.closest('.modal-content');
+        if (modalContent) {
+
+            // 피드백 1. 시각화 문제 해결: 등급, 타입 버튼 클릭 처리
+            const filterButton = e.target.closest('.filter-button, .type-icon-button');
+            if (filterButton) {
+                filterButton.classList.toggle('active'); // 즉시 시각적 반응
+                const { filterType, filterValue } = filterButton.dataset;
+                if (!tempActiveFilters[filterType]) tempActiveFilters[filterType] = [];
+                const index = tempActiveFilters[filterType].indexOf(filterValue);
+                if (index > -1) {
+                    tempActiveFilters[filterType].splice(index, 1); // 선택 해제
+                } else {
+                    tempActiveFilters[filterType].push(filterValue); // 선택
+                }
             }
 
-            const filterModalOverlay = e.target.closest('#filter-modal-overlay');
-            const closeFilterBtn = e.target.closest('#filter-modal-close-btn');
-            if ((filterModalOverlay && e.target === filterModalOverlay) || closeFilterBtn) {
-                 closeFilterModal();
+            // 피드백 2. 버튼 작동안됨 문제 해결: 적용 버튼
+            const applyFilterBtn = e.target.closest('#filter-apply-btn');
+            if (applyFilterBtn) {
+                activeFilters = JSON.parse(JSON.stringify(tempActiveFilters)); // 임시 상태를 최종 확정
+                applyFiltersAndRender();
+                closeFilterModal(); // 적용 후 모달 닫기
             }
 
-            // script.js 파일의 addEventListeners 함수 안입니다
-// [수정 2] 필터 모달 이벤트 리스너
-// 임시 선택 상태를 저장할 객체. '적용'을 눌러야만 activeFilters에 반영됩니다.
-let tempActiveFilters = {};
+            // 피드백 2. 버튼 작동안됨 문제 해결: 초기화 버튼
+            const resetFilterBtn = e.target.closest('#filter-reset-btn');
+            if (resetFilterBtn) {
+                tempActiveFilters = { grade: [], type: [] };
+                activeFilters = { grade: [], type: [] };
+                applyFiltersAndRender(); // 초기화된 상태로 목록 즉시 갱신
+                closeFilterModal(); // 초기화 후 모달 닫기
+            }
+        }
+        
+        // --- 필터 모달 닫기 (X 버튼 또는 바깥 영역 클릭) ---
+        const filterModalOverlay = e.target.closest('#filter-modal-overlay');
+        const closeFilterBtn = e.target.closest('#filter-modal-close-btn');
+        if ((filterModalOverlay && !e.target.closest('.modal-content')) || closeFilterBtn) {
+            closeFilterModal();
+        }
 
-// ─── 요구사항 #3(다중선택), #4(선택취소) ───
-const filterButton = e.target.closest('.filter-button, .type-icon-button');
-if (filterButton && filterButton.closest('#filter-modal-body')) {
-    const { filterType, filterValue } = filterButton.dataset;
-
-    // 1. UI에 active 클래스를 토글하여 시각적 효과 즉시 적용
-    filterButton.classList.toggle('active');
-    
-    // 2. 임시 필터 데이터(tempActiveFilters)를 업데이트
-    if (!tempActiveFilters[filterType]) tempActiveFilters[filterType] = [];
-    const index = tempActiveFilters[filterType].indexOf(filterValue);
-
-    if (index > -1) {
-        // 이미 선택된 상태면 배열에서 제거 (선택 취소)
-        tempActiveFilters[filterType].splice(index, 1);
-    } else {
-        // 선택되지 않은 상태면 배열에 추가 (다중 선택)
-        tempActiveFilters[filterType].push(filterValue);
-    }
-}
-
-// ─── 요구사항 #5: '적용' 버튼 클릭 시 최종 필터링 실행 ───
-const applyFilterBtn = e.target.closest('#filter-apply-btn');
-if(applyFilterBtn) {
-    // 임시로 저장했던 필터 선택 값을 실제 필터 값으로 확정
-    activeFilters = JSON.parse(JSON.stringify(tempActiveFilters));
-    applyFiltersAndRender();
-}
-
-// '초기화' 버튼 클릭 시
-const resetFilterBtn = e.target.closest('#filter-reset-btn');
-if(resetFilterBtn) {
-    // 임시 선택 값과 실제 선택 값을 모두 초기화
-    tempActiveFilters = { grade: [], type: [] };
-    activeFilters = { grade: [], type: [] };
-    // 필터 모달을 다시 열어 초기화된 상태를 보여주고, 바로 적용
-    openFilterModal();
-    applyFiltersAndRender();
-}
+// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ 여기까지가 새로 붙여넣을 코드 ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+// =================================================================    
 
 
         });
