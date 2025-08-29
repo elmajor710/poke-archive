@@ -936,3 +936,30 @@ header h1 {
     #sidebar { transform: translateX(0); }
 }
 
+/* ===================================================== */
+/* [긴급 수정] 모바일/PC 화면 표시 복구 코드           */
+/* ===================================================== */
+
+/* 기본적으로 모바일 요소는 보이고, PC 요소는 숨깁니다. */
+.mobile-only {
+    display: block;
+}
+.pc-only {
+    display: none;
+}
+.mobile-grid-menu.mobile-only {
+    display: grid;
+}
+
+/* 화면이 992px 이상(PC)일 때 규칙을 뒤집습니다. */
+@media (min-width: 992px) {
+    .mobile-only {
+        display: none;
+    }
+    .pc-only {
+        display: block;
+    }
+    .main-content-grid.pc-only {
+        display: grid;
+    }
+}
