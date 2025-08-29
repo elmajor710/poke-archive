@@ -1378,24 +1378,34 @@ function openFilterModal() {
     modalOverlay.style.display = 'flex';
 }
 
-    function applyFiltersAndRender() {
-        const menuId = document.getElementById('list-page-title').dataset.menuId;
-        let dataList = [];
-        if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
-            dataList = Object.values(DB.pokemonType.lev4);
-        } else if (menuId === 'item') {
-            dataList = Object.values(DB.item.lev4);
-        }
-
-        const filteredData = dataList.filter(item => {
-            const gradeMatch = activeFilters.grade.length === 0 || (item.grade && activeFilters.grade.includes(item.grade));
-            const typeMatch = activeFilters.type.length === 0 || activeFilters.type.every(type => item.types?.includes(type));
-            return gradeMatch && typeMatch;
-        });
-
-        renderListPage(filteredData, menuId);
-        closeFilterModal();
+    // [수정] 안정성을 높인 필터 적용 및 렌더링 함수
+function applyFiltersAndRender() {
+    const menuId = document.getElementById('list-page-title').dataset.menuId;
+    let dataList = [];
+    if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
+        dataList = Object.values(DB.pokemonType.lev4);
+    } else if (menuId === 'item') {
+        dataList = Object.values(DB.item.lev4);
     }
+
+    const filteredData = dataList.filter(item => {
+        // ?. (옵셔널 체이닝)을 사용하여 activeFilters.grade가 존재하고,
+        // length가 0보다 클 때만 .includes() 검사를 수행합니다.
+        // 그렇지 않으면 gradeMatch는 true가 되어 해당 필터링을 건너뜁니다.
+        const gradeMatch = !activeFilters.grade?.length || (item.grade && activeFilters.grade.includes(item.grade));
+
+        // type 필터도 동일하게 안전한 검사를 수행합니다.
+        const typeMatch = !activeFilters.type?.length || activeFilters.type.every(type => item.types?.includes(type));
+        
+        return gradeMatch && typeMatch;
+    });
+
+    renderListPage(filteredData, menuId);
+    
+    // 실시간 필터링을 사용하시는 경우, 필터링 후 모달을 닫는 이 코드는
+    // 주석 처리하거나 삭제해야 필터 창이 계속 열려있게 됩니다.
+    // closeFilterModal(); 
+}
 
     function closeFilterModal() {
         document.getElementById('filter-modal-overlay').style.display = 'none';
