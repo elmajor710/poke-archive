@@ -1108,13 +1108,6 @@ header h1 {
     position: absolute;
 }
 
-.page-filters {
-    flex-shrink: 0;
-    padding: 5px;
-    background-color: #fff;
-    border-bottom: 1px solid var(--border-color);
-}
-
 .page-content {
     flex-grow: 1;
     overflow-y: auto;
@@ -1176,12 +1169,6 @@ header h1 {
     gap: 6px;
 }
 
-.page-filters {
-    padding: 10px 15px;
-}
-.filter-group {
-    margin-bottom: 10px;
-}
 .filter-group:last-child {
     margin-bottom: 0;
 }
@@ -1192,58 +1179,11 @@ header h1 {
 }
 
 /* 기존 filter 관련 스타일(.filter-options ~ .filter-trigger-btn)을 이 코드로 교체하세요 */
-.filter-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-.filter-button {
-    padding: 6px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 20px;
-    background-color: #fff;
-    font-size: 0.9em;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-}
-.type-filter-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-    gap: 8px;
-}
-.type-icon-button {
-    width: 40px;
-    height: 40px;
-    border: 1px solid var(--border-color);
-    border-radius: 50%;
-    padding: 5px;
-    background-color: #fff;
-    cursor: pointer;
-    transition: border-color 0.2s, transform 0.2s;
-}
-.type-icon-button:hover {
-    border-color: #888;
-}
 .type-icon-button img {
     width: 100%;
     height: 100%;
     object-fit: contain;
     pointer-events: none;
-}
-.filter-trigger-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background-color: #fff;
-    font-size: 1em;
-    font-weight: 600;
-    cursor: pointer;
-}
-.filter-group {
-    margin-bottom: 10px;
 }
 .filter-group:last-child {
     margin-bottom: 0;
@@ -1255,70 +1195,12 @@ header h1 {
 }
 
 /* 최종 수정된 활성화 스타일 */
-.filter-button.active {
-    background-color: #e74c3c !important;
-    color: white !important;
-    border-color: #c0392b !important;
-    font-weight: bold;
-}
-
-.type-icon-button.active {
-    border-color: #e74c3c !important;
-    border-width: 3px !important;
-    transform: scale(1.1);
-    box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
-}
-
-.type-filter-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-    gap: 8px;
-}
-.type-icon-button {
-    width: 40px;
-    height: 40px;
-    border: 1px solid var(--border-color);
-    border-radius: 50%;
-    padding: 5px;
-    background-color: #fff;
-    cursor: pointer;
-    transition: border-color 0.2s, transform 0.2s;
-}
-.type-icon-button:hover {
-    border-color: #888;
-}
-.type-icon-button.active {
-    border-color: var(--primary-color);
-    border-width: 2px;
-    transform: scale(1.1);
-}
 .type-icon-button img {
     width: 100%;
     height: 100%;
     object-fit: contain;
 }
 
-.filter-trigger-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background-color: #fff;
-    font-size: 1em;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
-    margin-top: 10px;
-}
 .modal-footer .btn {
     padding: 8px 20px;
     font-size: 1em;
@@ -1401,29 +1283,6 @@ body.mobile-view #page-body {
     }
 }
 
-.type-filter-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-    gap: 8px;
-}
-.type-icon-button {
-    width: 40px;
-    height: 40px;
-    border: 2px solid var(--border-color);
-    border-radius: 50%;
-    padding: 5px;
-    background-color: #fff;
-    cursor: pointer;
-    transition: border-color 0.2s, transform 0.2s;
-}
-.type-icon-button:hover {
-    border-color: #888;
-}
-.type-icon-button.active {
-    border-color: var(--primary-color);
-    transform: scale(1.1);
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
 .type-icon-button img {
     width: 100%;
     height: 100%;
@@ -1591,4 +1450,109 @@ body.mobile-view #page-body {
     font-size: 14px;
     padding-top: 5px;
     color: #555;
+}
+
+/* ===================================================== */
+/* [최종 완성] 필터 시스템 전체 스타일                     */
+/* ===================================================== */
+
+.page-filters {
+    padding: 10px 15px;
+    background-color: #fff;
+    border-bottom: 1px solid var(--border-color);
+}
+.filter-trigger-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+}
+.filter-group {
+    margin-bottom: 15px;
+}
+.filter-group:last-child {
+    margin-bottom: 0;
+}
+.filter-group h4 {
+    margin: 0 0 10px 0;
+    font-size: 0.9em;
+    color: #6c757d;
+}
+.filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.filter-button {
+    padding: 6px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    background-color: #fff;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.type-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 8px;
+}
+.type-icon-button {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    padding: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.type-icon-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}
+.filter-button.active {
+    background-color: #e74c3c;
+    color: white;
+    border-color: #c0392b;
+    font-weight: bold;
+}
+.type-icon-button.active {
+    border-color: #e74c3c;
+    transform: scale(1.1);
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+}
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+}
+.modal-action-btn {
+    padding: 8px 20px;
+    font-size: 1em;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid;
+    cursor: pointer;
+}
+.reset-btn {
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+    color: #495057;
+}
+.apply-btn {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
 }
