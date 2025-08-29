@@ -1312,57 +1312,60 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    function openFilterModal() {
-        const modalOverlay = document.getElementById('filter-modal-overlay');
-        const modalBody = document.getElementById('filter-modal-body');
-        const menuId = document.getElementById('list-page-title').dataset.menuId;
+    // script.js 파일입니다
+// ▼▼▼ openFilterModal 함수를 찾아 아래 코드로 교체해주세요 ▼▼▼
+function openFilterModal() {
+    const modalOverlay = document.getElementById('filter-modal-overlay');
+    const modalBody = document.getElementById('filter-modal-body');
+    const menuId = document.getElementById('list-page-title').dataset.menuId;
+    
+    let filtersHTML = '';
+    if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
+        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
+        DB.pokemonGrade.lev2.forEach(grade => {
+            const isActive = activeFilters.grade.includes(grade.name) ? 'active' : '';
+            filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
+        });
+        filtersHTML += '</div></div>';
         
-        let filtersHTML = '';
-        if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
-            filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
-            DB.pokemonGrade.lev2.forEach(grade => {
-                const isActive = activeFilters.grade.includes(grade.name) ? 'active' : '';
-                filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
-            });
-            filtersHTML += '</div></div>';
-            
-            filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
-            DB.pokemonType.lev2.forEach(type => {
-                const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
-                filtersHTML += `
-                    <button class="type-icon-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}">
-                        <img src="${type.iconURL}" alt="${type.name}">
-                    </button>
-                `;
-            });
-            filtersHTML += '</div></div>';
+        filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
+        DB.pokemonType.lev2.forEach(type => {
+            const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
+            filtersHTML += `
+                <button class="type-icon-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}">
+                    <img src="${type.iconURL}" alt="${type.name}">
+                </button>
+            `;
+        });
+        filtersHTML += '</div></div>';
 
-        } else if (menuId === 'item') {
-            filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
-            const gradeOrder = { "God": 1, "Legendary": 2, "Epic": 3 };
-            const sortedGrades = [...DB.item.lev2].sort((a, b) => {
-                const gradeA = a.name.match(/\((.*?)\)/)[1];
-                const gradeB = b.name.match(/\((.*?)\)/)[1];
-                return (gradeOrder[gradeA] || 99) - (gradeOrder[gradeB] || 99);
-            });
-            sortedGrades.forEach(grade => {
-                const gradeValue = grade.name.match(/\((.*?)\)/)[1];
-                const isActive = activeFilters.grade.includes(gradeValue) ? 'active' : '';
-                filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${gradeValue}">${gradeValue}</button>`;
-            });
-            filtersHTML += '</div></div>';
-        }
-        
-        const modalFooterHTML = `
-            <div class="filter-modal-footer">
-                <button id="filter-reset-btn" class="modal-action-btn reset-btn">초기화</button>
-                <button id="filter-apply-btn" class="modal-action-btn apply-btn">적용</button>
-            </div>
-        `;
-
-        modalBody.innerHTML = filtersHTML + modalFooterHTML;
-        modalOverlay.style.display = 'flex';
+    } else if (menuId === 'item') {
+        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
+        const gradeOrder = { "God": 1, "Legendary": 2, "Epic": 3 };
+        const sortedGrades = [...DB.item.lev2].sort((a, b) => {
+            const gradeA = a.name.match(/\((.*?)\)/)[1];
+            const gradeB = b.name.match(/\((.*?)\)/)[1];
+            return (gradeOrder[gradeA] || 99) - (gradeOrder[gradeB] || 99);
+        });
+        sortedGrades.forEach(grade => {
+            const gradeValue = grade.name.match(/\((.*?)\)/)[1];
+            const isActive = activeFilters.grade.includes(gradeValue) ? 'active' : '';
+            filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${gradeValue}">${gradeValue}</button>`;
+        });
+        filtersHTML += '</div></div>';
     }
+    
+    // 요청사항 #1 해결: 자바스크립트가 푸터와 버튼을 직접 생성합니다.
+    const modalFooterHTML = `
+        <div class="filter-modal-footer">
+            <button id="filter-reset-btn" class="modal-action-btn reset-btn">초기화</button>
+            <button id="filter-apply-btn" class="modal-action-btn apply-btn">적용</button>
+        </div>
+    `;
+    
+    modalBody.innerHTML = filtersHTML + modalFooterHTML;
+    modalOverlay.style.display = 'flex';
+}
 
     function applyFiltersAndRender() {
         const menuId = document.getElementById('list-page-title').dataset.menuId;
@@ -1543,29 +1546,46 @@ document.addEventListener('DOMContentLoaded', () => {
                  closeFilterModal();
             }
 
-            const filterButton = e.target.closest('.filter-button, .type-icon-button');
-            if (filterButton && filterButton.closest('#filter-modal-body')) {
-                const { filterType, filterValue } = filterButton.dataset;
-                filterButton.classList.toggle('active');
-                if (!activeFilters[filterType]) activeFilters[filterType] = [];
-                const index = activeFilters[filterType].indexOf(filterValue);
-                if (index > -1) {
-                    activeFilters[filterType].splice(index, 1);
-                } else {
-                    activeFilters[filterType].push(filterValue);
-                }
-            }
+            // script.js 파일의 addEventListeners 함수 안입니다
+// ▼▼▼ 필터 관련 이벤트 리스너들을 찾아 아래 코드로 교체해주세요 ▼▼▼
 
-            const applyFilterBtn = e.target.closest('#filter-apply-btn');
-            if(applyFilterBtn) {
-                applyFiltersAndRender();
-            }
-            const resetFilterBtn = e.target.closest('#filter-reset-btn');
-            if(resetFilterBtn) {
-                activeFilters.grade = [];
-                activeFilters.type = [];
-                openFilterModal();
-            }
+// 필터 버튼 클릭 시 선택/취소 로직 (요청사항 #3, #4)
+const filterButton = e.target.closest('.filter-button, .type-icon-button');
+if (filterButton && filterButton.closest('#filter-modal-body')) {
+    const { filterType, filterValue } = filterButton.dataset;
+    
+    // 1. UI에 active 클래스를 토글하여 시각적 효과 적용
+    filterButton.classList.toggle('active');
+
+    // 2. 실제 데이터가 저장되는 activeFilters 객체 업데이트
+    if (!activeFilters[filterType]) activeFilters[filterType] = [];
+    const index = activeFilters[filterType].indexOf(filterValue);
+    
+    if (index > -1) {
+        // 이미 선택된 상태면 배열에서 제거 (선택 취소)
+        activeFilters[filterType].splice(index, 1);
+    } else {
+        // 선택되지 않은 상태면 배열에 추가 (다중 선택)
+        activeFilters[filterType].push(filterValue);
+    }
+}
+
+// '적용' 버튼 클릭 시 필터링 실행 (요청사항 #5)
+const applyFilterBtn = e.target.closest('#filter-apply-btn');
+if(applyFilterBtn) {
+    applyFiltersAndRender();
+}
+
+// '초기화' 버튼 클릭 시
+const resetFilterBtn = e.target.closest('#filter-reset-btn');
+if(resetFilterBtn) {
+    // 모든 필터 선택 기록을 초기화
+    activeFilters.grade = [];
+    activeFilters.type = [];
+    // 필터 모달을 다시 열어 초기화된 상태를 보여줌
+    openFilterModal(); 
+}
+
         });
     }
 
