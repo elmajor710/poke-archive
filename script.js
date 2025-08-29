@@ -1314,20 +1314,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // script.js 파일입니다
 // ▼▼▼ openFilterModal 함수를 찾아 아래 코드로 교체해주세요 ▼▼▼
+// [수정 1] 필터 모달창 구현 함수
 function openFilterModal() {
     const modalOverlay = document.getElementById('filter-modal-overlay');
+    if (!modalOverlay) return;
+
     const modalBody = document.getElementById('filter-modal-body');
-    const menuId = document.getElementById('list-page-title').dataset.menuId;
-    
+    const menuId = document.getElementById('list-page-title')?.dataset.menuId;
+
     let filtersHTML = '';
+
+    // ─── 요구사항 #6: 포켓몬/아이템 필터 동시 지원 ───
     if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
+        // 포켓몬 등급 필터 생성
         filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
         DB.pokemonGrade.lev2.forEach(grade => {
+            // 요구사항 #2: '적용' 전까지 활성 상태 유지 (activeFilters에서 상태를 읽어옴)
             const isActive = activeFilters.grade.includes(grade.name) ? 'active' : '';
             filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
         });
         filtersHTML += '</div></div>';
-        
+
+        // 포켓몬 타입 필터 생성
         filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
         DB.pokemonType.lev2.forEach(type => {
             const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
@@ -1340,6 +1348,7 @@ function openFilterModal() {
         filtersHTML += '</div></div>';
 
     } else if (menuId === 'item') {
+        // 아이템 등급 필터 생성
         filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
         const gradeOrder = { "God": 1, "Legendary": 2, "Epic": 3 };
         const sortedGrades = [...DB.item.lev2].sort((a, b) => {
@@ -1354,37 +1363,49 @@ function openFilterModal() {
         });
         filtersHTML += '</div></div>';
     }
-    
-    // 요청사항 #1 해결: 자바스크립트가 푸터와 버튼을 직접 생성합니다.
+
+    // ─── 요구사항 #1: 중복 버튼 문제 해결 (JS에서 푸터를 매번 새로 생성) ───
     const modalFooterHTML = `
-        <div class="filter-modal-footer">
+        <div class="modal-footer">
             <button id="filter-reset-btn" class="modal-action-btn reset-btn">초기화</button>
             <button id="filter-apply-btn" class="modal-action-btn apply-btn">적용</button>
         </div>
     `;
-    
-    modalBody.innerHTML = filtersHTML + modalFooterHTML;
+
+    if(modalBody) {
+        modalBody.innerHTML = filtersHTML + modalFooterHTML;
+    }
     modalOverlay.style.display = 'flex';
 }
 
-    function applyFiltersAndRender() {
-        const menuId = document.getElementById('list-page-title').dataset.menuId;
-        let dataList = [];
-        if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
-            dataList = Object.values(DB.pokemonType.lev4);
-        } else if (menuId === 'item') {
-            dataList = Object.values(DB.item.lev4);
-        }
-
-        const filteredData = dataList.filter(item => {
-            const gradeMatch = activeFilters.grade.length === 0 || (item.grade && activeFilters.grade.includes(item.grade));
-            const typeMatch = activeFilters.type.length === 0 || activeFilters.type.every(type => item.types?.includes(type));
-            return gradeMatch && typeMatch;
-        });
-
-        renderListPage(filteredData, menuId);
-        closeFilterModal();
+    // [수정] 안정성을 높인 필터 적용 및 렌더링 함수
+function applyFiltersAndRender() {
+    const menuId = document.getElementById('list-page-title').dataset.menuId;
+    let dataList = [];
+    if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
+        dataList = Object.values(DB.pokemonType.lev4);
+    } else if (menuId === 'item') {
+        dataList = Object.values(DB.item.lev4);
     }
+
+    const filteredData = dataList.filter(item => {
+        // ?. (옵셔널 체이닝)을 사용하여 activeFilters.grade가 존재하고,
+        // length가 0보다 클 때만 .includes() 검사를 수행합니다.
+        // 그렇지 않으면 gradeMatch는 true가 되어 해당 필터링을 건너뜁니다.
+        const gradeMatch = !activeFilters.grade?.length || (item.grade && activeFilters.grade.includes(item.grade));
+
+        // type 필터도 동일하게 안전한 검사를 수행합니다.
+        const typeMatch = !activeFilters.type?.length || activeFilters.type.every(type => item.types?.includes(type));
+        
+        return gradeMatch && typeMatch;
+    });
+
+    renderListPage(filteredData, menuId);
+    
+    // 실시간 필터링을 사용하시는 경우, 필터링 후 모달을 닫는 이 코드는
+    // 주석 처리하거나 삭제해야 필터 창이 계속 열려있게 됩니다.
+    // closeFilterModal(); 
+}
 
     function closeFilterModal() {
         document.getElementById('filter-modal-overlay').style.display = 'none';
@@ -1547,44 +1568,50 @@ function openFilterModal() {
             }
 
             // script.js 파일의 addEventListeners 함수 안입니다
-// ▼▼▼ 필터 관련 이벤트 리스너들을 찾아 아래 코드로 교체해주세요 ▼▼▼
+// [수정 2] 필터 모달 이벤트 리스너
+// 임시 선택 상태를 저장할 객체. '적용'을 눌러야만 activeFilters에 반영됩니다.
+let tempActiveFilters = {};
 
-// 필터 버튼 클릭 시 선택/취소 로직 (요청사항 #3, #4)
+// ─── 요구사항 #3(다중선택), #4(선택취소) ───
 const filterButton = e.target.closest('.filter-button, .type-icon-button');
 if (filterButton && filterButton.closest('#filter-modal-body')) {
     const { filterType, filterValue } = filterButton.dataset;
-    
-    // 1. UI에 active 클래스를 토글하여 시각적 효과 적용
-    filterButton.classList.toggle('active');
 
-    // 2. 실제 데이터가 저장되는 activeFilters 객체 업데이트
-    if (!activeFilters[filterType]) activeFilters[filterType] = [];
-    const index = activeFilters[filterType].indexOf(filterValue);
+    // 1. UI에 active 클래스를 토글하여 시각적 효과 즉시 적용
+    filterButton.classList.toggle('active');
     
+    // 2. 임시 필터 데이터(tempActiveFilters)를 업데이트
+    if (!tempActiveFilters[filterType]) tempActiveFilters[filterType] = [];
+    const index = tempActiveFilters[filterType].indexOf(filterValue);
+
     if (index > -1) {
         // 이미 선택된 상태면 배열에서 제거 (선택 취소)
-        activeFilters[filterType].splice(index, 1);
+        tempActiveFilters[filterType].splice(index, 1);
     } else {
         // 선택되지 않은 상태면 배열에 추가 (다중 선택)
-        activeFilters[filterType].push(filterValue);
+        tempActiveFilters[filterType].push(filterValue);
     }
 }
 
-// '적용' 버튼 클릭 시 필터링 실행 (요청사항 #5)
+// ─── 요구사항 #5: '적용' 버튼 클릭 시 최종 필터링 실행 ───
 const applyFilterBtn = e.target.closest('#filter-apply-btn');
 if(applyFilterBtn) {
+    // 임시로 저장했던 필터 선택 값을 실제 필터 값으로 확정
+    activeFilters = JSON.parse(JSON.stringify(tempActiveFilters));
     applyFiltersAndRender();
 }
 
 // '초기화' 버튼 클릭 시
 const resetFilterBtn = e.target.closest('#filter-reset-btn');
 if(resetFilterBtn) {
-    // 모든 필터 선택 기록을 초기화
-    activeFilters.grade = [];
-    activeFilters.type = [];
-    // 필터 모달을 다시 열어 초기화된 상태를 보여줌
-    openFilterModal(); 
+    // 임시 선택 값과 실제 선택 값을 모두 초기화
+    tempActiveFilters = { grade: [], type: [] };
+    activeFilters = { grade: [], type: [] };
+    // 필터 모달을 다시 열어 초기화된 상태를 보여주고, 바로 적용
+    openFilterModal();
+    applyFiltersAndRender();
 }
+
 
         });
     }
