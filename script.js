@@ -1300,6 +1300,15 @@ document.addEventListener('DOMContentLoaded', () => {
         type: []
     };
 
+    // 메뉴별로 실제 적용된 상태를 따로 보관
+const appliedFiltersByMenu = {
+  pokemonType:  { grade: [], type: [] },
+  pokemonGrade: { grade: [], type: [] },
+  item:         { grade: [], type: [] }  // 아이템은 type을 쓰지 않는다면 그대로 빈 배열 유지
+};
+
+let lastMenuId = null; // 마지막으로 필터 모달을 연 메뉴 ID
+
     function renderFilters(menuId) {
         const filtersContainer = document.getElementById('list-page-filters');
         filtersContainer.innerHTML = `
@@ -1312,100 +1321,141 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // script.js 파일입니다
-// ▼▼▼ openFilterModal 함수를 찾아 아래 코드로 교체해주세요 ▼▼▼
-// [수정 1] 필터 모달창 구현 함수
-function openFilterModal() {
-    const modalOverlay = document.getElementById('filter-modal-overlay');
-    if (!modalOverlay) return;
+    function openFilterModal() {
+  const modalOverlay = document.getElementById('filter-modal-overlay');
+  const modalBody = document.getElementById('filter-modal-body');
+  const listTitleEl = document.getElementById('list-page-title');
+  const menuId = listTitleEl?.dataset?.menuId || 'pokemonType';
 
-    const modalBody = document.getElementById('filter-modal-body');
-    const menuId = document.getElementById('list-page-title')?.dataset.menuId;
+  // 1) 메뉴 전환시: applied → pending 동기화
+  if (lastMenuId !== menuId) {
+    const base = appliedFiltersByMenu[menuId] || { grade: [], type: [] };
+    activeFilters = JSON.parse(JSON.stringify(base)); // deep copy
+    lastMenuId = menuId;
+  }
 
-    let filtersHTML = '';
+  // 2) 필터 옵션 HTML 생성 (pending 기준으로 활성 칩 표시)
+  let filtersHTML = '';
 
-    // ─── 요구사항 #6: 포켓몬/아이템 필터 동시 지원 ───
-    if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
-        // 포켓몬 등급 필터 생성
-        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
-        DB.pokemonGrade.lev2.forEach(grade => {
-            // 요구사항 #2: '적용' 전까지 활성 상태 유지 (activeFilters에서 상태를 읽어옴)
-            const isActive = activeFilters.grade.includes(grade.name) ? 'active' : '';
-            filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
-        });
-        filtersHTML += '</div></div>';
-
-        // 포켓몬 타입 필터 생성
-        filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
-        DB.pokemonType.lev2.forEach(type => {
-            const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
-            filtersHTML += `
-                <button class="type-icon-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}">
-                    <img src="${type.iconURL}" alt="${type.name}">
-                </button>
-            `;
-        });
-        filtersHTML += '</div></div>';
-
-    } else if (menuId === 'item') {
-        // 아이템 등급 필터 생성
-        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
-        const gradeOrder = { "God": 1, "Legendary": 2, "Epic": 3 };
-        const sortedGrades = [...DB.item.lev2].sort((a, b) => {
-            const gradeA = a.name.match(/\((.*?)\)/)[1];
-            const gradeB = b.name.match(/\((.*?)\)/)[1];
-            return (gradeOrder[gradeA] || 99) - (gradeOrder[gradeB] || 99);
-        });
-        sortedGrades.forEach(grade => {
-            const gradeValue = grade.name.match(/\((.*?)\)/)[1];
-            const isActive = activeFilters.grade.includes(gradeValue) ? 'active' : '';
-            filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${gradeValue}">${gradeValue}</button>`;
-        });
-        filtersHTML += '</div></div>';
-    }
-
-    // ─── 요구사항 #1: 중복 버튼 문제 해결 (JS에서 푸터를 매번 새로 생성) ───
-    const modalFooterHTML = `
-        <div class="modal-footer">
-            <button id="filter-reset-btn" class="modal-action-btn reset-btn">초기화</button>
-            <button id="filter-apply-btn" class="modal-action-btn apply-btn">적용</button>
+  if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
+    // 등급
+    const grades = ['S', 'A', 'B', 'C'];
+    filtersHTML += `
+      <div class="filter-group">
+        <div class="filter-title">등급</div>
+        <div class="filter-buttons">
+          ${grades.map(g => {
+            const isActive = activeFilters.grade.includes(g);
+            return `
+              <button class="filter-button ${isActive ? 'active' : ''}" 
+                      data-filter-type="grade" data-value="${g}">
+                ${g}
+              </button>`;
+          }).join('')}
         </div>
-    `;
+      </div>`;
 
-    if(modalBody) {
-        modalBody.innerHTML = filtersHTML + modalFooterHTML;
-    }
-    modalOverlay.style.display = 'flex';
+    // 타입(아이콘 버튼 사용 중이라면 data-value는 기존과 동일하게)
+    const types = [
+      { value: 'fire', label: '불꽃' },
+      { value: 'water', label: '물' },
+      { value: 'grass', label: '풀' },
+      { value: 'electric', label: '전기' },
+      { value: 'ice', label: '얼음' },
+      { value: 'ghost', label: '유령' },
+      { value: 'dragon', label: '드래곤' },
+      { value: 'fairy', label: '페어리' },
+    ];
+    filtersHTML += `
+      <div class="filter-group">
+        <div class="filter-title">타입</div>
+        <div class="type-icon-grid">
+          ${types.map(t => {
+            const isActive = activeFilters.type.includes(t.value);
+            return `
+              <button class="type-icon-button ${isActive ? 'active' : ''}" 
+                      data-filter-type="type" data-value="${t.value}" 
+                      title="${t.label}">
+                <img src="./assets/type-icons/${t.value}.png" alt="${t.label}">
+                <span>${t.label}</span>
+              </button>`;
+          }).join('')}
+        </div>
+      </div>`;
+  } else if (menuId === 'item') {
+    // 아이템(예: 등급만)
+    const itemGrades = ['God', 'Legendary', 'Epic', 'Rare'];
+    filtersHTML += `
+      <div class="filter-group">
+        <div class="filter-title">등급</div>
+        <div class="filter-buttons">
+          ${itemGrades.map(g => {
+            const isActive = activeFilters.grade.includes(g);
+            return `
+              <button class="filter-button ${isActive ? 'active' : ''}" 
+                      data-filter-type="grade" data-value="${g}">
+                ${g}
+              </button>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }
+
+  // 3) 모달 본문 채우기
+  modalBody.innerHTML = `
+    <div class="filter-modal-content">
+      ${filtersHTML}
+      <div class="filter-modal-footer">
+        <button id="filter-reset-btn" class="btn-outline">초기화</button>
+        <button id="filter-apply-btn" class="btn-apply">적용</button>
+      </div>
+    </div>`;
+
+  modalOverlay.classList.add('open');
 }
 
-    // [수정] 안정성을 높인 필터 적용 및 렌더링 함수
+
 function applyFiltersAndRender() {
-    const menuId = document.getElementById('list-page-title').dataset.menuId;
-    let dataList = [];
-    if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
-        dataList = Object.values(DB.pokemonType.lev4);
-    } else if (menuId === 'item') {
-        dataList = Object.values(DB.item.lev4);
-    }
+  const listTitleEl = document.getElementById('list-page-title');
+  const menuId = listTitleEl?.dataset?.menuId || 'pokemonType';
 
-    const filteredData = dataList.filter(item => {
-        // ?. (옵셔널 체이닝)을 사용하여 activeFilters.grade가 존재하고,
-        // length가 0보다 클 때만 .includes() 검사를 수행합니다.
-        // 그렇지 않으면 gradeMatch는 true가 되어 해당 필터링을 건너뜁니다.
-        const gradeMatch = !activeFilters.grade?.length || (item.grade && activeFilters.grade.includes(item.grade));
+  // 1) pending → applied 커밋
+  appliedFiltersByMenu[menuId] = JSON.parse(JSON.stringify(activeFilters));
 
-        // type 필터도 동일하게 안전한 검사를 수행합니다.
-        const typeMatch = !activeFilters.type?.length || activeFilters.type.every(type => item.types?.includes(type));
-        
-        return gradeMatch && typeMatch;
-    });
+  // 2) 데이터 가져오기(기존 로직 유지)
+  let dataList = [];
+  if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
+    dataList = Object.values(DB.pokemonType.lev4);
+  } else if (menuId === 'item') {
+    dataList = Object.values(DB.item.lev4);
+  }
 
-    renderListPage(filteredData, menuId);
-    
-    // 실시간 필터링을 사용하시는 경우, 필터링 후 모달을 닫는 이 코드는
-    // 주석 처리하거나 삭제해야 필터 창이 계속 열려있게 됩니다.
-    // closeFilterModal(); 
+  const applied = appliedFiltersByMenu[menuId];
+
+  // 3) 필터 조건
+  const gradeMatch = (item) => {
+    if (!applied.grade.length) return true;
+    // item.grade가 문자열이라고 가정
+    return item.grade && applied.grade.includes(item.grade);
+  };
+
+  // [핵심 변경] 타입은 OR 매칭 (some) — 같은 페이싯 내 다중 선택 시 OR
+  const typeMatch = (item) => {
+    if (!applied.type.length) return true;
+    // item.types가 배열이라고 가정
+    return Array.isArray(item.types) && item.types.some(t => applied.type.includes(t));
+  };
+
+  // 4) 페이싯 간 AND
+  const filtered = dataList.filter(item => gradeMatch(item) && typeMatch(item));
+
+  // 5) 렌더링(기존 함수 사용)
+  renderListPage(filtered, menuId);
+
+  // 6) 모달 닫기
+  closeFilterModal();
 }
+
 
     function closeFilterModal() {
         document.getElementById('filter-modal-overlay').style.display = 'none';
