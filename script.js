@@ -72,6 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeButtons = {};
     const isMobile = () => window.innerWidth <= 991;
 
+        // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ 아래 두 줄을 여기에 추가해주세요 ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+    let activeFilters = { grade: [], type: [] };
+    let tempActiveFilters = { grade: [], type: [] };
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ 여기까지 추가 ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
     async function initialize() {
         try {
             await fetchAllDataFromFirebase();
@@ -1295,11 +1300,6 @@ document.addEventListener('DOMContentLoaded', () => {
         listContent.innerHTML = listHTML;
     }
 
-    let activeFilters = {
-        grade: [],
-        type: []
-    };
-
     function renderFilters(menuId) {
         const filtersContainer = document.getElementById('list-page-filters');
         filtersContainer.innerHTML = `
@@ -1312,7 +1312,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // script.js 파일입니다
     function openFilterModal() {
     const modalOverlay = document.getElementById('filter-modal-overlay');
     const modalBody = document.getElementById('filter-modal-body');
@@ -1338,14 +1337,18 @@ document.addEventListener('DOMContentLoaded', () => {
         filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
         const gradeOrder = { "God": 1, "Legendary": 2, "Epic": 3 };
         const sortedGrades = [...DB.item.lev2].sort((a, b) => {
-            const gradeA = (a.name.match(/\((.*?)\)/) || [])[1];
-            const gradeB = (b.name.match(/\((.*?)\)/) || [])[1];
+            const gradeA_match = a.name.match(/\((.*?)\)/);
+            const gradeB_match = b.name.match(/\((.*?)\)/);
+            const gradeA = gradeA_match ? gradeA_match[1] : '';
+            const gradeB = gradeB_match ? gradeB_match[1] : '';
             return (gradeOrder[gradeA] || 99) - (gradeOrder[gradeB] || 99);
         });
+        
         sortedGrades.forEach(grade => {
-            const gradeValue = (grade.name.match(/\((.*?)\)/) || [])[1];
+            const match = grade.name.match(/\((.*?)\)/);
+            const gradeValue = match ? match[1] : null;
+
             if (gradeValue) {
-                // [수정!] 필터 값(value)은 소문자로 저장하고, 버튼 텍스트는 그대로 보여줍니다.
                 const gradeValueLower = gradeValue.toLowerCase();
                 const isActive = tempActiveFilters.grade.includes(gradeValueLower) ? 'active' : '';
                 filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${gradeValueLower}">${gradeValue}</button>`;
@@ -1364,6 +1367,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalOverlay) modalOverlay.style.display = 'flex';
 }
 
+
     function applyFiltersAndRender() {
     const menuId = document.getElementById('list-page-title').dataset.menuId;
     let dataList = [];
@@ -1375,7 +1379,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const filteredData = dataList.filter(item => {
-        // [수정!] 아이템의 등급(item.grade)을 소문자로 바꿔서 비교합니다.
         const gradeMatch = !activeFilters.grade?.length || (item.grade && activeFilters.grade.includes(item.grade.toLowerCase()));
         const typeMatch = !activeFilters.type?.length || (item.types && activeFilters.type.some(selectedType => item.types.includes(selectedType)));
         
