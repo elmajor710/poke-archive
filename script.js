@@ -1576,6 +1576,7 @@ if(applyFilterBtn) {
     applyFiltersAndRender();
 }
 
+
 // '초기화' 버튼 클릭 시
 const resetFilterBtn = e.target.closest('#filter-reset-btn');
 if(resetFilterBtn) {
