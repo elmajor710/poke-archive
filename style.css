@@ -1556,3 +1556,46 @@ body.mobile-view #page-body {
     border-color: var(--primary-color);
     color: white;
 }
+
+/* === [Filter Active Theme — Red Unified] === */
+/* 공통 필터 칩 */
+.filter-button.active {
+  background-color: #e53935 !important;
+  border-color: #e53935 !important;
+  color: #ffffff !important;
+}
+
+/* 타입 아이콘 버튼(아이콘+텍스트) */
+.type-icon-button.active {
+  border-color: #e53935 !important;
+  background-color: #ffeceb !important; /* 약한 레드톤 배경 */
+  color: #e53935 !important;
+}
+
+.type-icon-button.active img {
+  filter: none; /* 아이콘 색상 보존 (필요 시 변경) */
+}
+
+.type-icon-button.active span {
+  color: #e53935 !important;
+}
+
+/* 적용 버튼(모달 푸터) — 시각 확인용 */
+.btn-apply {
+  background-color: #e53935;
+  color: #fff;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 700;
+}
+.btn-apply:hover { filter: brightness(0.95); }
+
+.btn-outline {
+  border: 1px solid #d0d5dd;
+  background: #fff;
+  color: #111827;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 600;
+}
+.btn-outline:hover { background: #f9fafb; }
