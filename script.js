@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.values(grades).forEach(gradeList => gradeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
         DB.pokemonGrade.lev3 = grades;
         
-        const itemGrades = { god: [], legendary: [], epic: [] };
+        const itemGrades = { God: [], Legendary: [], Epic: [] };
         Object.values(DB.item.lev4).forEach(item => {
             const gradeKey = item.grade?.toLowerCase();
             if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name, imageURL: item.imageURL });
