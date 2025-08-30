@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.values(grades).forEach(gradeList => gradeList.sort((a,b)=>a.name.localeCompare(b.name, 'ko')));
         DB.pokemonGrade.lev3 = grades;
         
-        const itemGrades = { God: [], Legendary: [], Epic: [] };
+        const itemGrades = { god: [], legendary: [], epic: [] };
         Object.values(DB.item.lev4).forEach(item => {
             const gradeKey = item.grade?.toLowerCase();
             if (itemGrades[gradeKey]) itemGrades[gradeKey].push({ id: item.id, name: item.name, imageURL: item.imageURL });
@@ -1321,8 +1321,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
         filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
         DB.pokemonGrade.lev2.forEach(grade => {
-            const isActive = tempActiveFilters.grade.includes(grade.name) ? 'active' : '';
-            filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
+            // [수정] 포켓몬 등급 값도 소문자로 통일 (예: 'SS' -> 'ss')
+            const gradeValueLower = grade.name.toLowerCase();
+            const isActive = tempActiveFilters.grade.includes(gradeValueLower) ? 'active' : '';
+            filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${gradeValueLower}">${grade.name}</button>`;
         });
         filtersHTML += '</div></div>';
 
@@ -1367,7 +1369,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalOverlay) modalOverlay.style.display = 'flex';
 }
 
-
     function applyFiltersAndRender() {
     const menuId = document.getElementById('list-page-title').dataset.menuId;
     let dataList = [];
@@ -1379,16 +1380,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const filteredData = dataList.filter(item => {
-        // 등급 필터: 선택한 등급 중 하나라도 일치하면 통과 (OR 조건)
-        // 예: 'SS', 'S+' 선택 시 SS 또는 S+ 포켓몬이 모두 나옴
-        const gradeMatch = !activeFilters.grade?.length || (item.grade && activeFilters.grade.includes(item.grade));
-
-        // [핵심 수정!] 타입 필터: 선택한 모든 타입을 가지고 있어야만 통과 (AND 조건)
-        // .some(하나라도)에서 .every(모두)로 변경하여 JT님의 7번 요구사항을 구현했습니다.
-        // 예: '에스퍼', '격투' 선택 시 두 타입을 모두 가진 포켓몬만 나옴
+        // [수정] 실제 데이터의 등급(item.grade)도 소문자로 바꿔서 비교하도록 통일
+        const gradeMatch = !activeFilters.grade?.length || (item.grade && activeFilters.grade.includes(item.grade.toLowerCase()));
+        
+        // 타입 필터는 AND 로직으로 정상 동작
         const typeMatch = !activeFilters.type?.length || (item.types && activeFilters.type.every(selectedType => item.types.includes(selectedType)));
         
-        // 최종적으로 등급 조건과 타입 조건을 모두(AND) 만족하는 데이터만 반환
         return gradeMatch && typeMatch;
     });
 
