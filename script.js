@@ -94,37 +94,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setupMobileAds() {
-        if (!isMobile()) return;
+    // 1. 모바일 화면인지 확인합니다.
+    if (!isMobile()) return;
 
-        const topAdContainer = document.getElementById('mobile-ad-top');
-        if (topAdContainer) {
-            topAdContainer.innerHTML = `
-                <ins class="adsbygoogle"
-                     style="display:block; text-align:center;"
-                     data-ad-layout="in-article"
-                     data-ad-format="fluid"
-                     data-ad-client="ca-pub-2125965839205311"
-                     data-ad-slot="6920735136"></ins>
-            `;
-        }
-
-        const bottomAdContainer = document.getElementById('ad-container-bottom');
-        if (bottomAdContainer) {
-            bottomAdContainer.innerHTML = `
-                <div class="blog-ad-box">
-                    <a href="https://index001.elmajor710.com" target="_blank" class="custom-ad-banner">
-                        <div class="ad-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3c0 .35.07.69.18 1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zM8 4h8a1 1 0 0 1 1 1c0 .34-.07.66-.18 1H7.18C7.07 5.66 7 5.34 7 5a1 1 0 0 1 1-1zm12 15H4V8h16v11z"/><path d="M12 17a4 4 0 0 0 4-4h-2a2 2 0 0 1-2 2 2 2 0 0 1-2-2H8a4 4 0 0 0 4 4zm0-6a1 1 0 0 0 1-1V9a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1z"/></svg>
-                        </div>
-                        <div class="ad-text">
-                            <strong>나라지원금 Info.</strong>
-                            <span>놓치면 손해! 혜택 확인하기</span>
-                        </div>
-                    </a>
-                </div>
-            `;
+    // 2. 상단 광고 컨테이너를 찾습니다.
+    const topAdContainer = document.getElementById('mobile-ad-top');
+    if (topAdContainer) {
+        // 3. 애드센스 공식 반응형 코드를 삽입합니다. (광고 공간 생성)
+        topAdContainer.innerHTML = `
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-2125965839205311"
+                 data-ad-slot="6920735136"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        `;
+        
+        // 4. 생성된 공간에 광고를 채워달라고 구글에 요청합니다. (가장 중요!)
+        try {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+            console.error("Top AdSense push error:", e);
         }
     }
+
+    // 5. 하단 광고 로직도 동일하게 처리합니다.
+    const bottomAdContainer = document.getElementById('ad-container-bottom');
+    if (bottomAdContainer) {
+        bottomAdContainer.innerHTML = `
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-2125965839205311"
+                 data-ad-slot="6920735136" 
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        `;
+        // 하단 광고를 위한 요청도 추가합니다.
+        try {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+            console.error("Bottom AdSense push error:", e);
+        }
+    }
+}
 
     async function fetchAndRenderPopularDecks() {
         const popularDeckList = document.getElementById('popular-deck-list');
