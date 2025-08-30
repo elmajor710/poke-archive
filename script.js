@@ -1379,9 +1379,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const filteredData = dataList.filter(item => {
-        const gradeMatch = !activeFilters.grade?.length || (item.grade && activeFilters.grade.includes(item.grade.toLowerCase()));
-        const typeMatch = !activeFilters.type?.length || (item.types && activeFilters.type.some(selectedType => item.types.includes(selectedType)));
+        // 등급 필터: 선택한 등급 중 하나라도 일치하면 통과 (OR 조건)
+        // 예: 'SS', 'S+' 선택 시 SS 또는 S+ 포켓몬이 모두 나옴
+        const gradeMatch = !activeFilters.grade?.length || (item.grade && activeFilters.grade.includes(item.grade));
+
+        // [핵심 수정!] 타입 필터: 선택한 모든 타입을 가지고 있어야만 통과 (AND 조건)
+        // .some(하나라도)에서 .every(모두)로 변경하여 JT님의 7번 요구사항을 구현했습니다.
+        // 예: '에스퍼', '격투' 선택 시 두 타입을 모두 가진 포켓몬만 나옴
+        const typeMatch = !activeFilters.type?.length || (item.types && activeFilters.type.every(selectedType => item.types.includes(selectedType)));
         
+        // 최종적으로 등급 조건과 타입 조건을 모두(AND) 만족하는 데이터만 반환
         return gradeMatch && typeMatch;
     });
 
