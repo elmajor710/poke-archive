@@ -1540,43 +1540,57 @@ function openFilterModal() {
                 openFilterModal();
             }
 
-            const modalContent = e.target.closest('.modal-content');
-            if (modalContent) {
-                const filterButton = e.target.closest('.filter-button, .type-icon-button');
-                if (filterButton) {
-                    filterButton.classList.toggle('active');
-                    const { filterType, filterValue } = filterButton.dataset;
-                    if (!tempActiveFilters[filterType]) tempActiveFilters[filterType] = [];
-                    const index = tempActiveFilters[filterType].indexOf(filterValue);
-                    if (index > -1) tempActiveFilters[filterType].splice(index, 1);
-                    else tempActiveFilters[filterType].push(filterValue);
-                }
-                const applyFilterBtn = e.target.closest('#filter-apply-btn');
-                if (applyFilterBtn) {
-                    activeFilters = JSON.parse(JSON.stringify(tempActiveFilters));
-                    applyFiltersAndRender();
-                    closeFilterModal();
-                }
-                const resetFilterBtn = e.target.closest('#filter-reset-btn');
-                if (resetFilterBtn) {
-                    activeFilters = { grade: [], type: [] };
-                    tempActiveFilters = { grade: [], type: [] };
-                    applyFiltersAndRender();
-                    closeFilterModal();
-                }
-            }
-
             const filterModalOverlay = e.target.closest('#filter-modal-overlay');
             const closeFilterBtn = e.target.closest('#filter-modal-close-btn');
-            if ((filterModalOverlay && !e.target.closest('.modal-content')) || closeFilterBtn) {
-                closeFilterModal();
+            if ((filterModalOverlay && e.target === filterModalOverlay) || closeFilterBtn) {
+                 closeFilterModal();
             }
+
+            // script.js 파일의 addEventListeners 함수 안입니다
+// ▼▼▼ 필터 관련 이벤트 리스너들을 찾아 아래 코드로 교체해주세요 ▼▼▼
+
+// 필터 버튼 클릭 시 선택/취소 로직 (요청사항 #3, #4)
+const filterButton = e.target.closest('.filter-button, .type-icon-button');
+if (filterButton && filterButton.closest('#filter-modal-body')) {
+    const { filterType, filterValue } = filterButton.dataset;
+    
+    // 1. UI에 active 클래스를 토글하여 시각적 효과 적용
+    filterButton.classList.toggle('active');
+
+    // 2. 실제 데이터가 저장되는 activeFilters 객체 업데이트
+    if (!activeFilters[filterType]) activeFilters[filterType] = [];
+    const index = activeFilters[filterType].indexOf(filterValue);
+    
+    if (index > -1) {
+        // 이미 선택된 상태면 배열에서 제거 (선택 취소)
+        activeFilters[filterType].splice(index, 1);
+    } else {
+        // 선택되지 않은 상태면 배열에 추가 (다중 선택)
+        activeFilters[filterType].push(filterValue);
+    }
+}
+
+// '적용' 버튼 클릭 시 필터링 실행 (요청사항 #5)
+const applyFilterBtn = e.target.closest('#filter-apply-btn');
+if(applyFilterBtn) {
+    applyFiltersAndRender();
+}
+
+// '초기화' 버튼 클릭 시
+const resetFilterBtn = e.target.closest('#filter-reset-btn');
+if(resetFilterBtn) {
+    // 모든 필터 선택 기록을 초기화
+    activeFilters.grade = [];
+    activeFilters.type = [];
+    // 필터 모달을 다시 열어 초기화된 상태를 보여줌
+    openFilterModal(); 
+}
+
         });
     }
 
-    // =================================================================
-    // 유틸리티
-    // =================================================================
+    adBlockManager.checkAndApplyBlock();
+    initialize();
     function setScreenHeight() {
       let vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
