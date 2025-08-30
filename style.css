@@ -108,7 +108,6 @@ header h1 {
     overflow: hidden;
 }
 
-/* style.css 파일에서 이 부분을 찾아서 아래 내용으로 수정하세요 */
 #sidebar {
     width: var(--sidebar-width);
     border-right: 1px solid var(--border-color);
@@ -118,7 +117,6 @@ header h1 {
     background-color: #fff;
     transition: transform var(--slide-duration) ease-in-out;
     z-index: 10;
-    /* ▼▼▼ [추가] Flexbox 레이아웃 적용 ▼▼▼ */
     display: flex;
     flex-direction: column;
 }
@@ -263,7 +261,7 @@ header h1 {
 
 .panel.visible { transform: translateX(0); visibility: visible; z-index: 5; }
 #lev3-panel.visible { z-index: 6; }
-#lev4-panel.visible { z-index: 7; }
+#lev4-panel.visible { z-index: 11; } 
 
 .panel-header { 
     padding: 10px 15px; 
@@ -274,17 +272,31 @@ header h1 {
     align-items: center; 
 }
 
-/* style.css 파일에서 이 부분을 찾아서 아래 내용으로 수정하세요 */
 .panel-content { 
     padding: 10px; 
     overflow-y: auto; 
     -webkit-overflow-scrolling: touch;
-    /* ▼▼▼ [추가] 남은 공간을 모두 차지하도록 설정 ▼▼▼ */
-    flex-grow: 1; 
 }
 .back-btn, .main-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border-color); background-color: #f8f9fa; cursor: pointer; }
 .main-btn { padding: 5px 12px; border-radius: 5px; background-color: #6c757d; color: white; border: 1px solid #6c757d; cursor: pointer; }
-.menu-item, .list-item { display: block; width: 100%; text-align: left; padding: 12px; margin-bottom: 5px; border: 1px solid #eee; background: #f9f9f9; border-radius: 6px; font-size: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+
+/* ▼▼▼ [수정] 이 부분의 justify-content 속성을 제거합니다. ▼▼▼ */
+.menu-item, .list-item { 
+    display: block; 
+    width: 100%; 
+    text-align: left; 
+    padding: 12px; 
+    margin-bottom: 5px; 
+    border: 1px solid #eee; 
+    background: #f9f9f9; 
+    border-radius: 6px; 
+    font-size: 16px; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+}
+/* ▲▲▲ [수정] 여기까지 ▲▲▲ */
+
 .menu-item.active, .list-item.active { background-color: var(--active-color); border-left: 4px solid var(--primary-color); font-weight: 600; }
 .item-description { white-space: pre-wrap; line-height: 1.7; background-color: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 14px; color: #333; }
 .stats-table { border-collapse: collapse; margin: 10px 0; width: 100%; max-width: 500px;  }
@@ -585,7 +597,6 @@ header h1 {
     border-style: dashed;
 }
 
-/* [추가] 좋아요 버튼 스타일 */
 .like-container {
     display: flex;
     justify-content: flex-end;
@@ -628,18 +639,13 @@ header h1 {
     color: #fa383e;
 }
 
-
-/* --- 미디어 쿼리 --- */
 @media (max-width: 1199px) {
     .mobile-only { display: block; }
     .pc-only { display: none; }
     
-   /* style.css 파일의 @media (max-width: 1199px) 블록 내부를 찾으세요 */
-
-#sidebar, .panel { 
+   #sidebar, .panel { 
     position: absolute; 
     width: 100%;
-    /* ▼▼▼ [추가] 모바일 화면 높이에 맞춤 ▼▼▼ */
     height: 100%; 
 }
     #sidebar.is-hidden, .panel.is-hidden { 
@@ -763,9 +769,6 @@ header h1 {
     margin: 1em 0;
 }
 
-/* ▼▼▼ [추가] 인기글 및 좋아요 기능 스타일 ▼▼▼ */
-
-/* 메인페이지 인기글 목록 스타일 (공지사항과 유사하게) */
 #popular-deck-list {
     list-style: none;
     padding: 0;
@@ -788,7 +791,6 @@ header h1 {
     text-decoration: underline;
 }
 
-/* 추천덱 상세 보기 헤더 */
 .deck-header {
     display: flex;
     justify-content: space-between;
@@ -798,7 +800,7 @@ header h1 {
     margin-bottom: 10px;
 }
 .deck-header h2 {
-    margin: 0; /* h2 태그의 기본 마진 제거 */
+    margin: 0;
 }
 .deck-description {
     color: #555;
@@ -807,14 +809,11 @@ header h1 {
     border-radius: 5px;
 }
 
-
-/* 좋아요 버튼 컨테이너 */
 .like-container {
     display: flex;
     align-items: center;
 }
 
-/* 좋아요 버튼 */
 .like-btn {
     display: flex;
     align-items: center;
@@ -830,38 +829,33 @@ header h1 {
     background-color: #e4e6eb;
 }
 
-/* 하트 아이콘 */
 .heart-icon {
     font-size: 20px;
-    color: #8a919f; /* 기본 회색 */
+    color: #8a919f;
 }
 
-/* 좋아요 수 */
 .like-count {
     font-size: 16px;
     font-weight: 600;
     color: #495057;
 }
 
-/* '좋아요'를 누른 상태의 버튼 스타일 */
 .like-btn.liked .heart-icon {
-    color: #e74c3c; /* 빨간색 하트 */
+    color: #e74c3c;
 }
 .like-btn.liked {
     background-color: #ffebee;
     border-color: #e57373;
 }
-/* ▲▲▲ [추가] 인기글 및 좋아요 기능 스타일 ▲▲▲ */
 
-/* --- ▼▼▼ 신규 광고 영역 스타일 ▼▼▼ --- */
 #sidebar-ad-container {
-    margin-top: 20px; /* 메뉴 목록과의 간격 */
-    padding-top: 20px; /* 광고 영역 상단 패딩 */
-    border-top: 2px solid #f0f2f5; /* 메뉴와 광고를 구분하는 선 */
-    flex-shrink: 0; /* 컨테이너 크기가 줄어들지 않도록 설정 */
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #f0f2f5;
+    flex-shrink: 0;
 }
 .coupang-ad-box {
-    margin-bottom: 20px; /* 블로그 광고와의 간격 조정 */
+    margin-bottom: 20px;
     text-align: center;
 }
 .ad-notice {
@@ -878,15 +872,15 @@ header h1 {
     display: flex;
     align-items: center;
     padding: 15px;
-    background: linear-gradient(135deg, #e3f2fd, #f0f7ff); /* 은은한 그라데이션 배경 */
+    background: linear-gradient(135deg, #e3f2fd, #f0f7ff);
     border: 1px solid #b3e5fc;
     border-radius: 8px;
     text-decoration: none;
     transition: all 0.2s ease-in-out;
 }
 .blog-ad-box a.custom-ad-banner:hover {
-    transform: translateY(-2px); /* 살짝 떠오르는 효과 */
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1); /* 그림자 효과 */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
     border-color: #81d4fa;
 }
 .ad-icon {
@@ -905,47 +899,40 @@ header h1 {
     display: block;
     font-size: 15px;
     font-weight: bold;
-    color: #0d47a1; /* 진한 파란색 텍스트 */
+    color: #0d47a1;
 }
 .ad-text span {
     font-size: 12px;
-    color: #546e7a; /* 부드러운 회색 텍스트 */
+    color: #546e7a;
 }
 
-/* --- ▼▼▼ 신규 모바일 광고 스타일 ▼▼▼ --- */
 #mobile-ad-top {
-    display: none; /* 평소엔 숨김 */
+    display: none;
     padding: 15px;
     background-color: #fff;
     border-bottom: 1px solid #e0e0e0;
 }
 
 #ad-container-bottom {
-    display: none; /* 평소엔 숨김 */
+    display: none;
     padding: 20px 15px;
     border-top: 1px solid #e0e0e0;
     background-color: #fff;
 }
 
-/* --- ▼▼▼ 미디어 쿼리 수정 (모바일 광고 제어) ▼▼▼ --- */
 @media (max-width: 1199px) {
-    /* 기존 상단 애드센스 숨기기 */
     #ad-container-top {
         display: none !important;
     }
 
-    /* 사이드바에 추가했던 광고 숨기기 */
     #sidebar-ad-container {
         display: none;
     }
 
-    /* 모바일 전용 상/하단 광고 보이기 */
     #mobile-ad-top, #ad-container-bottom {
         display: block;
     }
 }
-
-/* style.css 파일에서 .four-by-four-table 관련 스타일을 찾아 아래 코드로 전체 교체하세요 */
 
 .four-by-four-table {
     width: 100%;
@@ -953,7 +940,6 @@ header h1 {
     border-collapse: separate;
     border-spacing: 5px;
     margin: 20px auto;
-    /* ▼▼▼ [핵심] 모든 열의 너비를 내용물과 상관없이 동일하게 강제합니다. ▼▼▼ */
     table-layout: fixed; 
 }
 .four-by-four-table td {
@@ -963,7 +949,7 @@ header h1 {
     vertical-align: top;
     width: 25%;
     height: 0;
-    padding-bottom: 25%; /* 정사각형 비율 유지를 위한 트릭 */
+    padding-bottom: 25%;
     position: relative;
     border-radius: 8px;
 }
@@ -982,19 +968,18 @@ header h1 {
 .four-by-four-table .deck-pokemon-cell {
     cursor: pointer;
     transition: background-color 0.2s;
-    padding: 2px; /* 이미지 주변의 미세한 여백 */
+    padding: 2px;
 }
 .four-by-four-table .deck-pokemon-cell:hover {
     background-color: #e9ecef;
 }
 .four-by-four-table .deck-pokemon-cell img {
-    /* ▼▼▼ [수정] 이미지가 셀에 꽉 차도록 크기를 100%로 조정합니다. ▼▼▼ */
     width: 100%;
     height: 100%;
-    object-fit: contain; /* 이미지 비율을 유지하면서 채웁니다. */
+    object-fit: contain;
 }
 .four-by-four-table .deck-pokemon-cell .pkm-name {
-    display: none; /* 이름은 숨김 처리 */
+    display: none;
 }
 .four-by-four-table .header-cell {
     background-color: #e9f5ff;
@@ -1016,6 +1001,620 @@ header h1 {
     padding-top: 5px;
     color: #555;
     vertical-align: middle;
-    height: auto; /* tfoot은 높이 자동 조절 */
+    height: auto;
     padding-bottom: 0;
 }
+
+.pc-only {
+    display: none;
+}
+
+.mobile-grid-menu {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    max-width: 500px;
+    padding: 15px;
+}
+
+.grid-menu-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 20px 10px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #333;
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: background-color 0.2s, transform 0.2s;
+    text-align: center;
+    min-height: 80px;
+}
+
+.grid-menu-btn:hover {
+    background-color: #f8f9fa;
+}
+
+.grid-menu-btn:active {
+    transform: scale(0.97);
+}
+
+.main-content-grid.pc-only,
+.main-welcome-area.pc-only {
+    display: none;
+}
+.mobile-grid-menu.mobile-only {
+    display: grid;
+}
+
+@media (min-width: 992px) {
+    .mobile-grid-menu.mobile-only {
+        display: none;
+    }
+    .main-content-grid.pc-only {
+        display: grid;
+    }
+    .main-welcome-area.pc-only {
+        display: block;
+    }
+}
+
+.page-view {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f8f9fa;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.35s ease-in-out;
+}
+
+.page-view.visible {
+    transform: translateX(0);
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: #fff;
+    flex-shrink: 0;
+}
+
+.page-header h2 {
+    margin: 0;
+    font-size: 1.2em;
+    text-align: center;
+    flex-grow: 1;
+}
+
+.back-to-grid-btn {
+    padding: 5px 12px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: #f8f9fa;
+    cursor: pointer;
+    position: absolute;
+}
+
+.page-filters {
+    flex-shrink: 0;
+    padding: 5px;
+    background-color: #fff;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.page-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.list-item-card {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.list-item-card:hover {
+    background-color: #f0f2f5;
+}
+
+.item-card-image {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    margin-right: 15px;
+    background-color: #f8f9fa;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.item-card-image img {
+    width: 90%;
+    height: 90%;
+    object-fit: contain;
+}
+
+.item-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.item-card-name {
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.item-card-details {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.type-badges-container {
+    display: flex;
+    gap: 6px;
+}
+
+.page-filters {
+    padding: 10px 15px;
+}
+.filter-group {
+    margin-bottom: 10px;
+}
+.filter-group:last-child {
+    margin-bottom: 0;
+}
+.filter-group h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+/* 기존 filter 관련 스타일(.filter-options ~ .filter-trigger-btn)을 이 코드로 교체하세요 */
+.filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.filter-button {
+    padding: 6px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    background-color: #fff;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+.type-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 8px;
+}
+.type-icon-button {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    padding: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+}
+.type-icon-button:hover {
+    border-color: #888;
+}
+.type-icon-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}
+.filter-trigger-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+}
+.filter-group {
+    margin-bottom: 10px;
+}
+.filter-group:last-child {
+    margin-bottom: 0;
+}
+.filter-group h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+/* 최종 수정된 활성화 스타일 */
+.filter-button.active {
+    background-color: #e74c3c !important;
+    color: white !important;
+    border-color: #c0392b !important;
+    font-weight: bold;
+}
+
+.type-icon-button.active {
+    border-color: #e74c3c !important;
+    border-width: 3px !important;
+    transform: scale(1.1);
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+}
+
+.type-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 8px;
+}
+.type-icon-button {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    padding: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+}
+.type-icon-button:hover {
+    border-color: #888;
+}
+/* removed conflicting .type-icon-button.active primary-color rule */
+.type-icon-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.filter-trigger-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+}
+.modal-footer .btn {
+    padding: 8px 20px;
+    font-size: 1em;
+}
+
+.recommend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8f9fa;
+    padding: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid #eee;
+    flex-shrink: 0;
+}
+.recommend-item img {
+    width: 40px;
+    height: 40px;
+}
+.recommend-item-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.recommend-item-name {
+    font-size: 14px;
+    font-weight: 500;
+}
+.recommend-item-count {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+body.mobile-view #page-body {
+    padding-bottom: 90px;
+}
+
+#mobile-ad-top {
+    display: none;
+}
+#ad-container-bottom {
+    display: none;
+}
+
+@media (max-width: 1199px) {
+    #ad-container-top { display: none !important; }
+    #sidebar #sidebar-ad-container, .main-ad-area { display: none; }
+
+    #mobile-ad-top { display: block; padding: 5px; background-color: #f1f1f1; }
+    #ad-container-bottom {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+        border-top: 1px solid #e0e0e0;
+        background-color: #ffffff;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        z-index: 25;
+    }
+}
+
+@media (max-width: 1199px) {
+    #mobile-ad-top {
+        height: 80px;
+        min-height: 80px;
+        overflow: hidden;
+    }
+    #ad-container-bottom {
+        height: 80px;
+        min-height: 80px;
+        padding: 5px;
+        overflow: hidden;
+    }
+    #page-body {
+        padding-bottom: 80px;
+    }
+}
+
+.type-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 8px;
+}
+.type-icon-button {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    padding: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+}
+.type-icon-button:hover {
+    border-color: #888;
+}
+/* removed conflicting .type-icon-button.active primary-color rule */
+.type-icon-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.panel-content .list-item-card {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+    text-align: left;
+}
+.panel-content .list-item-card:hover {
+    background-color: #f0f2f5;
+}
+
+@media (min-width: 992px) {
+    .pc-main-content.pc-only {
+        display: block;
+    }
+}
+
+/* 기존 .four-by-four-table 관련 모든 스타일을 이 코드로 교체하세요 */
+.four-by-four-table {
+    table-layout: fixed;
+    width: 100%;
+    max-width: 350px; /* 이 값을 조절하여 전체 크기/높이 변경 */
+    border-collapse: separate;
+    border-spacing: 5px;
+    margin: 20px auto;
+}
+.four-by-four-table td {
+    width: 25%;
+    border: 1px solid var(--border-color);
+    background-color: #f9f9f9;
+    position: relative;
+    border-radius: 8px;
+    vertical-align: middle;
+}
+.four-by-four-table td::before {
+    content: "";
+    display: block;
+    padding-top: 100%;
+}
+.four-by-four-table td > div {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.four-by-four-table .deck-pokemon-cell img,
+.four-by-four-table .header-cell img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 4px;
+    box-sizing: border-box;
+}
+.four-by-four-table .header-cell {
+    background-color: #e9f5ff;
+    font-size: 5vh;
+    line-height: 1;
+}
+.four-by-four-table .empty-cell {
+    background-color: #f0f0f0;
+    border-style: dashed;
+}
+.four-by-four-table tfoot td {
+    border: none;
+    background: transparent;
+    font-weight: bold;
+    padding-top: 5px;
+    height: auto;
+}
+.four-by-four-table tfoot td::before {
+    display: none;
+}
+
+/* 타입 이모지(아이콘) 크기 복구 */
+.list-item-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+/* [최종 수정] PC 슬라이드 애니메이션 완전 비활성화 */
+.panel {
+    transform: none; /* 슬라이드 효과를 위한 위치 이동 제거 */
+    transition: none; /* 슬라이드 애니메이션 효과 제거 */
+    display: none;    /* 기본적으로 패널을 보이지 않게 처리 */
+    visibility: visible; /* visibility는 항상 보이도록 유지 */
+}
+
+.panel.visible {
+    display: flex; /* 'visible' 클래스가 붙으면 보이도록 변경 */
+}
+
+/* ===================================================== */
+/* [최종 완성] - 모든 기기 대응 하이브리드 덱 스타일     */
+/* ===================================================== */
+
+.deck-grid-container {
+    display: grid;
+    /* PC 등 일반 화면에서는 75px 고정 크기로 완벽한 정사각형을 유지합니다. */
+    grid-template-columns: repeat(4, 75px); 
+    grid-template-rows: repeat(4, 75px) auto;
+    gap: 5px;
+    justify-content: center;
+    /* JavaScript와 연동되는 좌석 배치도입니다. */
+    grid-template-areas:
+        "r1c1 r1c1 r1c2 r1c2"
+        "r2c1 r2c2 r2c3 r2c4"
+        "r3c1 r3c2 r3c3 r3c4"
+        "r4c1 r4c2 r4c3 r4c4"
+        "r5c1 r5c1 r5c2 r5c2";
+}
+
+/* Z-Fold 5 등 좁은 화면에서는 자동으로 비율(fr)로 전환됩니다. */
+@media (max-width: 360px) {
+    .deck-grid-container {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* 그리드 자식 요소 스타일 */
+.grid-item {
+    border: 1px solid var(--border-color);
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.grid-header-item {
+    background-color: #e9f5ff;
+    font-size: 38px;
+    line-height: 1;
+}
+
+.grid-empty-cell {
+    background-color: #f0f0f0;
+    border-style: dashed;
+}
+
+.grid-item img {
+    width: 95%;
+    height: 95%;
+    object-fit: contain;
+}
+
+/* 충돌의 원인이었던 grid-column 속성을 완전히 제거한 최종 버전입니다. */
+.grid-footer {
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    padding-top: 5px;
+    color: #555;
+}
+
+/* === [Filter Active Theme — Red Unified] === */
+.filter-button.active {
+  background-color: #e53935 !important;
+  border-color: #e53935 !important;
+  color: #fff !important;
+  font-weight: 700;
+}
+.type-icon-button.active {
+  border-color: #e53935 !important;
+  border-width: 3px !important;
+  background-color: #ffeceb !important;
+  color: #e53935 !important;
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(229,57,53,.4);
+}
+.btn-apply {
+  background-color: #e53935;
+  color: #fff;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 700;
+}
+.btn-apply:hover { filter: brightness(0.95); }
+.btn-outline {
+  border: 1px solid #d0d5dd;
+  background: #fff;
+  color: #111827;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 600;
+}
+.btn-outline:hover { background: #f9fafb; }
+

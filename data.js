@@ -21,10 +21,10 @@ const DB = {
     { id: 'same3', name: '같은 타입 3마리', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fc2Nihz%2FbtsO45kHgZN%2FAAAAAAAAAAAAAAAAAAAAAGpdO3x4bP_uaw_gF2xkHAkXcj0I_i6Tw3KGCuZ3SPl3%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3Ddd2ysCbnDY0rKeYTEMwKOOKhG1U%253D', description: '같은 타입의 포켓몬 3마리 출전<br>HP +15%, 공격 +10%, 특수공격 +10%' },
     { id: 'same2x3', name: '같은 타입 2마리씩 3개 조합', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FR7jAG%2FbtsO5lgwX07%2FAAAAAAAAAAAAAAAAAAAAAMWYiKMYwQbKFuUKde99WBzectB_TN6CC8xCi1gbyXRl%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DM%252Br5NulxqO7pRLLtsX0gA%252BN6iUU%253D', description: '같은 타입 2마리씩 총 3개 조합의 포켓몬 출전<br>HP +15%, 공격 +15%, 특수공격 +15%' },
     { id: 'same4_2', name: '같은 타입 4마리, 2마리 조합', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fexp5n0%2FbtsO6x7ZCG9%2FAAAAAAAAAAAAAAAAAAAAAHuiTdkWsXHMDV_SsU6-t7lkX0n8k4HM7NV2blesvIj6%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3D6w%252B9Jhe0lDMUY%252BHoYez3a5YE1MI%253D', description: '같은 타입 4마리, 같은 타입 2마리 조합의 포켓몬 출전<br>HP +20%, 공격 +15%, 특수공격 +15%' },
-    { id: 'same3x2', name: '같은 타입 3마리씩 2개 조합', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbGFi7r%2FbtsO6dhIcxX%2FAAAAAAAAAAAAAAAAAAAAAAGdpk3aerqwUW4_PNGOyGi7YALOJYP6tE-aG8vZaCfY%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3Dwpa0JA33zF0koFqJn2%252BnQxhySNY%253D', description: '같은 타입 3마리씩 총 2개 조합의 포켓몬 출전<br>HP +20%, 공격 +15%, 특수공격 +15%' },
+    { id: 'same3x2', name: '같은 타입 3마리씩 2개 조합', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbGAFi7r%2FbtsO6dhIcxX%2FAAAAAAAAAAAAAAAAAAAAAAGdpk3aerqwUW4_PNGOyGi7YALOJYP6tE-aG8vZaCfY%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3Dwpa0JA33zF0koFqJn2%252BnQxhySNY%253D', description: '같은 타입 3마리씩 총 2개 조합의 포켓몬 출전<br>HP +20%, 공격 +15%, 특수공격 +15%' },
     { id: 'same6', name: '같은 타입 6마리', imageURL: 'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbVYYMX%2FbtsO6rtgElR%2FAAAAAAAAAAAAAAAAAAAAAIF-pqVgUZhB8j4FmnTOTYCtJe8akJAVI7eSgEiUJXvn%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DNp1rf%252FAhnAV%252BOxdMgIe04PogCrI%253D', description: '같은 타입의 포켓몬 6마리 출전<br>HP +25%, 공격 +20%, 특수공격 +20%' },
 ],
-    // ▼▼▼ [2차 개발] 사이드바 메뉴에 '공지사항' 추가 ▼▼▼
+
     sidebarMenu: [
         { id: 'notice', name: '공지사항', levels: 3 },
         { id: 'pokemonType', name: '포켓몬 타입', levels: 4 },
@@ -35,24 +35,34 @@ const DB = {
         { id: 'calendar', name: '캘린더', levels: 2 },
         { id: 'tips', name: '팁&노하우', levels: 3 },
     ],
-    // ▲▲▲ [2차 개발] 사이드바 메뉴에 '공지사항' 추가 ▲▲▲
 
     notice: {
         lev2: [],
         lev3: {}
     },
 
-        pokemonType: {
+    pokemonType: {
+        // ▼▼▼ [수정] 제공해주신 올바른 아이콘 URL로 전체 교체 ▼▼▼
         lev2: [ 
-            { id: 'normal', name: '노말', color: '#A8A878' }, { id: 'fire', name: '불', color: '#F08030' },
-            { id: 'water', name: '물', color: '#6890F0' }, { id: 'grass', name: '풀', color: '#78C850' },
-            { id: 'electric', name: '전기', color: '#F8D030' }, { id: 'ice', name: '얼음', color: '#98D8D8' },
-            { id: 'fighting', name: '격투', color: '#C03028' }, { id: 'poison', name: '독', color: '#A040A0' },
-            { id: 'ground', name: '땅', color: '#E0C068' }, { id: 'flying', name: '비행', color: '#A890F0' },
-            { id: 'psychic', name: '에스퍼', color: '#F85888' }, { id: 'bug', name: '벌레', color: '#A8B820' },
-            { id: 'rock', name: '바위', color: '#B8A038' }, { id: 'ghost', name: '유령', color: '#705898' },
-            { id: 'dragon', name: '드래곤', color: '#7038F8' }, { id: 'dark', name: '악', color: '#705848' },
-            { id: 'steel', name: '강철', color: '#B8B8D0' }, { id: 'fairy', name: '페어리', color: '#EE99AC' },
+            { id: 'normal', name: '노말', color: '#A8A878', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/normal.png' }, 
+            { id: 'fire', name: '불', color: '#F08030', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/fire.png' },
+            { id: 'water', name: '물', color: '#6890F0', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/water.png' }, 
+            { id: 'grass', name: '풀', color: '#78C850', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/grass.png' },
+            { id: 'electric', name: '전기', color: '#F8D030', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/electric.png' }, 
+            { id: 'ice', name: '얼음', color: '#98D8D8', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/ice.png' },
+            { id: 'fighting', name: '격투', color: '#C03028', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/fighting.png' }, 
+            { id: 'poison', name: '독', color: '#A040A0', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/poison.png' },
+            { id: 'ground', name: '땅', color: '#E0C068', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/ground.png' }, 
+            { id: 'flying', name: '비행', color: '#A890F0', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/flying.png' },
+            { id: 'psychic', name: '에스퍼', color: '#F85888', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/psychic.png' }, 
+            { id: 'bug', name: '벌레', color: '#A8B820', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/bug.png' },
+            { id: 'rock', name: '바위', color: '#B8A038', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/rock.png' }, 
+            { id: 'ghost', name: '유령', color: '#705898', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/ghost.png' },
+            { id: 'dragon', name: '드래곤', color: '#7038F8', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/dragon.png' }, 
+            { id: 'dark', name: '악', color: '#705848', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/dark.png' },
+            // 수정할 코드
+{ id: 'steel', name: '강철', color: '#B8B8D0', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/stell.png' },
+            { id: 'fairy', name: '페어리', color: '#EE99AC', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/fairy.png' },
         ],
         lev3: { },
         lev4: { }
@@ -76,7 +86,6 @@ const DB = {
             {id: 'chip', name: '칩'} 
         ], 
         lev3: { },
-        // ▼▼▼ [2차 개발] 룬&칩 데이터 description에 구분자 '[세트 효과]' 추가 ▼▼▼
         lev4: { 
             'deadly': { type: 'rune', name: '치명 / Deadly', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/deadly.png', description: '치명타 확률 +15%\n[세트 효과]치명타 피해량 +30%' },
             'warlike': { type: 'rune', name: '전투광 / Warlike', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/warlike.png', description: '물리공격/특수공격 +10%\n[세트 효과]공격 시 대상의 현재 HP 5%만큼 추가 피해' },
@@ -98,7 +107,6 @@ const DB = {
             'fear': { type: 'chip', name: '공포 / Fear', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/fear.jpg', description: '기본 설명입니다.\n[세트 효과]세트 효과 설명입니다.' },
             'frogthorn': { type: 'chip', name: '개구리가시 / Frog Thorn', imageURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/frogthorn.jpg', description: '기본 설명입니다.\n[세트 효과]세트 효과 설명입니다.' }
         }
-        // ▲▲▲ [2차 개발] 룬&칩 데이터 description에 구분자 '[세트 효과]' 추가 ▲▲▲
     },
     deck: {
         lev2: [ { id: 'recommended', name: '추천덱' }, { id: 'builder', name: '배치툴' } ],

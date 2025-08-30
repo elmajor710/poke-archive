@@ -165,3 +165,45 @@ form input[readonly] { background-color: #eee; cursor: not-allowed; }
     width: 16px;
     height: 16px;
 }
+
+/* ▼▼▼ [미션 1] 룬/칩 개수 입력 UI 스타일 추가 ▼▼▼ */
+.recommend-item-adder {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed var(--admin-border-color);
+}
+.adder-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.adder-controls select {
+    flex-grow: 1;
+}
+.recommend-item-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    background-color: var(--admin-light-gray);
+    border-radius: 5px;
+    min-height: 50px;
+}
+.recommend-item-entry {
+    display: grid;
+    grid-template-columns: 1fr 80px auto;
+    gap: 10px;
+    align-items: center;
+    background-color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--admin-border-color);
+}
+.recommend-item-entry .item-name {
+    font-weight: 500;
+}
+.recommend-item-entry .item-count {
+    text-align: center;
+    padding: 8px;
+}
+/* ▲▲▲ [미션 1] 룬/칩 개수 입력 UI 스타일 추가 ▲▲▲ */

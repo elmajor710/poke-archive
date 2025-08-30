@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>운영자 모드 - Nirvana's Poke-Archive</title>
     <link rel="stylesheet" href="admin.css">
+    
+    <script src="https://cdn.tiny.cloud/1/plq2ivlk48y6lwr05fytbhi2f5r2gn54uysbin72f7gsgo07/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 </head>
 <body>
     <div id="login-container" class="login-container">
@@ -104,9 +106,28 @@
                             <h3>추천 빌드</h3>
                             <div class="form-group"><label for="pkm-build-concept">추천 빌드 콘셉트</label><input type="text" id="pkm-build-concept"></div>
                             <div class="form-group"><label>추천 성격</label><div id="pkm-natures-container" class="checkbox-group scrollable"></div></div>
-                            <div class="form-group"><label for="pkm-items">추천 아이템</label><select id="pkm-items" multiple></select></div>
-                            <div class="form-group"><label for="pkm-runes">추천 룬</label><select id="pkm-runes" multiple></select></div>
-                            <div class="form-group"><label for="pkm-chips">추천 칩</label><select id="pkm-chips" multiple></select></div>
+                            <div class="form-group">
+    <label for="pkm-items-select">추천 아이템 (다중 선택 가능)</label>
+    <select id="pkm-items-select" multiple></select>
+</div>
+
+<div class="recommend-item-adder">
+    <label for="pkm-runes-source-select">추천 룬</label>
+    <div class="adder-controls">
+        <select id="pkm-runes-source-select"></select>
+        <button type="button" id="add-rune-btn" class="btn btn-small">추가</button>
+    </div>
+    <div id="pkm-runes-container" class="recommend-item-container"></div>
+</div>
+
+<div class="recommend-item-adder">
+    <label for="pkm-chips-source-select">추천 칩</label>
+    <div class="adder-controls">
+        <select id="pkm-chips-source-select"></select>
+        <button type="button" id="add-chip-btn" class="btn btn-small">추가</button>
+    </div>
+    <div id="pkm-chips-container" class="recommend-item-container"></div>
+</div>
                         </div>
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">저장하기</button>
@@ -353,15 +374,16 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBEPDK4VMVjEshWthL9Kajan-2EKfuLvZ0",
-            authDomain: "poke-archive-d8e29.firebaseapp.com",
-            projectId: "poke-archive-d8e29",
-            storageBucket: "poke-archive-d8e29.firebasestorage.app",
-            messagingSenderId: "1012379289991",
-            appId: "1:1012379289991:web:5c33d4ac7536672d956b22"
-        };
+      const firebaseConfig = {
+          apiKey: "AIzaSyBEPDK4VMVjEshWthL9Kajan-2EKfuLvZ0",
+          authDomain: "poke-archive-d8e29.firebaseapp.com",
+          projectId: "poke-archive-d8e29",
+          storageBucket: "poke-archive-d8e29.firebasestorage.app",
+          messagingSenderId: "1012379289991",
+          appId: "1:1012379289991:web:5c33d4ac7536672d956b22"
+      };
       firebase.initializeApp(firebaseConfig);
       window.db = firebase.firestore();
       window.auth = firebase.auth();
@@ -369,5 +391,6 @@
     
     <script src="data.js"></script> 
     <script src="admin.js"></script>
+
 </body>
 </html>
