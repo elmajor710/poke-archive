@@ -100,17 +100,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. 상단 광고 컨테이너를 찾습니다.
     const topAdContainer = document.getElementById('mobile-ad-top');
     if (topAdContainer) {
-        // 3. 애드센스 공식 반응형 코드를 삽입합니다. (광고 공간 생성)
+        // 3. [수정] 80px 높이를 존중하도록 광고 속성을 변경합니다.
         topAdContainer.innerHTML = `
             <ins class="adsbygoogle"
-                 style="display:block"
+                 style="display:block; width:100%; height:80px;"
                  data-ad-client="ca-pub-2125965839205311"
                  data-ad-slot="6920735136"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
+                 data-ad-format="horizontal"></ins>
         `;
         
-        // 4. 생성된 공간에 광고를 채워달라고 구글에 요청합니다. (가장 중요!)
+        // 4. 생성된 공간에 광고를 채워달라고 구글에 요청합니다.
         try {
             (adsbygoogle = window.adsbygoogle || []).push({});
         } catch (e) {
@@ -129,7 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
                  data-ad-format="auto"
                  data-full-width-responsive="true"></ins>
         `;
-        // 하단 광고를 위한 요청도 추가합니다.
         try {
             (adsbygoogle = window.adsbygoogle || []).push({});
         } catch (e) {
