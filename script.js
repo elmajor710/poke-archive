@@ -1313,29 +1313,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // script.js 파일입니다
-// ▼▼▼ openFilterModal 함수를 찾아 아래 코드로 교체해주세요 ▼▼▼
-function openFilterModal() {
+    function openFilterModal() {
     const modalOverlay = document.getElementById('filter-modal-overlay');
     const modalBody = document.getElementById('filter-modal-body');
-    const menuId = document.getElementById('list-page-title').dataset.menuId;
-    
+    const menuId = document.getElementById('list-page-title')?.dataset.menuId;
     let filtersHTML = '';
+
     if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
         filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
         DB.pokemonGrade.lev2.forEach(grade => {
-            const isActive = activeFilters.grade.includes(grade.name) ? 'active' : '';
+            const isActive = tempActiveFilters.grade.includes(grade.name) ? 'active' : '';
             filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
         });
         filtersHTML += '</div></div>';
-        
+
         filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
         DB.pokemonType.lev2.forEach(type => {
-            const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
-            filtersHTML += `
-                <button class="type-icon-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}">
-                    <img src="${type.iconURL}" alt="${type.name}">
-                </button>
-            `;
+            const isActive = tempActiveFilters.type.includes(type.id) ? 'active' : '';
+            filtersHTML += `<button class="type-icon-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}"><img src="${type.iconURL}" alt="${type.name}"></button>`;
         });
         filtersHTML += '</div></div>';
 
@@ -1343,48 +1338,52 @@ function openFilterModal() {
         filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
         const gradeOrder = { "God": 1, "Legendary": 2, "Epic": 3 };
         const sortedGrades = [...DB.item.lev2].sort((a, b) => {
-            const gradeA = a.name.match(/\((.*?)\)/)[1];
-            const gradeB = b.name.match(/\((.*?)\)/)[1];
+            const gradeA = (a.name.match(/\((.*?)\)/) || [])[1];
+            const gradeB = (b.name.match(/\((.*?)\)/) || [])[1];
             return (gradeOrder[gradeA] || 99) - (gradeOrder[gradeB] || 99);
         });
         sortedGrades.forEach(grade => {
-            const gradeValue = grade.name.match(/\((.*?)\)/)[1];
-            const isActive = activeFilters.grade.includes(gradeValue) ? 'active' : '';
-            filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${gradeValue}">${gradeValue}</button>`;
+            const gradeValue = (grade.name.match(/\((.*?)\)/) || [])[1];
+            if (gradeValue) {
+                // [수정!] 필터 값(value)은 소문자로 저장하고, 버튼 텍스트는 그대로 보여줍니다.
+                const gradeValueLower = gradeValue.toLowerCase();
+                const isActive = tempActiveFilters.grade.includes(gradeValueLower) ? 'active' : '';
+                filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${gradeValueLower}">${gradeValue}</button>`;
+            }
         });
         filtersHTML += '</div></div>';
     }
-    
-    // 요청사항 #1 해결: 자바스크립트가 푸터와 버튼을 직접 생성합니다.
+
     const modalFooterHTML = `
-        <div class="filter-modal-footer">
+        <div class="modal-footer">
             <button id="filter-reset-btn" class="modal-action-btn reset-btn">초기화</button>
             <button id="filter-apply-btn" class="modal-action-btn apply-btn">적용</button>
-        </div>
-    `;
-    
-    modalBody.innerHTML = filtersHTML + modalFooterHTML;
-    modalOverlay.style.display = 'flex';
+        </div>`;
+
+    if (modalBody) modalBody.innerHTML = filtersHTML + modalFooterHTML;
+    if (modalOverlay) modalOverlay.style.display = 'flex';
 }
 
     function applyFiltersAndRender() {
-        const menuId = document.getElementById('list-page-title').dataset.menuId;
-        let dataList = [];
-        if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
-            dataList = Object.values(DB.pokemonType.lev4);
-        } else if (menuId === 'item') {
-            dataList = Object.values(DB.item.lev4);
-        }
+    const menuId = document.getElementById('list-page-title').dataset.menuId;
+    let dataList = [];
 
-        const filteredData = dataList.filter(item => {
-            const gradeMatch = activeFilters.grade.length === 0 || (item.grade && activeFilters.grade.includes(item.grade));
-            const typeMatch = activeFilters.type.length === 0 || activeFilters.type.every(type => item.types?.includes(type));
-            return gradeMatch && typeMatch;
-        });
-
-        renderListPage(filteredData, menuId);
-        closeFilterModal();
+    if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
+        dataList = Object.values(DB.pokemonType.lev4);
+    } else if (menuId === 'item') {
+        dataList = Object.values(DB.item.lev4);
     }
+
+    const filteredData = dataList.filter(item => {
+        // [수정!] 아이템의 등급(item.grade)을 소문자로 바꿔서 비교합니다.
+        const gradeMatch = !activeFilters.grade?.length || (item.grade && activeFilters.grade.includes(item.grade.toLowerCase()));
+        const typeMatch = !activeFilters.type?.length || (item.types && activeFilters.type.some(selectedType => item.types.includes(selectedType)));
+        
+        return gradeMatch && typeMatch;
+    });
+
+    renderListPage(filteredData, menuId);
+}
 
     function closeFilterModal() {
         document.getElementById('filter-modal-overlay').style.display = 'none';
