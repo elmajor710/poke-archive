@@ -88,38 +88,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function setupMobileAds() {
-        if (!isMobile()) return;
+    // script.js 파일입니다.
+// 다른 코드는 그대로 두고, 이 함수만 교체해주세요.
 
-        const topAdContainer = document.getElementById('mobile-ad-top');
-        if (topAdContainer) {
-            topAdContainer.innerHTML = `
-                <ins class="adsbygoogle"
-                     style="display:block; text-align:center;"
-                     data-ad-layout="in-article"
-                     data-ad-format="fluid"
-                     data-ad-client="ca-pub-2125965839205311"
-                     data-ad-slot="6920735136"></ins>
-            `;
-        }
+function setupMobileAds() {
+    // 이 함수는 모바일 화면일 때만 동작합니다.
+    if (!isMobile()) return;
 
-        const bottomAdContainer = document.getElementById('ad-container-bottom');
-        if (bottomAdContainer) {
-            bottomAdContainer.innerHTML = `
-                <div class="blog-ad-box">
-                    <a href="https://index001.elmajor710.com" target="_blank" class="custom-ad-banner">
-                        <div class="ad-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3c0 .35.07.69.18 1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zM8 4h8a1 1 0 0 1 1 1c0 .34-.07.66-.18 1H7.18C7.07 5.66 7 5.34 7 5a1 1 0 0 1 1-1zm12 15H4V8h16v11z"/><path d="M12 17a4 4 0 0 0 4-4h-2a2 2 0 0 1-2 2 2 2 0 0 1-2-2H8a4 4 0 0 0 4 4zm0-6a1 1 0 0 0 1-1V9a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1z"/></svg>
-                        </div>
-                        <div class="ad-text">
-                            <strong>나라지원금 Info.</strong>
-                            <span>놓치면 손해! 혜택 확인하기</span>
-                        </div>
-                    </a>
-                </div>
-            `;
+    // 1. 최상단 광고를 불러오는 로직은 깨끗하게 제거되었습니다.
+
+    // 2. 최하단 광고 컨테이너(ad-container-bottom)를 찾습니다.
+    const bottomAdContainer = document.getElementById('ad-container-bottom');
+    if (bottomAdContainer) {
+        // 3. 해당 컨테이너의 내용을 기존의 자체 제작 광고 대신,
+        //    요청하신 애드센스 반응형 광고 코드로 교체합니다.
+        bottomAdContainer.innerHTML = `
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-2125965839205311"
+                 data-ad-slot="6920735136"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        `;
+
+        // 4. 동적으로 삽입된 애드센스 광고가 실제로 보이도록 로드 명령을 실행합니다.
+        try {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+            console.error("최하단 광고 로드에 실패했습니다:", e);
         }
     }
+}
 
     async function fetchAndRenderPopularDecks() {
         const popularDeckList = document.getElementById('popular-deck-list');
