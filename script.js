@@ -103,13 +103,11 @@ function setupMobileAds() {
         // 3. 해당 컨테이너의 내용을 기존의 자체 제작 광고 대신,
         //    요청하신 애드센스 반응형 광고 코드로 교체합니다.
         bottomAdContainer.innerHTML = `
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-2125965839205311"
-                 data-ad-slot="1479958733"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
-        `;
+    <ins class="adsbygoogle"
+         style="display:inline-block;width:320px;height:50px"
+         data-ad-client="ca-pub-2125965839205311"
+         data-ad-slot="7917923310"></ins>
+`;
 
         // 4. 동적으로 삽입된 애드센스 광고가 실제로 보이도록 로드 명령을 실행합니다.
         try {
