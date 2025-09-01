@@ -267,12 +267,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function addRecommendItem(container, id, name, count = 1) {
-            if (container.querySelector(`[data-id="${id}"]`)) {
-                alert('이미 추가된 항목입니다.');
-                return;
-            }
-            const itemElement = document.createElement('div');
-            itemElement.className = 'recommend-item-entry';
+    // ▼▼▼ 바로 이 부분을 주석 처리하거나 삭제해주세요! ▼▼▼
+    /*
+    if (container.querySelector(`[data-id="${id}"]`)) {
+        alert('이미 추가된 항목입니다.');
+        return;
+    }
+    */
+    // ▲▲▲ 여기까지 입니다 ▲▲▲
+    const itemElement = document.createElement('div');
+    itemElement.className = 'recommend-item-entry';
+    // ... 이하 생략
             itemElement.dataset.id = id;
             itemElement.innerHTML = `
                 <span>${name}</span>
