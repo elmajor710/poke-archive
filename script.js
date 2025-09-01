@@ -106,7 +106,7 @@ function setupMobileAds() {
             <ins class="adsbygoogle"
                  style="display:block"
                  data-ad-client="ca-pub-2125965839205311"
-                 data-ad-slot="6920735136"
+                 data-ad-slot="1479958733"
                  data-ad-format="auto"
                  data-full-width-responsive="true"></ins>
         `;
