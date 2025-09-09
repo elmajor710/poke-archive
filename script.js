@@ -92,30 +92,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // 다른 코드는 그대로 두고, 이 함수만 교체해주세요.
 
 function setupMobileAds() {
-    // 이 함수는 모바일 화면일 때만 동작합니다.
+    // 모바일 광고와 관련된 모든 직접적인 코드 생성을 제거합니다.
+    // CSS와 IntersectionObserver가 모든 것을 처리하도록 역할을 위임합니다.
+    // 이 함수는 이제 아무 역할도 하지 않으므로 비워둡니다.
     if (!isMobile()) return;
 
-    // 1. 최상단 광고를 불러오는 로직은 깨끗하게 제거되었습니다.
-
-    // 2. 최하단 광고 컨테이너(ad-container-bottom)를 찾습니다.
-    const bottomAdContainer = document.getElementById('ad-container-bottom');
-    if (bottomAdContainer) {
-        // 3. 해당 컨테이너의 내용을 기존의 자체 제작 광고 대신,
-        //    요청하신 애드센스 반응형 광고 코드로 교체합니다.
-        bottomAdContainer.innerHTML = `
-    <ins class="adsbygoogle"
-         style="display:inline-block;width:320px;height:50px"
-         data-ad-client="ca-pub-2125965839205311"
-         data-ad-slot="7917923310"></ins>
-`;
-
-        // 4. 동적으로 삽입된 애드센스 광고가 실제로 보이도록 로드 명령을 실행합니다.
-        try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-        } catch (e) {
-            console.error("최하단 광고 로드에 실패했습니다:", e);
-        }
-    }
+    // 기존의 innerHTML을 덮어쓰고 광고를 push하던 로직을 모두 삭제했습니다.
 }
 
     async function fetchAndRenderPopularDecks() {
