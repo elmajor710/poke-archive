@@ -911,13 +911,6 @@ header h1 {
     border-bottom: 1px solid #e0e0e0;
 }
 
-#ad-container-bottom {
-    display: none;
-    padding: 20px 15px;
-    border-top: 1px solid #e0e0e0;
-    background-color: #fff;
-}
-
 @media (max-width: 1199px) {
     #ad-container-top {
         display: none !important;
@@ -1353,9 +1346,6 @@ body.mobile-view #page-body {
 }
 
 #mobile-ad-top {
-    display: none;
-}
-#ad-container-bottom {
     display: none;
 }
 
