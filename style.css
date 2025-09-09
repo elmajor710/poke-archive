@@ -1635,3 +1635,26 @@ body.mobile-view #page-body {
 }
 .btn-outline:hover { background: #f9fafb; }
 
+/*
+ * 모바일 하단 광고 강제 표시 코드 (기존 충돌 방지)
+ * 이 코드는 기존의 모든 스타일을 덮어씁니다.
+ */
+@media (max-width: 1199px) {
+    #ad-container-bottom {
+        display: flex !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 80px !important;
+        padding: 5px !important;
+        overflow: hidden !important;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1) !important;
+        z-index: 25 !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+    #page-body {
+        padding-bottom: 80px !important;
+    }
+}
