@@ -86,9 +86,7 @@ header h1 {
     margin: 0 auto;
 }
 
-#ad-container-bottom {
-    display: none;
-}
+
 
 #ad-container-right {
     display: none;
@@ -913,13 +911,6 @@ header h1 {
     border-bottom: 1px solid #e0e0e0;
 }
 
-#ad-container-bottom {
-    display: none;
-    padding: 20px 15px;
-    border-top: 1px solid #e0e0e0;
-    background-color: #fff;
-}
-
 @media (max-width: 1199px) {
     #ad-container-top {
         display: none !important;
@@ -1357,30 +1348,40 @@ body.mobile-view #page-body {
 #mobile-ad-top {
     display: none;
 }
-#ad-container-bottom {
-    display: none;
-}
 
 @media (max-width: 1199px) {
-    #ad-container-top { display: none !important; }
-    #sidebar #sidebar-ad-container, .main-ad-area { display: none; }
+    #ad-container-top { 
+        display: none !important; 
+    }
+    #sidebar #sidebar-ad-container, 
+    .main-ad-area { 
+        display: none; 
+    }
 
-    #mobile-ad-top { display: block; padding: 5px; background-color: #f1f1f1; }
+    #mobile-ad-top { 
+        display: block; 
+        height: 80px;
+        min-height: 80px;
+        overflow: hidden;
+        padding: 5px; 
+        background-color: #f1f1f1; 
+    }
     #ad-container-bottom {
-        display: block;
+        display: block !important;
         position: fixed;
         bottom: 0;
         left: 0;
         width: 100%;
-        padding: 10px;
+        height: 80px;
+        padding: 5px;
+        overflow: hidden;
         border-top: 1px solid #e0e0e0;
         background-color: #ffffff;
         box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
         z-index: 25;
-        /* ▼▼▼ 이 3줄을 추가하세요 ▼▼▼ */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 }
 
@@ -1622,3 +1623,29 @@ body.mobile-view #page-body {
 }
 .btn-outline:hover { background: #f9fafb; }
 
+/*
+ * 모바일 하단 광고 강제 표시 코드 (기존 충돌 방지)
+ * 이 코드는 기존의 모든 스타일을 덮어씁니다.
+ */
+@media (max-width: 1199px) {
+    #ad-container-bottom {
+        display: flex; /* flex로 중앙 정렬 유지 */
+        justify-content: center;
+        align-items: center;
+        position: fixed; /* 화면 하단에 고정 */
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 80px;
+        min-height: 80px;
+        padding: 5px;
+        border-top: 1px solid #e0e0e0;
+        background-color: #ffffff;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        z-index: 25;
+        overflow: hidden;
+    }
+    #page-body {
+        padding-bottom: 80px !important;
+    }
+}
