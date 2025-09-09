@@ -3,49 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>광고 최종 테스트</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .ad-container-bottom {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 80px;
-            background-color: #ffffff;
-            z-index: 999;
-            border-top: 1px solid #e0e0e0;
-            overflow: hidden; /* 추가: 혹시 모를 오버플로우 방지 */
-        }
-        h1 {
-            text-align: center;
-            margin-top: 50px;
-            color: #333;
-        }
-    </style>
+    <meta name="naver-site-verification" content="908d0a7edce7566fbfed81ef4581af850ae6b606" />
+    <title>Nirvana's Poke-Archive</title>
+
+    <meta property="og:title" content="Nirvana's Poke-Archive">
+    <meta property="og:description" content="포켓몬 육성 정보 아카이브">
+    <meta property="og:image" content="https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/taecho-three.jpg">
+    <meta property="og:url" content="https://pokedex.elmajor710.com">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo="> 
+    <!-- CSS 파일 버전을 업데이트하여 브라우저 캐시 문제 방지 -->
+    <link rel="stylesheet" href="style.css?v=5.1">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311" crossorigin="anonymous"></script>
 </head>
 <body>
-    <h1>광고 최종 테스트</h1>
-    <div class="ad-container-bottom">
+    <header>
+        <button id="mobile-menu-btn" class="mobile-only">☰</button>
+        <h1>Nirvana's Poke-Archive</h1>
+    </header>
+    
+    
+
+    <div id="ad-container-top" class="ad-container">
         <ins class="adsbygoogle"
-             style="display:block; width:100%; height:80px;"
+             style="display:block"
              data-ad-client="ca-pub-2125965839205311"
-             data-ad-slot="6920735136"></ins>
+             data-ad-slot="6920735136"
+             data-ad-format="horizontal"></ins>
     </div>
+    
+    <div id="page-body">
+    <div id="app-container">
+        <aside id="sidebar">
+            </aside>
+        <main id="content-area">
+            <div id="main-placeholder">
+                <div class="mobile-grid-menu mobile-only">
+                    <button class="grid-menu-btn" data-menu-id="notice">📢 공지사항</button>
+                    <button class="grid-menu-btn" data-menu-id="deck" data-item-id="recommended">🔥 인기 덱</button>
+                    <button class="grid-menu-btn" data-menu-id="pokemonType">포켓몬</button>
+                    <button class="grid-menu-btn" data-menu-id="item">아이템</button>
+                    <button class="grid-menu-btn" data-menu-id="runeAndChip" data-item-id="rune">룬</button>
+                    <button class="grid-menu-btn" data-menu-id="runeAndChip" data-item-id="chip">칩</button>
+                    <button class="grid-menu-btn" data-menu-id="calendar">캘린더</button>
+                    <button class="grid-menu-btn" data-menu-id="deck">추천 덱</button>
+                    <button class="grid-menu-btn" data-menu-id="tips">팁&노하우</button>
+                </div>
+
+                <div class="pc-main-content pc-only">
+                    <div class="main-content-grid">
+                       <div class="main-content-box notice-box">
+                           <h3>📢 공지사항</h3>
+                           <ul id="main-notice-list"></ul>
+                       </div>
+                       <div class="main-content-box popular-posts-box">
+                           <h3>🔥 인기글</h3>
+                            <ul id="popular-deck-list"></ul>
+                       </div>
+                    </div>
+                    
+                    <div class="main-welcome-area">
+                        <img src="https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/taecho-three.jpg" alt="Welcome to the Poke-Archive">
+                        <p>좌측 메뉴에서 궁금한 정보를 선택해주세요!</p>
+                    </div>
+
+                    <div class="main-ad-area">
+                        <div id="sidebar-ad-container">
+                            <div class="blog-ad-box">
+                                <a href="https://index001.elmajor710.com" target="_blank" class="custom-ad-banner">
+                                    <div class="ad-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3c0 .35.07.69.18 1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zM8 4h8a1 1 0 0 1 1 1c0 .34-.07.66-.18 1H7.18C7.07 5.66 7 5.34 7 5a1 1 0 0 1 1-1zm12 15H4V8h16v11z"/><path d="M12 17a4 4 0 0 0 4-4h-2a2 2 0 0 1-2 2 2 2 0 0 1-2-2H8a4 4 0 0 0 4 4zm0-6a1 1 0 0 0 1-1V9a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1z"/></svg>
+                                    </div>
+                                    <div class="ad-text">
+                                        <strong>나라지원금 Info.</strong>
+                                        <span>놓치면 손해! 혜택 확인하기</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <section id="lev2-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
+            <section id="lev3-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
+            <section id="lev4-panel" class="panel"><div class="panel-header"><button class="back-btn">&lt; 뒤로</button></div><div class="panel-content"></div></section>
+            
+            <section id="list-filter-page" class="page-view" style="display: none;">
+                <div class="page-header">
+                    <button class="back-to-grid-btn">&lt; 메인</button>
+                    <h2 id="list-page-title">목록</h2>
+                </div>
+                <div id="list-page-filters" class="page-filters">
+    </div>
+<div id="list-page-content" class="page-content">
+                </div>
+            </section>
+            
+        </main>
+    </div>
+    <div id="ad-container-right" class="ad-container">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2125965839205311"
+             data-ad-slot="2027161792"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+    </div>
+</div>
+    
+    <div id="admin-panel" style="display: none; padding: 20px;">
+        <h2>운영자 모드 (개발 예정)</h2>
+    </div>
+
+    <!-- 모바일 최하단 블로그 광고 -->
+<div id="ad-container-bottom" class="ad-container mobile-only">
+    <div class="blog-ad-box">
+        <a href="https://index001.elmajor710.com" target="_blank" class="custom-ad-banner">
+            <div class="ad-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3c0 .35.07.69.18 1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zM8 4h8a1 1 0 0 1 1 1c0 .34-.07.66-.18 1H7.18C7.07 5.66 7 5.34 7 5a1 1 0 0 1 1-1zm12 15H4V8h16v11z"/><path d="M12 17a4 4 0 0 0 4-4h-2a2 2 0 0 1-2 2 2 2 0 0 1-2-2H8a4 4 0 0 0 4 4zm0-6a1 1 0 0 0 1-1V9a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1z"/></svg>
+            </div>
+            <div class="ad-text">
+                <strong>나라지원금 Info.</strong>
+                <span>놓치면 손해! 혜택 확인하기</span>
+            </div>
+        </a>
+    </div>
+</div>
+    
+    
+    <!-- Firebase SDK는 최신 버전을 사용합니다. -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
     <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
+      // Firebase 초기화
+        const firebaseConfig = {
+        apiKey: "AIzaSyBEPDK4VMVjEshWthL9Kajan-2EKfuLvZ0",
+        authDomain: "poke-archive-d8e29.firebaseapp.com",
+        projectId: "poke-archive-d8e29",
+        storageBucket: "poke-archive-d8e29.appspot.com",
+        messagingSenderId: "1012379289991",
+        appId: "1:1012379289991:web:5c33d4ac7536672d956b22"
+        };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
     </script>
+    
+    <script src="data.js?v=5.0"></script> 
+    <!-- JS 파일 버전을 업데이트하여 브라우저 캐시 문제 방지 -->
+    <script src="script.js?v=5.0"></script>
+
+<!-- ... 기존 script 태그들 ... -->
+    <!-- removed duplicate script include -->
+
+    <!-- ▼▼▼ [추가] 필터 팝업(모달)을 위한 HTML 구조 ▼▼▼ -->
+    <div id="filter-modal-overlay" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>필터 설정</h2>
+                <button id="filter-modal-close-btn" class="modal-close-btn">&times;</button>
+            </div>
+            <div id="filter-modal-body" class="modal-body">
+                <!-- 필터 옵션이 여기에 동적으로 추가됩니다 -->
+            </div>
+                    </div>
+    </div>
+    <!-- ▲▲▲ [추가] 여기까지 ▲▲▲ -->
+
 </body>
 </html>
