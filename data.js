@@ -42,7 +42,6 @@ const DB = {
     },
 
     pokemonType: {
-        // ▼▼▼ [수정] 제공해주신 올바른 아이콘 URL로 전체 교체 ▼▼▼
         lev2: [ 
             { id: 'normal', name: '노말', color: '#A8A878', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/normal.png' }, 
             { id: 'fire', name: '불', color: '#F08030', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/fire.png' },
@@ -60,15 +59,14 @@ const DB = {
             { id: 'ghost', name: '유령', color: '#705898', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/ghost.png' },
             { id: 'dragon', name: '드래곤', color: '#7038F8', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/dragon.png' }, 
             { id: 'dark', name: '악', color: '#705848', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/dark.png' },
-            // 수정할 코드
-{ id: 'steel', name: '강철', color: '#B8B8D0', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/stell.png' },
+            { id: 'steel', name: '강철', color: '#B8B8D0', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/stell.png' },
             { id: 'fairy', name: '페어리', color: '#EE99AC', iconURL: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/main/fairy.png' },
         ],
         lev3: { },
         lev4: { }
     },
     pokemonGrade: {
-        lev2: [ { id: 'ss', name: 'SS' }, { id: 'sPlus', name: 'S+' }, { id: 's', name: 'S' } ],
+        lev2: [ { id: 'ss', name: 'SS' }, { id: 'sPlus', name: 'S+' } ],
         lev3: {}
     },
     item: {
@@ -109,7 +107,7 @@ const DB = {
         }
     },
     deck: {
-        lev2: [ { id: 'recommended', name: '추천덱' }, { id: 'builder', name: '배치툴' } ],
+        lev2: [ { id: 'recommended', name: '추천덱' } ],
         lev3: { },
         lev4: { }
     },
