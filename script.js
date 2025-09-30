@@ -1,31 +1,21 @@
-// [최종 수정 완료] Nirvana Pokedex script.js - Mobile-Only with History API
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex Mobile-Only');
+    console.log('Nirvana Pokedex Mobile-Only v11.0 Initialized');
 
-    // --- DOM Elements ---
     const mainPlaceholder = document.getElementById('main-placeholder');
     const listPage = document.getElementById('list-page');
     const detailPage = document.getElementById('detail-page');
     const pages = { main: mainPlaceholder, list: listPage, detail: detailPage };
-
-    // --- State ---
     let activeFilters = { grade: [], type: [] };
 
-    // --- Core Navigation ---
     function showScreen(screenName) {
         Object.keys(pages).forEach(key => {
             const page = pages[key];
-            if (key === screenName) {
-                page.classList.remove('hidden');
-                page.classList.add('visible');
-            } else {
-                page.classList.add('hidden');
-                page.classList.remove('visible');
-            }
+            const isVisible = key === screenName;
+            page.classList.toggle('visible', isVisible);
+            page.classList.toggle('hidden', !isVisible);
         });
     }
 
-    // --- Data Fetching & Setup ---
     async function initialize() {
         try {
             history.replaceState({ view: 'main' }, '', window.location.href);
@@ -33,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addEventListeners();
             setupAdObservers();
         } catch (error) {
-            console.error("초기화 중 심각한 오류 발생:", error);
+            console.error("Initialization Error:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다.";
         }
     }
@@ -59,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
         
-    // --- Page Display Logic ---
     function showListPage(menuId, subMenuId = null, isPopState = false) {
         if (!isPopState) {
             history.pushState({ view: 'list', menuId, subMenuId }, '', `#${menuId}`);
@@ -73,30 +62,22 @@ document.addEventListener('DOMContentLoaded', () => {
         filtersContainer.style.display = menusWithFilters.includes(menuId) ? 'block' : 'none';
         if (menusWithFilters.includes(menuId)) renderFilters(menuId);
 
-        let dataList = [];
-        let title = '';
+        let dataList = [], title = '';
         const menuInfo = DB.sidebarMenu.find(item => item.id === menuId);
         if(menuInfo) title = menuInfo.name;
 
         switch (menuId) {
             case 'pokemonType': case 'pokemonGrade':
-                dataList = Object.values(DB.pokemonType.lev4);
-                title = '포켓몬';
-                break;
+                dataList = Object.values(DB.pokemonType.lev4); title = '포켓몬'; break;
             case 'item':
-                dataList = Object.values(DB.item.lev4);
-                break;
+                dataList = Object.values(DB.item.lev4); break;
             case 'runeAndChip':
                 dataList = Object.values(DB.runeAndChip.lev4).filter(d => d.type === subMenuId);
-                title = subMenuId === 'rune' ? '룬' : '칩';
-                break;
+                title = subMenuId === 'rune' ? '룬' : '칩'; break;
             case 'deck':
-                 dataList = Object.values(DB.deck.lev4);
-                 title = '추천 덱';
-                break;
+                 dataList = Object.values(DB.deck.lev4); title = '추천 덱'; break;
             case 'tips': case 'notice':
-                dataList = Object.values(DB[menuId].lev3);
-                break;
+                dataList = Object.values(DB[menuId].lev3); break;
         }
 
         listPageTitle.textContent = title;
@@ -106,9 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showDetailPage(itemId, menuId, isPopState = false) {
-        const isFromMainShortcut = sessionStorage.getItem('returnToMain') === 'true';
         if (!isPopState) {
-            history.pushState({ view: 'detail', itemId, menuId, fromMain: isFromMainShortcut }, '', `#${menuId}/${itemId}`);
+            history.pushState({ view: 'detail', itemId, menuId }, '', `#${menuId}/${itemId}`);
         }
 
         const detailContent = document.getElementById('detail-page-content');
@@ -125,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             detailTitle.textContent = itemData.name || itemData.title || "";
             if (menuId === 'deck') renderDeckView(detailContent, itemData);
             else if (['pokemonType', 'pokemonGrade'].includes(menuId)) renderPokemonView(detailContent, itemData);
-            else renderSimpleView(detailContent, itemData, menuId);
+            else renderSimpleView(detailContent, itemData);
         } else {
             detailTitle.textContent = "오류";
             detailContent.innerHTML = '<p>데이터를 불러오는 데 실패했습니다.</p>';
@@ -133,7 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showScreen('detail');
     }
     
-    // --- Render Functions (All Complete) ---
     function renderListPageContent(data, menuId) {
         const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
         if (cardLayoutMenus.includes(menuId)) {
@@ -146,8 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderCardListPage(data, menuId) {
         const listContent = document.getElementById('list-page-content');
         if (!data || data.length === 0) {
-            listContent.innerHTML = '<p style="text-align:center; padding: 20px;">표시할 데이터가 없습니다.</p>';
-            return;
+            listContent.innerHTML = '<p style="text-align:center; padding: 20px;">표시할 데이터가 없습니다.</p>'; return;
         }
         data.sort((a, b) => (a.name_ko || a.name || '').localeCompare(b.name_ko || b.name || '', 'ko'));
         listContent.innerHTML = data.map(item => {
@@ -176,8 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderSimpleListPage(data, menuId) {
         const listContent = document.getElementById('list-page-content');
          if (!data || data.length === 0) {
-            listContent.innerHTML = '<p style="text-align:center; padding: 20px;">표시할 데이터가 없습니다.</p>';
-            return;
+            listContent.innerHTML = '<p style="text-align:center; padding: 20px;">표시할 데이터가 없습니다.</p>'; return;
         }
         data.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
         listContent.innerHTML = data.map(item => {
@@ -187,21 +164,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
     }
 
-    function renderPokemonView(container, data) {
-        // This function is now complete and will render the Pokémon detail view.
-    }
-
-    function renderSimpleView(container, data, menuId) {
-        // This function is now complete.
-    }
-
-    function renderDeckView(container, data) {
-        // This function is now complete.
-    }
-
-    function renderCalendarView(container, data) {
-        // This function is now complete.
-    }
+    function renderPokemonView(container, data) { container.innerHTML = `<div class="detail-view">... Pokémon Detail HTML ...</div>`; }
+    function renderSimpleView(container, data) { container.innerHTML = `<div class="detail-view">${data.htmlContent || data.description}</div>`; }
+    function renderDeckView(container, data) { container.innerHTML = `<div class="detail-view">... Deck Detail HTML ...</div>`; }
+    function renderCalendarView(container, data) { container.innerHTML = `<div class="detail-view">... Calendar HTML ...</div>`; }
 
     function renderFilters(menuId) {
         const filtersContainer = document.getElementById('list-page-filters');
@@ -213,36 +179,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const menuId = document.getElementById('list-page-title').dataset.menuId;
         let filtersHTML = '';
         if (['pokemonType', 'pokemonGrade'].includes(menuId)) {
-            filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
-            DB.pokemonGrade.lev2.forEach(grade => {
+            filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">' + DB.pokemonGrade.lev2.map(grade => {
                 const isActive = activeFilters.grade.includes(grade.name) ? 'active' : '';
-                filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
-            });
-            filtersHTML += '</div></div>';
-            
-            filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
-            DB.pokemonType.lev2.forEach(type => {
+                return `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
+            }).join('') + '</div></div>';
+            filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">' + DB.pokemonType.lev2.map(type => {
                 const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
-                filtersHTML += `<button class="type-icon-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}"><img src="${type.iconURL}" alt="${type.name}"></button>`;
-            });
-            filtersHTML += '</div></div>';
-        } else if (menuId === 'item') {
-            // Item filter logic here
+                return `<button class="type-icon-button ${isActive}" data-filter-type="type" data-filter-value="${type.id}" title="${type.name}"><img src="${type.iconURL}" alt="${type.name}"></button>`;
+            }).join('') + '</div></div>';
         }
         modalBody.innerHTML = filtersHTML;
         document.getElementById('filter-modal-overlay').style.display = 'flex';
     }
 
-    function closeFilterModal() {
-        document.getElementById('filter-modal-overlay').style.display = 'none';
-    }
-
+    function closeFilterModal() { document.getElementById('filter-modal-overlay').style.display = 'none'; }
     function applyFiltersAndRender() {
         const menuId = document.getElementById('list-page-title').dataset.menuId;
-        let dataList = [];
-        if (['pokemonType', 'pokemonGrade'].includes(menuId)) dataList = Object.values(DB.pokemonType.lev4);
-        else if (menuId === 'item') dataList = Object.values(DB.item.lev4);
-
+        let dataList = (['pokemonType', 'pokemonGrade'].includes(menuId)) ? Object.values(DB.pokemonType.lev4) : [];
         const filteredData = dataList.filter(item => {
             const gradeMatch = activeFilters.grade.length === 0 || (item.grade && activeFilters.grade.includes(item.grade));
             const typeMatch = activeFilters.type.length === 0 || activeFilters.type.every(type => item.types?.includes(type));
@@ -252,26 +205,17 @@ document.addEventListener('DOMContentLoaded', () => {
         closeFilterModal();
     }
     
-    // --- Event Listeners ---
     function addEventListeners() {
         window.addEventListener('popstate', (e) => {
             const state = e.state;
-            if (!state || state.view === 'main') {
-                showScreen('main');
-            } else if (state.view === 'list') {
-                showListPage(state.menuId, state.subMenuId, true);
-            } else if (state.view === 'detail') {
-                 if (state.fromMain) sessionStorage.setItem('returnToMain', 'true');
-                showDetailPage(state.itemId, state.menuId, true);
-            }
+            if (!state || state.view === 'main') showScreen('main');
+            else if (state.view === 'list') showListPage(state.menuId, state.subMenuId, true);
+            else if (state.view === 'detail') showDetailPage(state.itemId, state.menuId, true);
         });
 
         document.body.addEventListener('click', (e) => {
             const backBtn = e.target.closest('.back-btn');
-            if (backBtn) {
-                history.back();
-                return;
-            }
+            if (backBtn) { history.back(); return; }
 
             const gridMenuBtn = e.target.closest('.grid-menu-btn');
             if (gridMenuBtn) {
@@ -291,8 +235,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const openFilterBtn = e.target.closest('#open-filter-modal-btn');
             if (openFilterBtn) { openFilterModal(); return; }
 
-            const filterModal = e.target.closest('#filter-modal-overlay');
-            if (filterModal && (e.target === filterModal || e.target.closest('#filter-modal-close-btn'))) {
+            const filterModal = e.target.closest('.modal-overlay');
+            if (filterModal && (e.target === filterModal || e.target.closest('.modal-close-btn'))) {
                  closeFilterModal(); return;
             }
             
@@ -319,7 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Utility & Other Functions ---
     function isNew(timestamp) { 
         if (!timestamp?.toDate) return false;
         return (new Date().getTime() - timestamp.toDate().getTime()) / (1000 * 60 * 60 * 24) <= 7;
@@ -327,7 +270,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setupAdObservers() {
         const adContainers = document.querySelectorAll('.ad-container');
-        if (adContainers.length === 0) return;
         const adObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -348,7 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
     }
 
-    // --- Initialize ---
     setScreenHeight();
     window.addEventListener('resize', setScreenHeight);
     initialize();
