@@ -13,19 +13,39 @@
     --event-carnival-color: #9c27b0;
     --event-season-color: #ff5722;
     --event-etc-color: #607d8b;
+    /* [추가] 모바일 화면 최대 너비 변수 */
+    --app-max-width: 500px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* [추가] 데스크탑 배경색 설정 */
+html {
+    background-color: #e9ecef;
+}
+
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
     height: calc(var(--vh, 1vh) * 100);
     overflow: hidden;
-    background-color: #f8f9fa;
+    /* [수정] body 배경은 투명하게 처리 */
+    background-color: transparent; 
 }
+
+/* [추가] 모바일 화면을 감싸는 컨테이너 스타일 */
+.app-container {
+    max-width: var(--app-max-width);
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background-color: #f8f9fa; /* 기존 body 배경색 */
+    box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+
 
 header {
     background-color: var(--primary-color);
@@ -38,16 +58,18 @@ header {
 
 header h1 { margin: 0; font-size: 1.5em; }
 
+/* [수정] 광고 컨테이너 스타일 수정 */
 #ad-container-bottom {
-    position: fixed;
+    position: absolute; /* fixed에서 absolute로 변경 */
     bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 320px;
+    left: 0;
+    width: 100%;
     height: 50px;
     background-color: #f1f1f1;
     z-index: 25;
-    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #page-body {
@@ -58,6 +80,7 @@ header h1 { margin: 0; font-size: 1.5em; }
 
 #content-area {
     width: 100%;
+    height: 100%; /* [추가] 높이 100% 설정 */
     position: relative;
     overflow: hidden;
 }
@@ -87,7 +110,7 @@ header h1 { margin: 0; font-size: 1.5em; }
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     width: 100%;
-    max-width: 500px;
+    max-width: var(--app-max-width);
     padding: 25px 15px;
     margin: 0 auto;
 }
