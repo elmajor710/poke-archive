@@ -13,35 +13,27 @@
     --event-carnival-color: #9c27b0;
     --event-season-color: #ff5722;
     --event-etc-color: #607d8b;
-    --app-max-width: 500px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* ▼▼▼ [추가] 데스크탑에서 볼 때의 배경색 ▼▼▼ */
 html {
-    background-color: #e9ecef;
+    background-color: #f0f2f5;
 }
 
 body {
-    margin: 0;
+    margin: 0 auto; /* [수정] auto 마진으로 중앙 정렬 */
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    height: calc(var(--vh, 1vh) * 100);
-    overflow: hidden;
-    background-color: transparent; 
-}
-
-.app-container {
-    max-width: var(--app-max-width);
-    margin: 0 auto;
-    height: 100%;
     display: flex;
     flex-direction: column;
-    position: relative;
-    background-color: #f8f9fa;
-    box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    height: calc(var(--vh, 1vh) * 100);
     overflow: hidden;
+    background-color: #f8f9fa;
+    max-width: 500px; /* [추가] 모바일 전용 UI를 위해 최대 너비 제한 */
+    position: relative; /* [추가] 광고창 위치의 기준이 되도록 설정 */
+    box-shadow: 0 0 20px rgba(0,0,0,0.1); /* [추가] PC에서 앱처럼 보이도록 그림자 효과 */
 }
-
 
 header {
     background-color: var(--primary-color);
@@ -54,34 +46,32 @@ header {
 
 header h1 { margin: 0; font-size: 1.5em; }
 
+/* ▼▼▼ [수정] 광고 컨테이너 스타일 ▼▼▼ */
 #ad-container-bottom {
-    position: absolute;
+    position: absolute; /* fixed -> absolute로 변경하여 body 중앙 하단에 고정 */
     bottom: 0;
     left: 0;
-    width: 100%;
-    height: 50px;
+    right: 0;
+    width: 320px; /* 광고 사이즈 고정 */
+    height: 50px; /* 광고 사이즈 고정 */
+    margin: 0 auto; /* 컨테이너 중앙 정렬 */
     background-color: #f1f1f1;
     z-index: 25;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    overflow: hidden; /* 광고가 크기를 벗어나지 않도록 강제 */
 }
 
-/* ▼▼▼ [수정] Flexbox 레이아웃으로 변경 ▼▼▼ */
 #page-body {
     flex-grow: 1;
     overflow: hidden;
-    display: flex; /* Flex Container로 변경 */
-    flex-direction: column; /* 자식 요소를 세로로 배치 */
+    padding-bottom: 60px;
 }
 
 #content-area {
-    flex-grow: 1; /* 남은 공간을 모두 차지하도록 변경 */
+    width: 100%;
     position: relative;
     overflow: hidden;
+    height: 100%; /* [추가] 원본처럼 높이 100%를 명시하여 안정성 확보 */
 }
-/* ▲▲▲ [수정] 여기까지 ▲▲▲ */
-
 
 .page-view {
     position: absolute;
@@ -96,19 +86,20 @@ header h1 { margin: 0; font-size: 1.5em; }
     visibility: hidden;
 }
 
-#main-placeholder { visibility: visible; z-index: 1; overflow-y: auto; padding-bottom: 60px; }
+#main-placeholder { visibility: visible; z-index: 1; overflow-y: auto; }
 #list-page { transform: translateX(100%); z-index: 2; }
 #detail-page { transform: translateX(100%); z-index: 3; }
 
 .page-view.visible { transform: translateX(0); visibility: visible; }
 #main-placeholder.hidden, #list-page.hidden { transform: translateX(-100%); visibility: hidden; }
 
+/* 이하 원본 CSS와 동일... */
 .mobile-grid-menu {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     width: 100%;
-    max-width: var(--app-max-width);
+    max-width: 500px;
     padding: 25px 15px;
     margin: 0 auto;
 }
@@ -143,7 +134,7 @@ header h1 { margin: 0; font-size: 1.5em; }
 .page-header h2 { margin: 0; font-size: 1.2em; text-align: center; flex-grow: 1; }
 .back-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border-color); background-color: #f8f9fa; cursor: pointer; position: absolute; left: 15px; }
 .page-filters { flex-shrink: 0; padding: 10px 15px; background-color: #fff; border-bottom: 1px solid var(--border-color); }
-.page-content { flex-grow: 1; overflow-y: auto; padding: 10px; background-color: #f8f9fa; padding-bottom: 60px;}
+.page-content { flex-grow: 1; overflow-y: auto; padding: 10px; background-color: #f8f9fa; }
 
 .list-item-card {
     display: flex;
