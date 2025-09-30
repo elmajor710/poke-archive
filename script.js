@@ -130,7 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
         data.sort((a, b) => (a.name_ko || a.name || '').localeCompare(b.name_ko || b.name || '', 'ko'));
         listContent.innerHTML = data.map(item => {
             const name = item.name_ko || item.name;
-            const imageURL = item.faceImageURL || item.imageURL || 'https://via.placeholder.com/64';
+            // ▼▼▼ [수정] 오류가 발생하는 외부 이미지 주소를 내장 데이터 이미지로 교체 ▼▼▼
+            const imageURL = item.faceImageURL || item.imageURL || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            // ▲▲▲ [수정] 여기까지 ▲▲▲
             let infoHTML = '';
             if (item.grade) {
                 infoHTML += `<span class="grade-badge grade-${item.grade.toLowerCase().replace('+', '-plus')}">${item.grade}</span>`;
