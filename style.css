@@ -13,13 +13,11 @@
     --event-carnival-color: #9c27b0;
     --event-season-color: #ff5722;
     --event-etc-color: #607d8b;
-    /* [추가] 모바일 화면 최대 너비 변수 */
     --app-max-width: 500px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 
-/* [추가] 데스크탑 배경색 설정 */
 html {
     background-color: #e9ecef;
 }
@@ -29,11 +27,9 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     height: calc(var(--vh, 1vh) * 100);
     overflow: hidden;
-    /* [수정] body 배경은 투명하게 처리 */
     background-color: transparent; 
 }
 
-/* [추가] 모바일 화면을 감싸는 컨테이너 스타일 */
 .app-container {
     max-width: var(--app-max-width);
     margin: 0 auto;
@@ -41,7 +37,7 @@ body {
     display: flex;
     flex-direction: column;
     position: relative;
-    background-color: #f8f9fa; /* 기존 body 배경색 */
+    background-color: #f8f9fa;
     box-shadow: 0 0 15px rgba(0,0,0,0.15);
     overflow: hidden;
 }
@@ -58,9 +54,8 @@ header {
 
 header h1 { margin: 0; font-size: 1.5em; }
 
-/* [수정] 광고 컨테이너 스타일 수정 */
 #ad-container-bottom {
-    position: absolute; /* fixed에서 absolute로 변경 */
+    position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
@@ -76,11 +71,12 @@ header h1 { margin: 0; font-size: 1.5em; }
     flex-grow: 1;
     overflow: hidden;
     padding-bottom: 60px;
+    position: relative; /* ★★★ 바로 이 한 줄이 추가되었습니다! ★★★ */
 }
 
 #content-area {
     width: 100%;
-    height: 100%; /* [추가] 높이 100% 설정 */
+    height: 100%;
     position: relative;
     overflow: hidden;
 }
