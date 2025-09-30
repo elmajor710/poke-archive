@@ -2,56 +2,63 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Nirvana's Poke-Archive</title>
-    <link rel="stylesheet" href="style.css?v=12.0">
+    <link rel="stylesheet" href="style.css?v=13.0">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311" crossorigin="anonymous"></script>
 </head>
 <body>
-    <header>
-        <h1>Nirvana's Poke-Archive</h1>
-    </header>
-    
-    <div id="page-body">
-        <main id="content-area">
-            <div id="main-placeholder" class="page-view visible">
-                <div class="mobile-grid-menu">
-                    <button class="grid-menu-btn" data-menu-id="notice">📢 공지사항</button>
-                    <button class="grid-menu-btn" data-menu-id="deck" data-item-id="recommended">🔥 인기 덱</button>
-                    <button class="grid-menu-btn" data-menu-id="pokemonType">포켓몬</button>
-                    <button class="grid-menu-btn" data-menu-id="item">아이템</button>
-                    <button class="grid-menu-btn" data-menu-id="runeAndChip" data-item-id="rune">룬</button>
-                    <button class="grid-menu-btn" data-menu-id="runeAndChip" data-item-id="chip">칩</button>
-                    <button class="grid-menu-btn" data-menu-id="calendar">캘린더</button>
-                    <button class="grid-menu-btn" data-menu-id="deck">추천 덱</button>
-                    <button class="grid-menu-btn" data-menu-id="tips">팁&노하우</button>
+    <div class="app-container">
+        <header>
+            <h1>Nirvana's Poke-Archive</h1>
+        </header>
+        
+        <div id="page-body">
+            <main id="content-area">
+                <div id="main-placeholder" class="page-view visible">
+                    <div class="mobile-grid-menu">
+                        <button class="grid-menu-btn" data-menu-id="notice">📢 공지사항</button>
+                        <button class="grid-menu-btn" data-menu-id="deck" data-item-id="recommended">🔥 인기 덱</button>
+                        <button class="grid-menu-btn" data-menu-id="pokemonType">포켓몬</button>
+                        <button class="grid-menu-btn" data-menu-id="item">아이템</button>
+                        <button class="grid-menu-btn" data-menu-id="runeAndChip" data-item-id="rune">룬</button>
+                        <button class="grid-menu-btn" data-menu-id="runeAndChip" data-item-id="chip">칩</button>
+                        <button class="grid-menu-btn" data-menu-id="calendar">캘린더</button>
+                        <button class="grid-menu-btn" data-menu-id="deck">추천 덱</button>
+                        <button class="grid-menu-btn" data-menu-id="tips">팁&노하우</button>
+                    </div>
                 </div>
-            </div>
-            
-            <section id="list-page" class="page-view">
-                <div class="page-header">
-                    <button class="back-btn">&lt; 메인</button>
-                    <h2 id="list-page-title"></h2>
-                </div>
-                <div id="list-page-filters" class="page-filters"></div>
-                <div id="list-page-content" class="page-content"></div>
-            </section>
-            
-            <section id="detail-page" class="page-view">
-                <div class="page-header">
-                    <button class="back-btn">&lt; 목록</button>
-                    <h2 id="detail-page-title"></h2>
-                </div>
-                <div id="detail-page-content" class="page-content"></div>
-            </section>
-        </main>
-    </div>
-    
-    <div id="ad-container-bottom" class="ad-container">
-        <ins class="adsbygoogle"
-             style="display:inline-block;width:320px;height:50px"
-             data-ad-client="ca-pub-2125965839205311"
-             data-ad-slot="8837584249"></ins>
+                
+                <section id="list-page" class="page-view">
+                    <div class="page-header">
+                        <button class="back-btn">&lt; 메인</button>
+                        <h2 id="list-page-title"></h2>
+                    </div>
+                    <div id="list-page-filters" class="page-filters"></div>
+                    <div id="list-page-content" class="page-content"></div>
+                </section>
+                
+                <section id="detail-page" class="page-view">
+                    <div class="page-header">
+                        <button class="back-btn">&lt; 목록</button>
+                        <h2 id="detail-page-title"></h2>
+                    </div>
+                    <div id="detail-page-content" class="page-content"></div>
+                </section>
+            </main>
+        </div>
+
+        <div id="ad-container-bottom">
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311"
+                 crossorigin="anonymous"></script>
+            <ins class="adsbygoogle"
+                 style="display:inline-block;width:320px;height:50px"
+                 data-ad-client="ca-pub-2125965839205311"
+                 data-ad-slot="8837584249"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
     </div>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -69,8 +76,8 @@
       const db = firebase.firestore();
     </script>
     
-    <script src="data.js?v=12.0"></script> 
-    <script src="script.js?v=12.0"></script>
+    <script src="data.js?v=13.0"></script> 
+    <script src="script.js?v=13.0"></script>
 
     <div id="filter-modal-overlay" class="modal-overlay">
         <div class="modal-content">
