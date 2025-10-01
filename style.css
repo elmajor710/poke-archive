@@ -727,27 +727,22 @@ header h1 {
     text-overflow: ellipsis; 
 }
 
-/* 덱 그리드 */
+/* 덱 그리드 - 모바일 화면에 맞게 크기 조정 */
 .deck-grid-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(4, 1fr) auto;
-    gap: 5px;
-    justify-content: center;
+    gap: 3px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 5px;
     grid-template-areas:
         "r1c1 r1c1 r1c2 r1c2"
         "r2c1 r2c2 r2c3 r2c4"
         "r3c1 r3c2 r3c3 r3c4"
         "r4c1 r4c2 r4c3 r4c4"
         "r5c1 r5c1 r5c2 r5c2";
-    max-width: 350px;
-    margin: 0 auto;
-}
-
-@media (max-width: 360px) {
-    .deck-grid-container {
-        grid-template-columns: repeat(4, 1fr);
-    }
 }
 
 .grid-item {
@@ -758,11 +753,13 @@ header h1 {
     justify-content: center;
     align-items: center;
     aspect-ratio: 1 / 1;
+    width: 100%;
+    height: auto;
 }
 
 .grid-header-item {
     background-color: #e9f5ff;
-    font-size: 38px;
+    font-size: 5vw;
     line-height: 1;
 }
 
@@ -772,17 +769,18 @@ header h1 {
 }
 
 .grid-item img {
-    width: 95%;
-    height: 95%;
+    width: 90%;
+    height: 90%;
     object-fit: contain;
 }
 
 .grid-footer {
     text-align: center;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 12px;
     padding-top: 5px;
     color: #555;
+    height: auto;
 }
 
 .deck-pokemon-cell {
