@@ -1,12 +1,39 @@
-// [최종 수정 완료] Nirvana Pokedex script.js - index.html 구조에 완벽히 맞춤
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('스크립트 초기화 완료. Nirvana Pokedex 좋아요 기능 추가');
+// [모바일 전용 최종본] Nirvana Pokedex script.js
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('모바일 전용 스크립트 초기화 완료');
+
+    // ▼▼▼ [수정 1] '히스토리 방어막' 코드 추가 ▼▼▼
+    // 웹사이트가 처음 열렸을 때 방문 기록이 1개 뿐이라, 뒤로가기 시 종료되는 것을 막습니다.
+    // 일부러 가상의 방문 기록을 한 단계 추가하여 뒤로가기 버튼을 가로챌 수 있게 합니다.
+    history.pushState(null, '', window.location.href);
+    // ▲▲▲ [수정 1] 여기까지 ▲▲▲
+
+    window.addEventListener('popstate', function(event) {
+        // ▼▼▼ [수정 2] 뒤로가기 동작 재정의 ▼▼▼
+        // event.preventDefault(); // 이 줄은 제거하거나 주석 처리합니다.
+        
+        // 뒤로가기로 돌아갈 상태(state)를 확인합니다.
+        var state = event.state;
+        
+        // 만약 돌아갈 상태가 없거나(가장 처음 상태), page가 'main'이라면,
+        // 복잡한 로직 대신 메인 화면을 보여주는 함수를 바로 호출합니다.
+        if (!state || state.page === 'main') {
+            handleMainButtonClick(); // 메인 그리드 메뉴 화면으로 되돌리는 함수
+            return; // 추가 동작 없이 여기서 종료
+        }
+
+        // 그 외의 경우(패널 사이 이동 등)에만 기존의 뒤로가기 로직을 수행합니다.
+        handleBackButton();
+        // ▲▲▲ [수정 2] 여기까지 ▲▲▲
+    });
+
+    history.replaceState({ page: 'main' }, '');
 
     function setupAdObservers() {
-        const adContainers = document.querySelectorAll('.ad-container');
+        var adContainers = document.querySelectorAll('.ad-container');
         if (adContainers.length === 0) return;
-        const adObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
+        var adObserver = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(function(entry) {
                 if (entry.isIntersecting) {
                     try {
                         (window.adsbygoogle = window.adsbygoogle || []).push({});
@@ -17,20 +44,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }, { threshold: 0.1 });
-        adContainers.forEach(container => {
+        adContainers.forEach(function(container) {
             if (container.querySelector('ins.adsbygoogle') && container.querySelector('ins.adsbygoogle').innerHTML.trim() === '') {
                  adObserver.observe(container);
             }
         });
     }
 
-    const adBlockManager = {
+    var adBlockManager = {
         CLICK_LIMIT: 3,
         TIME_WINDOW: 5 * 60 * 1000,
         checkAndApplyBlock: function() {
-            const expiresAt = localStorage.getItem('adBlockExpiresAt');
+            var expiresAt = localStorage.getItem('adBlockExpiresAt');
             if (!expiresAt) return;
-            const now = new Date().getTime();
+            var now = new Date().getTime();
             if (now < parseInt(expiresAt)) {
                 this.hideAds();
             } else {
@@ -39,13 +66,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         recordClick: function() {
-            let timestamps = JSON.parse(localStorage.getItem('adClickTimestamps')) || [];
-            const now = new Date().getTime();
-            timestamps = timestamps.filter(ts => (now - ts) < this.TIME_WINDOW);
+            var timestamps = JSON.parse(localStorage.getItem('adClickTimestamps')) || [];
+            var now = new Date().getTime();
+            var self = this;
+            timestamps = timestamps.filter(function(ts) { return (now - ts) < self.TIME_WINDOW; });
             timestamps.push(now);
             localStorage.setItem('adClickTimestamps', JSON.stringify(timestamps));
             if (timestamps.length >= this.CLICK_LIMIT) {
-                const tomorrow = new Date();
+                var tomorrow = new Date();
                 tomorrow.setDate(tomorrow.getDate() + 1);
                 tomorrow.setHours(0, 0, 0, 0);
                 localStorage.setItem('adBlockExpiresAt', tomorrow.getTime());
@@ -53,40 +81,87 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         hideAds: function() {
-            document.querySelectorAll('.ad-container').forEach(container => {
+            document.querySelectorAll('.ad-container').forEach(function(container) {
                 container.classList.add('hidden');
             });
         }
     };
 
-    const appContainer = document.getElementById('app-container');
-    const sidebar = document.getElementById('sidebar');
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const mainPlaceholder = document.getElementById('main-placeholder');
-    const panels = {
+    var appContainer = document.getElementById('app-container');
+    var sidebar = document.getElementById('sidebar');
+    var mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    var mainPlaceholder = document.getElementById('main-placeholder');
+    var panels = {
         lev1: sidebar,
         lev2: document.getElementById('lev2-panel'),
         lev3: document.getElementById('lev3-panel'),
         lev4: document.getElementById('lev4-panel')
     };
-    let activeButtons = {};
-    const isMobile = () => window.innerWidth <= 991;
+    var activeButtons = {};
+
+    function handleBackButton() {
+        var listPage = document.getElementById('list-filter-page');
+        var lev4Panel = document.getElementById('lev4-panel');
+        var lev3Panel = document.getElementById('lev3-panel');
+        var lev2Panel = document.getElementById('lev2-panel');
+
+        var openModal = document.querySelector('.modal-overlay.custom-modal');
+        if (openModal && openModal.style.display === 'flex') {
+            openModal.remove();
+            return;
+        }
+
+        var filterModal = document.getElementById('filter-modal-overlay');
+        if (filterModal && filterModal.style.display === 'flex') {
+            closeFilterModal();
+            return;
+        }
+
+        if (listPage && listPage.classList.contains('visible')) {
+            if (lev4Panel.classList.contains('visible')) {
+                lev4Panel.classList.remove('visible');
+                listPage.classList.add('visible');
+            } else {
+                hideListPage();
+            }
+        } 
+        else if (lev4Panel.classList.contains('visible')) {
+            if (sessionStorage.getItem('returnToMain')) {
+                handleMainButtonClick();
+            } else {
+                lev4Panel.classList.remove('visible');
+            }
+        } 
+        else if (lev3Panel.classList.contains('visible')) {
+            lev3Panel.classList.remove('visible');
+            lev2Panel.classList.add('visible');
+        } 
+        else if (lev2Panel.classList.contains('visible')) {
+            lev2Panel.classList.remove('visible');
+            sidebar.classList.add('visible');
+        } 
+        else if (sidebar.classList.contains('visible')) {
+            sidebar.classList.remove('visible');
+            mainPlaceholder.style.display = 'flex';
+        } 
+        else {
+            // 이 부분은 popstate 리스너에서 처리하므로 더 이상 호출되지 않습니다.
+        }
+    }
 
     async function initialize() {
         try {
             await fetchAllDataFromFirebase();
             setupSideMenuData();
             renderSidebar();
-            renderMainNoticeList();
-            fetchAndRenderPopularDecks(); 
-            setupMobileAds();
-            addEventListeners();
             setupAdObservers();
+            addEventListeners();
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다.";
         }
     }
+    // 이하 코드는 원본과 동일합니다.
 
     // script.js 파일입니다.
 // 다른 코드는 그대로 두고, 이 함수만 교체해주세요.
