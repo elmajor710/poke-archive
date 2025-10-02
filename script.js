@@ -433,21 +433,27 @@ function setupMobileAds() {
     }
         
     function handleMainButtonClick() {
-        sessionStorage.removeItem('returnToMain');
-        mainPlaceholder.style.display = 'flex';
-        appContainer.classList.remove('menu-active');
-        if (isMobile()) {
-            const bottomAd = document.getElementById('ad-container-bottom');
-            if (bottomAd) bottomAd.style.display = 'block';
-        }
-        Object.values(panels).forEach((panel, index) => {
-            if (index > 0) panel.classList.remove('visible', 'is-hidden');
-        });
-        setActive(0, null);
-        if (isMobile()) {
-            sidebar.classList.remove('visible', 'is-hidden');
-        }
-    }
+        sessionStorage.removeItem('returnToMain');
+        mainPlaceholder.style.display = 'flex';
+        appContainer.classList.remove('menu-active');
+        if (isMobile()) {
+            const bottomAd = document.getElementById('ad-container-bottom');
+            if (bottomAd) bottomAd.style.display = 'block';
+        }
+        Object.values(panels).forEach((panel, index) => {
+            if (index > 0) panel.classList.remove('visible', 'is-hidden');
+        });
+        setActive(0, null);
+        if (isMobile()) {
+            sidebar.classList.remove('visible', 'is-hidden');
+        }
+
+        // ▼▼▼ [추가] 다른 페이지 숨기는 코드 ▼▼▼
+        // 메인 화면으로 돌아갈 때, 목록 페이지와 상세 페이지도 확실하게 숨깁니다.
+        document.getElementById('list-filter-page').classList.remove('visible');
+        document.getElementById('lev4-panel').classList.remove('visible');
+        // ▲▲▲ [추가] 여기까지 ▲▲▲
+    }
 
     function setActive(level, target) {
         for (let i = level; i <= 4; i++) {
