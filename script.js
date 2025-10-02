@@ -3,8 +3,10 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('모바일 전용 스크립트 초기화 완료');
 
     // ▼▼▼ [추가] isMobile 변수 선언 ▼▼▼
-    // 화면 너비가 768px 미만일 경우 모바일로 간주하는 변수를 추가합니다.
-    const isMobile = window.innerWidth < 768;
+    // 화면 너비가 768px 미만일 경우 true를 반환하는 함수를 추가합니다.
+    function isMobile() {
+    return window.innerWidth < 768;
+    }
     // ▲▲▲ [추가] 여기까지 ▲▲▲
 
     // ▼▼▼ [수정 1] '히스토리 방어막' 코드 추가 ▼▼▼
