@@ -1496,6 +1496,16 @@ function openFilterModal() {
         }
 
         document.body.addEventListener('click', (e) => {
+            // ▼▼▼ [수정] 모든 뒤로가기 버튼 로직 통일 ▼▼▼
+            // 클래스 이름에 'back-btn' 또는 'back-to-grid-btn'이 포함된 버튼을 누르면
+            // 종류와 상관없이 무조건 브라우저의 뒤로가기(history.back())를 실행합니다.
+            const backBtn = e.target.closest('.back-btn, .back-to-grid-btn');
+            if (backBtn) {
+                history.back();
+                return; // 다른 로직이 실행되지 않도록 여기서 종료
+            }
+            // ▲▲▲ [수정] 여기까지 ▲▲▲
+
             const adLink = e.target.closest('a[href*="ads"]');
             if (adLink) {
                 adBlockManager.recordClick();
@@ -1553,10 +1563,7 @@ function openFilterModal() {
                     const backButton = document.createElement('button');
                     backButton.className = 'back-btn';
                     backButton.innerHTML = '&lt; 뒤로';
-                    backButton.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        handleMainButtonClick();
-                    }, { once: true });
+                    // 이 부분의 이벤트 리스너는 위의 통일된 로직으로 처리되므로 더 이상 필요 없습니다.
                     panelHeader.appendChild(backButton);
                     Object.values(panels).forEach(p => p.classList.remove('visible'));
                     detailPanel.classList.add('visible');
@@ -1568,27 +1575,7 @@ function openFilterModal() {
                 handleLikeClick(likeBtn);
             }
             
-            const panelBackBtn = e.target.closest('.panel .back-btn');
-            if (panelBackBtn && !isMobile()) {
-                const currentPanel = panelBackBtn.closest('.panel');
-                if(currentPanel.id === 'lev4-panel' && sessionStorage.getItem('returnToMain')) {
-                    handleMainButtonClick();
-                    return;
-                }
-                const level = parseInt(Object.keys(panels).find(key => panels[key] === currentPanel)?.replace('lev', '') || '0');
-                if (level > 2) {
-                    currentPanel.classList.remove('visible');
-                    const prevPanel = panels[`lev${level-1}`];
-                    if (prevPanel) {
-                        prevPanel.classList.remove('is-hidden');
-                        prevPanel.classList.add('visible');
-                    }
-                    if(activeButtons[level]) activeButtons[level].classList.remove('active');
-                    activeButtons[level] = null;
-                } else {
-                    handleMainButtonClick();
-                }
-            }
+            // 기존의 복잡했던 panelBackBtn 로직은 위의 통일된 로직으로 대체되었으므로 삭제되었습니다.
 
             const openFilterBtn = e.target.closest('#open-filter-modal-btn');
             if (openFilterBtn) {
@@ -1601,46 +1588,33 @@ function openFilterModal() {
                  closeFilterModal();
             }
 
-            // script.js 파일의 addEventListeners 함수 안입니다
-// ▼▼▼ 필터 관련 이벤트 리스너들을 찾아 아래 코드로 교체해주세요 ▼▼▼
+            const filterButton = e.target.closest('.filter-button, .type-icon-button');
+            if (filterButton && filterButton.closest('#filter-modal-body')) {
+                const { filterType, filterValue } = filterButton.dataset;
+                
+                filterButton.classList.toggle('active');
 
-// 필터 버튼 클릭 시 선택/취소 로직 (요청사항 #3, #4)
-const filterButton = e.target.closest('.filter-button, .type-icon-button');
-if (filterButton && filterButton.closest('#filter-modal-body')) {
-    const { filterType, filterValue } = filterButton.dataset;
-    
-    // 1. UI에 active 클래스를 토글하여 시각적 효과 적용
-    filterButton.classList.toggle('active');
+                if (!activeFilters[filterType]) activeFilters[filterType] = [];
+                const index = activeFilters[filterType].indexOf(filterValue);
+                
+                if (index > -1) {
+                    activeFilters[filterType].splice(index, 1);
+                } else {
+                    activeFilters[filterType].push(filterValue);
+                }
+            }
 
-    // 2. 실제 데이터가 저장되는 activeFilters 객체 업데이트
-    if (!activeFilters[filterType]) activeFilters[filterType] = [];
-    const index = activeFilters[filterType].indexOf(filterValue);
-    
-    if (index > -1) {
-        // 이미 선택된 상태면 배열에서 제거 (선택 취소)
-        activeFilters[filterType].splice(index, 1);
-    } else {
-        // 선택되지 않은 상태면 배열에 추가 (다중 선택)
-        activeFilters[filterType].push(filterValue);
-    }
-}
+            const applyFilterBtn = e.target.closest('#filter-apply-btn');
+            if(applyFilterBtn) {
+                applyFiltersAndRender();
+            }
 
-// '적용' 버튼 클릭 시 필터링 실행 (요청사항 #5)
-const applyFilterBtn = e.target.closest('#filter-apply-btn');
-if(applyFilterBtn) {
-    applyFiltersAndRender();
-}
-
-// '초기화' 버튼 클릭 시
-const resetFilterBtn = e.target.closest('#filter-reset-btn');
-if(resetFilterBtn) {
-    // 모든 필터 선택 기록을 초기화
-    activeFilters.grade = [];
-    activeFilters.type = [];
-    // 필터 모달을 다시 열어 초기화된 상태를 보여줌
-    openFilterModal(); 
-}
-
+            const resetFilterBtn = e.target.closest('#filter-reset-btn');
+            if(resetFilterBtn) {
+                activeFilters.grade = [];
+                activeFilters.type = [];
+                openFilterModal(); 
+            }
         });
     }
 
