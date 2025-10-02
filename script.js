@@ -16,16 +16,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // ▲▲▲ [수정 1] 여기까지 ▲▲▲
 
     window.addEventListener('popstate', function(event) {
-        // ▼▼▼ [수정 2] 뒤로가기 동작 재정의 ▼▼▼
         var state = event.state;
-        
-        if (!state || state.page === 'main') {
-            handleMainButtonClick(); 
-            return; 
-        }
 
-        handleBackButton();
-        // ▲▲▲ [수정 2] 여기까지 ▲▲▲
+        // [핵심 수정] 만약 state가 없으면(null), 웹사이트를 나가기 직전 상태라는 의미입니다.
+        if (!state) {
+            // 이 때, history.forward()를 호출하여 강제로 다시 웹사이트 안으로 돌아오게 만듭니다.
+            history.forward();
+            return; // 그리고 아무 작업도 하지 않고 종료합니다.
+        }
+        
+        // state가 있는 정상적인 경우에는 기존 로직을 그대로 수행합니다.
+        if (state.page === 'main') {
+            handleMainButtonClick();
+        } else {
+            handleBackButton();
+        }
     });
 
     history.replaceState({ page: 'main' }, '');
