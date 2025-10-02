@@ -2,6 +2,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('모바일 전용 스크립트 초기화 완료');
 
+    // ▼▼▼ [추가] isMobile 변수 선언 ▼▼▼
+    // 화면 너비가 768px 미만일 경우 모바일로 간주하는 변수를 추가합니다.
+    const isMobile = window.innerWidth < 768;
+    // ▲▲▲ [추가] 여기까지 ▲▲▲
+
     // ▼▼▼ [수정 1] '히스토리 방어막' 코드 추가 ▼▼▼
     // 웹사이트가 처음 열렸을 때 방문 기록이 1개 뿐이라, 뒤로가기 시 종료되는 것을 막습니다.
     // 일부러 가상의 방문 기록을 한 단계 추가하여 뒤로가기 버튼을 가로챌 수 있게 합니다.
@@ -10,19 +15,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.addEventListener('popstate', function(event) {
         // ▼▼▼ [수정 2] 뒤로가기 동작 재정의 ▼▼▼
-        // event.preventDefault(); // 이 줄은 제거하거나 주석 처리합니다.
-        
-        // 뒤로가기로 돌아갈 상태(state)를 확인합니다.
         var state = event.state;
         
-        // 만약 돌아갈 상태가 없거나(가장 처음 상태), page가 'main'이라면,
-        // 복잡한 로직 대신 메인 화면을 보여주는 함수를 바로 호출합니다.
         if (!state || state.page === 'main') {
-            handleMainButtonClick(); // 메인 그리드 메뉴 화면으로 되돌리는 함수
-            return; // 추가 동작 없이 여기서 종료
+            handleMainButtonClick(); 
+            return; 
         }
 
-        // 그 외의 경우(패널 사이 이동 등)에만 기존의 뒤로가기 로직을 수행합니다.
         handleBackButton();
         // ▲▲▲ [수정 2] 여기까지 ▲▲▲
     });
