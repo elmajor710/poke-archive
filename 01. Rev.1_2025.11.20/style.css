@@ -1360,11 +1360,14 @@ body.mobile-view #page-body {
 
     #mobile-ad-top { 
         display: block; 
-        height: 80px;
-        min-height: 80px;
+        height: 100px;
+        min-height: 11px;
         overflow: hidden;
         padding: 5px; 
         background-color: #f1f1f1; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
     #ad-container-bottom {
         display: block !important;
@@ -1623,29 +1626,82 @@ body.mobile-view #page-body {
 }
 .btn-outline:hover { background: #f9fafb; }
 
-/*
- * 모바일 하단 광고 강제 표시 코드 (기존 충돌 방지)
- * 이 코드는 기존의 모든 스타일을 덮어씁니다.
- */
+/* ▼▼▼ [교체] 모바일 화면 설정 (100px 광고 대응) ▼▼▼ */
 @media (max-width: 1199px) {
-    #ad-container-bottom {
-        display: flex; /* flex로 중앙 정렬 유지 */
+    /* 상단 블로그 홍보 영역 */
+    #mobile-ad-top { 
+        display: flex !important; /* 강제 표시 */
         justify-content: center;
         align-items: center;
-        position: fixed; /* 화면 하단에 고정 */
+        height: 100px;       /* 80px -> 100px 변경 */
+        min-height: 100px;   /* 80px -> 100px 변경 */
+        overflow: hidden;
+        padding: 5px; 
+        background-color: #f1f1f1; 
+    }
+
+    /* 하단 애드센스 영역 */
+    #ad-container-bottom {
+        display: flex !important; /* 강제 표시 */
+        justify-content: center;
+        align-items: center;
+        position: fixed;
         bottom: 0;
         left: 0;
         width: 100%;
-        height: 50px;
-        min-height: 50px;
-        padding: 5px;
+        height: 100px;       /* 50px -> 100px 변경 */
+        min-height: 100px;   /* 50px -> 100px 변경 */
+        padding: 0;
+        overflow: hidden;
         border-top: 1px solid #e0e0e0;
         background-color: #ffffff;
-        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-        z-index: 25;
-        overflow: hidden;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        z-index: 999;        /* 가장 위에 오도록 */
     }
+
+    /* 본문 여백 확보 (하단 광고가 내용을 가리지 않게) */
     #page-body {
-        padding-bottom: 80px !important;
+        padding-bottom: 110px !important; /* 80px -> 110px 변경 (광고 100px + 여유 10px) */
     }
+
+    /* 사이드바 광고 등 PC 요소 숨김 */
+    #ad-container-top,
+    #sidebar #sidebar-ad-container, 
+    .main-ad-area { 
+        display: none !important; 
+    }
+}
+
+/* ▼▼▼ [추가] 상단 블로그 홍보 버튼 스타일 (100px 전용) ▼▼▼ */
+.blog-promo-link {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 98%;  /* 양옆 여백 살짝 둠 */
+    height: 90%; /* 위아래 여백 살짝 둠 */
+    background: linear-gradient(135deg, #6b52e8 0%, #4824e2 100%); /* 눈에 확 띄는 보라색 */
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    text-align: center;
+    padding: 0 15px;
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: transform 0.1s;
+}
+.blog-promo-link:active {
+    transform: scale(0.98); /* 눌렀을 때 살짝 들어가는 효과 */
+}
+.blog-promo-title {
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #fff;
+    letter-spacing: -0.5px;
+}
+.blog-promo-desc {
+    font-size: 12px;
+    color: #e0e0e0;
+    line-height: 1.3;
 }
