@@ -322,6 +322,12 @@ function setupMobileAds() {
             button.className = 'menu-item';
             button.dataset.level = 1;
             button.dataset.id = item.id;
+            if (item.id !== 'calendar') {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    alert('🚧 준비중입니다!');
+                });
+            }
             let buttonHTML = item.name;
             let dataToCheck = [];
             if (item.id === 'notice' || item.id === 'tips') {
