@@ -179,7 +179,8 @@ header h1 { margin: 0; font-size: 1.5em; }
 #main-placeholder {
     width: 100%;
     height: 100%;
-    overflow-y: auto;
+    overflow-x: auto;  /* 좌우 스크롤 */
+    overflow-y: auto;  /* 상하 스크롤 */
     -webkit-overflow-scrolling: touch;
     padding: 20px;
     display: flex;
@@ -251,8 +252,9 @@ header h1 { margin: 0; font-size: 1.5em; }
 }
 .panel-content {
     padding: 10px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow-x: auto;   /* 넓은 표, 이미지 → 좌우 스크롤 */
+    overflow-y: auto;   /* 긴 내용 → 상하 스크롤 */
+    -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
     flex-grow: 1;
 }
 
@@ -369,6 +371,13 @@ header h1 { margin: 0; font-size: 1.5em; }
     border-radius: 5px;
     font-size: 14px;
     color: #333;
+    overflow-x: auto; /* 표, 긴 내용 좌우 스크롤 */
+}
+/* 표가 화면보다 넓을 때 좌우 스크롤 */
+.stats-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
 }
 .stats-table { border-collapse: collapse; margin: 10px 0; width: 100%; max-width: 500px; }
 .stats-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
@@ -515,7 +524,13 @@ h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
     background-color: #fff;
     border-bottom: 1px solid var(--border-color);
 }
-.page-content { flex-grow: 1; overflow-y: auto; padding: 10px; }
+.page-content {
+    flex-grow: 1;
+    overflow-x: auto;  /* 좌우 스크롤 */
+    overflow-y: auto;  /* 상하 스크롤 */
+    padding: 10px;
+    -webkit-overflow-scrolling: touch;
+}
 
 .filter-group { margin-bottom: 10px; }
 .filter-group:last-child { margin-bottom: 0; }
