@@ -1539,7 +1539,11 @@ function openFilterModal() {
                 }
                 return;
             }
-
+            const clickedMenuItem = e.target.closest('#sidebar .menu-item');
+            if (clickedMenuItem && clickedMenuItem.dataset.id !== 'calendar') {
+                alert('🚧 준비중입니다!');
+                return;
+            }
             const pcListItem = e.target.closest('#sidebar .menu-item, .panel .list-item, .panel .list-item-card');
             if (pcListItem && !isMobile()) {
                 if (!pcListItem.closest('#list-filter-page')) {
