@@ -1539,6 +1539,7 @@ function openFilterModal() {
                 }
                 return;
             }
+
             const clickedMenuItem = e.target.closest('#sidebar .menu-item');
             if (clickedMenuItem && clickedMenuItem.dataset.id !== 'calendar') {
                 alert('🚧 준비중입니다!');
