@@ -1,31 +1,31 @@
-// [모바일 전용 최종본] Nirvana Pokedex script.js
+// [모바???�용 최종�? Nirvana Pokedex script.js
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('모바일 전용 스크립트 초기화 완료');
+    console.log('모바???�용 ?�크립트 초기???�료');
 
-    // ▼▼▼ [추가] isMobile 변수 선언 ▼▼▼
-    // 화면 너비가 768px 미만일 경우 true를 반환하는 함수를 추가합니다.
+    // ?�▼??[추�?] isMobile 변???�언 ?�▼??
+    // ?�면 ?�비가 768px 미만??경우 true�?반환?�는 ?�수�?추�??�니??
     function isMobile() {
     return window.innerWidth < 768;
     }
-    // ▲▲▲ [추가] 여기까지 ▲▲▲
+    // ?�▲??[추�?] ?�기까�? ?�▲??
 
-    // ▼▼▼ [수정 1] '히스토리 방어막' 코드 추가 ▼▼▼
-    // 웹사이트가 처음 열렸을 때 방문 기록이 1개 뿐이라, 뒤로가기 시 종료되는 것을 막습니다.
-    // 일부러 가상의 방문 기록을 한 단계 추가하여 뒤로가기 버튼을 가로챌 수 있게 합니다.
+    // ?�▼??[?�정 1] '?�스?�리 방어�? 코드 추�? ?�▼??
+    // ?�사?�트가 처음 ?�렸????방문 기록??1�?뿐이?? ?�로가�???종료?�는 것을 막습?�다.
+    // ?��???가?�의 방문 기록?????�계 추�??�여 ?�로가�?버튼??가로챌 ???�게 ?�니??
     history.pushState(null, '', window.location.href);
-    // ▲▲▲ [수정 1] 여기까지 ▲▲▲
+    // ?�▲??[?�정 1] ?�기까�? ?�▲??
 
     window.addEventListener('popstate', function(event) {
         var state = event.state;
 
-        // [핵심 수정] 만약 state가 없으면(null), 웹사이트를 나가기 직전 상태라는 의미입니다.
+        // [?�심 ?�정] 만약 state가 ?�으�?null), ?�사?�트�??��?�?직전 ?�태?�는 ?��??�니??
         if (!state) {
-            // 이 때, history.forward()를 호출하여 강제로 다시 웹사이트 안으로 돌아오게 만듭니다.
+            // ???? history.forward()�??�출?�여 강제�??�시 ?�사?�트 ?�으�??�아?�게 만듭?�다.
             history.forward();
-            return; // 그리고 아무 작업도 하지 않고 종료합니다.
+            return; // 그리�??�무 ?�업???��? ?�고 종료?�니??
         }
         
-        // state가 있는 정상적인 경우에는 기존 로직을 그대로 수행합니다.
+        // state가 ?�는 ?�상?�인 경우?�는 기존 로직??그�?�??�행?�니??
         if (state.page === 'main') {
             handleMainButtonClick();
         } else {
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
             mainPlaceholder.style.display = 'flex';
         } 
         else {
-            // 이 부분은 popstate 리스너에서 처리하므로 더 이상 호출되지 않습니다.
+            // ??부분�? popstate 리스?�에??처리?��?�????�상 ?�출?��? ?�습?�다.
         }
     }
 
@@ -163,46 +163,46 @@ document.addEventListener('DOMContentLoaded', function() {
             setupAdObservers();
             addEventListeners();
         } catch (error) {
-            console.error("초기화 중 심각한 오류 발생:", error);
-            document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다.";
+            console.error("초기??�??�각???�류 발생:", error);
+            document.body.innerHTML = "초기??�??�각???�류가 발생?�습?�다.";
         }
     }
-    // 이하 코드는 원본과 동일합니다.
+    // ?�하 코드???�본�??�일?�니??
 
-    // script.js 파일입니다.
-// 다른 코드는 그대로 두고, 이 함수만 교체해주세요.
+    // script.js ?�일?�니??
+// ?�른 코드??그�?�??�고, ???�수�?교체?�주?�요.
 
 function setupMobileAds() {
-    // 모바일 광고와 관련된 모든 직접적인 코드 생성을 제거합니다.
-    // CSS와 IntersectionObserver가 모든 것을 처리하도록 역할을 위임합니다.
-    // 이 함수는 이제 아무 역할도 하지 않으므로 비워둡니다.
+    // 모바??광고?� 관?�된 모든 직접?�인 코드 ?�성???�거?�니??
+    // CSS?� IntersectionObserver가 모든 것을 처리?�도�???��???�임?�니??
+    // ???�수???�제 ?�무 ??��???��? ?�으므�?비워?�니??
     if (!isMobile()) return;
 
-    // 기존의 innerHTML을 덮어쓰고 광고를 push하던 로직을 모두 삭제했습니다.
+    // 기존??innerHTML????��?�고 광고�?push?�던 로직??모두 ??��?�습?�다.
 }
 
     async function fetchAndRenderPopularDecks() {
         const popularDeckList = document.getElementById('popular-deck-list');
         if (!popularDeckList) return;
         try {
-            popularDeckList.innerHTML = '<li>데이터를 불러오는 중...</li>';
+            popularDeckList.innerHTML = '<li>?�이?��? 불러?�는 �?..</li>';
             const snapshot = await db.collection('recommendedDecks')
                 .where("isPublished", "==", true)
                 .orderBy('likeCount', 'desc')
                 .limit(5)
                 .get();
             if (snapshot.empty) {
-                popularDeckList.innerHTML = '<li>아직 인기글이 없습니다.</li>';
+                popularDeckList.innerHTML = '<li>?�직 ?�기글???�습?�다.</li>';
                 return;
             }
             const decksHTML = snapshot.docs.map(doc => {
                 const deck = { id: doc.id, ...doc.data() };
-                return `<li><a href="#" data-menu-id="deck" data-item-id="${deck.id}">${deck.name}</a> ❤️ ${deck.likeCount || 0}</li>`;
+                return `<li><a href="#" data-menu-id="deck" data-item-id="${deck.id}">${deck.name}</a> ?�️ ${deck.likeCount || 0}</li>`;
             }).join('');
             popularDeckList.innerHTML = decksHTML;
         } catch (error) {
-            console.error("인기글 데이터를 불러오는 중 오류 발생:", error);
-            popularDeckList.innerHTML = '<li>오류가 발생했습니다.</li>';
+            console.error("?�기글 ?�이?��? 불러?�는 �??�류 발생:", error);
+            popularDeckList.innerHTML = '<li>?�류가 발생?�습?�다.</li>';
         }
     }
 
@@ -321,7 +321,7 @@ function setupMobileAds() {
             const button = document.createElement('button');
             button.className = 'menu-item';
             button.dataset.level = 1;
-            button.dataset.id = item.id;
+            button.dataset.id = item.id; if (item.id !== 'calendar') { button.addEventListener('click', function(e) { e.stopPropagation(); alert(' �غ����Դϴ�!'); }); }
             let buttonHTML = item.name;
             let dataToCheck = [];
             if (item.id === 'notice' || item.id === 'tips') {
@@ -347,8 +347,8 @@ function setupMobileAds() {
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3c0 .35.07.69.18 1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zM8 4h8a1 1 0 0 1 1 1c0 .34-.07.66-.18 1H7.18C7.07 5.66 7 5.34 7 5a1 1 0 0 1 1-1zm12 15H4V8h16v11z"/><path d="M12 17a4 4 0 0 0 4-4h-2a2 2 0 0 1-2 2 2 2 0 0 1-2-2H8a4 4 0 0 0 4 4zm0-6a1 1 0 0 0 1-1V9a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1z"/></svg>
                     </div>
                     <div class="ad-text">
-                        <strong>나라지원금 Info.</strong>
-                        <span>놓치면 손해! 혜택 확인하기</span>
+                        <strong>?�라지?�금 Info.</strong>
+                        <span>?�치�??�해! ?�택 ?�인?�기</span>
                     </div>
                 </a>
             </div>
@@ -384,12 +384,12 @@ function setupMobileAds() {
         if (isLiked) {
             likedDecks = likedDecks.filter(id => id !== deckId);
             button.classList.remove('liked');
-            heartIcon.textContent = '♡';
+            heartIcon.textContent = '??;
             likeCountSpan.textContent = currentLikes - 1;
         } else {
             likedDecks.push(deckId);
             button.classList.add('liked');
-            heartIcon.textContent = '❤️';
+            heartIcon.textContent = '?�️';
             likeCountSpan.textContent = currentLikes + 1;
         }
         localStorage.setItem('likedDecks', JSON.stringify(likedDecks));
@@ -398,15 +398,15 @@ function setupMobileAds() {
                 likeCount: firebase.firestore.FieldValue.increment(isLiked ? -1 : 1)
             });
         } catch (error) {
-            console.error("좋아요 업데이트 실패:", error);
-            alert('일시적인 오류로 좋아요 처리에 실패했습니다.');
+            console.error("좋아???�데?�트 ?�패:", error);
+            alert('?�시?�인 ?�류�?좋아??처리???�패?�습?�다.');
             likeCountSpan.textContent = currentLikes;
             if (isLiked) {
                  button.classList.add('liked');
-                 heartIcon.textContent = '❤️';
+                 heartIcon.textContent = '?�️';
             } else {
                  button.classList.remove('liked');
-                 heartIcon.textContent = '♡';
+                 heartIcon.textContent = '??;
             }
             localStorage.setItem('likedDecks', JSON.stringify(getLikedDecks().filter(id => id !== deckId)));
         }
@@ -453,11 +453,11 @@ function setupMobileAds() {
             sidebar.classList.remove('visible', 'is-hidden');
         }
 
-        // ▼▼▼ [추가] 다른 페이지 숨기는 코드 ▼▼▼
-        // 메인 화면으로 돌아갈 때, 목록 페이지와 상세 페이지도 확실하게 숨깁니다.
+        // ?�▼??[추�?] ?�른 ?�이지 ?�기??코드 ?�▼??
+        // 메인 ?�면?�로 ?�아�??? 목록 ?�이지?� ?�세 ?�이지???�실?�게 ?�깁?�다.
         document.getElementById('list-filter-page').classList.remove('visible');
         document.getElementById('lev4-panel').classList.remove('visible');
-        // ▲▲▲ [추가] 여기까지 ▲▲▲
+        // ?�▲??[추�?] ?�기까�? ?�▲??
     }
 
     function setActive(level, target) {
@@ -485,7 +485,7 @@ function setupMobileAds() {
         return null;
     }
 
-    function renderCardList(data, menuId, container, level) { // level 매개변수 추가
+    function renderCardList(data, menuId, container, level) { // level 매개변??추�?
         const dataArray = Array.isArray(data) ? data : Object.values(data);
 
         dataArray.sort((a, b) => {
@@ -575,12 +575,12 @@ function setupMobileAds() {
         const contentDiv = targetPanel.querySelector('.panel-content');
         if (!contentDiv) return;
         
-        targetPanel.querySelector('.panel-header').innerHTML = '<button class="back-btn">&lt; 뒤로</button>';
+        targetPanel.querySelector('.panel-header').innerHTML = '<button class="back-btn">&lt; ?�로</button>';
         contentDiv.innerHTML = '';
         contentDiv.scrollTop = 0;
 
         if (!data) {
-            contentDiv.innerHTML = "데이터를 불러오지 못했습니다.";
+            contentDiv.innerHTML = "?�이?��? 불러?��? 못했?�니??";
             return;
         }
 
@@ -596,16 +596,16 @@ function setupMobileAds() {
             const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
             
             if (level === 3 && cardLayoutMenus.includes(menuId)) {
-                renderCardList(data, menuId, contentDiv, level); // level 값 전달
+                renderCardList(data, menuId, contentDiv, level); // level �??�달
             } else {
                 data.forEach(item => {
                     const button = document.createElement('button');
                     button.className = 'list-item';
-                    button.dataset.id = item.id;
+                    button.dataset.id = item.id; if (item.id !== 'calendar') { button.addEventListener('click', function(e) { e.stopPropagation(); alert(' �غ����Դϴ�!'); }); }
                     button.dataset.level = level;
                     button.dataset.menuId = menuId;
                     
-                    let itemHTML = `<span>${item.name || '이름 없음'}</span>`;
+                    let itemHTML = `<span>${item.name || '?�름 ?�음'}</span>`;
                     if (menuId === 'pokemonType' && item.iconURL) {
                         itemHTML = `<img src="${item.iconURL}" class="list-item-icon">${itemHTML}`;
                     }
@@ -647,7 +647,7 @@ function setupMobileAds() {
 
     function renderPokemonView(contentDiv, data, menuId) {
         const detailView = document.createElement('div');
-        const nameKo = data.name_ko || '이름 없음';
+        const nameKo = data.name_ko || '?�름 ?�음';
         const nameEn = data.name_en || '';
         let commonHTML = `<h2>${nameKo} <span style="font-size:0.8em; color:#666;">${nameEn}</span></h2>`;
         let badgesHTML = '<div class="badge-container">';
@@ -667,37 +667,37 @@ function setupMobileAds() {
         let statsHTML = '';
         if (data.stats) {
             const totalStats = Object.values(data.stats).reduce((a, b) => Number(a) + Number(b), 0);
-            statsHTML += `<h4>종족값 (총합: ${totalStats})</h4><table class="stats-table">${Object.entries(data.stats).map(([stat, value]) => `<tr><td>${stat.toUpperCase()}</td><td>${value}</td></tr>`).join('')}</table>`;
+            statsHTML += `<h4>종족�?(총합: ${totalStats})</h4><table class="stats-table">${Object.entries(data.stats).map(([stat, value]) => `<tr><td>${stat.toUpperCase()}</td><td>${value}</td></tr>`).join('')}</table>`;
         } else {
-            statsHTML = '<h4>기본 정보</h4><p>등록된 종족값 정보가 없습니다.</p>';
+            statsHTML = '<h4>기본 ?�보</h4><p>?�록??종족�??�보가 ?�습?�다.</p>';
         }
         let skillsHTML = '';
         if (data.skills && data.skills.length > 0 && data.skills.some(s => s.name)) {
-            skillsHTML += '<h4>스킬</h4><ul class="skill-list">';
+            skillsHTML += '<h4>?�킬</h4><ul class="skill-list">';
             data.skills.forEach((skill, index) => { 
                 if(skill.name) skillsHTML += `<li class="skill-item"><span class="skill-name" data-skill-index="${index}">${skill.name}</span><span class="skill-type">${skill.type}</span></li>`; 
             });
             skillsHTML += '</ul>';
         } else {
-            skillsHTML = '<h4>스킬</h4><p>등록된 스킬 정보가 없습니다.</p>';
+            skillsHTML = '<h4>?�킬</h4><p>?�록???�킬 ?�보가 ?�습?�다.</p>';
         }
         let buildHTML = '';
         let hasBuildInfo = false;
         if (data.build_concept) {
-            buildHTML += `<h4>빌드 콘셉트</h4><p>${data.build_concept}</p>`;
+            buildHTML += `<h4>빌드 콘셉??/h4><p>${data.build_concept}</p>`;
             hasBuildInfo = true;
         }
         if (data.recommendedNatures && data.recommendedNatures.length > 0) {
             const natureNames = data.recommendedNatures.map(natureId => DB.definitions.natures.find(n => n.id === natureId)?.name || '').filter(Boolean);
             if(natureNames.length > 0) {
-                buildHTML += `<h4>추천 성격</h4><p>${natureNames.join(', ')}</p>`;
+                buildHTML += `<h4>추천 ?�격</h4><p>${natureNames.join(', ')}</p>`;
                 hasBuildInfo = true;
             }
         }
         const recommendTypes = { 
-            recommendedItems: '추천 아이템', 
-            recommendedRunes: '추천 룬', 
-            recommendedChips: '추천 칩' 
+            recommendedItems: '추천 ?�이??, 
+            recommendedRunes: '추천 �?, 
+            recommendedChips: '추천 �? 
         };
 
         for (const type in recommendTypes) {
@@ -729,12 +729,12 @@ function setupMobileAds() {
             }
         }
         if (!hasBuildInfo) {
-            buildHTML = '<h4>추천 빌드</h4><p>등록된 추천 빌드 정보가 없습니다.</p>';
+            buildHTML = '<h4>추천 빌드</h4><p>?�록??추천 빌드 ?�보가 ?�습?�다.</p>';
         }
         const useTabs = isMobile() || menuId === 'pokemonType' || menuId === 'pokemonGrade';
         detailView.className = `pokemon-detail-view ${useTabs ? 'use-tabs' : ''}`;
         if (useTabs) {
-             detailView.innerHTML = `${commonHTML}<div class="tab-container"><nav class="tab-nav"><button class="tab-button active" data-tab="tab-info">기본 정보</button><button class="tab-button" data-tab="tab-skills">스킬</button><button class="tab-button" data-tab="tab-build">추천 빌드</button></nav><div id="tab-info" class="tab-pane active">${statsHTML}</div><div id="tab-skills" class="tab-pane">${skillsHTML}</div><div id="tab-build" class="tab-pane">${buildHTML}</div></div>`;
+             detailView.innerHTML = `${commonHTML}<div class="tab-container"><nav class="tab-nav"><button class="tab-button active" data-tab="tab-info">기본 ?�보</button><button class="tab-button" data-tab="tab-skills">?�킬</button><button class="tab-button" data-tab="tab-build">추천 빌드</button></nav><div id="tab-info" class="tab-pane active">${statsHTML}</div><div id="tab-skills" class="tab-pane">${skillsHTML}</div><div id="tab-build" class="tab-pane">${buildHTML}</div></div>`;
         } else {
             detailView.innerHTML = `${commonHTML}<div class="info-sections">${statsHTML}${skillsHTML}${buildHTML}</div>`;
         }
@@ -748,7 +748,7 @@ function setupMobileAds() {
                     const skillDetailElement = document.createElement('div');
                     let contentHTML = `<p>${skill.description || ''}</p>`;
                     if (skill.keywords && skill.keywords.length > 0 && skill.keywords.some(kw => kw.term)) {
-                        contentHTML += '<hr><h4>키워드 설명</h4><ul>';
+                        contentHTML += '<hr><h4>?�워???�명</h4><ul>';
                         skill.keywords.forEach(kw => { 
                             if(kw.term) contentHTML += `<li><strong>${kw.term}:</strong> ${kw.desc || ''}</li>`; 
                         });
@@ -819,11 +819,11 @@ function setupMobileAds() {
         let tabNames = [];
         let separator = '';
         if (menuId === 'item') {
-            tabNames = ['기본 능력치', '소지 효과'];
-            separator = '[소지 효과]';
+            tabNames = ['기본 ?�력�?, '?��? ?�과'];
+            separator = '[?��? ?�과]';
         } else if (menuId === 'runeAndChip') {
-            tabNames = ['세트효과', '타입별 조합'];
-            separator = '[타입별 조합]';
+            tabNames = ['?�트?�과', '?�?�별 조합'];
+            separator = '[?�?�별 조합]';
         }
         const createStructuredContent = (text) => {
             const lines = text.trim().split('\n');
@@ -906,14 +906,14 @@ function setupMobileAds() {
     }
     
     function renderDeckView(contentDiv, data) {
-    const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
+    const weatherToEmoji = { '매우맑음': '?��?, '맑음': '?���?, '?�폭??: '?�️', '�?: '?���? };
     const likedDecks = getLikedDecks();
     const isLiked = likedDecks.includes(data.id);
-    const likeButtonHTML = `<div class="like-container"><button class="like-btn ${isLiked ? 'liked' : ''}" data-deck-id="${data.id}"><span class="heart-icon">${isLiked ? '❤️' : '♡'}</span><span class="like-count">${data.likeCount || 0}</span></button></div>`;
+    const likeButtonHTML = `<div class="like-container"><button class="like-btn ${isLiked ? 'liked' : ''}" data-deck-id="${data.id}"><span class="heart-icon">${isLiked ? '?�️' : '??}</span><span class="like-count">${data.likeCount || 0}</span></button></div>`;
 
     let html = `<div class="deck-detail-view"><div class="deck-header"><h2>${data.name}</h2>${likeButtonHTML}</div>`;
     if (data.description) { html += `<p class="deck-description">${data.description}</p>`; }
-    html += `<h4>덱 배치</h4>`;
+    html += `<h4>??배치</h4>`;
 
     html += `<div class="deck-grid-container">`;
 
@@ -953,8 +953,8 @@ function setupMobileAds() {
         }
     }
 
-    html += `<div class="grid-footer" style="grid-area: r5c1;">어시스트 #1~#6</div>`;
-    html += `<div class="grid-footer" style="grid-area: r5c2;">메인덱 #1~#6</div>`;
+    html += `<div class="grid-footer" style="grid-area: r5c1;">?�시?�트 #1~#6</div>`;
+    html += `<div class="grid-footer" style="grid-area: r5c2;">메인??#1~#6</div>`;
 
     html += `</div></div>`;
     contentDiv.innerHTML = html;
@@ -1010,16 +1010,16 @@ function setupMobileAds() {
                     else break;
                 }
             });
-            let html = `<div class="calendar-header"><span class="calendar-title">${year}년 ${month + 1}월</span><div class="calendar-nav"><button id="cal-prev-btn">&lt; 이전</button><button id="cal-today-btn">Today</button><button id="cal-next-btn">다음 &gt;</button></div></div>
+            let html = `<div class="calendar-header"><span class="calendar-title">${year}??${month + 1}??/span><div class="calendar-nav"><button id="cal-prev-btn">&lt; ?�전</button><button id="cal-today-btn">Today</button><button id="cal-next-btn">?�음 &gt;</button></div></div>
         <div class="calendar-legend">
-            <div class="legend-item"><span class="legend-dot event-type-ranking"></span> 랭킹뽑기</div>
-            <div class="legend-item"><span class="legend-dot event-type-limited"></span> 한정뽑기</div>
-            <div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥이</div>
-            <div class="legend-item"><span class="legend-dot event-type-carnival"></span> 카니발</div>
-            <div class="legend-item"><span class="legend-dot event-type-season"></span> 시즌</div>
-            <div class="legend-item"><span class="legend-dot event-type-etc"></span> 기타</div>
+            <div class="legend-item"><span class="legend-dot event-type-ranking"></span> ??��뽑기</div>
+            <div class="legend-item"><span class="legend-dot event-type-limited"></span> ?�정뽑기</div>
+            <div class="legend-item"><span class="legend-dot event-type-luckycat"></span> 복냥??/div>
+            <div class="legend-item"><span class="legend-dot event-type-carnival"></span> 카니�?/div>
+            <div class="legend-item"><span class="legend-dot event-type-season"></span> ?�즌</div>
+            <div class="legend-item"><span class="legend-dot event-type-etc"></span> 기�?</div>
         </div>
-        <table class="calendar-grid"><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody>`;
+        <table class="calendar-grid"><thead><tr><th>??/th><th>??/th><th>??/th><th>??/th><th>�?/th><th>�?/th><th>??/th></tr></thead><tbody>`;
             let dateCounter = 1;
             const startDay = firstDay.getDay();
             const daysInMonth = lastDay.getDate();
@@ -1069,12 +1069,12 @@ function setupMobileAds() {
                                 const duration = evt.duration || 1;
                                 const startStr = evt.startDate.toISOString().split('T')[0];
                                 const endStr = evt.endDate.toISOString().split('T')[0];
-                                const period = duration > 1 ? `${startStr} ~ ${endStr} (${duration}일간)` : startStr;
+                                const period = duration > 1 ? `${startStr} ~ ${endStr} (${duration}?�간)` : startStr;
                                 return `<h4>${evt.title || evt.name}</h4><p><strong>기간:</strong> ${period}</p><p>${evt.description}</p>`;
                             }).join('<hr>');
                             const popupContent = document.createElement('div');
                             popupContent.innerHTML = eventContent;
-                            showModal(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')} 이벤트`, popupContent);
+                            showModal(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')} ?�벤??, popupContent);
                         }
                     }
                 }
@@ -1093,27 +1093,27 @@ function setupMobileAds() {
             <div class="deck-builder-view">
                 <div class="placement-container">
                     <div class="placement-grid-4x4">
-                        <div class="placement-slot-header" id="weather-slot">날씨 효과</div>
-                        <div class="placement-slot-header" id="synergy-slot">타입 시너지 효과</div>
-                        <div class="placement-slot assist" data-role="assist" data-position="4">어시스트_#4</div>
-                        <div class="placement-slot assist" data-role="assist" data-position="1">어시스트_#1</div>
+                        <div class="placement-slot-header" id="weather-slot">?�씨 ?�과</div>
+                        <div class="placement-slot-header" id="synergy-slot">?�???�너지 ?�과</div>
+                        <div class="placement-slot assist" data-role="assist" data-position="4">?�시?�트_#4</div>
+                        <div class="placement-slot assist" data-role="assist" data-position="1">?�시?�트_#1</div>
                         <div class="placement-slot main rearguard" data-role="main" data-position="4">메인_#4</div>
                         <div class="placement-slot main vanguard" data-role="main" data-position="1">메인_#1</div>
-                        <div class="placement-slot assist" data-role="assist" data-position="5">어시스트_#5</div>
-                        <div class="placement-slot assist" data-role="assist" data-position="2">어시스트_#2</div>
+                        <div class="placement-slot assist" data-role="assist" data-position="5">?�시?�트_#5</div>
+                        <div class="placement-slot assist" data-role="assist" data-position="2">?�시?�트_#2</div>
                         <div class="placement-slot main rearguard" data-role="main" data-position="5">메인_#5</div>
                         <div class="placement-slot main vanguard" data-role="main" data-position="2">메인_#2</div>
-                        <div class="placement-slot assist" data-role="assist" data-position="6">어시스트_#6</div>
-                        <div class="placement-slot assist" data-role="assist" data-position="3">어시스트_#3</div>
+                        <div class="placement-slot assist" data-role="assist" data-position="6">?�시?�트_#6</div>
+                        <div class="placement-slot assist" data-role="assist" data-position="3">?�시?�트_#3</div>
                         <div class="placement-slot main rearguard" data-role="main" data-position="6">메인_#6</div>
                         <div class="placement-slot main vanguard" data-role="main" data-position="3">메인_#3</div>
                     </div>
                 </div>
                 <div class="source-container">
-                    <h4>포켓몬 목록</h4>
+                    <h4>?�켓�?목록</h4>
                     <div class="source-filter-bar">
-                        <select id="grade-filter" class="filter-dropdown"><option value="all">모든 등급</option><option value="SS">SS</option><option value="S+">S+</option><option value="S">S</option></select>
-                        <select id="type-filter" class="filter-dropdown"><option value="all">모든 타입</option></select>
+                        <select id="grade-filter" class="filter-dropdown"><option value="all">모든 ?�급</option><option value="SS">SS</option><option value="S+">S+</option><option value="S">S</option></select>
+                        <select id="type-filter" class="filter-dropdown"><option value="all">모든 ?�??/option></select>
                     </div>
                     <div class="source-list"></div>
                 </div>
@@ -1189,7 +1189,7 @@ function setupMobileAds() {
             } else {
                 const isAlreadyPlaced = new Set(Array.from(placedPokemon.values())).has(sourcePokemonId);
                 if (isAlreadyPlaced) {
-                    alert("이미 배치된 포켓몬입니다.");
+                    alert("?��? 배치???�켓몬입?�다.");
                     return;
                 }
                 if (placedPokemon.has(targetSlot)) {
@@ -1223,7 +1223,7 @@ function setupMobileAds() {
         }
         function clearSlot(slot) {
             const { role, position } = slot.dataset;
-            let placeholder = role === 'assist' ? `어시스트_#${position}` : `메인_#${position}`;
+            let placeholder = role === 'assist' ? `?�시?�트_#${position}` : `메인_#${position}`;
             slot.innerHTML = placeholder;
             slot.classList.remove('placed');
             placedPokemon.delete(slot);
@@ -1238,7 +1238,7 @@ function setupMobileAds() {
                 synergySlot.innerHTML = `<img src="${synergy.imageURL}" alt="${synergy.name}" title="${synergy.name}" style="height: 50%; object-fit: contain;">`;
                 synergySlot.title = synergy.name;
             } else {
-                synergySlot.innerHTML = '타입 시너지 효과';
+                synergySlot.innerHTML = '?�???�너지 ?�과';
                 synergySlot.title = '';
             }
         }
@@ -1275,7 +1275,7 @@ function setupMobileAds() {
         switch (menuId) {
             case 'pokemonType': case 'pokemonGrade':
                 dataList = Object.values(DB.pokemonType.lev4);
-                title = '포켓몬';
+                title = '?�켓�?;
                 break;
             case 'item':
                 dataList = Object.values(DB.item.lev4);
@@ -1283,15 +1283,15 @@ function setupMobileAds() {
             case 'runeAndChip':
                 if (subMenuId === 'rune') {
                     dataList = Object.values(DB.runeAndChip.lev4).filter(d => d.type === 'rune');
-                    title = '룬';
+                    title = '�?;
                 } else if (subMenuId === 'chip') {
                     dataList = Object.values(DB.runeAndChip.lev4).filter(d => d.type === 'chip');
-                    title = '칩';
+                    title = '�?;
                 }
                 break;
             case 'deck':
                  dataList = Object.values(DB.deck.lev4);
-                 title = '추천 덱';
+                 title = '추천 ??;
                 break;
             case 'tips': case 'notice':
                 dataList = Object.values(DB[menuId].lev3);
@@ -1336,16 +1336,16 @@ function setupMobileAds() {
     function renderListPage(data, menuId) {
         const listContent = document.getElementById('list-page-content');
         if (!data || data.length === 0) {
-            listContent.innerHTML = '<p class="list-empty-message">표시할 데이터가 없습니다.</p>';
+            listContent.innerHTML = '<p class="list-empty-message">?�시???�이?��? ?�습?�다.</p>';
             return;
         }
-        renderCardList(data, menuId, listContent, 3); // 모바일 리스트는 항상 3단계이므로 level 3을 전달
+        renderCardList(data, menuId, listContent, 3); // 모바??리스?�는 ??�� 3?�계?��?�?level 3???�달
     }
 
     function renderSimpleListPage(data, menuId) {
         const listContent = document.getElementById('list-page-content');
         if (!data || data.length === 0) {
-            listContent.innerHTML = '<p class="list-empty-message">표시할 데이터가 없습니다.</p>';
+            listContent.innerHTML = '<p class="list-empty-message">?�시???�이?��? ?�습?�다.</p>';
             return;
         }
         data.sort((a, b) => {
@@ -1373,13 +1373,13 @@ function setupMobileAds() {
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.74.439L7 12.439V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/>
                 </svg>
-                필터
+                ?�터
             </button>
         `;
     }
 
-    // script.js 파일입니다
-// ▼▼▼ openFilterModal 함수를 찾아 아래 코드로 교체해주세요 ▼▼▼
+    // script.js ?�일?�니??
+// ?�▼??openFilterModal ?�수�?찾아 ?�래 코드�?교체?�주?�요 ?�▼??
 function openFilterModal() {
     const modalOverlay = document.getElementById('filter-modal-overlay');
     const modalBody = document.getElementById('filter-modal-body');
@@ -1387,14 +1387,14 @@ function openFilterModal() {
     
     let filtersHTML = '';
     if (menuId === 'pokemonType' || menuId === 'pokemonGrade') {
-        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
+        filtersHTML += '<div class="filter-group"><h4>?�급</h4><div class="filter-options">';
         DB.pokemonGrade.lev2.forEach(grade => {
             const isActive = activeFilters.grade.includes(grade.name) ? 'active' : '';
             filtersHTML += `<button class="filter-button ${isActive}" data-filter-type="grade" data-filter-value="${grade.name}">${grade.name}</button>`;
         });
         filtersHTML += '</div></div>';
         
-        filtersHTML += '<div class="filter-group"><h4>타입</h4><div class="type-filter-grid">';
+        filtersHTML += '<div class="filter-group"><h4>?�??/h4><div class="type-filter-grid">';
         DB.pokemonType.lev2.forEach(type => {
             const isActive = activeFilters.type.includes(type.id) ? 'active' : '';
             filtersHTML += `
@@ -1406,7 +1406,7 @@ function openFilterModal() {
         filtersHTML += '</div></div>';
 
     } else if (menuId === 'item') {
-        filtersHTML += '<div class="filter-group"><h4>등급</h4><div class="filter-options">';
+        filtersHTML += '<div class="filter-group"><h4>?�급</h4><div class="filter-options">';
         const gradeOrder = { "God": 1, "Legendary": 2, "Epic": 3 };
         const sortedGrades = [...DB.item.lev2].sort((a, b) => {
             const gradeA = a.name.match(/\((.*?)\)/)[1];
@@ -1421,11 +1421,11 @@ function openFilterModal() {
         filtersHTML += '</div></div>';
     }
     
-    // 요청사항 #1 해결: 자바스크립트가 푸터와 버튼을 직접 생성합니다.
+    // ?�청?�항 #1 ?�결: ?�바?�크립트가 ?�터?� 버튼??직접 ?�성?�니??
     const modalFooterHTML = `
         <div class="filter-modal-footer">
-            <button id="filter-reset-btn" class="modal-action-btn reset-btn">초기화</button>
-            <button id="filter-apply-btn" class="modal-action-btn apply-btn">적용</button>
+            <button id="filter-reset-btn" class="modal-action-btn reset-btn">초기??/button>
+            <button id="filter-apply-btn" class="modal-action-btn apply-btn">?�용</button>
         </div>
     `;
     
@@ -1470,7 +1470,7 @@ function openFilterModal() {
             else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, itemData, menuId);
             else renderSimpleView(contentDiv, itemData, menuId);
         } else {
-            contentDiv.innerHTML = '<p>데이터를 불러오는 데 실패했습니다.</p>';
+            contentDiv.innerHTML = '<p>?�이?��? 불러?�는 ???�패?�습?�다.</p>';
             return;
         }
 
@@ -1479,7 +1479,7 @@ function openFilterModal() {
 
         const backButton = document.createElement('button');
         backButton.className = 'back-btn';
-        backButton.innerHTML = '&lt; 뒤로';
+        backButton.innerHTML = '&lt; ?�로';
         panelHeader.appendChild(backButton);
 
         backButton.addEventListener('click', () => {
@@ -1507,15 +1507,15 @@ function openFilterModal() {
         }
 
         document.body.addEventListener('click', (e) => {
-            // ▼▼▼ [수정] 모든 뒤로가기 버튼 로직 통일 ▼▼▼
-            // 클래스 이름에 'back-btn' 또는 'back-to-grid-btn'이 포함된 버튼을 누르면
-            // 종류와 상관없이 무조건 브라우저의 뒤로가기(history.back())를 실행합니다.
+            // ?�▼??[?�정] 모든 ?�로가�?버튼 로직 ?�일 ?�▼??
+            // ?�래???�름??'back-btn' ?�는 'back-to-grid-btn'???�함??버튼???�르�?
+            // 종류?� ?��??�이 무조�?브라?��????�로가�?history.back())�??�행?�니??
             const backBtn = e.target.closest('.back-btn, .back-to-grid-btn');
             if (backBtn) {
                 history.back();
-                return; // 다른 로직이 실행되지 않도록 여기서 종료
+                return; // ?�른 로직???�행?��? ?�도�??�기??종료
             }
-            // ▲▲▲ [수정] 여기까지 ▲▲▲
+            // ?�▲??[?�정] ?�기까�? ?�▲??
 
             const adLink = e.target.closest('a[href*="ads"]');
             if (adLink) {
@@ -1573,8 +1573,8 @@ function openFilterModal() {
                     panelHeader.innerHTML = '';
                     const backButton = document.createElement('button');
                     backButton.className = 'back-btn';
-                    backButton.innerHTML = '&lt; 뒤로';
-                    // 이 부분의 이벤트 리스너는 위의 통일된 로직으로 처리되므로 더 이상 필요 없습니다.
+                    backButton.innerHTML = '&lt; ?�로';
+                    // ??부분의 ?�벤??리스?�는 ?�의 ?�일??로직?�로 처리?��?�????�상 ?�요 ?�습?�다.
                     panelHeader.appendChild(backButton);
                     Object.values(panels).forEach(p => p.classList.remove('visible'));
                     detailPanel.classList.add('visible');
@@ -1586,7 +1586,7 @@ function openFilterModal() {
                 handleLikeClick(likeBtn);
             }
             
-            // 기존의 복잡했던 panelBackBtn 로직은 위의 통일된 로직으로 대체되었으므로 삭제되었습니다.
+            // 기존??복잡?�던 panelBackBtn 로직?� ?�의 ?�일??로직?�로 ?�체되?�으므�???��?�었?�니??
 
             const openFilterBtn = e.target.closest('#open-filter-modal-btn');
             if (openFilterBtn) {
