@@ -1529,8 +1529,12 @@ function openFilterModal() {
             }
 
             const gridMenuBtn = e.target.closest('.grid-menu-btn');
-            if (gridMenuBtn) {
-                const menuId = gridMenuBtn.dataset.menuId;
+if (gridMenuBtn) {
+    const menuId = gridMenuBtn.dataset.menuId;
+    if (menuId !== 'calendar') {
+        alert('🚧 준비중입니다!');
+        return;
+    }
                 const subMenuId = gridMenuBtn.dataset.itemId;
                 if (menuId === 'calendar') {
                     showDetailPage('calendar', 'calendar');
