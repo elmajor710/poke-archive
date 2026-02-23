@@ -812,3 +812,23 @@ h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
     /* PC에서 덱 빌더는 가로 배치 */
     .deck-builder-view { flex-direction: row; }
 }
+
+/* 방문자 카운터 */
+.visitor-counter {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+    margin-bottom: 15px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    font-size: 0.95em;
+    color: #555;
+    width: 100%;
+    max-width: 500px;
+}
+.visitor-counter strong {
+    color: var(--primary-color);
+    font-size: 1.1em;
+}

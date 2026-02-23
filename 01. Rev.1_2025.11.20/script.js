@@ -155,6 +155,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    async function updateVisitorCount() {
+    const today = new Date().toISOString().split('T')[0];
+    const visitedKey = 'visited_' + today;
+    const totalRef = db.collection('siteStats').doc('visitors');
+    
+    try {
+        await db.runTransaction(async (transaction) => {
+            const doc = await transaction.get(totalRef);
+            if (!doc.exists) {
+                transaction.set(totalRef, { total: 1, [today]: 1 });
+            } else {
+                const data = doc.data();
+                const updates = { total: (data.total || 0) + 1 };
+                if (!localStorage.getItem(visitedKey)) {
+                    updates[today] = (data[today] || 0) + 1;
+                    localStorage.setItem(visitedKey, 'true');
+                }
+                transaction.update(totalRef, updates);
+            }
+        });
+        const snap = await totalRef.get();
+        const data = snap.data();
+        document.getElementById('today-count').textContent = data[today] || 0;
+        document.getElementById('total-count').textContent = data.total || 0;
+    } catch(e) {
+        console.error('방문자 카운트 오류:', e);
+    }
+}
+
     async function initialize() {
         try {
             await fetchAllDataFromFirebase();
@@ -162,6 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
             renderSidebar();
             setupAdObservers();
             addEventListeners();
+            updateVisitorCount();
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다.";
