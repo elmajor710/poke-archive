@@ -159,12 +159,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const today = new Date().toISOString().split('T')[0];
     const visitedKey = 'visited_' + today;
     const totalRef = db.collection('siteStats').doc('visitors');
-    
     try {
         await db.runTransaction(async (transaction) => {
             const doc = await transaction.get(totalRef);
             if (!doc.exists) {
                 transaction.set(totalRef, { total: 1, [today]: 1 });
+                localStorage.setItem(visitedKey, 'true');
             } else {
                 const data = doc.data();
                 const updates = { total: (data.total || 0) + 1 };
