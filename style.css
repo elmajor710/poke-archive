@@ -84,10 +84,10 @@ header h1 { margin: 0; font-size: 1.5em; }
 /* 모바일 상단 광고 */
 #mobile-ad-top {
     width: 100%;
-    height: var(--ad-top-height);     /* 고정 높이 */
-    min-height: var(--ad-top-height); /* 최소 높이도 동일 */
-    max-height: var(--ad-top-height); /* 최대 높이도 동일 → 절대 넘치지 않음 */
-    overflow: hidden;                  /* 박스보다 큰 광고는 잘라냄 */
+    height: var(--ad-top-height);
+    min-height: var(--ad-top-height);
+    max-height: var(--ad-top-height);
+    overflow: hidden;
     flex-shrink: 0;
     background-color: #f1f1f1;
     display: flex;
@@ -95,9 +95,11 @@ header h1 { margin: 0; font-size: 1.5em; }
     justify-content: center;
 }
 #mobile-ad-top .adsbygoogle {
-    display: block;
-    width: 100%;
-    height: 100%;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: var(--ad-top-height) !important;
+    max-height: var(--ad-top-height) !important;
 }
 
 /* 모바일 하단 고정 광고 */
@@ -812,10 +814,3 @@ h4 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
     /* PC에서 덱 빌더는 가로 배치 */
     .deck-builder-view { flex-direction: row; }
 }
-/* PC에서도 모바일 레이아웃 강제 적용 */
-.pc-only { display: none !important; }
-.mobile-only { display: block !important; }
-.mobile-grid-menu.mobile-only { display: grid !important; }
-#mobile-menu-btn { display: block !important; }
-#sidebar { transform: translateX(-100%) !important; }
-#ad-container-right { display: none !important; }

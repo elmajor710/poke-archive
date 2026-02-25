@@ -1556,6 +1556,10 @@ function openFilterModal() {
             if (gridMenuBtn) {
                 const menuId = gridMenuBtn.dataset.menuId;
                 const subMenuId = gridMenuBtn.dataset.itemId;
+                if (menuId !== 'calendar' && menuId !== 'tips') {
+                    alert('🚧 준비중입니다!');
+                    return;
+                }
                 if (menuId === 'calendar') {
                     showDetailPage('calendar', 'calendar');
                 } else {
@@ -1564,6 +1568,11 @@ function openFilterModal() {
                 return;
             }
 
+            const clickedMenuItem = e.target.closest('#sidebar .menu-item');
+            if (clickedMenuItem && clickedMenuItem.dataset.id !== 'calendar' && clickedMenuItem.dataset.id !== 'tips') {
+                alert('🚧 준비중입니다!');
+                return;
+            }
             const pcListItem = e.target.closest('#sidebar .menu-item, .panel .list-item, .panel .list-item-card');
             if (pcListItem && !isMobile()) {
                 if (!pcListItem.closest('#list-filter-page')) {
