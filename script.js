@@ -155,13 +155,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    async function initialize() {
+    async function updateVisitorCount() {
+    const today = new Date().toISOString().split('T')[0];
+    const visitedKey = 'visited_' + today;
+    const totalRef = db.collection('siteStats').doc('visitors');
+    try {
+        await db.runTransaction(async (transaction) => {
+            const doc = await transaction.get(totalRef);
+            if (!doc.exists) {
+                transaction.set(totalRef, { total: 1, [today]: 1 });
+                localStorage.setItem(visitedKey, 'true');
+            } else {
+                const data = doc.data();
+                const updates = { total: (data.total || 0) + 1 };
+                if (!localStorage.getItem(visitedKey)) {
+                    updates[today] = (data[today] || 0) + 1;
+                    localStorage.setItem(visitedKey, 'true');
+                }
+                transaction.update(totalRef, updates);
+            }
+        });
+        const snap = await totalRef.get();
+        const data = snap.data();
+        document.getElementById('today-count').textContent = data[today] || 0;
+        document.getElementById('total-count').textContent = data.total || 0;
+    } catch(e) {
+        console.error('방문자 카운트 오류:', e);
+    }
+}
+
+async function initialize() {
         try {
             await fetchAllDataFromFirebase();
             setupSideMenuData();
             renderSidebar();
             setupAdObservers();
             addEventListeners();
+        updateVisitorCount();
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
             document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다.";
@@ -322,12 +352,6 @@ function setupMobileAds() {
             button.className = 'menu-item';
             button.dataset.level = 1;
             button.dataset.id = item.id;
-            if (item.id !== 'calendar') {
-                button.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    alert('🚧 준비중입니다!');
-                });
-            }
             let buttonHTML = item.name;
             let dataToCheck = [];
             if (item.id === 'notice' || item.id === 'tips') {
@@ -1529,12 +1553,8 @@ function openFilterModal() {
             }
 
             const gridMenuBtn = e.target.closest('.grid-menu-btn');
-if (gridMenuBtn) {
-    const menuId = gridMenuBtn.dataset.menuId;
-    if (menuId !== 'calendar') {
-        alert('🚧 준비중입니다!');
-        return;
-    }
+            if (gridMenuBtn) {
+                const menuId = gridMenuBtn.dataset.menuId;
                 const subMenuId = gridMenuBtn.dataset.itemId;
                 if (menuId === 'calendar') {
                     showDetailPage('calendar', 'calendar');
@@ -1544,11 +1564,6 @@ if (gridMenuBtn) {
                 return;
             }
 
-            const clickedMenuItem = e.target.closest('#sidebar .menu-item');
-            if (clickedMenuItem && clickedMenuItem.dataset.id !== 'calendar') {
-                alert('🚧 준비중입니다!');
-                return;
-            }
             const pcListItem = e.target.closest('#sidebar .menu-item, .panel .list-item, .panel .list-item-card');
             if (pcListItem && !isMobile()) {
                 if (!pcListItem.closest('#list-filter-page')) {
