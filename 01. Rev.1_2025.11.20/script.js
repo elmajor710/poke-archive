@@ -352,7 +352,7 @@ function setupMobileAds() {
             button.className = 'menu-item';
             button.dataset.level = 1;
             button.dataset.id = item.id;
-            if (item.id !== 'calendar') {
+            if (menuId !== 'calendar' && menuId !== 'tips') {
                 button.addEventListener('click', function(e) {
                     e.stopPropagation();
                     alert('🚧 준비중입니다!');
