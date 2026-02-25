@@ -118,13 +118,21 @@
         <h2>운영자 모드 (개발 예정)</h2>
     </div>
 
-    <!-- 모바일 최하단 블로그 광고 -->
+    <!-- 모바일 최하단 배너 (블로그/유튜브 랜덤) -->
     <div id="ad-container-bottom" class="ad-container mobile-only">
-    <ins class="adsbygoogle"
-         style="display:inline-block;width:320px;height:50px"
-         data-ad-client="ca-pub-2125965839205311"
-         data-ad-slot="8837584249"></ins>
-</div>
+        <a id="bottom-banner-link" href="#" target="_blank" style="display:block; width:100%;">
+            <img id="bottom-banner-img" src="" style="width:100%; height:80px; object-fit:cover; display:block;">
+        </a>
+    </div>
+    <script>
+        var banners = [
+            { img: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/blog.png', url: 'https://blog.naver.com/elmajor710' },
+            { img: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/cinema.png', url: 'https://www.youtube.com/@NilCinema' }
+        ];
+        var random = banners[Math.floor(Math.random() * banners.length)];
+        document.getElementById('bottom-banner-img').src = random.img;
+        document.getElementById('bottom-banner-link').href = random.url;
+    </script>
     
     
     <!-- Firebase SDK는 최신 버전을 사용합니다. -->
