@@ -121,13 +121,13 @@
     <!-- 모바일 최하단 배너 (블로그/유튜브 랜덤) -->
     <div id="ad-container-bottom" class="ad-container mobile-only">
         <a id="bottom-banner-link" href="#" target="_blank" style="display:block; width:100%;">
-            <img id="bottom-banner-img" src="" style="width:100%; height:80px; object-fit:cover; display:block;">
+            <img id="bottom-banner-img" src="" style="width:100%; height:50px; object-fit:cover; object-position:center; display:block;">
         </a>
     </div>
     <script>
         var banners = [
-            { img: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/blog.png', url: 'https://blog.naver.com/elmajor710' },
-            { img: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/cinema.png', url: 'https://www.youtube.com/@NilCinema' }
+            { img: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/blog_320x50.png', url: 'https://blog.naver.com/elmajor710' },
+            { img: 'https://raw.githubusercontent.com/elmajor710/poke-asserts/refs/heads/main/cinema_320x50.png', url: 'https://www.youtube.com/@NilCinema' }
         ];
         var random = banners[Math.floor(Math.random() * banners.length)];
         document.getElementById('bottom-banner-img').src = random.img;
