@@ -19,27 +19,54 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const logoutBtn = document.getElementById('logout-btn');
 
-    auth.onAuthStateChanged(user => {
-        if (user) {
+    let authRevision = 0;
+    let hadOwnerSession = false;
+    auth.onAuthStateChanged(async user => {
+        const revision = ++authRevision;
+        loginContainer.style.display = 'flex';
+        adminContainer.style.display = 'none';
+        if (!user) {
+            if (hadOwnerSession) window.location.reload();
+            return;
+        }
+        const status = document.getElementById('login-error-message');
+        status.textContent = '관리자 권한을 확인하고 있습니다…';
+        try {
+            await ArchiveAccess.requireOwner(db);
+            if (revision !== authRevision) return;
+            hadOwnerSession = true;
+            await initializeAdminPanel();
+            if (revision !== authRevision) return;
+            status.textContent = '';
             loginContainer.style.display = 'none';
             adminContainer.style.display = 'flex';
-            initializeAdminPanel();
-        } else {
-            loginContainer.style.display = 'flex';
-            adminContainer.style.display = 'none';
+        } catch (error) {
+            if (revision !== authRevision) return;
+            console.error('관리자 화면 접근 실패:', error);
+            status.textContent = error.code === 'permission-denied'
+                ? '관리자 계정으로만 이용할 수 있습니다.'
+                : '관리 화면을 불러오지 못했습니다. 잠시 후 다시 로그인해 주세요.';
+            if (!hadOwnerSession) await auth.signOut();
         }
     });
 
-    loginForm.addEventListener('submit', e => {
+    loginForm.addEventListener('submit', async e => {
         e.preventDefault();
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
         const errorMessage = document.getElementById('login-error-message');
         errorMessage.textContent = '';
-        auth.signInWithEmailAndPassword(email, password)
-            .catch(error => {
-                errorMessage.textContent = '이메일 또는 비밀번호가 잘못되었습니다.';
-            });
+        const submitButton = loginForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        try {
+            await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+            await auth.signInWithEmailAndPassword(email, password);
+            document.getElementById('login-password').value = '';
+        } catch (error) {
+            errorMessage.textContent = '로그인하지 못했습니다. 계정 정보와 인터넷 연결을 확인해 주세요.';
+        } finally {
+            submitButton.disabled = false;
+        }
     });
 
     logoutBtn.addEventListener('click', () => auth.signOut());
@@ -48,7 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     async function initializeAdminPanel() {
     if (isPanelInitialized) return;
-    isPanelInitialized = true;
 
     try {
         await initializeAdminData();
@@ -64,12 +90,13 @@ document.addEventListener('DOMContentLoaded', () => {
         setupDeckManagement();
 
         initializeEditor();
+        isPanelInitialized = true;
 
         console.log("관리자 패널이 모든 데이터를 준비하고 초기화되었습니다.");
     } catch (error) {
         console.error("관리자 패널 초기화 중 오류:", error);
         // 아래 팝업 메시지가 실제 오류 내용을 보여줄 겁니다.
-        alert("관리자 패널 초기화 중 오류 발생:\n\n" + error.message);
+        throw error;
     }
 }
 
@@ -121,6 +148,9 @@ document.addEventListener('DOMContentLoaded', () => {
             ...data,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
+
+        // Do not overwrite likes received since the editor loaded this deck.
+        if (collectionName === 'recommendedDecks') delete dataToSave.likeCount;
 
         if (!doc.exists) {
             dataToSave.createdAt = firebase.firestore.FieldValue.serverTimestamp();

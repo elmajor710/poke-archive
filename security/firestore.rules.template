@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner() {
+      return request.auth != null && request.auth.uid == '__OWNER_UID__';
+    }
+
+    function isContent(name) {
+      return name in ['pokemon', 'items', 'runeAndChips', 'notice', 'tips',
+        'events', 'recommendedDecks', 'announcements', 'v2_pokemon',
+        'v2_items', 'v2_runes', 'v2_chips', 'v2_notice', 'v2_tips',
+        'v2_events', 'v2_decks'];
+    }
+
+    // An explicit collection list avoids accidentally exposing future data.
+    match /{collection}/{document} {
+      allow read: if isContent(collection) &&
+        (isOwner() || resource.data.get('isPublished', false) == true);
+      allow write: if isContent(collection) && isOwner();
+    }
+
+    // This permission probe needs no actual document and exposes no owner ID.
+    match /_admin/access {
+      allow get: if isOwner();
+    }
+
+    match /siteStats/{document} {
+      allow read, write: if isOwner();
+    }
+
+    function deckPath(deckId) {
+      return /databases/$(database)/documents/recommendedDecks/$(deckId);
+    }
+
+    function votePath(deckId, uid) {
+      return /databases/$(database)/documents/deckLikes/$(deckId)/votes/$(uid);
+    }
+
+    // The count can change only with the same user's vote in one transaction.
+    match /recommendedDecks/{deckId} {
+      function validReaction() {
+        let vote = votePath(deckId, request.auth.uid);
+        let before = resource.data.get('likeCount', 0);
+        let after = request.resource.data.likeCount;
+        return resource.data.get('isPublished', false) == true &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount']) &&
+          before is int && after is int && after >= 0 &&
+          ((!exists(vote) && existsAfter(vote) && after == before + 1) ||
+           (exists(vote) && !existsAfter(vote) && after == before - 1));
+      }
+      allow update: if request.auth != null && validReaction();
+    }
+
+    match /deckLikes/{deckId}/votes/{uid} {
+      function ownPublishedVote() {
+        return request.auth != null && request.auth.uid == uid &&
+          get(deckPath(deckId)).data.get('isPublished', false) == true;
+      }
+      function countChangesBy(delta) {
+        let before = get(deckPath(deckId)).data.get('likeCount', 0);
+        let after = getAfter(deckPath(deckId)).data.likeCount;
+        return before is int && after is int && after >= 0 && after == before + delta;
+      }
+      allow get: if isOwner() || ownPublishedVote();
+      allow list: if isOwner();
+      allow create: if ownPublishedVote() &&
+        request.resource.data.keys().hasAll(['createdAt']) &&
+        request.resource.data.keys().hasOnly(['createdAt']) &&
+        request.resource.data.createdAt == request.time && countChangesBy(1);
+      allow delete: if ownPublishedVote() && countChangesBy(-1);
+    }
+  }
+}

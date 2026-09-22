@@ -12,13 +12,14 @@
     <meta property="og:url" content="https://pokedex.elmajor710.com">
     <link rel="icon" href="data:;base64,iVBORw0KGgo="> 
     <!-- CSS 파일 버전을 업데이트하여 브라우저 캐시 문제 방지 -->
-    <link rel="stylesheet" href="style.css?v=5.1">
+    <link rel="stylesheet" href="style.css?v=20260922">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2125965839205311" crossorigin="anonymous"></script>
 </head>
 <body>
     <header>
-        <button id="mobile-menu-btn" class="mobile-only"></button>
+        <button id="mobile-menu-btn" class="mobile-only" aria-label="메뉴 열기"></button>
         <h1>Nirvana's Poke-Archive</h1>
+        <a href="admin.html" class="owner-link">관리자</a>
     </header>
     
     
@@ -36,10 +37,6 @@
             </aside>
         <main id="content-area">
             <div id="main-placeholder">
-                <div class="visitor-counter">
-                    <span>👁 Today <strong id="today-count">-</strong></span>
-                    <span>📊 Total <strong id="total-count">-</strong></span>
-                </div>
                 <div class="mobile-grid-menu mobile-only">
                     <button class="grid-menu-btn" data-menu-id="notice">📢 공지사항</button>
                     <button class="grid-menu-btn" data-menu-id="deck" data-item-id="recommended">🔥 인기 덱</button>
@@ -114,9 +111,6 @@
     </div>
 </div>
     
-    <div id="admin-panel" style="display: none; padding: 20px;">
-        <h2>운영자 모드 (개발 예정)</h2>
-    </div>
 
     <!-- 모바일 최하단 배너 (블로그/유튜브 랜덤) -->
     <div id="ad-container-bottom" class="ad-container mobile-only">
@@ -135,9 +129,10 @@
     </script>
     
     
-    <!-- Firebase SDK는 최신 버전을 사용합니다. -->
+    <!-- Existing Firebase SDK: versions are pinned for compatibility. -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     
     <script>
       // Firebase 초기화
@@ -151,11 +146,16 @@
         };
       firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
+      // Separate anonymous reactions from the owner's administrator session.
+      const reactionApp = firebase.initializeApp(firebaseConfig, 'reactions');
+      window.reactionDb = reactionApp.firestore();
+      window.reactionAuth = reactionApp.auth();
     </script>
     
     <script src="data.js?v=5.0"></script> 
     <!-- JS 파일 버전을 업데이트하여 브라우저 캐시 문제 방지 -->
-    <script src="script.js?v=5.0"></script>
+    <script src="archive-access.js?v=20260922"></script>
+    <script src="script.js?v=20260922"></script>
 
 <!-- ... 기존 script 태그들 ... -->
     <!-- removed duplicate script include -->

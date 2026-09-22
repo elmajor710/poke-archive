@@ -9,31 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     // ▲▲▲ [추가] 여기까지 ▲▲▲
 
-    // ▼▼▼ [수정 1] '히스토리 방어막' 코드 추가 ▼▼▼
-    // 웹사이트가 처음 열렸을 때 방문 기록이 1개 뿐이라, 뒤로가기 시 종료되는 것을 막습니다.
-    // 일부러 가상의 방문 기록을 한 단계 추가하여 뒤로가기 버튼을 가로챌 수 있게 합니다.
-    history.pushState(null, '', window.location.href);
-    // ▲▲▲ [수정 1] 여기까지 ▲▲▲
-
-    window.addEventListener('popstate', function(event) {
-        var state = event.state;
-
-        // [핵심 수정] 만약 state가 없으면(null), 웹사이트를 나가기 직전 상태라는 의미입니다.
-        if (!state) {
-            // 이 때, history.forward()를 호출하여 강제로 다시 웹사이트 안으로 돌아오게 만듭니다.
-            history.forward();
-            return; // 그리고 아무 작업도 하지 않고 종료합니다.
-        }
-        
-        // state가 있는 정상적인 경우에는 기존 로직을 그대로 수행합니다.
-        if (state.page === 'main') {
-            handleMainButtonClick();
-        } else {
-            handleBackButton();
-        }
-    });
-
-    history.replaceState({ page: 'main' }, '');
+    // In-page back buttons handle panels; browser Back remains free to leave.
 
     function setupAdObservers() {
         var adContainers = document.querySelectorAll('.ad-container');
@@ -136,6 +112,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 handleMainButtonClick();
             } else {
                 lev4Panel.classList.remove('visible');
+                if (listPage.style.display === 'flex') listPage.classList.add('visible');
+                else if (lev3Panel.querySelector('.panel-content').children.length) lev3Panel.classList.add('visible');
+                else handleMainButtonClick();
             }
         } 
         else if (lev3Panel.classList.contains('visible')) {
@@ -143,8 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
             lev2Panel.classList.add('visible');
         } 
         else if (lev2Panel.classList.contains('visible')) {
-            lev2Panel.classList.remove('visible');
-            sidebar.classList.add('visible');
+            handleMainButtonClick();
         } 
         else if (sidebar.classList.contains('visible')) {
             sidebar.classList.remove('visible');
@@ -155,46 +133,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    async function updateVisitorCount() {
-    const today = new Date().toISOString().split('T')[0];
-    const visitedKey = 'visited_' + today;
-    const totalRef = db.collection('siteStats').doc('visitors');
-    try {
-        await db.runTransaction(async (transaction) => {
-            const doc = await transaction.get(totalRef);
-            if (!doc.exists) {
-                transaction.set(totalRef, { total: 1, [today]: 1 });
-                localStorage.setItem(visitedKey, 'true');
-            } else {
-                const data = doc.data();
-                const updates = { total: (data.total || 0) + 1 };
-                if (!localStorage.getItem(visitedKey)) {
-                    updates[today] = (data[today] || 0) + 1;
-                    localStorage.setItem(visitedKey, 'true');
-                }
-                transaction.update(totalRef, updates);
-            }
-        });
-        const snap = await totalRef.get();
-        const data = snap.data();
-        document.getElementById('today-count').textContent = data[today] || 0;
-        document.getElementById('total-count').textContent = data.total || 0;
-    } catch(e) {
-        console.error('방문자 카운트 오류:', e);
-    }
-}
-
 async function initialize() {
         try {
             await fetchAllDataFromFirebase();
             setupSideMenuData();
             renderSidebar();
+            renderMainNoticeList();
+            await fetchAndRenderPopularDecks();
             setupAdObservers();
             addEventListeners();
-        updateVisitorCount();
         } catch (error) {
             console.error("초기화 중 심각한 오류 발생:", error);
-            document.body.innerHTML = "초기화 중 심각한 오류가 발생했습니다.";
+            mainPlaceholder.replaceChildren();
+            const notice = document.createElement('p');
+            notice.setAttribute('role', 'alert');
+            notice.textContent = '자료를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
+            const retry = document.createElement('button');
+            retry.type = 'button';
+            retry.textContent = '다시 불러오기';
+            retry.addEventListener('click', () => window.location.reload());
+            mainPlaceholder.append(notice, retry);
         }
     }
     // 이하 코드는 원본과 동일합니다.
@@ -216,17 +174,13 @@ function setupMobileAds() {
         if (!popularDeckList) return;
         try {
             popularDeckList.innerHTML = '<li>데이터를 불러오는 중...</li>';
-            const snapshot = await db.collection('recommendedDecks')
-                .where("isPublished", "==", true)
-                .orderBy('likeCount', 'desc')
-                .limit(5)
-                .get();
-            if (snapshot.empty) {
+            const decks = Object.values(DB.deck.lev4)
+                .sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0)).slice(0, 5);
+            if (decks.length === 0) {
                 popularDeckList.innerHTML = '<li>아직 인기글이 없습니다.</li>';
                 return;
             }
-            const decksHTML = snapshot.docs.map(doc => {
-                const deck = { id: doc.id, ...doc.data() };
+            const decksHTML = decks.map(deck => {
                 return `<li><a href="#" data-menu-id="deck" data-item-id="${deck.id}">${deck.name}</a> ❤️ ${deck.likeCount || 0}</li>`;
             }).join('');
             popularDeckList.innerHTML = decksHTML;
@@ -399,46 +353,44 @@ function setupMobileAds() {
         }).join('');
     }
 
-    function getLikedDecks() {
-        return JSON.parse(localStorage.getItem('likedDecks')) || [];
+    function showReaction(button, liked, count) {
+        button.classList.toggle('liked', liked);
+        button.setAttribute('aria-pressed', String(liked));
+        button.setAttribute('aria-label', liked ? '좋아요 취소' : '좋아요');
+        button.querySelector('.heart-icon').textContent = liked ? '❤️' : '♡';
+        if (count !== undefined) button.querySelector('.like-count').textContent = count;
+    }
+
+    async function restoreReaction(button) {
+        try {
+            const liked = await ArchiveAccess.getReaction(reactionDb, reactionAuth, button.dataset.deckId);
+            if (button.isConnected) showReaction(button, liked);
+        } catch (error) {
+            console.warn('좋아요 상태 확인 실패:', error);
+        } finally {
+            button.disabled = false;
+        }
     }
 
     async function handleLikeClick(button) {
-        const deckId = button.dataset.deckId;
-        if (!deckId) return;
-        const likeCountSpan = button.querySelector('.like-count');
-        const heartIcon = button.querySelector('.heart-icon');
-        let currentLikes = parseInt(likeCountSpan.textContent);
-        let likedDecks = getLikedDecks();
-        const isLiked = likedDecks.includes(deckId);
-        if (isLiked) {
-            likedDecks = likedDecks.filter(id => id !== deckId);
-            button.classList.remove('liked');
-            heartIcon.textContent = '♡';
-            likeCountSpan.textContent = currentLikes - 1;
-        } else {
-            likedDecks.push(deckId);
-            button.classList.add('liked');
-            heartIcon.textContent = '❤️';
-            likeCountSpan.textContent = currentLikes + 1;
-        }
-        localStorage.setItem('likedDecks', JSON.stringify(likedDecks));
+        if (button.disabled) return;
+        button.disabled = true;
+        const status = button.closest('.like-container').querySelector('.reaction-status');
+        status.textContent = '';
         try {
-            await db.collection('recommendedDecks').doc(deckId).update({
-                likeCount: firebase.firestore.FieldValue.increment(isLiked ? -1 : 1)
-            });
-        } catch (error) {
-            console.error("좋아요 업데이트 실패:", error);
-            alert('일시적인 오류로 좋아요 처리에 실패했습니다.');
-            likeCountSpan.textContent = currentLikes;
-            if (isLiked) {
-                 button.classList.add('liked');
-                 heartIcon.textContent = '❤️';
-            } else {
-                 button.classList.remove('liked');
-                 heartIcon.textContent = '♡';
+            const result = await ArchiveAccess.setReaction(reactionDb, reactionAuth,
+                button.dataset.deckId, button.getAttribute('aria-pressed') !== 'true',
+                () => firebase.firestore.FieldValue.serverTimestamp());
+            if (DB.deck.lev4[button.dataset.deckId]) {
+                DB.deck.lev4[button.dataset.deckId].likeCount = result.count;
             }
-            localStorage.setItem('likedDecks', JSON.stringify(getLikedDecks().filter(id => id !== deckId)));
+            showReaction(button, result.liked, result.count);
+            fetchAndRenderPopularDecks();
+        } catch (error) {
+            console.error('좋아요 업데이트 실패:', error);
+            status.textContent = '좋아요를 저장하지 못했습니다. 잠시 후 다시 눌러주세요.';
+        } finally {
+            button.disabled = false;
         }
     }
 
@@ -486,6 +438,8 @@ function setupMobileAds() {
         // ▼▼▼ [추가] 다른 페이지 숨기는 코드 ▼▼▼
         // 메인 화면으로 돌아갈 때, 목록 페이지와 상세 페이지도 확실하게 숨깁니다.
         document.getElementById('list-filter-page').classList.remove('visible');
+        document.getElementById('list-filter-page').style.display = 'none';
+        if (mobileMenuBtn) mobileMenuBtn.style.removeProperty('display');
         document.getElementById('lev4-panel').classList.remove('visible');
         // ▲▲▲ [추가] 여기까지 ▲▲▲
     }
@@ -936,10 +890,13 @@ function setupMobileAds() {
     }
     
     function renderDeckView(contentDiv, data) {
+    data = { ...data, composition: Array.isArray(data.composition) ? data.composition : [] };
     const weatherToEmoji = { '매우맑음': '☀️', '맑음': '🌤️', '눈폭풍': '❄️', '비': '🌧️' };
-    const likedDecks = getLikedDecks();
-    const isLiked = likedDecks.includes(data.id);
-    const likeButtonHTML = `<div class="like-container"><button class="like-btn ${isLiked ? 'liked' : ''}" data-deck-id="${data.id}"><span class="heart-icon">${isLiked ? '❤️' : '♡'}</span><span class="like-count">${data.likeCount || 0}</span></button></div>`;
+    const likeButtonHTML = `<div class="like-container"><button type="button" class="like-btn" data-deck-id="${data.id}" aria-label="좋아요" aria-pressed="false" disabled><span class="heart-icon">♡</span><span class="like-count">${data.likeCount || 0}</span></button><span class="reaction-status" role="status" aria-live="polite"></span></div>`;
+    queueMicrotask(() => {
+        const button = contentDiv.querySelector('.like-btn');
+        if (button) restoreReaction(button);
+    });
 
     let html = `<div class="deck-detail-view"><div class="deck-header"><h2>${data.name}</h2>${likeButtonHTML}</div>`;
     if (data.description) { html += `<p class="deck-description">${data.description}</p>`; }
@@ -1276,6 +1233,9 @@ function setupMobileAds() {
     }
 
     function showListPage(menuId, subMenuId = null) {
+        sessionStorage.removeItem('returnToMain');
+        activeFilters = { grade: [], type: [] };
+        Object.values(panels).forEach(panel => panel.classList.remove('visible'));
         const mainPlaceholder = document.getElementById('main-placeholder');
         const listPage = document.getElementById('list-filter-page');
         const listPageTitle = document.getElementById('list-page-title');
@@ -1317,6 +1277,8 @@ function setupMobileAds() {
                 } else if (subMenuId === 'chip') {
                     dataList = Object.values(DB.runeAndChip.lev4).filter(d => d.type === 'chip');
                     title = '칩';
+                } else {
+                    dataList = Object.values(DB.runeAndChip.lev4);
                 }
                 break;
             case 'deck':
@@ -1336,7 +1298,10 @@ function setupMobileAds() {
         if (backToGridBtn) {
             const newBtn = backToGridBtn.cloneNode(true);
             backToGridBtn.parentNode.replaceChild(newBtn, backToGridBtn);
-            newBtn.addEventListener('click', hideListPage);
+            newBtn.addEventListener('click', event => {
+                event.stopPropagation();
+                hideListPage();
+            });
         }
 
         const cardLayoutMenus = ['pokemonType', 'pokemonGrade', 'item', 'runeAndChip'];
@@ -1487,16 +1452,19 @@ function openFilterModal() {
     }
 
     function showDetailPage(itemId, menuId) {
+        mainPlaceholder.style.display = 'none';
+        sidebar.classList.remove('visible');
         const listPage = document.getElementById('list-filter-page');
         const detailPanel = document.getElementById('lev4-panel');
         const contentDiv = detailPanel.querySelector('.panel-content');
-        const itemData = DB[menuId]?.lev4?.[itemId] || DB[menuId]?.lev3?.[itemId];
+        const itemData = menuId === 'pokemonGrade' ? DB.pokemonType.lev4[itemId]
+            : DB[menuId]?.lev4?.[itemId] || DB[menuId]?.lev3?.[itemId];
 
         contentDiv.innerHTML = '';
         if (menuId === 'calendar' && itemId === 'calendar') {
              renderCalendarView(contentDiv, DB.calendar.lev2);
         } else if (itemData) {
-            if (menuId === 'deck' && itemData.composition) renderDeckView(contentDiv, itemData);
+            if (menuId === 'deck') renderDeckView(contentDiv, itemData);
             else if (menuId === 'pokemonType' || menuId === 'pokemonGrade') renderPokemonView(contentDiv, itemData, menuId);
             else renderSimpleView(contentDiv, itemData, menuId);
         } else {
@@ -1512,7 +1480,8 @@ function openFilterModal() {
         backButton.innerHTML = '&lt; 뒤로';
         panelHeader.appendChild(backButton);
 
-        backButton.addEventListener('click', () => {
+        backButton.addEventListener('click', event => {
+            event.stopPropagation();
             if (sessionStorage.getItem('returnToMain')) {
                 handleMainButtonClick();
             } else {
@@ -1537,12 +1506,10 @@ function openFilterModal() {
         }
 
         document.body.addEventListener('click', (e) => {
-            // ▼▼▼ [수정] 모든 뒤로가기 버튼 로직 통일 ▼▼▼
-            // 클래스 이름에 'back-btn' 또는 'back-to-grid-btn'이 포함된 버튼을 누르면
-            // 종류와 상관없이 무조건 브라우저의 뒤로가기(history.back())를 실행합니다.
+            // Handle local panels without trapping native browser navigation.
             const backBtn = e.target.closest('.back-btn, .back-to-grid-btn');
             if (backBtn) {
-                history.back();
+                handleBackButton();
                 return; // 다른 로직이 실행되지 않도록 여기서 종료
             }
             // ▲▲▲ [수정] 여기까지 ▲▲▲
@@ -1556,10 +1523,6 @@ function openFilterModal() {
             if (gridMenuBtn) {
                 const menuId = gridMenuBtn.dataset.menuId;
                 const subMenuId = gridMenuBtn.dataset.itemId;
-                if (menuId !== 'calendar' && menuId !== 'tips') {
-                    alert('🚧 준비중입니다!');
-                    return;
-                }
                 if (menuId === 'calendar') {
                     showDetailPage('calendar', 'calendar');
                 } else {
@@ -1569,8 +1532,10 @@ function openFilterModal() {
             }
 
             const clickedMenuItem = e.target.closest('#sidebar .menu-item');
-            if (clickedMenuItem && clickedMenuItem.dataset.id !== 'calendar' && clickedMenuItem.dataset.id !== 'tips') {
-                alert('🚧 준비중입니다!');
+            if (clickedMenuItem && isMobile()) {
+                const menuId = clickedMenuItem.dataset.id;
+                if (menuId === 'calendar') showDetailPage('calendar', 'calendar');
+                else showListPage(menuId);
                 return;
             }
             const pcListItem = e.target.closest('#sidebar .menu-item, .panel .list-item, .panel .list-item-card');

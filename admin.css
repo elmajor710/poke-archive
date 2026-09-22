@@ -207,3 +207,6 @@ form input[readonly] { background-color: #eee; cursor: not-allowed; }
     padding: 8px;
 }
 /* ▲▲▲ [미션 1] 룬/칩 개수 입력 UI 스타일 추가 ▲▲▲ */
+.error-message { min-height: 20px; height: auto; }
+.login-box > p { text-align: center; font-size: 14px; }
+button:disabled { opacity: .55; cursor: wait; }
